@@ -93,6 +93,16 @@ public class SettingViewModel(
                     }
                 }
 
+                override fun onClickUploadQueueDebug() {
+                    viewModelScope.launch {
+                        backgroundEventSender.send {
+                            it.navigate(
+                                ScreenStructure.Root.Settings.UploadQueueDebug,
+                            )
+                        }
+                    }
+                }
+
                 override fun onClickGitHub() {
                     viewModelScope.launch {
                         backgroundEventSender.send {

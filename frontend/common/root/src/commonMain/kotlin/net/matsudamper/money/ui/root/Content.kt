@@ -213,6 +213,7 @@ public fun Content(
                 when (navController.currentBackstackEntry) {
                     is ScreenStructure.Login,
                     is ScreenStructure.Splash,
+                    is ScreenStructure.Admin,
                     -> Unit
                     else -> rootViewModel.navigateChanged()
                 }

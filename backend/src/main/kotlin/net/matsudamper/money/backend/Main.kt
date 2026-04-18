@@ -4,6 +4,7 @@ import java.io.File
 import kotlin.time.Duration.Companion.seconds
 import kotlinx.coroutines.withTimeout
 import kotlinx.serialization.json.Json
+import io.ktor.http.CacheControl
 import io.ktor.http.ContentType
 import io.ktor.http.HttpMethod
 import io.ktor.http.HttpStatusCode
@@ -18,12 +19,14 @@ import io.ktor.server.plugins.compression.Compression
 import io.ktor.server.plugins.conditionalheaders.ConditionalHeaders
 import io.ktor.server.plugins.contentnegotiation.ContentNegotiation
 import io.ktor.server.plugins.cors.routing.CORS
+import io.ktor.server.plugins.defaultheaders.DefaultHeaders
 import io.ktor.server.plugins.forwardedheaders.ForwardedHeaders
 import io.ktor.server.plugins.forwardedheaders.XForwardedHeaders
 import io.ktor.server.plugins.statuspages.StatusPages
 import io.ktor.server.request.httpMethod
 import io.ktor.server.request.path
 import io.ktor.server.request.receiveStream
+import io.ktor.server.response.cacheControl
 import io.ktor.server.response.respondFile
 import io.ktor.server.response.respondText
 import io.ktor.server.routing.accept
@@ -108,6 +111,11 @@ fun Application.myApplicationModule() {
             }
         }
     }
+    // OPFS（Origin Private File System）を Web Worker から使用するために必要なクロスオリジン分離ヘッダ
+    install(DefaultHeaders) {
+        header("Cross-Origin-Opener-Policy", "same-origin")
+        header("Cross-Origin-Embedder-Policy", "require-corp")
+    }
     install(StatusPages) {
         exception<Throwable> { call, cause ->
             TraceLogger.impl().noticeThrowable(cause, isError = true)
@@ -118,6 +126,7 @@ fun Application.myApplicationModule() {
         }
         status(HttpStatusCode.NotFound) { call, _ ->
             if (call.request.httpMethod == HttpMethod.Get) {
+                call.response.cacheControl(CacheControl.NoCache(null))
                 call.respondFile(File(ServerEnv.htmlPath))
             } else {
                 call.respondText(
@@ -209,6 +218,9 @@ fun Application.myApplicationModule() {
             remotePath = "/",
             dir = File(ServerEnv.frontPath),
         ) {
+            cacheControl { _ ->
+                listOf(CacheControl.NoCache(null))
+            }
             contentType { file ->
                 when (file.extension) {
                     "wasm" -> ContentType.Application.Wasm

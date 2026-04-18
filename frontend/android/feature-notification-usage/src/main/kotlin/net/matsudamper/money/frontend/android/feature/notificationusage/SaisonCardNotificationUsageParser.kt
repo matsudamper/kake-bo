@@ -1,8 +1,11 @@
 package net.matsudamper.money.frontend.android.feature.notificationusage
 
+import kotlin.time.Clock
 import kotlinx.datetime.LocalDate
 import kotlinx.datetime.LocalDateTime
 import kotlinx.datetime.LocalTime
+import kotlinx.datetime.TimeZone
+import kotlinx.datetime.toLocalDateTime
 import net.matsudamper.money.frontend.common.base.notification.NotificationUsageDraft
 import net.matsudamper.money.frontend.common.base.notification.NotificationUsageFilterDefinition
 import net.matsudamper.money.frontend.common.base.notification.NotificationUsageParser
@@ -19,10 +22,11 @@ internal class SaisonCardNotificationUsageParser : NotificationUsageParser {
         if (record.packageName != "jp.co.saisoncard.android.saisonportal") return null
 
         return NotificationUsageDraft(
-            title = parsePlace(record.text),
+            title = parsePlace(record.text).orEmpty(),
             description = record.text,
             amount = parseAmount(record.text),
-            dateTime = parseDateTime(record.text),
+            dateTime = parseDateTime(record.text)
+                ?: Clock.System.now().toLocalDateTime(TimeZone.currentSystemDefault()),
         )
     }
 

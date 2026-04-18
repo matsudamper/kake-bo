@@ -11,8 +11,8 @@ jackson = "2.21.2"
 compose = "1.10.3"
 protoBuf = "4.34.1"
 lifecycle = "2.10.0"
-jooq = "3.21.1"
-nav3 = "1.0.1"
+jooq = "3.21.2"
+nav3 = "1.1.0"
 jetbrainsNav3 = "1.0.0-alpha06"
 coil3 = "3.4.0"
 zoomable = "2.11.1"
@@ -22,6 +22,8 @@ opentelemetry = "1.61.0"
 paparazzi = "2.0.0-alpha04"
 composablePreviewScanner = "0.8.2"
 room = "2.8.4"
+room3 = "3.0.0-alpha03"
+sqlite = "2.7.0-alpha03"
 workmanager = "2.11.2"
 ksp = "2.3.6"
 
@@ -167,6 +169,10 @@ androidxDatastoreDatastore = { module = "androidx.datastore:datastore", version.
 roomRuntime = { module = "androidx.room:room-runtime", version.ref = "room" }
 roomKtx = { module = "androidx.room:room-ktx", version.ref = "room" }
 roomCompiler = { module = "androidx.room:room-compiler", version.ref = "room" }
+room3Runtime = { module = "androidx.room3:room3-runtime", version.ref = "room3" }
+room3Compiler = { module = "androidx.room3:room3-compiler", version.ref = "room3" }
+sqliteWeb = { module = "androidx.sqlite:sqlite-web", version.ref = "sqlite" }
+sqliteFramework = { module = "androidx.sqlite:sqlite-framework", version.ref = "sqlite" }
 
 # WorkManager
 workRuntimeKtx = { module = "androidx.work:work-runtime-ktx", version.ref = "workmanager" }

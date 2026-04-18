@@ -1,8 +1,8 @@
 package net.matsudamper.money.frontend.common.feature.uploader
 
 import android.content.Context
-import android.database.sqlite.SQLiteDatabase
-import android.database.sqlite.SQLiteOpenHelper
+import androidx.room3.Room
+import androidx.sqlite.driver.AndroidSQLiteDriver
 import androidx.work.ExistingWorkPolicy
 import androidx.work.OneTimeWorkRequestBuilder
 import androidx.work.WorkManager
@@ -16,45 +16,30 @@ import net.matsudamper.money.frontend.common.feature.localstore.DataStores
 import net.matsudamper.money.frontend.graphql.GraphqlClient
 import net.matsudamper.money.frontend.graphql.ServerHostConfig
 
-public class ImageUploadDatabase private constructor(context: Context) :
-    SQLiteOpenHelper(context, "image_upload_queue.db", null, 2) {
+public class ImageUploadDatabase private constructor(private val db: ImageUploadRoomDatabase) {
 
-    private val dao: ImageUploadDao by lazy { ImageUploadDaoImpl(this) }
+    private val dao: ImageUploadRoomDao get() = db.dao()
 
-    override fun onCreate(db: SQLiteDatabase) {
-        db.execSQL(
-            """
-            CREATE TABLE image_upload_queue (
-                id TEXT PRIMARY KEY,
-                moneyUsageId INTEGER NOT NULL,
-                status TEXT NOT NULL,
-                workManagerId TEXT,
-                errorMessage TEXT,
-                createdAt INTEGER NOT NULL
-            )
-            """.trimIndent(),
-        )
+    public fun createLocalStorage(context: Context): ImageUploadLocalStorage {
+        return ImageUploadLocalStorageAndroidImpl(context = context)
     }
 
-    override fun onUpgrade(db: SQLiteDatabase, oldVersion: Int, newVersion: Int) {
-        db.execSQL("DROP TABLE IF EXISTS image_upload_queue")
-        onCreate(db)
-    }
-
-    public fun createQueue(context: Context): ImageUploadQueue {
-        return ImageUploadQueueImpl(context = context, dao = dao)
+    public fun createQueue(context: Context, localStorage: ImageUploadLocalStorage): ImageUploadQueue {
+        return ImageUploadQueueImpl(context = context, dao = dao, localStorage = localStorage)
     }
 
     public fun createWorkerFactory(
         dataStores: DataStores,
         graphqlClient: GraphqlClient,
         serverHostConfig: ServerHostConfig,
+        localStorage: ImageUploadLocalStorage,
     ): WorkerFactory {
         return ImageUploadWorkerFactory(
             dao = dao,
             dataStores = dataStores,
             graphqlClient = graphqlClient,
             serverHostConfig = serverHostConfig,
+            localStorage = localStorage,
         )
     }
 
@@ -79,7 +64,15 @@ public class ImageUploadDatabase private constructor(context: Context) :
 
     public companion object {
         public fun create(context: Context): ImageUploadDatabase {
-            return ImageUploadDatabase(context)
+            val dbFile = context.getDatabasePath("image_upload_queue.db")
+            val db = Room.databaseBuilder<ImageUploadRoomDatabase>(
+                context = context,
+                name = dbFile.absolutePath,
+            )
+                .setDriver(AndroidSQLiteDriver())
+                .addMigrations(ImageUploadRoomDatabase.MIGRATION_1_2, ImageUploadRoomDatabase.MIGRATION_2_3, ImageUploadRoomDatabase.MIGRATION_3_4, ImageUploadRoomDatabase.MIGRATION_4_5)
+                .build()
+            return ImageUploadDatabase(db)
         }
     }
 }

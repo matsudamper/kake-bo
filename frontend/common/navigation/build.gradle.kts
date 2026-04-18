@@ -13,7 +13,6 @@ android {
 kotlin {
     js(IR) {
         browser()
-        binaries.executable()
     }
     jvm { }
     androidTarget()

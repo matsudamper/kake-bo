@@ -243,6 +243,14 @@ internal data class ViewModelEventHandlers(
                     override fun navigate(structure: ScreenStructure) {
                         navController.navigate(structure)
                     }
+
+                    override fun navigateBack() {
+                        if (navController.canGoBack) {
+                            navController.back()
+                        } else {
+                            navController.navigate(ScreenStructure.Root.Settings.MailCategoryFilters)
+                        }
+                    }
                 },
             )
         }

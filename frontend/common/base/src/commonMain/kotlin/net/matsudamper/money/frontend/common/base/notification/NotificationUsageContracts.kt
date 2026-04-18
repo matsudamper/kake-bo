@@ -2,7 +2,6 @@ package net.matsudamper.money.frontend.common.base.notification
 
 import kotlinx.datetime.LocalDateTime
 import net.matsudamper.money.element.MoneyUsageId
-import net.matsudamper.money.element.MoneyUsageSubCategoryId
 
 public data class NotificationUsageRecord(
     val notificationKey: String,
@@ -25,11 +24,10 @@ public data class NotificationUsageRecordInput(
 )
 
 public data class NotificationUsageDraft(
-    val title: String? = null,
-    val description: String? = null,
-    val amount: Int? = null,
-    val dateTime: LocalDateTime? = null,
-    val subCategoryId: MoneyUsageSubCategoryId? = null,
+    val title: String,
+    val description: String,
+    val amount: Int?,
+    val dateTime: LocalDateTime,
 )
 
 public data class NotificationUsageFilterDefinition(

@@ -8,6 +8,7 @@ import kotlinx.datetime.toLocalDateTime
 import io.kotest.core.spec.style.DescribeSpec
 import io.kotest.matchers.shouldBe
 import net.matsudamper.money.element.MoneyUsageId
+import net.matsudamper.money.element.MoneyUsageSubCategoryId
 import net.matsudamper.money.frontend.common.base.AppSettingsRepository
 import net.matsudamper.money.frontend.common.base.notification.NotificationUsageDraft
 import net.matsudamper.money.frontend.common.base.notification.NotificationUsageFilterDefinition
@@ -40,6 +41,7 @@ public class NotificationUsageAutoAddProcessorTest : DescribeSpec(
                         ),
                     ),
                     api = api,
+                    categoryFilterRepository = FakeNotificationUsageCategoryFilterRepository(null),
                 )
 
                 processor.process("key")
@@ -68,6 +70,7 @@ public class NotificationUsageAutoAddProcessorTest : DescribeSpec(
                         ),
                     ),
                     api = api,
+                    categoryFilterRepository = FakeNotificationUsageCategoryFilterRepository(null),
                 )
 
                 processor.process("key")
@@ -110,15 +113,79 @@ public class NotificationUsageAutoAddProcessorTest : DescribeSpec(
                         ),
                     ),
                     api = api,
+                    categoryFilterRepository = FakeNotificationUsageCategoryFilterRepository(null),
                 )
 
                 processor.process("key")
 
                 api.payloads.size.shouldBe(0)
             }
+
+            it("カテゴリフィルターがマッチした時は subCategoryId が設定される") {
+                val subCategoryId = MoneyUsageSubCategoryId(42)
+                val entity = NotificationUsageEntity(
+                    notificationKey = "key",
+                    packageName = "com.example",
+                    text = "body",
+                    postedAtEpochMillis = 1_000,
+                    receivedAtEpochMillis = 2_000,
+                    isAdded = false,
+                )
+                val dao = FakeNotificationUsageDao(listOf(entity))
+                val api = AutoAddFakeNotificationUsageAutoAddApi()
+                val processor = NotificationUsageAutoAddProcessor(
+                    dao = dao,
+                    parsers = listOf(AutoAddComExampleParser()),
+                    appSettingsRepository = AutoAddFakeAppSettingsRepository(
+                        autoAddEnabledByFilterId = mapOf("com.example" to true),
+                    ),
+                    api = api,
+                    categoryFilterRepository = FakeNotificationUsageCategoryFilterRepository(subCategoryId),
+                )
+
+                processor.process("key")
+
+                api.payloads.size.shouldBe(1)
+                api.payloads.single().subCategoryId.shouldBe(subCategoryId)
+            }
+
+            it("カテゴリフィルターがマッチしない時は subCategoryId が null になる") {
+                val entity = NotificationUsageEntity(
+                    notificationKey = "key",
+                    packageName = "com.example",
+                    text = "body",
+                    postedAtEpochMillis = 1_000,
+                    receivedAtEpochMillis = 2_000,
+                    isAdded = false,
+                )
+                val dao = FakeNotificationUsageDao(listOf(entity))
+                val api = AutoAddFakeNotificationUsageAutoAddApi()
+                val processor = NotificationUsageAutoAddProcessor(
+                    dao = dao,
+                    parsers = listOf(AutoAddComExampleParser()),
+                    appSettingsRepository = AutoAddFakeAppSettingsRepository(
+                        autoAddEnabledByFilterId = mapOf("com.example" to true),
+                    ),
+                    api = api,
+                    categoryFilterRepository = FakeNotificationUsageCategoryFilterRepository(null),
+                )
+
+                processor.process("key")
+
+                api.payloads.size.shouldBe(1)
+                api.payloads.single().subCategoryId.shouldBe(null)
+            }
         }
     },
 )
+
+private class FakeNotificationUsageCategoryFilterRepository(
+    private val result: MoneyUsageSubCategoryId?,
+) : NotificationUsageCategoryFilterRepository {
+    override suspend fun getMatchingSubCategoryId(title: String, serviceName: String): MoneyUsageSubCategoryId? {
+        return result
+    }
+}
 
 private class AutoAddFakeAppSettingsRepository(
     autoAddEnabledByFilterId: Map<String, Boolean>,
@@ -156,10 +223,13 @@ private class AutoAddComExampleParser : NotificationUsageParser {
     )
 
     override fun parse(record: NotificationUsageRecord): NotificationUsageDraft? {
-        return if (record.packageName == "com.example") {
-            NotificationUsageDraft()
-        } else {
-            null
-        }
+        if (record.packageName != "com.example") return null
+        return NotificationUsageDraft(
+            title = filterDefinition.title,
+            description = record.text,
+            amount = null,
+            dateTime = Instant.fromEpochMilliseconds(record.postedAtEpochMillis)
+                .toLocalDateTime(TimeZone.currentSystemDefault()),
+        )
     }
 }

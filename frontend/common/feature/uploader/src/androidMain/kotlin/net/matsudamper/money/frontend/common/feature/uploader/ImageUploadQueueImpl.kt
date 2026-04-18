@@ -6,28 +6,26 @@ import androidx.work.OneTimeWorkRequestBuilder
 import androidx.work.WorkManager
 import androidx.work.workDataOf
 import java.util.UUID
-import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.map
-import kotlinx.coroutines.withContext
 import net.matsudamper.money.element.MoneyUsageId
+import net.matsudamper.money.frontend.common.base.image.SelectedImage
 
 internal class ImageUploadQueueImpl(
     private val context: Context,
-    private val dao: ImageUploadDao,
+    private val dao: ImageUploadRoomDao,
+    private val localStorage: ImageUploadLocalStorage,
 ) : ImageUploadQueue {
 
     override fun observeItems(moneyUsageId: MoneyUsageId): Flow<List<ImageUploadQueue.QueueItem>> {
         return dao.observeByMoneyUsageId(moneyUsageId.id).map { entities ->
             entities.map { entity ->
-                val previewBytes = previewBytesFile(context, entity.id)
-                    .takeIf { it.exists() }
-                    ?.readBytes()
                 ImageUploadQueue.QueueItem(
                     id = entity.id,
-                    previewBytes = previewBytes,
+                    previewBytes = localStorage.readPreview(entity.id),
                     status = when (entity.status) {
                         STATUS_UPLOADING -> ImageUploadQueue.Status.Uploading
+                        STATUS_COMPLETED -> ImageUploadQueue.Status.Completed
                         STATUS_FAILED -> ImageUploadQueue.Status.Failed(entity.errorMessage)
                         else -> ImageUploadQueue.Status.Pending
                     },
@@ -38,23 +36,25 @@ internal class ImageUploadQueueImpl(
 
     override suspend fun enqueue(
         moneyUsageId: MoneyUsageId,
-        rawImageBytes: ByteArray,
-        previewBytes: ByteArray?,
+        selectedImage: SelectedImage,
     ) {
         val id = UUID.randomUUID().toString()
-        withContext(Dispatchers.IO) {
-            rawImageBytesFile(context, id).also { it.parentFile?.mkdirs() }.writeBytes(rawImageBytes)
-            if (previewBytes != null) {
-                previewBytesFile(context, id).also { it.parentFile?.mkdirs() }.writeBytes(previewBytes)
-            }
+        val imageBytes = selectedImage.bytes
+        if (imageBytes != null) {
+            localStorage.writeRawImage(id, imageBytes)
+            // previewはwritePreviewせず、readPreviewがrawImageへフォールバックする
         }
         dao.insert(
-            ImageUploadEntity(
+            ImageUploadRoomEntity(
                 id = id,
                 moneyUsageId = moneyUsageId.id,
                 status = STATUS_PENDING,
                 workManagerId = null,
                 errorMessage = null,
+                stackTrace = null,
+                contentType = selectedImage.contentType,
+                // bytesがnullの場合はURIからWorkerが直接読み込む
+                imageSourceUri = if (imageBytes == null) selectedImage.id else null,
                 createdAt = System.currentTimeMillis(),
             ),
         )
@@ -71,7 +71,7 @@ internal class ImageUploadQueueImpl(
 
     override suspend fun retry(itemId: String) {
         val entity = dao.getById(itemId) ?: return
-        dao.updateStatusWithError(itemId, STATUS_PENDING, null)
+        dao.updateStatusWithError(itemId, STATUS_PENDING, null, null)
         val request = OneTimeWorkRequestBuilder<ImageUploadWorker>()
             .setInputData(workDataOf(ImageUploadWorker.KEY_RECORD_ID to itemId))
             .build()
@@ -83,14 +83,32 @@ internal class ImageUploadQueueImpl(
         )
     }
 
+    override fun observeAllDebugItems(): Flow<List<ImageUploadQueue.DebugItem>> {
+        return dao.observeAll().map { entities ->
+            entities.map { entity ->
+                ImageUploadQueue.DebugItem(
+                    id = entity.id,
+                    moneyUsageId = entity.moneyUsageId,
+                    status = when (entity.status) {
+                        STATUS_UPLOADING -> ImageUploadQueue.Status.Uploading
+                        STATUS_COMPLETED -> ImageUploadQueue.Status.Completed
+                        STATUS_FAILED -> ImageUploadQueue.Status.Failed(entity.errorMessage)
+                        else -> ImageUploadQueue.Status.Pending
+                    },
+                    errorMessage = entity.errorMessage,
+                    stackTrace = entity.stackTrace,
+                    createdAt = entity.createdAt,
+                    workManagerId = entity.workManagerId,
+                )
+            }
+        }
+    }
+
     override suspend fun cancel(itemId: String) {
         val entity = dao.getById(itemId) ?: return
         val workManagerId = entity.workManagerId
         dao.deleteById(itemId)
-        withContext(Dispatchers.IO) {
-            rawImageBytesFile(context, itemId).delete()
-            previewBytesFile(context, itemId).delete()
-        }
+        localStorage.deleteImages(itemId)
         if (workManagerId != null) {
             WorkManager.getInstance(context).cancelWorkById(UUID.fromString(workManagerId))
         }
@@ -99,6 +117,7 @@ internal class ImageUploadQueueImpl(
     internal companion object {
         const val STATUS_PENDING = "PENDING"
         const val STATUS_UPLOADING = "UPLOADING"
+        const val STATUS_COMPLETED = "COMPLETED"
         const val STATUS_FAILED = "FAILED"
 
         fun uniqueWorkName(moneyUsageId: MoneyUsageId): String = "image_upload_${moneyUsageId.id}"

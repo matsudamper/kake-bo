@@ -79,6 +79,7 @@ class DbMailFilterRepository(
         sortType: MailFilterRepository.SortType,
         userId: UserId,
         cursor: MailFilterRepository.MailFilterCursor?,
+        size: Int,
     ): Result<MailFilterRepository.MailFiltersResult> {
         return dbConnection.use {
             runCatching {
@@ -123,6 +124,7 @@ class DbMailFilterRepository(
                         },
                         filters.CATEGORY_MAIL_FILTER_ID.asc(),
                     )
+                    .limit(size)
                     .fetch()
                     .map { mapResult(it) }
 

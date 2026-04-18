@@ -1,5 +1,7 @@
 package net.matsudamper.money.frontend.common.feature.uploader
 
+import androidx.room3.Room
+import androidx.sqlite.driver.web.WebWorkerSQLiteDriver
 import kotlin.uuid.ExperimentalUuidApi
 import kotlin.uuid.Uuid
 import kotlinx.coroutines.CoroutineScope
@@ -7,92 +9,118 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.SupervisorJob
 import kotlinx.coroutines.flow.Flow
-import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.map
-import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import com.apollographql.apollo.api.Optional
 import net.matsudamper.money.element.MoneyUsageId
 import net.matsudamper.money.frontend.common.base.ImageUploadClient
+import net.matsudamper.money.frontend.common.base.image.SelectedImage
 import net.matsudamper.money.frontend.graphql.GraphqlClient
 import net.matsudamper.money.frontend.graphql.MoneyUsageScreenQuery
 import net.matsudamper.money.frontend.graphql.MoneyUsageScreenUpdateUsageMutation
 import net.matsudamper.money.frontend.graphql.type.UpdateUsageQuery
+import org.w3c.dom.Worker
 
-public class ImageUploadQueueJsImpl(
+private const val STATUS_PENDING = "PENDING"
+private const val STATUS_UPLOADING = "UPLOADING"
+private const val STATUS_COMPLETED = "COMPLETED"
+private const val STATUS_FAILED = "FAILED"
+
+public class ImageUploadQueueJsImpl private constructor(
+    private val dao: ImageUploadRoomDao,
     private val graphqlClient: GraphqlClient,
     private val imageUploadClient: ImageUploadClient,
+    private val localStorage: ImageUploadLocalStorage,
 ) : ImageUploadQueue {
     private val scope = CoroutineScope(SupervisorJob() + Dispatchers.Default)
-    private val queueEntriesFlow = MutableStateFlow<List<QueueEntry>>(emptyList())
     private val activeJobs = mutableMapOf<Int, Job>()
     private val activeItemIds = mutableMapOf<Int, String>()
 
+    init {
+        scope.launch {
+            // 前回セッションでUPLOADING状態のままになっていたアイテムをPENDINGに戻す
+            dao.resetUploadingToPending()
+            val pendingIds = dao.getDistinctMoneyUsageIdsWithPendingItems()
+            pendingIds.forEach { moneyUsageId ->
+                triggerNext(MoneyUsageId(moneyUsageId))
+            }
+        }
+    }
+
     override fun observeItems(moneyUsageId: MoneyUsageId): Flow<List<ImageUploadQueue.QueueItem>> {
-        return queueEntriesFlow.map { entries ->
-            entries
-                .filter { it.moneyUsageId == moneyUsageId }
-                .map { entry ->
-                    ImageUploadQueue.QueueItem(
-                        id = entry.id,
-                        previewBytes = entry.previewBytes,
-                        status = entry.status,
-                    )
-                }
+        return dao.observeByMoneyUsageId(moneyUsageId.id).map { entities ->
+            entities.map { entity ->
+                ImageUploadQueue.QueueItem(
+                    id = entity.id,
+                    previewBytes = localStorage.readPreview(entity.id),
+                    status = when (entity.status) {
+                        STATUS_UPLOADING -> ImageUploadQueue.Status.Uploading
+                        STATUS_COMPLETED -> ImageUploadQueue.Status.Completed
+                        STATUS_FAILED -> ImageUploadQueue.Status.Failed(entity.errorMessage)
+                        else -> ImageUploadQueue.Status.Pending
+                    },
+                )
+            }
         }
     }
 
     @OptIn(ExperimentalUuidApi::class)
     override suspend fun enqueue(
         moneyUsageId: MoneyUsageId,
-        rawImageBytes: ByteArray,
-        previewBytes: ByteArray?,
+        selectedImage: SelectedImage,
     ) {
-        queueEntriesFlow.update { entries ->
-            entries + QueueEntry(
-                id = Uuid.random().toString(),
-                moneyUsageId = moneyUsageId,
-                rawImageBytes = rawImageBytes,
-                previewBytes = previewBytes,
-                status = ImageUploadQueue.Status.Pending,
-            )
+        val id = Uuid.random().toString()
+        val imageBytes = selectedImage.bytes
+        if (imageBytes != null) {
+            localStorage.writeRawImage(id, imageBytes)
+            localStorage.writePreview(id, imageBytes)
         }
+        dao.insert(
+            ImageUploadRoomEntity(
+                id = id,
+                moneyUsageId = moneyUsageId.id,
+                status = STATUS_PENDING,
+                imageSourceUri = null,
+                workManagerId = null,
+                errorMessage = null,
+                stackTrace = null,
+                contentType = selectedImage.contentType,
+                createdAt = js("Date.now()").unsafeCast<Double>().toLong(),
+            ),
+        )
         triggerNext(moneyUsageId)
     }
 
     override suspend fun retry(itemId: String) {
-        val entry = queueEntriesFlow.value.firstOrNull { it.id == itemId } ?: return
-        updateStatus(itemId, ImageUploadQueue.Status.Pending)
-        triggerNext(entry.moneyUsageId)
+        val entity = dao.getById(itemId) ?: return
+        dao.updateStatusWithError(itemId, STATUS_PENDING, null, null)
+        triggerNext(MoneyUsageId(entity.moneyUsageId))
     }
 
     override suspend fun cancel(itemId: String) {
-        val entry = queueEntriesFlow.value.firstOrNull { it.id == itemId } ?: return
-        val moneyUsageKey = entry.moneyUsageId.id
+        val entity = dao.getById(itemId) ?: return
+        val moneyUsageKey = entity.moneyUsageId
         if (activeItemIds[moneyUsageKey] == itemId) {
             activeJobs.remove(moneyUsageKey)?.cancel()
             activeItemIds.remove(moneyUsageKey)
         }
-        queueEntriesFlow.update { entries ->
-            entries.filterNot { it.id == itemId }
-        }
-        triggerNext(entry.moneyUsageId)
+        dao.deleteById(itemId)
+        localStorage.deleteImages(itemId)
+        triggerNext(MoneyUsageId(entity.moneyUsageId))
     }
 
     private fun triggerNext(moneyUsageId: MoneyUsageId) {
         val moneyUsageKey = moneyUsageId.id
         if (activeJobs[moneyUsageKey]?.isActive == true) return
 
-        val nextEntry = queueEntriesFlow.value.firstOrNull {
-            it.moneyUsageId == moneyUsageId && it.status is ImageUploadQueue.Status.Pending
-        } ?: run {
-            activeJobs.remove(moneyUsageKey)
-            activeItemIds.remove(moneyUsageKey)
-            return
-        }
-
-        activeItemIds[moneyUsageKey] = nextEntry.id
         activeJobs[moneyUsageKey] = scope.launch {
+            val nextEntry = dao.getOldestPendingByMoneyUsageId(moneyUsageId.id)
+            if (nextEntry == null) {
+                activeJobs.remove(moneyUsageKey)
+                activeItemIds.remove(moneyUsageKey)
+                return@launch
+            }
+            activeItemIds[moneyUsageKey] = nextEntry.id
             try {
                 processEntry(nextEntry.id)
             } finally {
@@ -104,73 +132,119 @@ public class ImageUploadQueueJsImpl(
     }
 
     private suspend fun processEntry(itemId: String) {
-        updateStatus(itemId, ImageUploadQueue.Status.Uploading)
-        val entry = queueEntriesFlow.value.firstOrNull { it.id == itemId } ?: return
-
-        val uploadResult = imageUploadClient.upload(
-            bytes = entry.rawImageBytes,
-            contentType = null,
-        )
-        if (uploadResult == null) {
-            updateStatus(itemId, ImageUploadQueue.Status.Failed("アップロードに失敗しました"))
+        dao.updateStatus(itemId, STATUS_UPLOADING)
+        val entity = dao.getById(itemId) ?: run {
+            dao.updateStatusWithError(itemId, STATUS_FAILED, "レコードが見つかりません", null)
+            return
+        }
+        val rawImageBytes = localStorage.readRawImage(itemId) ?: run {
+            dao.updateStatusWithError(itemId, STATUS_FAILED, "画像データが見つかりません", null)
             return
         }
 
-        val currentImageIds = runCatching {
+        val uploadedResult = runCatching {
+            imageUploadClient.upload(
+                bytes = rawImageBytes,
+                contentType = entity.contentType,
+            ) ?: throw IllegalStateException("upload returned null")
+        }
+        val uploaded = uploadedResult.getOrNull()
+        if (uploaded == null) {
+            dao.updateStatusWithError(
+                itemId,
+                STATUS_FAILED,
+                "アップロードに失敗しました",
+                uploadedResult.exceptionOrNull()?.stackTraceToString(),
+            )
+            return
+        }
+
+        val moneyUsageId = MoneyUsageId(entity.moneyUsageId)
+        val queryResult = runCatching {
             graphqlClient.apolloClient
-                .query(MoneyUsageScreenQuery(id = entry.moneyUsageId))
+                .query(MoneyUsageScreenQuery(id = moneyUsageId))
                 .execute()
+                .also { response ->
+                    if (response.hasErrors()) {
+                        throw IllegalStateException("GraphQL query errors: ${response.errors}")
+                    }
+                }
                 .data?.user?.moneyUsage?.moneyUsageScreenMoneyUsage?.images
                 ?.map { it.id }
-        }.getOrNull()
+        }
+        val currentImageIds = queryResult.getOrNull()
 
-        val updatedImageIds = ((currentImageIds ?: emptyList()) + uploadResult.imageId)
+        val updatedImageIds = ((currentImageIds ?: listOf()) + uploaded.imageId)
             .distinctBy { it.value }
 
-        val isSuccess = runCatching {
-            graphqlClient.apolloClient
+        val mutationResult = runCatching {
+            val response = graphqlClient.apolloClient
                 .mutation(
                     MoneyUsageScreenUpdateUsageMutation(
                         query = UpdateUsageQuery(
-                            id = entry.moneyUsageId,
+                            id = moneyUsageId,
                             imageIds = Optional.present(updatedImageIds),
                         ),
                     ),
                 )
                 .execute()
-                .data?.userMutation?.updateUsage != null
-        }.getOrDefault(false)
+            if (response.hasErrors()) {
+                throw IllegalStateException("GraphQL mutation errors: ${response.errors}")
+            }
+            response.data?.userMutation?.updateUsage != null
+        }
 
-        if (!isSuccess) {
-            updateStatus(itemId, ImageUploadQueue.Status.Failed("使用用途の更新に失敗しました"))
+        if (mutationResult.getOrDefault(false) == false) {
+            dao.updateStatusWithError(
+                itemId,
+                STATUS_FAILED,
+                "使用用途の更新に失敗しました",
+                mutationResult.exceptionOrNull()?.stackTraceToString(),
+            )
             return
         }
 
-        queueEntriesFlow.update { entries ->
-            entries.filterNot { it.id == itemId }
-        }
+        dao.updateStatus(itemId, STATUS_COMPLETED)
+        localStorage.deleteImages(itemId)
     }
 
-    private fun updateStatus(
-        itemId: String,
-        status: ImageUploadQueue.Status,
-    ) {
-        queueEntriesFlow.update { entries ->
-            entries.map { entry ->
-                if (entry.id == itemId) {
-                    entry.copy(status = status)
-                } else {
-                    entry
-                }
+    override fun observeAllDebugItems(): Flow<List<ImageUploadQueue.DebugItem>> {
+        return dao.observeAll().map { entities ->
+            entities.map { entity ->
+                ImageUploadQueue.DebugItem(
+                    id = entity.id,
+                    moneyUsageId = entity.moneyUsageId,
+                    status = when (entity.status) {
+                        STATUS_UPLOADING -> ImageUploadQueue.Status.Uploading
+                        STATUS_COMPLETED -> ImageUploadQueue.Status.Completed
+                        STATUS_FAILED -> ImageUploadQueue.Status.Failed(entity.errorMessage)
+                        else -> ImageUploadQueue.Status.Pending
+                    },
+                    errorMessage = entity.errorMessage,
+                    stackTrace = entity.stackTrace,
+                    createdAt = entity.createdAt,
+                    workManagerId = entity.workManagerId,
+                )
             }
         }
     }
 
-    private data class QueueEntry(
-        val id: String,
-        val moneyUsageId: MoneyUsageId,
-        val rawImageBytes: ByteArray,
-        val previewBytes: ByteArray?,
-        val status: ImageUploadQueue.Status,
-    )
+    public companion object {
+        public fun create(
+            graphqlClient: GraphqlClient,
+            imageUploadClient: ImageUploadClient,
+        ): ImageUploadQueueJsImpl {
+            val worker = Worker(js("""new URL("@androidx/sqlite-web-worker/worker.js", import.meta.url)"""))
+            val db = Room.inMemoryDatabaseBuilder<ImageUploadRoomDatabase>()
+                .setDriver(WebWorkerSQLiteDriver(worker))
+                .setQueryCoroutineContext(Dispatchers.Default)
+                .build()
+            return ImageUploadQueueJsImpl(
+                dao = db.dao(),
+                graphqlClient = graphqlClient,
+                imageUploadClient = imageUploadClient,
+                localStorage = ImageUploadLocalStorageJsImpl(),
+            )
+        }
+    }
 }

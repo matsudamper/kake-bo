@@ -9,7 +9,7 @@ plugins {
 kotlin {
     js(IR) {
         browser()
-        binaries.executable()
+
     }
     jvm {}
     sourceSets {

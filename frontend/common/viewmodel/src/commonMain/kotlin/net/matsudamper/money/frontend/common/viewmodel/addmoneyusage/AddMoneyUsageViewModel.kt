@@ -18,6 +18,7 @@ import net.matsudamper.money.element.ImageId
 import net.matsudamper.money.element.ImportedMailId
 import net.matsudamper.money.element.MoneyUsageSubCategoryId
 import net.matsudamper.money.frontend.common.base.ImmutableList.Companion.toImmutableList
+import net.matsudamper.money.frontend.common.base.image.SelectedImage
 import net.matsudamper.money.frontend.common.base.immutableListOf
 import net.matsudamper.money.frontend.common.base.nav.ScopedObjectFeature
 import net.matsudamper.money.frontend.common.base.nav.user.ScreenStructure
@@ -26,7 +27,6 @@ import net.matsudamper.money.frontend.common.base.runCatchingWithoutCancel
 import net.matsudamper.money.frontend.common.ui.base.CategorySelectDialogUiState
 import net.matsudamper.money.frontend.common.ui.layout.NumberInputValue
 import net.matsudamper.money.frontend.common.ui.layout.SnackbarEventState
-import net.matsudamper.money.frontend.common.ui.layout.image.SelectedImage
 import net.matsudamper.money.frontend.common.ui.screen.addmoneyusage.AddMoneyUsageScreenUiState
 import net.matsudamper.money.frontend.common.ui.screen.addmoneyusage.ImageItem
 import net.matsudamper.money.frontend.common.viewmodel.CommonViewModel
@@ -217,10 +217,10 @@ public class AddMoneyUsageViewModel(
 
                 try {
                     images.forEach { image ->
-                        val selectedImageData = image.await() ?: return@forEach
+                        val imageBytes = image.bytes ?: return@forEach
                         val uploadResult = graphqlApi.uploadImage(
-                            bytes = selectedImageData.bytes,
-                            contentType = selectedImageData.contentType,
+                            bytes = imageBytes,
+                            contentType = image.contentType,
                         )
 
                         if (uploadResult != null) {

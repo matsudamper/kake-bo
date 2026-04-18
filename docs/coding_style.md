@@ -101,3 +101,7 @@ Suppressの変わりにOptInを使用する
 
 変数/関数の順番に並べてください。
 public/internal/privateの順番に並べてください。
+
+## その他
+
+- 拡張関数を使用しない

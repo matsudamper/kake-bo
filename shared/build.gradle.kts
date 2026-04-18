@@ -18,5 +18,15 @@ kotlin {
                 implementation(libs.kotlin.serialization.json)
             }
         }
+        val jvmTest by getting {
+            dependencies {
+                implementation(kotlin("test"))
+                implementation(libs.kotestRunnerJunit5)
+            }
+        }
     }
+}
+
+tasks.withType<Test>().configureEach {
+    useJUnitPlatform()
 }

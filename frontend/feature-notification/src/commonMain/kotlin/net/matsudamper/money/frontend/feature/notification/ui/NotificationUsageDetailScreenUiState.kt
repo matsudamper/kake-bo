@@ -15,7 +15,6 @@ public data class NotificationUsageDetailScreenUiState(
             val notification: Notification,
             val filter: Filter,
             val draft: Draft?,
-            val canRegister: Boolean,
             val linkedUsage: LinkedUsageState,
             val metadataDialog: MetadataDialog?,
             val event: LoadedEvent,

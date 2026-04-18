@@ -264,6 +264,8 @@ type ImportedMailCategoryFiltersConnection {
 }
 
 input ImportedMailCategoryFiltersQuery {
+  size: Int!
+
   isAsc: Boolean!
 
   cursor: String
