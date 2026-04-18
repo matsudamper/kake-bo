@@ -171,16 +171,14 @@ private fun LoadedContent(
                         modifier = Modifier.fillMaxWidth(),
                         uiState = uiState.draft,
                     )
-                    if (uiState.canRegister) {
-                        Spacer(modifier = Modifier.height(8.dp))
-                        Row {
-                            Spacer(modifier = Modifier.weight(1f))
-                            OutlinedButton(
-                                onClick = { uiState.event.onClickRegister() },
-                            ) {
-                                Icon(Icons.Default.Add, contentDescription = null)
-                                Text("登録")
-                            }
+                    Spacer(modifier = Modifier.height(8.dp))
+                    Row {
+                        Spacer(modifier = Modifier.weight(1f))
+                        OutlinedButton(
+                            onClick = { uiState.event.onClickRegister() },
+                        ) {
+                            Icon(Icons.Default.Add, contentDescription = null)
+                            Text("登録")
                         }
                     }
                     Spacer(modifier = Modifier.height(24.dp))

@@ -5,6 +5,7 @@ import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.getAndUpdate
 import kotlinx.coroutines.flow.update
 import net.matsudamper.money.element.MoneyUsageId
+import net.matsudamper.money.element.MoneyUsageSubCategoryId
 import net.matsudamper.money.frontend.common.base.AppSettingsRepository
 import net.matsudamper.money.frontend.common.base.notification.NotificationUsageDraft
 import net.matsudamper.money.frontend.common.base.notification.NotificationUsageParser
@@ -15,6 +16,7 @@ internal class NotificationUsageAutoAddProcessor(
     private val parsers: List<NotificationUsageParser>,
     private val appSettingsRepository: AppSettingsRepository,
     private val api: NotificationUsageAutoAddApi,
+    private val categoryFilterRepository: NotificationUsageCategoryFilterRepository,
 ) {
     private val inFlightKeys = MutableStateFlow<Set<String>>(emptySet())
 
@@ -33,8 +35,13 @@ internal class NotificationUsageAutoAddProcessor(
                 }
                 parser to draft
             } ?: return
+            val parser = parserAndDraft.first
             val draft = parserAndDraft.second
-            val moneyUsageId = api.addUsage(draftToPayload(draft))
+            val subCategoryId = categoryFilterRepository.getMatchingSubCategoryId(
+                title = draft.title,
+                serviceName = parser.filterDefinition.title,
+            )
+            val moneyUsageId = api.addUsage(draftToPayload(draft, subCategoryId))
             if (moneyUsageId != null) {
                 dao.markAsAdded(notificationKey, moneyUsageId.id)
             }
@@ -64,13 +71,16 @@ internal class NotificationUsageAutoAddProcessor(
         )
     }
 
-    private fun draftToPayload(draft: NotificationUsageDraft): NotificationUsageAutoAddPayload {
+    private fun draftToPayload(
+        draft: NotificationUsageDraft,
+        subCategoryId: MoneyUsageSubCategoryId?,
+    ): NotificationUsageAutoAddPayload {
         return NotificationUsageAutoAddPayload(
             title = draft.title,
             description = draft.description,
             amount = draft.amount ?: 0,
             dateTime = draft.dateTime,
-            subCategoryId = null,
+            subCategoryId = subCategoryId,
         )
     }
 }
