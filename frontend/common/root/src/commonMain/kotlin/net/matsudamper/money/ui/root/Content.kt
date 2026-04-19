@@ -2,7 +2,6 @@ package net.matsudamper.money.ui.root
 
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.BasicAlertDialog
 import androidx.compose.material3.ExperimentalMaterial3Api
@@ -227,18 +226,6 @@ public fun Content(
                     .onSizeChanged {
                         composeSizeProvider().value = it
                     },
-                snackbarHost = {
-                    Box(
-                        modifier = Modifier
-                            .fillMaxWidth()
-                            .padding(bottom = snackbarBottomPadding.value),
-                    ) {
-                        MySnackBarHost(
-                            modifier = Modifier.align(Alignment.CenterEnd),
-                            hostState = hostState,
-                        )
-                    }
-                },
             ) { paddingValues ->
                 val paddingValues = rememberUpdatedState(paddingValues)
                 Box(
@@ -406,6 +393,15 @@ public fun Content(
                                     }
                                 },
                             ),
+                        )
+                    }
+                    Box(
+                        modifier = Modifier
+                            .align(Alignment.BottomEnd)
+                            .padding(bottom = snackbarBottomPadding.value),
+                    ) {
+                        MySnackBarHost(
+                            hostState = hostState,
                         )
                     }
                 }
