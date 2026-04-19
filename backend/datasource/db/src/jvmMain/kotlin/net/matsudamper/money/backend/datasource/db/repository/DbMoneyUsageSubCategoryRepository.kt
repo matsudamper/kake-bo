@@ -4,7 +4,7 @@ import net.matsudamper.money.backend.app.interfaces.MoneyUsageSubCategoryReposit
 import net.matsudamper.money.backend.datasource.db.DbConnectionImpl
 import net.matsudamper.money.db.schema.tables.JMoneyUsageCategories
 import net.matsudamper.money.db.schema.tables.JMoneyUsageSubCategories
-import net.matsudamper.money.db.schema.tables.records.JMoneyUsageCategoriesRecord
+import net.matsudamper.money.db.schema.tables.records.JMoneyUsageSubCategoriesRecord
 import net.matsudamper.money.element.MoneyUsageCategoryId
 import net.matsudamper.money.element.MoneyUsageSubCategoryId
 import net.matsudamper.money.element.UserId
@@ -44,7 +44,7 @@ class DbMoneyUsageSubCategoryRepository : MoneyUsageSubCategoryRepository {
                 val record = DSL.using(connection)
                     .insertInto(subCategories)
                     .set(
-                        JMoneyUsageCategoriesRecord(
+                        JMoneyUsageSubCategoriesRecord(
                             userId = userId.value,
                             name = name,
                             moneyUsageCategoryId = categoryId.value,
