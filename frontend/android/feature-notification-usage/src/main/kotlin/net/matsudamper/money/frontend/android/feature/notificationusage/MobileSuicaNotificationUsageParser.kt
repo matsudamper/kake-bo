@@ -21,10 +21,13 @@ internal class MobileSuicaNotificationUsageParser : NotificationUsageParser {
         val title = line.getOrNull(0) ?: return null
         if (title != "モバイルSuica") return null
 
+        // 支払いなし・チャージなど有効な支払い金額がない場合は対象外
+        val amount = parseAmount(record.text) ?: return null
+
         return NotificationUsageDraft(
             title = filterDefinition.title,
             description = record.text,
-            amount = parseAmount(record.text),
+            amount = amount,
             dateTime = Instant.fromEpochMilliseconds(record.postedAtEpochMillis)
                 .toLocalDateTime(TimeZone.currentSystemDefault()),
         )
@@ -32,6 +35,7 @@ internal class MobileSuicaNotificationUsageParser : NotificationUsageParser {
 
     private fun parseAmount(text: String): Int? {
         // "-555円" や "-1,234円" のような利用金額を抽出する
+        // チャージ（プラスの値）や支払いなしの場合はマッチしない
         val match = Regex("-([0-9,]+)円").find(text) ?: return null
         return match.groupValues[1].replace(",", "").toIntOrNull()
     }
