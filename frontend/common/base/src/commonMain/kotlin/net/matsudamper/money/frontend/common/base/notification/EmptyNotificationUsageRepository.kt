@@ -20,4 +20,6 @@ public object EmptyNotificationUsageRepository : NotificationUsageRepository {
     }
 
     override suspend fun markNotificationAsAdded(notificationKey: String, moneyUsageId: MoneyUsageId?): Unit = Unit
+
+    override suspend fun deleteNotification(notificationKey: String): Unit = Unit
 }
