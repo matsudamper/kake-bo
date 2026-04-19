@@ -264,7 +264,7 @@ type ImportedMailCategoryFiltersConnection {
 }
 
 input ImportedMailCategoryFiltersQuery {
-  size: Int!
+  size: Int
 
   isAsc: Boolean!
 
@@ -777,6 +777,8 @@ type UserMutation {
   updateSubCategory(id: MoneyUsageSubCategoryId!, query: UpdateSubCategoryQuery!): MoneyUsageSubCategory!
 
   deleteSubCategory(id: MoneyUsageSubCategoryId!): Boolean!
+
+  deleteCategory(id: MoneyUsageCategoryId!): Boolean!
 
   addImportedMailCategoryFilter(input: AddImportedMailCategoryFilterInput!): ImportedMailCategoryFilter
 

@@ -161,12 +161,66 @@ public class SettingCategoryViewModel(
                         }
                     }
                 }
+
+                override fun onClickDeleteCategory() {
+                    val state = viewModelStateFlow.value
+                    val description = if (state.hasMoreSubCategories) {
+                        val loadedCount = state.responseList.flatMap { it.nodes }.size
+                        "${loadedCount}件以上のサブカテゴリーが紐づいています"
+                    } else {
+                        val subCategoryCount = state.responseList
+                            .flatMap { it.nodes }
+                            .filterNot { it.id in state.deletedSubCategoryIds }
+                            .size
+                        if (subCategoryCount > 0) "${subCategoryCount}件のサブカテゴリーが紐づいています" else null
+                    }
+                    viewModelStateFlow.update {
+                        it.copy(
+                            confirmDialog = object : SettingCategoryScreenUiState.ConfirmDialog {
+                                override val title = "このカテゴリを削除しますか"
+                                override val description = description
+
+                                override fun onConfirm() {
+                                    viewModelScope.launch {
+                                        val isSuccess = api.deleteCategory(id = categoryId)
+                                        viewModelStateFlow.update { state ->
+                                            state.copy(confirmDialog = null)
+                                        }
+                                        if (isSuccess) {
+                                            launch {
+                                                globalEventSender.send {
+                                                    it.showSnackBar("削除しました")
+                                                }
+                                                viewModelEventSender.send {
+                                                    it.navigateToCategories()
+                                                }
+                                            }
+                                        } else {
+                                            launch {
+                                                globalEventSender.send {
+                                                    it.showNativeNotification("削除に失敗しました")
+                                                }
+                                            }
+                                        }
+                                    }
+                                }
+
+                                override fun onDismiss() {
+                                    viewModelStateFlow.update { state ->
+                                        state.copy(confirmDialog = null)
+                                    }
+                                }
+                            },
+                        )
+                    }
+                }
             },
             loadingState = SettingCategoryScreenUiState.LoadingState.Loading,
             showCategoryNameInput = false,
             showCategoryNameChangeDialog = null,
             showSubCategoryNameChangeDialog = null,
             showColorPickerDialog = false,
+            confirmDialog = null,
             categoryName = "",
             categoryColor = null,
             kakeboScaffoldListener = object : KakeboScaffoldListener {
@@ -199,6 +253,7 @@ public class SettingCategoryViewModel(
                         showCategoryNameChangeDialog = viewModelState.showCategoryNameChangeInput,
                         showSubCategoryNameChangeDialog = viewModelState.showSubCategoryNameChangeInput,
                         showColorPickerDialog = viewModelState.showColorPickerDialog,
+                        confirmDialog = viewModelState.confirmDialog,
                         categoryName = viewModelState.categoryInfo?.name.orEmpty(),
                         categoryColor = viewModelState.categoryInfo?.color?.let(ColorUtil::parseHexColor),
                     )
@@ -376,6 +431,7 @@ public class SettingCategoryViewModel(
                     isFirstLoading = false,
                     responseList = listOf(data),
                     deletedSubCategoryIds = listOf(),
+                    hasMoreSubCategories = data.cursor != null,
                 )
             }
         }
@@ -384,13 +440,17 @@ public class SettingCategoryViewModel(
     private data class ViewModelState(
         val isFirstLoading: Boolean,
         val responseList: List<CategorySettingScreenSubCategoriesPagingQuery.SubCategories>,
+        val hasMoreSubCategories: Boolean = false,
         val categoryInfo: CategorySettingScreenQuery.MoneyUsageCategory? = null,
         val showAddSubCategoryNameInput: Boolean = false,
         val showCategoryNameChangeInput: SettingCategoryScreenUiState.FullScreenInputDialog? = null,
         val showSubCategoryNameChangeInput: SettingCategoryScreenUiState.FullScreenInputDialog? = null,
         val showColorPickerDialog: Boolean = false,
         val deletedSubCategoryIds: List<MoneyUsageSubCategoryId> = listOf(),
+        val confirmDialog: SettingCategoryScreenUiState.ConfirmDialog? = null,
     )
 
-    public interface Event
+    public interface Event {
+        public fun navigateToCategories()
+    }
 }
