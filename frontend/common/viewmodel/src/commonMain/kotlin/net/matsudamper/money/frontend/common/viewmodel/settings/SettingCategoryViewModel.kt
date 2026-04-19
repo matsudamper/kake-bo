@@ -163,14 +163,15 @@ public class SettingCategoryViewModel(
                 }
 
                 override fun onClickDeleteCategory() {
-                    val subCategoryCount = viewModelStateFlow.value.responseList
-                        .flatMap { it.nodes }
-                        .filterNot { it.id in viewModelStateFlow.value.deletedSubCategoryIds }
-                        .size
-                    val description = if (subCategoryCount > 0) {
-                        "${subCategoryCount}件のサブカテゴリーが紐づいています"
+                    val state = viewModelStateFlow.value
+                    val description = if (state.hasMoreSubCategories) {
+                        "100件以上のサブカテゴリーが紐づいています"
                     } else {
-                        null
+                        val subCategoryCount = state.responseList
+                            .flatMap { it.nodes }
+                            .filterNot { it.id in state.deletedSubCategoryIds }
+                            .size
+                        if (subCategoryCount > 0) "${subCategoryCount}件のサブカテゴリーが紐づいています" else null
                     }
                     viewModelStateFlow.update {
                         it.copy(
@@ -429,6 +430,7 @@ public class SettingCategoryViewModel(
                     isFirstLoading = false,
                     responseList = listOf(data),
                     deletedSubCategoryIds = listOf(),
+                    hasMoreSubCategories = data.cursor != null,
                 )
             }
         }
@@ -437,6 +439,7 @@ public class SettingCategoryViewModel(
     private data class ViewModelState(
         val isFirstLoading: Boolean,
         val responseList: List<CategorySettingScreenSubCategoriesPagingQuery.SubCategories>,
+        val hasMoreSubCategories: Boolean = false,
         val categoryInfo: CategorySettingScreenQuery.MoneyUsageCategory? = null,
         val showAddSubCategoryNameInput: Boolean = false,
         val showCategoryNameChangeInput: SettingCategoryScreenUiState.FullScreenInputDialog? = null,
