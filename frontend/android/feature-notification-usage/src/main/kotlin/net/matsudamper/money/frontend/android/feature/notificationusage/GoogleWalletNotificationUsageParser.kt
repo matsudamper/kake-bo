@@ -1,6 +1,6 @@
 package net.matsudamper.money.frontend.android.feature.notificationusage
 
-import kotlin.time.Clock
+import kotlinx.datetime.Instant
 import kotlinx.datetime.TimeZone
 import kotlinx.datetime.toLocalDateTime
 import net.matsudamper.money.frontend.common.base.notification.NotificationUsageDraft
@@ -26,7 +26,7 @@ internal class GoogleWalletNotificationUsageParser : NotificationUsageParser {
             title = title,
             description = record.text,
             amount = parseAmount(secondLine),
-            dateTime = Clock.System.now().toLocalDateTime(TimeZone.currentSystemDefault()),
+            dateTime = Instant.fromEpochMilliseconds(record.postedAtEpochMillis).toLocalDateTime(TimeZone.currentSystemDefault()),
         )
     }
 
