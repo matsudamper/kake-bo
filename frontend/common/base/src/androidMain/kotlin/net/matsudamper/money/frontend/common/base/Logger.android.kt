@@ -1,25 +1,41 @@
 package net.matsudamper.money.frontend.common.base
 
-import timber.log.Timber
+import android.util.Log
 
-public actual val Logger: ILogger = object : ILogger {
+private var loggerDelegate: ILogger? = null
+
+public fun setAndroidLoggerDelegate(logger: ILogger) {
+    loggerDelegate = logger
+}
+
+private val defaultAndroidLogger: ILogger = object : ILogger {
     override fun d(tag: String, message: String) {
-        Timber.tag(tag).d(message)
+        Log.d(tag, message)
     }
 
     override fun e(tag: String, message: String) {
-        Timber.tag(tag).e(message)
+        Log.e(tag, message)
     }
 
     override fun e(tag: String, throwable: Throwable) {
-        Timber.tag(tag).e(throwable)
+        Log.e(tag, throwable.message, throwable)
     }
 
     override fun w(tag: String, message: String) {
-        Timber.tag(tag).w(message)
+        Log.w(tag, message)
     }
 
     override fun i(tag: String, message: String) {
-        Timber.tag(tag).i(message)
+        Log.i(tag, message)
     }
+}
+
+public actual val Logger: ILogger = object : ILogger {
+    private fun impl(): ILogger = loggerDelegate ?: defaultAndroidLogger
+
+    override fun d(tag: String, message: String) = impl().d(tag, message)
+    override fun e(tag: String, message: String) = impl().e(tag, message)
+    override fun e(tag: String, throwable: Throwable) = impl().e(tag, throwable)
+    override fun w(tag: String, message: String) = impl().w(tag, message)
+    override fun i(tag: String, message: String) = impl().i(tag, message)
 }

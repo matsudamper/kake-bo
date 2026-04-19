@@ -8,14 +8,14 @@ import net.matsudamper.money.frontend.android.feature.notificationusage.Notifica
 import net.matsudamper.money.frontend.common.di.AndroidModule
 import net.matsudamper.money.frontend.common.di.DefaultModule
 import net.matsudamper.money.frontend.common.feature.localstore.DataStores
+import net.matsudamper.money.frontend.common.feature.logging.initializeLogging
 import net.matsudamper.money.frontend.common.feature.uploader.ImageUploadDatabase
 import org.koin.core.context.startKoin
-import timber.log.Timber
 
 class Application : Application() {
     override fun onCreate() {
         super.onCreate()
-        Timber.plant(Timber.DebugTree())
+        initializeLogging()
         val koin = startKoin {
             modules(
                 AndroidModule.getModule(context = this@Application),

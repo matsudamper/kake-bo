@@ -41,6 +41,7 @@ kotlin {
                 implementation(projects.frontend.android.featureNotificationUsage)
                 implementation(projects.frontend.common.navigation)
                 implementation(projects.frontend.common.feature.uploader)
+                implementation(projects.frontend.common.feature.logging)
                 implementation(libs.workRuntimeKtx)
 
                 implementation(kotlin("stdlib"))
@@ -50,7 +51,6 @@ kotlin {
                 implementation(libs.androidAppCompatAppCompat)
                 implementation(libs.kotlin.datetime)
                 implementation(libs.coilNetworkOkhttp)
-                implementation(libs.timber)
             }
         }
         val jsMain by getting {

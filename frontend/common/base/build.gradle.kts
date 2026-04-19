@@ -53,7 +53,6 @@ kotlin {
                 implementation(libs.composeUi)
 
                 implementation(libs.androidxCoreKtx)
-                implementation(libs.timber)
             }
         }
         val jvmTest by getting {
@@ -78,7 +77,4 @@ tasks.withType<Test>().configureEach {
 
 android {
     namespace = "net.matsudamper.money.frontend.common.base"
-    buildFeatures {
-        buildConfig = true
-    }
 }
