@@ -25,7 +25,7 @@ public class ImportedMailCategoryFilterScreenPagingModel(
         query = ImportedMailCategoryFiltersQuery(
             cursor = Optional.present(null),
             isAsc = true,
-            size = 10,
+            size = Optional.present(10),
             sortType = Optional.present(ImportedMailCategoryFiltersSortType.TITLE),
         ),
     )
@@ -88,7 +88,7 @@ public class ImportedMailCategoryFilterScreenPagingModel(
                 query = ImportedMailCategoryFiltersQuery(
                     cursor = Optional.present(cursor),
                     isAsc = true,
-                    size = 10,
+                    size = Optional.present(10),
                     sortType = Optional.present(ImportedMailCategoryFiltersSortType.TITLE),
                 ),
             ),
