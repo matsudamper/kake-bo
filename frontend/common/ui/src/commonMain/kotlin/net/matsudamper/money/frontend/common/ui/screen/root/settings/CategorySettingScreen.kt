@@ -375,7 +375,7 @@ private fun SubCategoryItem(
                         ),
                     ) {
                         Column(
-                            modifier = Modifier.width(IntrinsicSize.Min),
+                            modifier = Modifier.width(IntrinsicSize.Max),
                         ) {
                             Text(
                                 modifier = Modifier
