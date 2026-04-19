@@ -85,9 +85,8 @@ public class NotificationUsageDetailViewModel(
                             NotificationUsageDetailScreenUiState.DeleteConfirmDialog(
                                 onConfirm = {
                                     viewModelScope.launch {
-                                        val key = notificationUsageKey
                                         val result = runCatchingWithoutCancel {
-                                            repository.deleteNotification(key)
+                                            repository.deleteNotification(notificationUsageKey)
                                         }
                                         viewModelStateFlow.update { it.copy(showDeleteConfirmDialog = false) }
                                         if (result.isSuccess) {
