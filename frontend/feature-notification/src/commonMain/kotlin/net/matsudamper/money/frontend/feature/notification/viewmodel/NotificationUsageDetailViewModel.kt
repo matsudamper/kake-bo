@@ -104,6 +104,7 @@ public class NotificationUsageDetailViewModel(
                     repository.deleteNotification(notificationUsageKey)
                 }
                 viewModelStateFlow.update { it.copy(showDeleteConfirmDialog = false) }
+                result.onFailure { Logger.e(TAG, it) }
                 if (result.isSuccess) {
                     eventSender.send { it.navigateBack() }
                 }
