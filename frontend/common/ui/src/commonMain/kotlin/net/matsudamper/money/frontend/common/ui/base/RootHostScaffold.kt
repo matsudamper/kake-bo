@@ -83,10 +83,6 @@ public fun rootHostScaffoldEntryDecorator(
                 }
             }
         } else {
-            DisposableEffect(Unit) {
-                snackbarBottomPadding.value = 0.dp
-                onDispose {}
-            }
             content()
         }
     }
