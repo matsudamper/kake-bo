@@ -60,15 +60,37 @@ class DbMailFilterRepository(
         return dbConnection.use {
             runCatching {
                 DSL.using(it)
-                    .selectFrom(filters)
+                    .select(
+                        filters.CATEGORY_MAIL_FILTER_ID,
+                        filters.USER_ID,
+                        filters.TITLE,
+                        subCategories.MONEY_USAGE_SUB_CATEGORY_ID,
+                        filters.CATEGORY_MAIL_FILTER_CONDITION_OPERATOR_TYPE_ID,
+                        filters.ORDER_NUMBER,
+                    )
+                    .from(filters)
+                    .leftJoin(subCategories).on(
+                        subCategories.MONEY_USAGE_SUB_CATEGORY_ID.eq(filters.MONEY_USAGE_SUB_CATEGORY_ID)
+                            .and(subCategories.USER_ID.eq(userId.value)),
+                    )
                     .where(
                         DSL.value(true)
                             .and(filters.USER_ID.eq(userId.value))
                             .and(filters.CATEGORY_MAIL_FILTER_ID.`in`(categoryFilterIds.map { it.id })),
                     )
                     .fetch()
-                    .map {
-                        mapResult(it)
+                    .map { record ->
+                        MailFilterRepository.MailFilter(
+                            importedMailCategoryFilterId = ImportedMailCategoryFilterId(record.get(filters.CATEGORY_MAIL_FILTER_ID)!!),
+                            userId = UserId(record.get(filters.USER_ID)!!),
+                            title = record.get(filters.TITLE)!!,
+                            moneyUsageSubCategoryId = record.get(subCategories.MONEY_USAGE_SUB_CATEGORY_ID)
+                                ?.let { MoneyUsageSubCategoryId(it) },
+                            operator = DbImportedMailFilterCategoryConditionOperator.fromDbValue(
+                                record.get(filters.CATEGORY_MAIL_FILTER_CONDITION_OPERATOR_TYPE_ID)!!,
+                            ).toLogicValue(),
+                            orderNumber = record.get(filters.ORDER_NUMBER)!!,
+                        )
                     }
             }
         }
