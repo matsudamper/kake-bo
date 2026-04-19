@@ -174,10 +174,11 @@ public class SettingCategoryViewModel(
                     }
                     viewModelStateFlow.update {
                         it.copy(
-                            confirmDialog = SettingCategoryScreenUiState.ConfirmDialog(
-                                title = "このカテゴリを削除しますか",
-                                description = description,
-                                onConfirm = {
+                            confirmDialog = object : SettingCategoryScreenUiState.ConfirmDialog {
+                                override val title = "このカテゴリを削除しますか"
+                                override val description = description
+
+                                override fun onConfirm() {
                                     viewModelScope.launch {
                                         val isSuccess = api.deleteCategory(id = categoryId)
                                         viewModelStateFlow.update { state ->
@@ -200,13 +201,14 @@ public class SettingCategoryViewModel(
                                             }
                                         }
                                     }
-                                },
-                                onDismiss = {
+                                }
+
+                                override fun onDismiss() {
                                     viewModelStateFlow.update { state ->
                                         state.copy(confirmDialog = null)
                                     }
-                                },
-                            ),
+                                }
+                            },
                         )
                     }
                 }

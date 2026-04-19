@@ -71,12 +71,15 @@ public data class SettingCategoryScreenUiState(
     val confirmDialog: ConfirmDialog?,
     val kakeboScaffoldListener: KakeboScaffoldListener,
 ) {
-    public data class ConfirmDialog(
-        val title: String,
-        val description: String?,
-        val onConfirm: () -> Unit,
-        val onDismiss: () -> Unit,
-    )
+    @Immutable
+    public interface ConfirmDialog {
+        public val title: String
+        public val description: String?
+
+        public fun onConfirm()
+
+        public fun onDismiss()
+    }
 
     public data class FullScreenInputDialog(
         val initText: String,
@@ -193,7 +196,7 @@ public fun SettingCategoryScreen(
             title = { Text(confirmDialog.title) },
             description = confirmDialog.description?.let {
                 {
-                    Text(confirmDialog.description)
+                    Text(it)
                 }
             },
             onClickPositive = { confirmDialog.onConfirm() },

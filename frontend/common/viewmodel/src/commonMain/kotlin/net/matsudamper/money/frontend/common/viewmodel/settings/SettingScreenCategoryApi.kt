@@ -171,6 +171,6 @@ public class SettingScreenCategoryApi(
                     ),
                 )
                 .execute()
-        }.getOrNull()?.data?.userMutation != null
+        }.getOrNull()?.data?.userMutation?.deleteCategory == true
     }
 }
