@@ -262,6 +262,55 @@ public class SettingCategoryViewModel(
         }
     }.asStateFlow()
 
+    private inner class CategoryDeleteDialog(
+        private val item: CategorySettingScreenSubCategoriesPagingQuery.Node,
+    ) : SettingCategoryScreenUiState.ConfirmDialog {
+        override val title = "このサブカテゴリーを削除しますか"
+        override val description = "「${item.name}」を削除します"
+
+        override fun onConfirm() {
+            viewModelScope.launch {
+                val isSuccess = api.deleteSubCategory(
+                    id = item.id,
+                )
+
+                viewModelStateFlow.update { viewModelState ->
+                    viewModelState.copy(
+                        confirmDialog = null,
+                    )
+                }
+
+                if (isSuccess.not()) {
+                    launch {
+                        globalEventSender.send {
+                            it.showNativeNotification("削除に失敗しました")
+                        }
+                    }
+                } else {
+                    launch {
+                        globalEventSender.send {
+                            it.showSnackBar("削除しました")
+                        }
+                    }
+                    viewModelStateFlow.update { viewModelState ->
+                        viewModelState.copy(
+                            deletedSubCategoryIds = viewModelState.deletedSubCategoryIds
+                                .plus(item.id),
+                        )
+                    }
+                }
+            }
+        }
+
+        override fun onDismiss() {
+            viewModelStateFlow.update { viewModelState ->
+                viewModelState.copy(
+                    confirmDialog = null,
+                )
+            }
+        }
+    }
+
     private val categoryNameChangeUiEvent = object : SettingCategoryScreenUiState.FullScreenInputDialog.Event {
         override fun onDismiss() {
             dismiss()
@@ -324,30 +373,10 @@ public class SettingCategoryViewModel(
                 }
 
                 override fun onClickDelete() {
-                    viewModelScope.launch {
-                        val isSuccess = api.deleteSubCategory(
-                            id = item.id,
+                    viewModelStateFlow.update {
+                        it.copy(
+                            confirmDialog = CategoryDeleteDialog(item),
                         )
-
-                        if (isSuccess.not()) {
-                            launch {
-                                globalEventSender.send {
-                                    it.showNativeNotification("削除に失敗しました")
-                                }
-                            }
-                        } else {
-                            launch {
-                                globalEventSender.send {
-                                    it.showSnackBar("削除しました")
-                                }
-                            }
-                            viewModelStateFlow.update { viewModelState ->
-                                viewModelState.copy(
-                                    deletedSubCategoryIds = viewModelState.deletedSubCategoryIds
-                                        .plus(item.id),
-                                )
-                            }
-                        }
                     }
                 }
 
