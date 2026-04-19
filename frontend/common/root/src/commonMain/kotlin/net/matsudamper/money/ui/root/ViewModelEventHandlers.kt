@@ -137,6 +137,9 @@ internal data class ViewModelEventHandlers(
         coroutineScope {
             handler.collect(
                 object : SettingCategoryViewModel.Event {
+                    override fun navigateToCategories() {
+                        navController.navigateReplace(ScreenStructure.Root.Settings.Categories)
+                    }
                 },
             )
         }

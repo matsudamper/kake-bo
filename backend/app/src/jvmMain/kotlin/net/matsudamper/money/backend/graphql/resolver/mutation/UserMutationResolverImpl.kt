@@ -479,6 +479,28 @@ class UserMutationResolverImpl : UserMutationResolver {
         }.toDataFetcher()
     }
 
+    override fun deleteCategory(
+        userMutation: QlUserMutation,
+        id: MoneyUsageCategoryId,
+        env: DataFetchingEnvironment,
+    ): CompletionStage<DataFetcherResult<Boolean>> {
+        val context = env.graphQlContext.get<GraphQlContext>(GraphQlContext::class.java.name)
+        val userId = context.verifyUserSessionAndGetUserId()
+
+        return otelSupplyAsync {
+            val result = context.diContainer.createMoneyUsageCategoryRepository()
+                .deleteCategory(
+                    userId = userId,
+                    categoryId = id,
+                )
+            if (result) {
+                true
+            } else {
+                throw IllegalStateException("delete category failed")
+            }
+        }.toDataFetcher()
+    }
+
     override fun addImportedMailCategoryFilter(
         userMutation: QlUserMutation,
         input: QlAddImportedMailCategoryFilterInput,

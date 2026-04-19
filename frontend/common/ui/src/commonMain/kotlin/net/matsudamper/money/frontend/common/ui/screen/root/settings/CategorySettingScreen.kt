@@ -55,6 +55,7 @@ import net.matsudamper.money.frontend.common.base.ImmutableList
 import net.matsudamper.money.frontend.common.ui.base.KakeBoTopAppBar
 import net.matsudamper.money.frontend.common.ui.base.KakeboScaffoldListener
 import net.matsudamper.money.frontend.common.ui.base.RootScreenScaffold
+import net.matsudamper.money.frontend.common.ui.layout.AlertDialog
 import net.matsudamper.money.frontend.common.ui.layout.colorpicker.ColorPickerDialog
 import net.matsudamper.money.frontend.common.ui.layout.html.text.fullscreen.FullScreenTextInput
 
@@ -67,8 +68,19 @@ public data class SettingCategoryScreenUiState(
     val showCategoryNameChangeDialog: FullScreenInputDialog?,
     val showSubCategoryNameChangeDialog: FullScreenInputDialog?,
     val showColorPickerDialog: Boolean,
+    val confirmDialog: ConfirmDialog?,
     val kakeboScaffoldListener: KakeboScaffoldListener,
 ) {
+    @Immutable
+    public interface ConfirmDialog {
+        public val title: String
+        public val description: String?
+
+        public fun onConfirm()
+
+        public fun onDismiss()
+    }
+
     public data class FullScreenInputDialog(
         val initText: String,
         val event: Event,
@@ -118,6 +130,8 @@ public data class SettingCategoryScreenUiState(
         public fun onDismissColorPicker()
 
         public fun onColorSelected(color: Color)
+
+        public fun onClickDeleteCategory()
     }
 }
 
@@ -174,6 +188,20 @@ public fun SettingCategoryScreen(
             currentColor = uiState.categoryColor,
             onDismiss = { uiState.event.onDismissColorPicker() },
             onColorSelected = { color -> uiState.event.onColorSelected(color) },
+        )
+    }
+
+    uiState.confirmDialog?.also { confirmDialog ->
+        AlertDialog(
+            title = { Text(confirmDialog.title) },
+            description = confirmDialog.description?.let {
+                {
+                    Text(it)
+                }
+            },
+            onClickPositive = { confirmDialog.onConfirm() },
+            onClickNegative = { confirmDialog.onDismiss() },
+            onDismissRequest = { confirmDialog.onDismiss() },
         )
     }
 
@@ -276,6 +304,9 @@ private fun LoadedContent(
                     onClickSubCategoryButton = {
                         uiState.event.onClickAddSubCategoryButton()
                     },
+                    onClickDeleteCategoryButton = {
+                        uiState.event.onClickDeleteCategory()
+                    },
                 )
             }
             item {
@@ -377,6 +408,7 @@ private fun HeaderSection(
     onClickChangeCategoryNameButton: () -> Unit,
     onClickChangeColorButton: () -> Unit,
     onClickSubCategoryButton: () -> Unit,
+    onClickDeleteCategoryButton: () -> Unit,
 ) {
     Row(
         modifier = modifier,
@@ -420,6 +452,13 @@ private fun HeaderSection(
                 ) {
                     Icon(Icons.Default.Add, contentDescription = null)
                     Text(text = "サブカテゴリーを追加")
+                }
+                Spacer(modifier = Modifier.width(12.dp))
+                OutlinedButton(
+                    modifier = Modifier,
+                    onClick = { onClickDeleteCategoryButton() },
+                ) {
+                    Text(text = "カテゴリーを削除")
                 }
             }
         }

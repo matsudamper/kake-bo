@@ -30,7 +30,7 @@ internal class NotificationUsageCategoryFilterGraphqlRepository(
                 .query(
                     NotificationUsageCategoryFiltersQuery(
                         query = ImportedMailCategoryFiltersQuery(
-                            size = 1000,
+                            size = Optional.present(1000),
                             isAsc = true,
                             sortType = Optional.present(ImportedMailCategoryFiltersSortType.ORDER_NUMBER),
                         ),
