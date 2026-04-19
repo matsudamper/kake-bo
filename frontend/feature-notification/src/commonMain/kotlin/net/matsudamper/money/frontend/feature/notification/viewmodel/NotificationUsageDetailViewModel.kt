@@ -20,8 +20,8 @@ import net.matsudamper.money.categoryfilter.CategoryFilterOperator
 import net.matsudamper.money.categoryfilter.evaluateCategoryFilters
 import net.matsudamper.money.element.MoneyUsageId
 import net.matsudamper.money.element.MoneyUsageSubCategoryId
-import net.matsudamper.money.frontend.common.base.nav.ScopedObjectFeature
 import net.matsudamper.money.frontend.common.base.Logger
+import net.matsudamper.money.frontend.common.base.nav.ScopedObjectFeature
 import net.matsudamper.money.frontend.common.base.nav.user.ScreenStructure
 import net.matsudamper.money.frontend.common.base.notification.NotificationUsageDetail
 import net.matsudamper.money.frontend.common.base.notification.NotificationUsageMatchedRecord
