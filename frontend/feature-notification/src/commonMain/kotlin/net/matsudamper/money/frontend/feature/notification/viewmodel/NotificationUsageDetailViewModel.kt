@@ -59,6 +59,7 @@ public class NotificationUsageDetailViewModel(
     public val uiStateFlow: StateFlow<NotificationUsageDetailScreenUiState> = MutableStateFlow(
         NotificationUsageDetailScreenUiState(
             loadingState = NotificationUsageDetailScreenUiState.LoadingState.Loading,
+            deleteConfirmDialog = null,
             event = object : NotificationUsageDetailScreenUiState.Event {
                 override fun onClickBack() {
                     viewModelScope.launch {
@@ -71,6 +72,10 @@ public class NotificationUsageDetailViewModel(
                         eventSender.send { it.navigateToHome() }
                     }
                 }
+
+                override fun onClickDelete() {
+                    viewModelStateFlow.update { it.copy(showDeleteConfirmDialog = true) }
+                }
             },
         ),
     ).also { uiStateFlow ->
@@ -79,11 +84,36 @@ public class NotificationUsageDetailViewModel(
                 uiStateFlow.update { uiState ->
                     uiState.copy(
                         loadingState = createLoadingState(viewModelState),
+                        deleteConfirmDialog = if (viewModelState.showDeleteConfirmDialog) {
+                            NotificationUsageDetailScreenUiState.DeleteConfirmDialog(
+                                event = deleteConfirmDialogEvent,
+                            )
+                        } else {
+                            null
+                        },
                     )
                 }
             }
         }
     }.asStateFlow()
+
+    private val deleteConfirmDialogEvent = object : NotificationUsageDetailScreenUiState.DeleteConfirmDialogEvent {
+        override fun onConfirm() {
+            viewModelScope.launch {
+                val result = runCatchingWithoutCancel {
+                    repository.deleteNotification(notificationUsageKey)
+                }
+                viewModelStateFlow.update { it.copy(showDeleteConfirmDialog = false) }
+                if (result.isSuccess) {
+                    eventSender.send { it.navigateBack() }
+                }
+            }
+        }
+
+        override fun onDismiss() {
+            viewModelStateFlow.update { it.copy(showDeleteConfirmDialog = false) }
+        }
+    }
 
     init {
         viewModelScope.launch {
@@ -400,6 +430,7 @@ public class NotificationUsageDetailViewModel(
         val detailState: DetailState = DetailState.Loading,
         val linkedUsageState: LinkedUsageState = LinkedUsageState.None,
         val showMetadataDialog: Boolean = false,
+        val showDeleteConfirmDialog: Boolean = false,
         val matchedSubCategory: MatchedSubCategory? = null,
     )
 }
