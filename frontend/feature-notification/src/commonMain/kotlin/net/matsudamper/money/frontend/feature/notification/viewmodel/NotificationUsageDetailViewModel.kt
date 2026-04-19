@@ -83,19 +83,22 @@ public class NotificationUsageDetailViewModel(
                         loadingState = createLoadingState(viewModelState),
                         deleteConfirmDialog = if (viewModelState.showDeleteConfirmDialog) {
                             NotificationUsageDetailScreenUiState.DeleteConfirmDialog(
-                                onConfirm = {
-                                    viewModelScope.launch {
-                                        val result = runCatchingWithoutCancel {
-                                            repository.deleteNotification(notificationUsageKey)
-                                        }
-                                        viewModelStateFlow.update { it.copy(showDeleteConfirmDialog = false) }
-                                        if (result.isSuccess) {
-                                            eventSender.send { it.navigateBack() }
+                                event = object : NotificationUsageDetailScreenUiState.DeleteConfirmDialogEvent {
+                                    override fun onConfirm() {
+                                        viewModelScope.launch {
+                                            val result = runCatchingWithoutCancel {
+                                                repository.deleteNotification(notificationUsageKey)
+                                            }
+                                            viewModelStateFlow.update { it.copy(showDeleteConfirmDialog = false) }
+                                            if (result.isSuccess) {
+                                                eventSender.send { it.navigateBack() }
+                                            }
                                         }
                                     }
-                                },
-                                onDismiss = {
-                                    viewModelStateFlow.update { it.copy(showDeleteConfirmDialog = false) }
+
+                                    override fun onDismiss() {
+                                        viewModelStateFlow.update { it.copy(showDeleteConfirmDialog = false) }
+                                    }
                                 },
                             )
                         } else {
