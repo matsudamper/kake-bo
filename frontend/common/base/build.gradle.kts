@@ -14,6 +14,7 @@ kotlin {
         jvmToolchain(libs.versions.javaToolchain.get().toInt())
         val commonMain by getting {
             dependencies {
+                api(projects.frontend.common.feature.logging)
                 implementation(projects.shared)
 
                 implementation(libs.composeRuntime)

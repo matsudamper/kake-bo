@@ -4,12 +4,15 @@ plugins {
 }
 
 kotlin {
+    js(IR) {
+        browser()
+    }
     androidTarget()
+    jvm { }
     sourceSets {
         jvmToolchain(libs.versions.javaToolchain.get().toInt())
         val androidMain by getting {
             dependencies {
-                implementation(projects.frontend.common.base)
                 implementation(libs.timber)
             }
         }
