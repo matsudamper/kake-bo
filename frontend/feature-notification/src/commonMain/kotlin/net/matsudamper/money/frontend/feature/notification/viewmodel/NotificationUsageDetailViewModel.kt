@@ -86,9 +86,13 @@ public class NotificationUsageDetailViewModel(
                                 onConfirm = {
                                     viewModelScope.launch {
                                         val key = notificationUsageKey
+                                        val result = runCatchingWithoutCancel {
+                                            repository.deleteNotification(key)
+                                        }
                                         viewModelStateFlow.update { it.copy(showDeleteConfirmDialog = false) }
-                                        repository.deleteNotification(key)
-                                        eventSender.send { it.navigateBack() }
+                                        if (result.isSuccess) {
+                                            eventSender.send { it.navigateBack() }
+                                        }
                                     }
                                 },
                                 onDismiss = {

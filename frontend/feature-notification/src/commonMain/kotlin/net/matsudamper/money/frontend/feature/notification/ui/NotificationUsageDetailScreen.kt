@@ -79,18 +79,18 @@ public fun NotificationUsageDetailScreen(
                     }
                 },
                 menu = {
-                    var expand by remember { mutableStateOf(false) }
+                    var isMenuExpanded by remember { mutableStateOf(false) }
                     Box {
-                        IconButton(onClick = { expand = !expand }) {
+                        IconButton(onClick = { isMenuExpanded = !isMenuExpanded }) {
                             Icon(Icons.Default.MoreVert, contentDescription = "メニュー")
                         }
                         DropdownMenu(
-                            expanded = expand,
-                            onDismissRequest = { expand = false },
+                            expanded = isMenuExpanded,
+                            onDismissRequest = { isMenuExpanded = false },
                         ) {
                             DropdownMenuItem(
                                 onClick = {
-                                    expand = false
+                                    isMenuExpanded = false
                                     uiState.event.onClickDelete()
                                 },
                                 text = {
