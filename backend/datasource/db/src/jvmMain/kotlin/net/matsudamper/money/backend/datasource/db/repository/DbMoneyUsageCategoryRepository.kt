@@ -7,6 +7,7 @@ import net.matsudamper.money.db.schema.tables.JMoneyUsageSubCategories
 import net.matsudamper.money.db.schema.tables.records.JMoneyUsageCategoriesRecord
 import net.matsudamper.money.element.MoneyUsageCategoryId
 import net.matsudamper.money.element.UserId
+import org.jooq.TransactionalRunnable
 import org.jooq.impl.DSL
 import org.jooq.kotlin.and
 
@@ -135,23 +136,31 @@ class DbMoneyUsageCategoryRepository : MoneyUsageCategoryRepository {
         userId: UserId,
         categoryId: MoneyUsageCategoryId,
     ): Boolean {
-        return DbConnectionImpl.use { connection ->
-            val context = DSL.using(connection)
-            context.deleteFrom(subCategories)
-                .where(
-                    DSL.value(true)
-                        .and(subCategories.USER_ID.eq(userId.value))
-                        .and(subCategories.MONEY_USAGE_CATEGORY_ID.eq(categoryId.value)),
+        return runCatching {
+            DbConnectionImpl.use { connection ->
+                DSL.using(connection).transaction(
+                    TransactionalRunnable { config ->
+                        val ctx = DSL.using(config)
+                        ctx.deleteFrom(subCategories)
+                            .where(
+                                DSL.value(true)
+                                    .and(subCategories.USER_ID.eq(userId.value))
+                                    .and(subCategories.MONEY_USAGE_CATEGORY_ID.eq(categoryId.value)),
+                            )
+                            .execute()
+                        val deleted = ctx.deleteFrom(categories)
+                            .where(
+                                DSL.value(true)
+                                    .and(categories.USER_ID.eq(userId.value))
+                                    .and(categories.MONEY_USAGE_CATEGORY_ID.eq(categoryId.value)),
+                            )
+                            .limit(1)
+                            .execute()
+                        if (deleted < 1) throw IllegalStateException("削除対象のカテゴリが見つかりませんでした")
+                    },
                 )
-                .execute()
-            context.deleteFrom(categories)
-                .where(
-                    DSL.value(true)
-                        .and(categories.USER_ID.eq(userId.value))
-                        .and(categories.MONEY_USAGE_CATEGORY_ID.eq(categoryId.value)),
-                )
-                .limit(1)
-                .execute()
-        } >= 1
+            }
+            true
+        }.getOrDefault(false)
     }
 }

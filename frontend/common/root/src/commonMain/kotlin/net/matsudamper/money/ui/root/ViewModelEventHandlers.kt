@@ -138,7 +138,7 @@ internal data class ViewModelEventHandlers(
             handler.collect(
                 object : SettingCategoryViewModel.Event {
                     override fun navigateToCategories() {
-                        navController.navigate(ScreenStructure.Root.Settings.Categories)
+                        navController.navigateReplace(ScreenStructure.Root.Settings.Categories)
                     }
                 },
             )
