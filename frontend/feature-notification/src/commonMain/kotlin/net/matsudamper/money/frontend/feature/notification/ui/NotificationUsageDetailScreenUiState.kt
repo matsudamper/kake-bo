@@ -23,9 +23,15 @@ public data class NotificationUsageDetailScreenUiState(
     }
 
     public data class DeleteConfirmDialog(
-        val onConfirm: () -> Unit,
-        val onDismiss: () -> Unit,
+        val event: DeleteConfirmDialogEvent,
     )
+
+    @Immutable
+    public interface DeleteConfirmDialogEvent {
+        public fun onConfirm()
+
+        public fun onDismiss()
+    }
 
     public data class Notification(
         val packageName: String,

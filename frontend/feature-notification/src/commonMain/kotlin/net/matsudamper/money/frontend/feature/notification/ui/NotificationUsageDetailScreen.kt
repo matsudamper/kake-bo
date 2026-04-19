@@ -55,15 +55,15 @@ public fun NotificationUsageDetailScreen(
 ) {
     if (uiState.deleteConfirmDialog != null) {
         AlertDialog(
-            onDismissRequest = { uiState.deleteConfirmDialog.onDismiss() },
+            onDismissRequest = { uiState.deleteConfirmDialog.event.onDismiss() },
             title = { Text("通知を削除しますか？") },
             confirmButton = {
-                TextButton(onClick = { uiState.deleteConfirmDialog.onConfirm() }) {
+                TextButton(onClick = { uiState.deleteConfirmDialog.event.onConfirm() }) {
                     Text("削除")
                 }
             },
             dismissButton = {
-                TextButton(onClick = { uiState.deleteConfirmDialog.onDismiss() }) {
+                TextButton(onClick = { uiState.deleteConfirmDialog.event.onDismiss() }) {
                     Text("キャンセル")
                 }
             },
