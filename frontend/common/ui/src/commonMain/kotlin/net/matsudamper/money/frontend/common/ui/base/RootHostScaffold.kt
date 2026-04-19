@@ -28,10 +28,15 @@ import androidx.compose.material3.Text
 import androidx.compose.material3.VerticalDivider
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.CompositionLocalProvider
+import androidx.compose.runtime.DisposableEffect
+import androidx.compose.runtime.MutableState
 import androidx.compose.runtime.ProvidableCompositionLocal
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.staticCompositionLocalOf
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.layout.onSizeChanged
+import androidx.compose.ui.platform.LocalDensity
+import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import net.matsudamper.money.frontend.common.base.nav.EntryDecorator
 import net.matsudamper.money.frontend.common.base.nav.user.IScreenStructure
@@ -48,6 +53,7 @@ public val LocalRootScaffoldPadding: ProvidableCompositionLocal<PaddingValues> =
 
 public fun rootHostScaffoldEntryDecorator(
     navController: ScreenNavController,
+    snackbarBottomPadding: MutableState<Dp>,
 ): EntryDecorator {
     return EntryDecorator { structure, content ->
         if (structure is ScreenStructure.Root) {
@@ -68,6 +74,7 @@ public fun rootHostScaffoldEntryDecorator(
                     currentScreen = tab,
                     onClickTab = onClickTab,
                     windowInsets = windowInsets,
+                    snackbarBottomPadding = snackbarBottomPadding,
                     modifier = Modifier.fillMaxSize(),
                 ) { adjustedPadding ->
                     CompositionLocalProvider(LocalRootScaffoldPadding provides adjustedPadding) {
@@ -76,6 +83,10 @@ public fun rootHostScaffoldEntryDecorator(
                 }
             }
         } else {
+            DisposableEffect(Unit) {
+                snackbarBottomPadding.value = 0.dp
+                onDispose {}
+            }
             content()
         }
     }
@@ -104,9 +115,15 @@ private fun RootHostScaffoldContent(
     currentScreen: RootScreenTab,
     onClickTab: (RootScreenTab) -> Unit,
     windowInsets: PaddingValues,
+    snackbarBottomPadding: MutableState<Dp>,
     modifier: Modifier = Modifier,
     content: @Composable (PaddingValues) -> Unit,
 ) {
+    DisposableEffect(Unit) {
+        onDispose {
+            snackbarBottomPadding.value = 0.dp
+        }
+    }
     Column(modifier) {
         Row(
             modifier = Modifier.weight(1f).fillMaxWidth(),
@@ -188,7 +205,11 @@ private fun RootHostScaffoldContent(
             }
         }
         if (LocalIsLargeScreen.current.not()) {
+            val density = LocalDensity.current
             NavigationBar(
+                modifier = Modifier.onSizeChanged { size ->
+                    snackbarBottomPadding.value = with(density) { size.height.toDp() }
+                },
                 windowInsets = windowInsets.asWindowInsets()
                     .only(WindowInsetsSides.Bottom + WindowInsetsSides.Horizontal),
             ) {

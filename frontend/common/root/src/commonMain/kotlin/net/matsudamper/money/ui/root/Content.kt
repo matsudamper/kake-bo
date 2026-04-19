@@ -3,6 +3,7 @@ package net.matsudamper.money.ui.root
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.BasicAlertDialog
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Scaffold
@@ -24,6 +25,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.layout.onSizeChanged
 import androidx.compose.ui.unit.IntSize
+import androidx.compose.ui.unit.dp
 import androidx.navigation3.runtime.EntryProviderScope
 import androidx.navigation3.runtime.NavEntry
 import androidx.navigation3.runtime.entryProvider
@@ -89,6 +91,7 @@ public fun Content(
         var hostState by remember { mutableStateOf(SnackbarHostState()) }
         var showServerError by remember { mutableStateOf(false) }
         var reloadCounter by remember { mutableStateOf(0) }
+        val snackbarBottomPadding = remember { mutableStateOf(0.dp) }
         val onServerError: () -> Unit = remember {
             { showServerError = true }
         }
@@ -226,7 +229,9 @@ public fun Content(
                     },
                 snackbarHost = {
                     Box(
-                        modifier = Modifier.fillMaxWidth(),
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .padding(bottom = snackbarBottomPadding.value),
                     ) {
                         MySnackBarHost(
                             modifier = Modifier.align(Alignment.CenterEnd),
@@ -256,7 +261,7 @@ public fun Content(
                             }
                         }
                         val scaffoldDecorators = remember(navController) {
-                            immutableListOf(rootHostScaffoldEntryDecorator(navController))
+                            immutableListOf(rootHostScaffoldEntryDecorator(navController, snackbarBottomPadding))
                         }
                         NavHost(
                             navController = navController,
