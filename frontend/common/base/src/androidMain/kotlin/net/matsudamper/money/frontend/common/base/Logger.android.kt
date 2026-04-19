@@ -1,25 +1,25 @@
 package net.matsudamper.money.frontend.common.base
 
-import android.util.Log
+import timber.log.Timber
 
 public actual val Logger: ILogger = object : ILogger {
     override fun d(tag: String, message: String) {
-        if (!BuildConfig.DEBUG) return
-        Log.d(tag, message)
+        Timber.tag(tag).d(message)
     }
 
     override fun e(tag: String, message: String) {
-        if (!BuildConfig.DEBUG) return
-        Log.e(tag, message)
+        Timber.tag(tag).e(message)
+    }
+
+    override fun e(tag: String, throwable: Throwable) {
+        Timber.tag(tag).e(throwable)
     }
 
     override fun w(tag: String, message: String) {
-        if (!BuildConfig.DEBUG) return
-        Log.w(tag, message)
+        Timber.tag(tag).w(message)
     }
 
     override fun i(tag: String, message: String) {
-        if (!BuildConfig.DEBUG) return
-        Log.i(tag, message)
+        Timber.tag(tag).i(message)
     }
 }

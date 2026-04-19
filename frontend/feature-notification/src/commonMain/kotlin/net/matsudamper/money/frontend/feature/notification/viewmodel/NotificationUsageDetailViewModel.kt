@@ -21,6 +21,7 @@ import net.matsudamper.money.categoryfilter.evaluateCategoryFilters
 import net.matsudamper.money.element.MoneyUsageId
 import net.matsudamper.money.element.MoneyUsageSubCategoryId
 import net.matsudamper.money.frontend.common.base.nav.ScopedObjectFeature
+import net.matsudamper.money.frontend.common.base.Logger
 import net.matsudamper.money.frontend.common.base.nav.user.ScreenStructure
 import net.matsudamper.money.frontend.common.base.notification.NotificationUsageDetail
 import net.matsudamper.money.frontend.common.base.notification.NotificationUsageMatchedRecord
@@ -41,6 +42,8 @@ import net.matsudamper.money.frontend.graphql.type.ImportedMailCategoryFilterDat
 import net.matsudamper.money.frontend.graphql.type.ImportedMailCategoryFiltersQuery
 import net.matsudamper.money.frontend.graphql.type.ImportedMailCategoryFiltersSortType
 import net.matsudamper.money.frontend.graphql.type.ImportedMailFilterCategoryConditionOperator
+
+private const val TAG = "NotificationUsageDetailViewModel"
 
 public class NotificationUsageDetailViewModel(
     scopedObjectFeature: ScopedObjectFeature,
@@ -116,6 +119,8 @@ public class NotificationUsageDetailViewModel(
                     ),
                 )
                 .execute()
+        }.onFailure {
+            Logger.e(TAG, it)
         }.getOrNull() ?: return
 
         val nodes = response.data?.user?.importedMailCategoryFilters?.nodes.orEmpty()
@@ -215,6 +220,8 @@ public class NotificationUsageDetailViewModel(
                 .query(MoneyUsageScreenQuery(id = moneyUsageId))
                 .fetchPolicy(FetchPolicy.NetworkOnly)
                 .execute()
+        }.onFailure {
+            Logger.e(TAG, it)
         }.getOrNull()
 
         val moneyUsage = result?.data?.user?.moneyUsage?.moneyUsageScreenMoneyUsage

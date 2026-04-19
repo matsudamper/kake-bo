@@ -50,6 +50,7 @@ kotlin {
                 implementation(libs.androidAppCompatAppCompat)
                 implementation(libs.kotlin.datetime)
                 implementation(libs.coilNetworkOkhttp)
+                implementation(libs.timber)
             }
         }
         val jsMain by getting {

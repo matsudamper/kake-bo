@@ -7,6 +7,9 @@ import net.matsudamper.money.element.ImportedMailId
 import net.matsudamper.money.element.MoneyUsageCategoryId
 import net.matsudamper.money.element.MoneyUsageId
 import net.matsudamper.money.element.MoneyUsagePresetId
+import net.matsudamper.money.frontend.common.base.Logger
+
+private const val TAG = "ScreenStructure"
 
 public sealed interface ScreenStructure : IScreenStructure {
     public sealed interface Root : ScreenStructure {
@@ -423,7 +426,7 @@ public sealed interface ScreenStructure : IScreenStructure {
 
                     run {
                         val parsedDate = if (date != null) {
-                            runCatching { dateFormat.format(date) }.getOrNull()
+                            runCatching { dateFormat.format(date) }.onFailure { Logger.e(TAG, it) }.getOrNull()
                         } else {
                             null
                         }

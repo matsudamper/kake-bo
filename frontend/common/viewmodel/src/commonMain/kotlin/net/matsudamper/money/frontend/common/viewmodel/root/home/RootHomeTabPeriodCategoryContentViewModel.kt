@@ -16,6 +16,7 @@ import kotlinx.datetime.toLocalDateTime
 import com.apollographql.apollo.api.ApolloResponse
 import net.matsudamper.money.element.MoneyUsageCategoryId
 import net.matsudamper.money.frontend.common.base.ImmutableList.Companion.toImmutableList
+import net.matsudamper.money.frontend.common.base.Logger
 import net.matsudamper.money.frontend.common.base.nav.ScopedObjectFeature
 import net.matsudamper.money.frontend.common.base.nav.user.RootHomeScreenStructure
 import net.matsudamper.money.frontend.common.base.nav.user.ScreenNavController
@@ -33,6 +34,8 @@ import net.matsudamper.money.frontend.common.viewmodel.lib.EventHandler
 import net.matsudamper.money.frontend.common.viewmodel.lib.EventSender
 import net.matsudamper.money.frontend.common.viewmodel.lib.Formatter
 import net.matsudamper.money.frontend.graphql.RootHomeTabScreenAnalyticsByCategoryQuery
+
+private const val TAG = "RootHomeTabPeriodCategoryContentViewModel"
 
 public class RootHomeTabPeriodCategoryContentViewModel(
     initialCategoryId: MoneyUsageCategoryId,
@@ -346,6 +349,7 @@ public class RootHomeTabPeriodCategoryContentViewModel(
                             useCache = forceReFetch.not(),
                         )
 
+                        result.onFailure { Logger.e(TAG, it) }
                         viewModelStateFlow.update {
                             it.copy(
                                 categoryResponseMap = it.categoryResponseMap

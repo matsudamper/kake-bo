@@ -53,6 +53,7 @@ kotlin {
                 implementation(libs.composeUi)
 
                 implementation(libs.androidxCoreKtx)
+                implementation(libs.timber)
             }
         }
         val jvmTest by getting {

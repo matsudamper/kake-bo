@@ -10,10 +10,12 @@ import net.matsudamper.money.frontend.common.di.DefaultModule
 import net.matsudamper.money.frontend.common.feature.localstore.DataStores
 import net.matsudamper.money.frontend.common.feature.uploader.ImageUploadDatabase
 import org.koin.core.context.startKoin
+import timber.log.Timber
 
 class Application : Application() {
     override fun onCreate() {
         super.onCreate()
+        Timber.plant(Timber.DebugTree())
         val koin = startKoin {
             modules(
                 AndroidModule.getModule(context = this@Application),

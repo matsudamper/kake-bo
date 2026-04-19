@@ -4,12 +4,15 @@ import kotlinx.browser.window
 import kotlinx.coroutines.await
 import kotlinx.serialization.json.Json
 import net.matsudamper.money.frontend.common.base.ImageUploadClient
+import net.matsudamper.money.frontend.common.base.Logger
 import net.matsudamper.money.image.ImageUploadApiPath
 import net.matsudamper.money.image.ImageUploadImageResponse
 import org.khronos.webgl.Int8Array
 import org.w3c.files.Blob
 import org.w3c.files.BlobPropertyBag
 import org.w3c.xhr.FormData
+
+private const val TAG = "ImageUploadClientJsImpl"
 
 public class ImageUploadClientJsImpl : ImageUploadClient {
     override suspend fun upload(
@@ -42,6 +45,8 @@ public class ImageUploadClientJsImpl : ImageUploadClient {
                 imageId = success.imageId,
                 url = success.url,
             )
+        }.onFailure {
+            Logger.e(TAG, it)
         }.getOrNull()
     }
 }

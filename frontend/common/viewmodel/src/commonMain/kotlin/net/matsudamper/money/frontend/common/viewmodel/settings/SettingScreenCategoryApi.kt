@@ -10,6 +10,7 @@ import com.apollographql.apollo.cache.normalized.fetchPolicy
 import com.apollographql.apollo.cache.normalized.watch
 import net.matsudamper.money.element.MoneyUsageCategoryId
 import net.matsudamper.money.element.MoneyUsageSubCategoryId
+import net.matsudamper.money.frontend.common.base.Logger
 import net.matsudamper.money.frontend.graphql.AddCategoryMutation
 import net.matsudamper.money.frontend.graphql.AddSubCategoryMutation
 import net.matsudamper.money.frontend.graphql.CategoriesSettingScreenCategoriesPagingQuery
@@ -25,6 +26,8 @@ import net.matsudamper.money.frontend.graphql.type.MoneyUsageCategoriesInput
 import net.matsudamper.money.frontend.graphql.type.MoneyUsageSubCategoryQuery
 import net.matsudamper.money.frontend.graphql.type.UpdateCategoryQuery
 import net.matsudamper.money.frontend.graphql.type.UpdateSubCategoryQuery
+
+private const val TAG = "SettingScreenCategoryApi"
 
 public class SettingScreenCategoryApi(
     private val apolloClient: ApolloClient,
@@ -43,7 +46,7 @@ public class SettingScreenCategoryApi(
                 .fetchPolicy(FetchPolicy.NetworkOnly)
                 .execute()
         }.onFailure {
-            it.printStackTrace()
+            Logger.e(TAG, it)
         }.getOrNull()
     }
 
@@ -58,6 +61,8 @@ public class SettingScreenCategoryApi(
                     ),
                 )
                 .execute()
+        }.onFailure {
+            Logger.e(TAG, it)
         }.getOrNull()
     }
 
@@ -76,6 +81,8 @@ public class SettingScreenCategoryApi(
                     ),
                 )
                 .execute()
+        }.onFailure {
+            Logger.e(TAG, it)
         }.getOrNull()
     }
 
@@ -94,7 +101,7 @@ public class SettingScreenCategoryApi(
                 .fetchPolicy(FetchPolicy.NetworkOnly)
                 .execute()
         }.onFailure {
-            it.printStackTrace()
+            Logger.e(TAG, it)
         }.getOrNull()
     }
 
@@ -115,6 +122,8 @@ public class SettingScreenCategoryApi(
                     ),
                 )
                 .execute()
+        }.onFailure {
+            Logger.e(TAG, it)
         }.getOrNull()
     }
 
@@ -147,6 +156,8 @@ public class SettingScreenCategoryApi(
                     ),
                 )
                 .execute()
+        }.onFailure {
+            Logger.e(TAG, it)
         }.getOrNull()
     }
 
@@ -159,6 +170,8 @@ public class SettingScreenCategoryApi(
                     ),
                 )
                 .execute()
+        }.onFailure {
+            Logger.e(TAG, it)
         }.getOrNull()?.data?.userMutation != null
     }
 
@@ -171,6 +184,8 @@ public class SettingScreenCategoryApi(
                     ),
                 )
                 .execute()
+        }.onFailure {
+            Logger.e(TAG, it)
         }.getOrNull()?.data?.userMutation?.deleteCategory == true
     }
 }

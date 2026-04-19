@@ -6,6 +6,7 @@ import kotlinx.datetime.LocalDateTime
 import kotlinx.datetime.LocalTime
 import kotlinx.datetime.TimeZone
 import kotlinx.datetime.toLocalDateTime
+import net.matsudamper.money.frontend.common.base.Logger
 import net.matsudamper.money.frontend.common.base.notification.NotificationUsageDraft
 import net.matsudamper.money.frontend.common.base.notification.NotificationUsageFilterDefinition
 import net.matsudamper.money.frontend.common.base.notification.NotificationUsageParser
@@ -50,6 +51,12 @@ internal class SaisonCardNotificationUsageParser : NotificationUsageParser {
                 date = LocalDate(year.toInt(), month.toInt(), day.toInt()),
                 time = LocalTime(hour.toInt(), minute.toInt()),
             )
+        }.onFailure {
+            Logger.e(TAG, it)
         }.getOrNull()
+    }
+
+    companion object {
+        private const val TAG = "SaisonCardNotificationUsageParser"
     }
 }
