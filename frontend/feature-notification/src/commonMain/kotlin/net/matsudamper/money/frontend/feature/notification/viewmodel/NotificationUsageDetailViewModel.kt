@@ -56,6 +56,7 @@ public class NotificationUsageDetailViewModel(
     public val uiStateFlow: StateFlow<NotificationUsageDetailScreenUiState> = MutableStateFlow(
         NotificationUsageDetailScreenUiState(
             loadingState = NotificationUsageDetailScreenUiState.LoadingState.Loading,
+            deleteConfirmDialog = null,
             event = object : NotificationUsageDetailScreenUiState.Event {
                 override fun onClickBack() {
                     viewModelScope.launch {
@@ -68,6 +69,10 @@ public class NotificationUsageDetailViewModel(
                         eventSender.send { it.navigateToHome() }
                     }
                 }
+
+                override fun onClickDelete() {
+                    viewModelStateFlow.update { it.copy(showDeleteConfirmDialog = true) }
+                }
             },
         ),
     ).also { uiStateFlow ->
@@ -76,6 +81,23 @@ public class NotificationUsageDetailViewModel(
                 uiStateFlow.update { uiState ->
                     uiState.copy(
                         loadingState = createLoadingState(viewModelState),
+                        deleteConfirmDialog = if (viewModelState.showDeleteConfirmDialog) {
+                            NotificationUsageDetailScreenUiState.DeleteConfirmDialog(
+                                onConfirm = {
+                                    viewModelScope.launch {
+                                        val key = notificationUsageKey
+                                        viewModelStateFlow.update { it.copy(showDeleteConfirmDialog = false) }
+                                        repository.deleteNotification(key)
+                                        eventSender.send { it.navigateBack() }
+                                    }
+                                },
+                                onDismiss = {
+                                    viewModelStateFlow.update { it.copy(showDeleteConfirmDialog = false) }
+                                },
+                            )
+                        } else {
+                            null
+                        },
                     )
                 }
             }
@@ -393,6 +415,7 @@ public class NotificationUsageDetailViewModel(
         val detailState: DetailState = DetailState.Loading,
         val linkedUsageState: LinkedUsageState = LinkedUsageState.None,
         val showMetadataDialog: Boolean = false,
+        val showDeleteConfirmDialog: Boolean = false,
         val matchedSubCategory: MatchedSubCategory? = null,
     )
 }

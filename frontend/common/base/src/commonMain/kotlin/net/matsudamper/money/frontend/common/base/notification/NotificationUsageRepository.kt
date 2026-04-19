@@ -17,4 +17,6 @@ public interface NotificationUsageRepository {
     public suspend fun upsertNotification(record: NotificationUsageRecordInput): String
 
     public suspend fun markNotificationAsAdded(notificationKey: String, moneyUsageId: MoneyUsageId?)
+
+    public suspend fun deleteNotification(notificationKey: String)
 }

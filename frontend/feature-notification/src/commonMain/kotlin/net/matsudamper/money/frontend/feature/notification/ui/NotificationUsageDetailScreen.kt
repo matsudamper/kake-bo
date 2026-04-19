@@ -19,9 +19,12 @@ import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material.icons.filled.Add
+import androidx.compose.material.icons.filled.MoreVert
 import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Card
 import androidx.compose.material3.CircularProgressIndicator
+import androidx.compose.material3.DropdownMenu
+import androidx.compose.material3.DropdownMenuItem
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
@@ -31,7 +34,10 @@ import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalClipboardManager
@@ -47,6 +53,22 @@ public fun NotificationUsageDetailScreen(
     windowInsets: PaddingValues,
     modifier: Modifier = Modifier,
 ) {
+    if (uiState.deleteConfirmDialog != null) {
+        AlertDialog(
+            onDismissRequest = { uiState.deleteConfirmDialog.onDismiss() },
+            title = { Text("通知を削除しますか？") },
+            confirmButton = {
+                TextButton(onClick = { uiState.deleteConfirmDialog.onConfirm() }) {
+                    Text("削除")
+                }
+            },
+            dismissButton = {
+                TextButton(onClick = { uiState.deleteConfirmDialog.onDismiss() }) {
+                    Text("キャンセル")
+                }
+            },
+        )
+    }
     Scaffold(
         modifier = modifier,
         topBar = {
@@ -54,6 +76,28 @@ public fun NotificationUsageDetailScreen(
                 navigation = {
                     IconButton(onClick = { uiState.event.onClickBack() }) {
                         Icon(Icons.AutoMirrored.Filled.ArrowBack, contentDescription = "戻る")
+                    }
+                },
+                menu = {
+                    var expand by remember { mutableStateOf(false) }
+                    Box {
+                        IconButton(onClick = { expand = !expand }) {
+                            Icon(Icons.Default.MoreVert, contentDescription = "メニュー")
+                        }
+                        DropdownMenu(
+                            expanded = expand,
+                            onDismissRequest = { expand = false },
+                        ) {
+                            DropdownMenuItem(
+                                onClick = {
+                                    expand = false
+                                    uiState.event.onClickDelete()
+                                },
+                                text = {
+                                    Text("削除")
+                                },
+                            )
+                        }
                     }
                 },
                 title = {
