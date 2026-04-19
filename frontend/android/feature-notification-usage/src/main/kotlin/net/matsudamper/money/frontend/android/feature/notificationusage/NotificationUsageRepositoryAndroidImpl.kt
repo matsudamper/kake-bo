@@ -91,12 +91,13 @@ internal class NotificationUsageRepositoryAndroidImpl(
     }
 
     private suspend fun resolveNotificationKey(record: NotificationUsageRecordInput): String {
-        val legacyEntity = dao.findByKey(record.notificationKey.value)
+        val rawKey = record.notificationKey.value
+        val legacyEntity = dao.findByKey(rawKey)
         if (legacyEntity != null && hasSameNotificationValue(legacyEntity, record)) {
-            return record.notificationKey.value
+            return rawKey
         }
         return NotificationUsageKeyBuilder.build(
-            notificationKey = record.notificationKey.value,
+            notificationKey = rawKey,
             packageName = record.packageName,
             text = record.text,
             postedAtEpochMillis = record.postedAtEpochMillis,
