@@ -7,6 +7,7 @@ import net.matsudamper.money.element.ImportedMailId
 import net.matsudamper.money.element.MoneyUsageCategoryId
 import net.matsudamper.money.element.MoneyUsageId
 import net.matsudamper.money.element.MoneyUsagePresetId
+import net.matsudamper.money.frontend.common.base.notification.NotificationUsageKey
 
 public sealed interface ScreenStructure : IScreenStructure {
     public sealed interface Root : ScreenStructure {
@@ -327,7 +328,7 @@ public sealed interface ScreenStructure : IScreenStructure {
 
     @Serializable
     public data class NotificationUsageDetail(
-        public val notificationUsageKey: String,
+        public val notificationUsageKey: NotificationUsageKey,
     ) : ScreenStructure {
         override val direction: Screens = Screens.NotificationUsageDetail
         override val stackGroupId: String? = null
@@ -336,7 +337,7 @@ public sealed interface ScreenStructure : IScreenStructure {
         override fun createUrl(): String {
             return direction.placeholderUrl.plus(
                 buildParameter {
-                    append(KEY_NOTIFICATION_USAGE_KEY, notificationUsageKey)
+                    append(KEY_NOTIFICATION_USAGE_KEY, notificationUsageKey.value)
                 },
             )
         }
@@ -347,7 +348,7 @@ public sealed interface ScreenStructure : IScreenStructure {
             public fun fromQueryParams(queryParams: Map<String, List<String>>): NotificationUsageDetail? {
                 val notificationUsageKey = queryParams[KEY_NOTIFICATION_USAGE_KEY]?.firstOrNull() ?: return null
                 return NotificationUsageDetail(
-                    notificationUsageKey = notificationUsageKey,
+                    notificationUsageKey = NotificationUsageKey(notificationUsageKey),
                 )
             }
         }
@@ -390,7 +391,7 @@ public sealed interface ScreenStructure : IScreenStructure {
         val date: LocalDateTime? = null,
         val description: String? = null,
         val subCategoryId: String? = null,
-        val notificationUsageKey: String? = null,
+        val notificationUsageKey: NotificationUsageKey? = null,
     ) : ScreenStructure {
         override val direction: Screens = Screens.AddMoneyUsage
         override val stackGroupId: String? = null
@@ -418,7 +419,7 @@ public sealed interface ScreenStructure : IScreenStructure {
                         append(KEY_SUB_CATEGORY_ID, subCategoryId)
                     }
                     if (notificationUsageKey != null) {
-                        append(KEY_NOTIFICATION_USAGE_KEY, notificationUsageKey)
+                        append(KEY_NOTIFICATION_USAGE_KEY, notificationUsageKey.value)
                     }
 
                     run {
@@ -456,7 +457,7 @@ public sealed interface ScreenStructure : IScreenStructure {
                     date = queryParams[KEY_DATE]?.firstOrNull()?.let { dateFormat.parse(it) },
                     description = queryParams[KEY_DESCRIPTION]?.firstOrNull(),
                     subCategoryId = queryParams[KEY_SUB_CATEGORY_ID]?.firstOrNull(),
-                    notificationUsageKey = queryParams[KEY_NOTIFICATION_USAGE_KEY]?.firstOrNull(),
+                    notificationUsageKey = queryParams[KEY_NOTIFICATION_USAGE_KEY]?.firstOrNull()?.let { NotificationUsageKey(it) },
                 )
             }
         }

@@ -22,6 +22,7 @@ import net.matsudamper.money.frontend.common.base.image.SelectedImage
 import net.matsudamper.money.frontend.common.base.immutableListOf
 import net.matsudamper.money.frontend.common.base.nav.ScopedObjectFeature
 import net.matsudamper.money.frontend.common.base.nav.user.ScreenStructure
+import net.matsudamper.money.frontend.common.base.notification.NotificationUsageKey
 import net.matsudamper.money.frontend.common.base.notification.NotificationUsageRepository
 import net.matsudamper.money.frontend.common.base.runCatchingWithoutCancel
 import net.matsudamper.money.frontend.common.ui.base.CategorySelectDialogUiState
@@ -506,7 +507,7 @@ public class AddMoneyUsageViewModel(
 
     private data class ViewModelState(
         val importedMailId: ImportedMailId? = null,
-        val notificationUsageKey: String? = null,
+        val notificationUsageKey: NotificationUsageKey? = null,
         val usageDate: LocalDate = Clock.System.todayIn(TimeZone.currentSystemDefault()),
         val usageTime: LocalTime = LocalTime(0, 0, 0, 0),
         val usageTitle: String = "",

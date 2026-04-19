@@ -13,11 +13,11 @@ public object EmptyNotificationUsageRepository : NotificationUsageRepository {
 
     override fun addedNotificationsFlow(): Flow<List<NotificationUsageRecord>> = flowOf(emptyList())
 
-    override fun notificationDetailFlow(notificationKey: String): Flow<NotificationUsageDetail?> = flowOf(null)
+    override fun notificationDetailFlow(notificationKey: NotificationUsageKey): Flow<NotificationUsageDetail?> = flowOf(null)
 
-    override suspend fun upsertNotification(record: NotificationUsageRecordInput): String {
+    override suspend fun upsertNotification(record: NotificationUsageRecordInput): NotificationUsageKey {
         return record.notificationKey
     }
 
-    override suspend fun markNotificationAsAdded(notificationKey: String, moneyUsageId: MoneyUsageId?): Unit = Unit
+    override suspend fun markNotificationAsAdded(notificationKey: NotificationUsageKey, moneyUsageId: MoneyUsageId?): Unit = Unit
 }

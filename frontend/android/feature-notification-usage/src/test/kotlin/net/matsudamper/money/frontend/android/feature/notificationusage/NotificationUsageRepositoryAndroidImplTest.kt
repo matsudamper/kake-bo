@@ -7,6 +7,7 @@ import io.kotest.matchers.shouldNotBe
 import net.matsudamper.money.element.MoneyUsageId
 import net.matsudamper.money.frontend.common.base.notification.NotificationUsageDraft
 import net.matsudamper.money.frontend.common.base.notification.NotificationUsageFilterDefinition
+import net.matsudamper.money.frontend.common.base.notification.NotificationUsageKey
 import net.matsudamper.money.frontend.common.base.notification.NotificationUsageParser
 import net.matsudamper.money.frontend.common.base.notification.NotificationUsageRecord
 import net.matsudamper.money.frontend.common.base.notification.NotificationUsageRecordInput
@@ -44,11 +45,11 @@ public class NotificationUsageRepositoryAndroidImplTest : DescribeSpec(
                 val all = repository.notificationsFlow().first()
                 val notAdded = repository.notAddedNotificationsFlow().first()
                 val added = repository.addedNotificationsFlow().first()
-                val unmatchedDetail = repository.notificationDetailFlow("unmatched").first()
+                val unmatchedDetail = repository.notificationDetailFlow(NotificationUsageKey("unmatched")).first()
 
-                matched.map { it.record.notificationKey }.shouldBe(listOf("matched"))
-                all.map { it.notificationKey }.shouldBe(listOf("matched", "unmatched"))
-                notAdded.map { it.notificationKey }.shouldBe(listOf("matched", "unmatched"))
+                matched.map { it.record.notificationKey }.shouldBe(listOf(NotificationUsageKey("matched")))
+                all.map { it.notificationKey }.shouldBe(listOf(NotificationUsageKey("matched"), NotificationUsageKey("unmatched")))
+                notAdded.map { it.notificationKey }.shouldBe(listOf(NotificationUsageKey("matched"), NotificationUsageKey("unmatched")))
                 matched.single().draft.description.shouldBe("match text")
                 matched.single().filterDefinition.id.shouldBe("com.example")
                 added.map { it.notificationKey }.shouldBe(listOf())
@@ -95,10 +96,10 @@ public class NotificationUsageRepositoryAndroidImplTest : DescribeSpec(
                 val notAdded = repository.notAddedNotificationsFlow().first()
                 val added = repository.addedNotificationsFlow().first()
 
-                matched.map { it.record.notificationKey }.shouldBe(listOf("new-not-added", "old-not-added"))
-                all.map { it.notificationKey }.shouldBe(listOf("new-not-added", "added", "old-not-added"))
-                notAdded.map { it.notificationKey }.shouldBe(listOf("new-not-added", "old-not-added"))
-                added.map { it.notificationKey }.shouldBe(listOf("added"))
+                matched.map { it.record.notificationKey }.shouldBe(listOf(NotificationUsageKey("new-not-added"), NotificationUsageKey("old-not-added")))
+                all.map { it.notificationKey }.shouldBe(listOf(NotificationUsageKey("new-not-added"), NotificationUsageKey("added"), NotificationUsageKey("old-not-added")))
+                notAdded.map { it.notificationKey }.shouldBe(listOf(NotificationUsageKey("new-not-added"), NotificationUsageKey("old-not-added")))
+                added.map { it.notificationKey }.shouldBe(listOf(NotificationUsageKey("added")))
             }
 
             it("追加済みに更新できる") {
@@ -119,7 +120,7 @@ public class NotificationUsageRepositoryAndroidImplTest : DescribeSpec(
                     parsers = listOf(RepositoryComExampleParser()),
                 )
 
-                repository.markNotificationAsAdded("matched", MoneyUsageId(10))
+                repository.markNotificationAsAdded(NotificationUsageKey("matched"), MoneyUsageId(10))
 
                 val matched = repository.unaddedMatchedNotificationsFlow().first()
                 val added = repository.addedNotificationsFlow().first()
@@ -149,7 +150,7 @@ public class NotificationUsageRepositoryAndroidImplTest : DescribeSpec(
 
                 val storedKey = repository.upsertNotification(
                     NotificationUsageRecordInput(
-                        notificationKey = "matched",
+                        notificationKey = NotificationUsageKey("matched"),
                         packageName = "com.example",
                         text = "new text",
                         postedAtEpochMillis = 30,
@@ -157,11 +158,11 @@ public class NotificationUsageRepositoryAndroidImplTest : DescribeSpec(
                     ),
                 )
 
-                val detail = repository.notificationDetailFlow("matched").first()
+                val detail = repository.notificationDetailFlow(NotificationUsageKey("matched")).first()
                 val newDetail = repository.notificationDetailFlow(storedKey).first()
                 val all = repository.notificationsFlow().first()
-                storedKey.shouldNotBe("matched")
-                all.map { it.notificationKey }.shouldBe(listOf(storedKey, "matched"))
+                storedKey.shouldNotBe(NotificationUsageKey("matched"))
+                all.map { it.notificationKey }.shouldBe(listOf(storedKey, NotificationUsageKey("matched")))
                 detail?.record?.isAdded.shouldBe(true)
                 detail?.record?.moneyUsageId.shouldBe(MoneyUsageId(10))
                 detail?.record?.text.shouldBe("old text")
@@ -190,7 +191,7 @@ public class NotificationUsageRepositoryAndroidImplTest : DescribeSpec(
 
                 val storedKey = repository.upsertNotification(
                     NotificationUsageRecordInput(
-                        notificationKey = "matched",
+                        notificationKey = NotificationUsageKey("matched"),
                         packageName = "com.example",
                         text = "same text",
                         postedAtEpochMillis = 20,
@@ -199,8 +200,8 @@ public class NotificationUsageRepositoryAndroidImplTest : DescribeSpec(
                 )
 
                 val all = repository.notificationsFlow().first()
-                storedKey.shouldBe("matched")
-                all.map { it.notificationKey }.shouldBe(listOf("matched"))
+                storedKey.shouldBe(NotificationUsageKey("matched"))
+                all.map { it.notificationKey }.shouldBe(listOf(NotificationUsageKey("matched")))
                 all.single().isAdded.shouldBe(true)
                 all.single().moneyUsageId.shouldBe(MoneyUsageId(10))
                 all.single().receivedAtEpochMillis.shouldBe(20L)

@@ -12,6 +12,7 @@ import net.matsudamper.money.element.MoneyUsageSubCategoryId
 import net.matsudamper.money.frontend.common.base.AppSettingsRepository
 import net.matsudamper.money.frontend.common.base.notification.NotificationUsageDraft
 import net.matsudamper.money.frontend.common.base.notification.NotificationUsageFilterDefinition
+import net.matsudamper.money.frontend.common.base.notification.NotificationUsageKey
 import net.matsudamper.money.frontend.common.base.notification.NotificationUsageParser
 import net.matsudamper.money.frontend.common.base.notification.NotificationUsageRecord
 
@@ -44,7 +45,7 @@ public class NotificationUsageAutoAddProcessorTest : DescribeSpec(
                     categoryFilterRepository = FakeNotificationUsageCategoryFilterRepository(null),
                 )
 
-                processor.process("key")
+                processor.process(NotificationUsageKey("key"))
 
                 api.payloads.size.shouldBe(0)
                 dao.findByKey("key")?.isAdded.shouldBe(false)
@@ -73,7 +74,7 @@ public class NotificationUsageAutoAddProcessorTest : DescribeSpec(
                     categoryFilterRepository = FakeNotificationUsageCategoryFilterRepository(null),
                 )
 
-                processor.process("key")
+                processor.process(NotificationUsageKey("key"))
 
                 api.payloads.size.shouldBe(1)
                 api.payloads.single().shouldBe(
@@ -116,7 +117,7 @@ public class NotificationUsageAutoAddProcessorTest : DescribeSpec(
                     categoryFilterRepository = FakeNotificationUsageCategoryFilterRepository(null),
                 )
 
-                processor.process("key")
+                processor.process(NotificationUsageKey("key"))
 
                 api.payloads.size.shouldBe(0)
             }
@@ -143,7 +144,7 @@ public class NotificationUsageAutoAddProcessorTest : DescribeSpec(
                     categoryFilterRepository = FakeNotificationUsageCategoryFilterRepository(subCategoryId),
                 )
 
-                processor.process("key")
+                processor.process(NotificationUsageKey("key"))
 
                 api.payloads.size.shouldBe(1)
                 api.payloads.single().subCategoryId.shouldBe(subCategoryId)
@@ -170,7 +171,7 @@ public class NotificationUsageAutoAddProcessorTest : DescribeSpec(
                     categoryFilterRepository = FakeNotificationUsageCategoryFilterRepository(null),
                 )
 
-                processor.process("key")
+                processor.process(NotificationUsageKey("key"))
 
                 api.payloads.size.shouldBe(1)
                 api.payloads.single().subCategoryId.shouldBe(null)

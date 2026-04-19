@@ -4,7 +4,7 @@ import kotlinx.datetime.LocalDateTime
 import net.matsudamper.money.element.MoneyUsageId
 
 public data class NotificationUsageRecord(
-    val notificationKey: String,
+    val notificationKey: NotificationUsageKey,
     val packageName: String,
     val text: String,
     val postedAtEpochMillis: Long,
@@ -15,7 +15,7 @@ public data class NotificationUsageRecord(
 )
 
 public data class NotificationUsageRecordInput(
-    val notificationKey: String,
+    val notificationKey: NotificationUsageKey,
     val packageName: String,
     val text: String,
     val postedAtEpochMillis: Long,

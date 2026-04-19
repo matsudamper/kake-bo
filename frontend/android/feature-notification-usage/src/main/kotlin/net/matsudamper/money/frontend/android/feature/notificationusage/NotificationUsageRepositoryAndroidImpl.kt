@@ -4,6 +4,7 @@ import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.map
 import net.matsudamper.money.element.MoneyUsageId
 import net.matsudamper.money.frontend.common.base.notification.NotificationUsageDetail
+import net.matsudamper.money.frontend.common.base.notification.NotificationUsageKey
 import net.matsudamper.money.frontend.common.base.notification.NotificationUsageMatchedRecord
 import net.matsudamper.money.frontend.common.base.notification.NotificationUsageParser
 import net.matsudamper.money.frontend.common.base.notification.NotificationUsageRecord
@@ -47,8 +48,8 @@ internal class NotificationUsageRepositoryAndroidImpl(
         }
     }
 
-    override fun notificationDetailFlow(notificationKey: String): Flow<NotificationUsageDetail?> {
-        return dao.observeByKey(notificationKey).map { entity ->
+    override fun notificationDetailFlow(notificationKey: NotificationUsageKey): Flow<NotificationUsageDetail?> {
+        return dao.observeByKey(notificationKey.value).map { entity ->
             val record = if (entity != null) entityToRecord(entity) else return@map null
             NotificationUsageDetail(
                 record = record,
@@ -57,7 +58,7 @@ internal class NotificationUsageRepositoryAndroidImpl(
         }
     }
 
-    override suspend fun upsertNotification(record: NotificationUsageRecordInput): String {
+    override suspend fun upsertNotification(record: NotificationUsageRecordInput): NotificationUsageKey {
         val notificationKey = resolveNotificationKey(record)
         dao.insert(
             NotificationUsageEntity(
@@ -69,16 +70,16 @@ internal class NotificationUsageRepositoryAndroidImpl(
                 notificationMetadata = record.notificationMetadata,
             ),
         )
-        return notificationKey
+        return NotificationUsageKey(notificationKey)
     }
 
-    override suspend fun markNotificationAsAdded(notificationKey: String, moneyUsageId: MoneyUsageId?) {
-        dao.markAsAdded(notificationKey, moneyUsageId?.id)
+    override suspend fun markNotificationAsAdded(notificationKey: NotificationUsageKey, moneyUsageId: MoneyUsageId?) {
+        dao.markAsAdded(notificationKey.value, moneyUsageId?.id)
     }
 
     private fun entityToRecord(entity: NotificationUsageEntity): NotificationUsageRecord {
         return NotificationUsageRecord(
-            notificationKey = entity.notificationKey,
+            notificationKey = NotificationUsageKey(entity.notificationKey),
             packageName = entity.packageName,
             text = entity.text,
             postedAtEpochMillis = entity.postedAtEpochMillis,
@@ -90,12 +91,12 @@ internal class NotificationUsageRepositoryAndroidImpl(
     }
 
     private suspend fun resolveNotificationKey(record: NotificationUsageRecordInput): String {
-        val legacyEntity = dao.findByKey(record.notificationKey)
+        val legacyEntity = dao.findByKey(record.notificationKey.value)
         if (legacyEntity != null && hasSameNotificationValue(legacyEntity, record)) {
-            return record.notificationKey
+            return record.notificationKey.value
         }
         return NotificationUsageKeyBuilder.build(
-            notificationKey = record.notificationKey,
+            notificationKey = record.notificationKey.value,
             packageName = record.packageName,
             text = record.text,
             postedAtEpochMillis = record.postedAtEpochMillis,

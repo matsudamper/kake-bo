@@ -12,9 +12,9 @@ public interface NotificationUsageRepository {
 
     public fun addedNotificationsFlow(): Flow<List<NotificationUsageRecord>>
 
-    public fun notificationDetailFlow(notificationKey: String): Flow<NotificationUsageDetail?>
+    public fun notificationDetailFlow(notificationKey: NotificationUsageKey): Flow<NotificationUsageDetail?>
 
-    public suspend fun upsertNotification(record: NotificationUsageRecordInput): String
+    public suspend fun upsertNotification(record: NotificationUsageRecordInput): NotificationUsageKey
 
-    public suspend fun markNotificationAsAdded(notificationKey: String, moneyUsageId: MoneyUsageId?)
+    public suspend fun markNotificationAsAdded(notificationKey: NotificationUsageKey, moneyUsageId: MoneyUsageId?)
 }

@@ -23,6 +23,7 @@ import net.matsudamper.money.element.MoneyUsageSubCategoryId
 import net.matsudamper.money.frontend.common.base.nav.ScopedObjectFeature
 import net.matsudamper.money.frontend.common.base.nav.user.ScreenStructure
 import net.matsudamper.money.frontend.common.base.notification.NotificationUsageDetail
+import net.matsudamper.money.frontend.common.base.notification.NotificationUsageKey
 import net.matsudamper.money.frontend.common.base.notification.NotificationUsageMatchedRecord
 import net.matsudamper.money.frontend.common.base.notification.NotificationUsageRecord
 import net.matsudamper.money.frontend.common.base.notification.NotificationUsageRepository
@@ -44,7 +45,7 @@ import net.matsudamper.money.frontend.graphql.type.ImportedMailFilterCategoryCon
 
 public class NotificationUsageDetailViewModel(
     scopedObjectFeature: ScopedObjectFeature,
-    private val notificationUsageKey: String,
+    private val notificationUsageKey: NotificationUsageKey,
     private val repository: NotificationUsageRepository,
     private val graphqlClient: GraphqlClient,
 ) : CommonViewModel(scopedObjectFeature) {

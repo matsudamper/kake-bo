@@ -7,6 +7,7 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.SupervisorJob
 import kotlinx.coroutines.cancel
 import kotlinx.coroutines.launch
+import net.matsudamper.money.frontend.common.base.notification.NotificationUsageKey
 import net.matsudamper.money.frontend.common.base.notification.NotificationUsageRecordInput
 import net.matsudamper.money.frontend.common.base.notification.NotificationUsageRepository
 import org.koin.core.context.GlobalContext
@@ -39,7 +40,7 @@ public class NotificationUsageListenerService : NotificationListenerService() {
         val postedAtEpochMillis = sbn.postTime
         val packageName = sbn.packageName
         val input = NotificationUsageRecordInput(
-            notificationKey = sbn.key,
+            notificationKey = NotificationUsageKey(sbn.key),
             packageName = packageName,
             text = text,
             postedAtEpochMillis = postedAtEpochMillis,

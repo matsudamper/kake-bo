@@ -8,6 +8,7 @@ import net.matsudamper.money.element.MoneyUsageId
 import net.matsudamper.money.element.MoneyUsageSubCategoryId
 import net.matsudamper.money.frontend.common.base.AppSettingsRepository
 import net.matsudamper.money.frontend.common.base.notification.NotificationUsageDraft
+import net.matsudamper.money.frontend.common.base.notification.NotificationUsageKey
 import net.matsudamper.money.frontend.common.base.notification.NotificationUsageParser
 import net.matsudamper.money.frontend.common.base.notification.NotificationUsageRecord
 
@@ -18,13 +19,13 @@ internal class NotificationUsageAutoAddProcessor(
     private val api: NotificationUsageAutoAddApi,
     private val categoryFilterRepository: NotificationUsageCategoryFilterRepository,
 ) {
-    private val inFlightKeys = MutableStateFlow<Set<String>>(emptySet())
+    private val inFlightKeys = MutableStateFlow<Set<NotificationUsageKey>>(emptySet())
 
-    suspend fun process(notificationKey: String) {
+    suspend fun process(notificationKey: NotificationUsageKey) {
         if (!startProcessing(notificationKey)) return
 
         try {
-            val entity = dao.findByKey(notificationKey) ?: return
+            val entity = dao.findByKey(notificationKey.value) ?: return
             if (entity.isAdded) return
 
             val record = entity.toRecord()
@@ -43,25 +44,25 @@ internal class NotificationUsageAutoAddProcessor(
             )
             val moneyUsageId = api.addUsage(draftToPayload(draft, subCategoryId))
             if (moneyUsageId != null) {
-                dao.markAsAdded(notificationKey, moneyUsageId.id)
+                dao.markAsAdded(notificationKey.value, moneyUsageId.id)
             }
         } finally {
             finishProcessing(notificationKey)
         }
     }
 
-    private fun startProcessing(notificationKey: String): Boolean {
+    private fun startProcessing(notificationKey: NotificationUsageKey): Boolean {
         val previous = inFlightKeys.getAndUpdate { it + notificationKey }
         return notificationKey !in previous
     }
 
-    private fun finishProcessing(notificationKey: String) {
+    private fun finishProcessing(notificationKey: NotificationUsageKey) {
         inFlightKeys.update { it - notificationKey }
     }
 
     private fun NotificationUsageEntity.toRecord(): NotificationUsageRecord {
         return NotificationUsageRecord(
-            notificationKey = notificationKey,
+            notificationKey = NotificationUsageKey(notificationKey),
             packageName = packageName,
             text = text,
             postedAtEpochMillis = postedAtEpochMillis,
