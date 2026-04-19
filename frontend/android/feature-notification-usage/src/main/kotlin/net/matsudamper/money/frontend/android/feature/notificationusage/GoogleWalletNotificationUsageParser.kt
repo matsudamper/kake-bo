@@ -21,11 +21,12 @@ internal class GoogleWalletNotificationUsageParser : NotificationUsageParser {
         val lines = record.text.lines()
         val title = lines.firstOrNull().orEmpty()
         val secondLine = lines.getOrNull(1).orEmpty()
+        val amount = parseAmount(secondLine) ?: return null
 
         return NotificationUsageDraft(
             title = title,
             description = record.text,
-            amount = parseAmount(secondLine),
+            amount = amount,
             dateTime = Instant.fromEpochMilliseconds(record.postedAtEpochMillis).toLocalDateTime(TimeZone.currentSystemDefault()),
         )
     }
