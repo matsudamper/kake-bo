@@ -7,9 +7,6 @@ import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.BoxWithConstraints
 import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.ExperimentalLayoutApi
-import androidx.compose.foundation.layout.FlowRow
-import androidx.compose.foundation.layout.IntrinsicSize
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
@@ -29,12 +26,14 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.filled.MoreVert
 import androidx.compose.material3.Card
-import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.CircularProgressIndicator
+import androidx.compose.material3.DropdownMenu
+import androidx.compose.material3.DropdownMenuItem
+import androidx.compose.material3.ElevatedCard
+import androidx.compose.material3.FilledTonalButton
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.Immutable
@@ -49,8 +48,6 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.LayoutDirection
 import androidx.compose.ui.unit.dp
-import androidx.compose.ui.window.Popup
-import androidx.compose.ui.window.PopupProperties
 import net.matsudamper.money.frontend.common.base.ImmutableList
 import net.matsudamper.money.frontend.common.ui.base.KakeBoTopAppBar
 import net.matsudamper.money.frontend.common.ui.base.KakeboScaffoldListener
@@ -330,6 +327,94 @@ private fun LoadedContent(
 }
 
 @Composable
+private fun HeaderSection(
+    modifier: Modifier,
+    categoryName: String,
+    categoryColor: Color?,
+    onClickChangeCategoryNameButton: () -> Unit,
+    onClickChangeColorButton: () -> Unit,
+    onClickSubCategoryButton: () -> Unit,
+    onClickDeleteCategoryButton: () -> Unit,
+) {
+    ElevatedCard(
+        modifier = modifier,
+    ) {
+        Column(
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(16.dp),
+            verticalArrangement = Arrangement.spacedBy(12.dp),
+        ) {
+            Row(
+                modifier = Modifier.fillMaxWidth(),
+                verticalAlignment = Alignment.CenterVertically,
+            ) {
+                if (categoryColor != null) {
+                    Box(
+                        modifier = Modifier
+                            .padding(end = 8.dp)
+                            .size(24.dp)
+                            .clip(CircleShape)
+                            .background(categoryColor),
+                    )
+                }
+                Text(
+                    text = categoryName,
+                    style = MaterialTheme.typography.titleMedium,
+                )
+                Spacer(modifier = Modifier.weight(1f))
+                var showCategoryMenu by remember { mutableStateOf(false) }
+                IconButton(
+                    onClick = { showCategoryMenu = true },
+                ) {
+                    Icon(
+                        imageVector = Icons.Default.MoreVert,
+                        contentDescription = "カテゴリ操作メニューを開く",
+                    )
+                }
+                DropdownMenu(
+                    expanded = showCategoryMenu,
+                    onDismissRequest = { showCategoryMenu = false },
+                ) {
+                    DropdownMenuItem(
+                        text = { Text("カテゴリー名変更") },
+                        onClick = {
+                            showCategoryMenu = false
+                            onClickChangeCategoryNameButton()
+                        },
+                    )
+                    DropdownMenuItem(
+                        text = { Text("色変更") },
+                        onClick = {
+                            showCategoryMenu = false
+                            onClickChangeColorButton()
+                        },
+                    )
+                    DropdownMenuItem(
+                        text = { Text("カテゴリーを削除") },
+                        onClick = {
+                            showCategoryMenu = false
+                            onClickDeleteCategoryButton()
+                        },
+                    )
+                }
+            }
+            FilledTonalButton(
+                modifier = Modifier.fillMaxWidth(),
+                onClick = { onClickSubCategoryButton() },
+            ) {
+                Icon(
+                    imageVector = Icons.Default.Add,
+                    contentDescription = null,
+                )
+                Spacer(modifier = Modifier.width(8.dp))
+                Text(text = "サブカテゴリーを追加")
+            }
+        }
+    }
+}
+
+@Composable
 private fun SubCategoryItem(
     modifier: Modifier = Modifier,
     item: SettingCategoryScreenUiState.SubCategoryItem,
@@ -361,105 +446,26 @@ private fun SubCategoryItem(
                     contentDescription = "open menu",
                 )
             }
-            if (showMenu) {
-                Popup(
-                    alignment = Alignment.CenterEnd,
-                    onDismissRequest = {
+            DropdownMenu(
+                expanded = showMenu,
+                onDismissRequest = {
+                    showMenu = false
+                },
+            ) {
+                DropdownMenuItem(
+                    text = { Text("名前変更") },
+                    onClick = {
                         showMenu = false
+                        item.event.onClickChangeName()
                     },
-                    properties = PopupProperties(focusable = true),
-                ) {
-                    Card(
-                        elevation = CardDefaults.cardElevation(
-                            defaultElevation = 8.dp,
-                        ),
-                    ) {
-                        Column(
-                            modifier = Modifier.width(IntrinsicSize.Min),
-                        ) {
-                            Text(
-                                modifier = Modifier
-                                    .fillMaxWidth()
-                                    .clickable { item.event.onClickChangeName() }
-                                    .padding(12.dp),
-                                text = "名前変更",
-                            )
-                            Text(
-                                modifier = Modifier
-                                    .fillMaxWidth()
-                                    .clickable { item.event.onClickDelete() }
-                                    .padding(12.dp),
-                                text = "削除",
-                            )
-                        }
-                    }
-                }
-            }
-        }
-    }
-}
-
-@OptIn(ExperimentalLayoutApi::class)
-@Composable
-private fun HeaderSection(
-    modifier: Modifier,
-    categoryName: String,
-    categoryColor: Color?,
-    onClickChangeCategoryNameButton: () -> Unit,
-    onClickChangeColorButton: () -> Unit,
-    onClickSubCategoryButton: () -> Unit,
-    onClickDeleteCategoryButton: () -> Unit,
-) {
-    Row(
-        modifier = modifier,
-        verticalAlignment = Alignment.CenterVertically,
-    ) {
-        FlowRow(
-            verticalArrangement = Arrangement.Center,
-        ) {
-            if (categoryColor != null) {
-                Box(
-                    modifier = Modifier
-                        .padding(end = 8.dp)
-                        .size(24.dp)
-                        .clip(CircleShape)
-                        .background(categoryColor),
                 )
-            }
-            Text(
-                text = categoryName,
-                style = MaterialTheme.typography.titleMedium,
-            )
-            FlowRow {
-                Spacer(modifier = Modifier.weight(1f))
-                OutlinedButton(
-                    modifier = Modifier,
-                    onClick = { onClickChangeCategoryNameButton() },
-                ) {
-                    Text(text = "カテゴリー名変更")
-                }
-                Spacer(modifier = Modifier.width(12.dp))
-                OutlinedButton(
-                    modifier = Modifier,
-                    onClick = { onClickChangeColorButton() },
-                ) {
-                    Text(text = "色変更")
-                }
-                Spacer(modifier = Modifier.width(12.dp))
-                OutlinedButton(
-                    modifier = Modifier,
-                    onClick = { onClickSubCategoryButton() },
-                ) {
-                    Icon(Icons.Default.Add, contentDescription = null)
-                    Text(text = "サブカテゴリーを追加")
-                }
-                Spacer(modifier = Modifier.width(12.dp))
-                OutlinedButton(
-                    modifier = Modifier,
-                    onClick = { onClickDeleteCategoryButton() },
-                ) {
-                    Text(text = "カテゴリーを削除")
-                }
+                DropdownMenuItem(
+                    text = { Text("削除") },
+                    onClick = {
+                        showMenu = false
+                        item.event.onClickDelete()
+                    },
+                )
             }
         }
     }
