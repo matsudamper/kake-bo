@@ -165,7 +165,8 @@ public class SettingCategoryViewModel(
                 override fun onClickDeleteCategory() {
                     val state = viewModelStateFlow.value
                     val description = if (state.hasMoreSubCategories) {
-                        "100件以上のサブカテゴリーが紐づいています"
+                        val loadedCount = state.responseList.flatMap { it.nodes }.size
+                        "${loadedCount}件以上のサブカテゴリーが紐づいています"
                     } else {
                         val subCategoryCount = state.responseList
                             .flatMap { it.nodes }
