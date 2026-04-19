@@ -50,6 +50,8 @@ import net.matsudamper.money.frontend.common.ui.rememberCustomFontFamily
 
 public val LocalRootScaffoldPadding: ProvidableCompositionLocal<PaddingValues> =
     staticCompositionLocalOf { PaddingValues(0.dp) }
+public val LocalRootSnackbarBottomPadding: ProvidableCompositionLocal<Dp> =
+    staticCompositionLocalOf { 0.dp }
 
 public fun rootHostScaffoldEntryDecorator(
     navController: ScreenNavController,
@@ -77,7 +79,10 @@ public fun rootHostScaffoldEntryDecorator(
                     snackbarBottomPadding = snackbarBottomPadding,
                     modifier = Modifier.fillMaxSize(),
                 ) { adjustedPadding ->
-                    CompositionLocalProvider(LocalRootScaffoldPadding provides adjustedPadding) {
+                    CompositionLocalProvider(
+                        LocalRootScaffoldPadding provides adjustedPadding,
+                        LocalRootSnackbarBottomPadding provides snackbarBottomPadding.value,
+                    ) {
                         content()
                     }
                 }
