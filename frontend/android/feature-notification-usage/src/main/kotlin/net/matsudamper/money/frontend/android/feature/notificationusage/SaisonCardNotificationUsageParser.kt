@@ -20,7 +20,10 @@ internal class SaisonCardNotificationUsageParser : NotificationUsageParser {
 
     override fun parse(record: NotificationUsageRecord): NotificationUsageDraft? {
         if (record.packageName != "jp.co.saisoncard.android.saisonportal") return null
-
+        run {
+            val firstLine = record.text.split("\n").firstOrNull() ?: return null
+            if (firstLine != "カードのご利用がありました") return null
+        }
         return NotificationUsageDraft(
             title = parsePlace(record.text).orEmpty(),
             description = record.text,
