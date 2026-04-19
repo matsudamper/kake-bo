@@ -67,7 +67,7 @@ public actual fun TextField(
     ) {
         TextFieldDefaults.DecorationBox(
             value = text,
-            visualTransformation = when(type) {
+            visualTransformation = when (type) {
                 TextFieldType.Text -> VisualTransformation.None
                 TextFieldType.Password -> PasswordVisualTransformation()
             },
