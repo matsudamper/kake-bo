@@ -131,6 +131,7 @@ internal object CinecittaUsageServices : MoneyUsageServices {
     private fun parseTitle(reservationLines: List<String>): String? {
         val titleLine = reservationLines.firstOrNull() ?: return null
         return titleLine
+            // 追加料金をタイトルから削除する
             .replace("""\s*／\s*\+?[\d,]+円.*$""".toRegex(), "")
             .trim()
             .takeIf { it.isNotEmpty() }
