@@ -91,10 +91,10 @@ type AdminMutation {
 
   searchUsers(query: String!): AdminUserSearchResult!
 
-  resetPassword(userName: String!, password: String!): AdminResetPasswordResult!
+  replacePassword(userName: String!, password: String!): AdminReplacePasswordResult!
 }
 
-enum AdminResetPasswordErrorType {
+enum AdminReplacePasswordErrorType {
   Unknown
 
   UserNotFound
@@ -104,10 +104,10 @@ enum AdminResetPasswordErrorType {
   PasswordInvalidChar
 }
 
-type AdminResetPasswordResult {
+type AdminReplacePasswordResult {
   isSuccess: Boolean!
 
-  errorType: AdminResetPasswordErrorType
+  errorType: AdminReplacePasswordErrorType
 }
 
 type AdminUserSearchResult {

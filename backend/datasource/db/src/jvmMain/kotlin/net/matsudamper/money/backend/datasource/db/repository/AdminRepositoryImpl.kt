@@ -89,14 +89,14 @@ class AdminRepositoryImpl : AdminRepository {
         }.getOrElse { emptyList() }
     }
 
-    override fun resetPassword(
+    override fun replacePassword(
         userName: String,
         hashedPassword: String,
         algorithmName: String,
         salt: ByteArray,
         iterationCount: Int,
         keyLength: Int,
-    ): AdminRepository.ResetPasswordResult {
+    ): AdminRepository.ReplacePasswordResult {
         runCatching {
             DbConnectionImpl.use {
                 val userId = DSL.using(it)
@@ -105,7 +105,7 @@ class AdminRepositoryImpl : AdminRepository {
                     .where(users.USER_NAME.eq(userName))
                     .fetchOne()
                     ?.value1()
-                    ?: return AdminRepository.ResetPasswordResult.UserNotFound
+                    ?: return AdminRepository.ReplacePasswordResult.UserNotFound
 
                 DSL.using(it)
                     .transaction { config ->
@@ -127,11 +127,11 @@ class AdminRepositoryImpl : AdminRepository {
             }
         }
             .onFailure { e ->
-                return AdminRepository.ResetPasswordResult.Failed(
-                    AdminRepository.ResetPasswordResult.ErrorType.InternalServerError(e),
+                return AdminRepository.ReplacePasswordResult.Failed(
+                    AdminRepository.ReplacePasswordResult.ErrorType.InternalServerError(e),
                 )
             }
 
-        return AdminRepository.ResetPasswordResult.Success
+        return AdminRepository.ReplacePasswordResult.Success
     }
 }

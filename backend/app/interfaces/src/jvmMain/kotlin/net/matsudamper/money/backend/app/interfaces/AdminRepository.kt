@@ -12,14 +12,14 @@ interface AdminRepository {
 
     fun searchUsers(query: String): List<String>
 
-    fun resetPassword(
+    fun replacePassword(
         userName: String,
         hashedPassword: String,
         algorithmName: String,
         salt: ByteArray,
         iterationCount: Int,
         keyLength: Int,
-    ): ResetPasswordResult
+    ): ReplacePasswordResult
 
     sealed interface AddUserResult {
         data object Success : AddUserResult
@@ -31,12 +31,12 @@ interface AdminRepository {
         }
     }
 
-    sealed interface ResetPasswordResult {
-        data object Success : ResetPasswordResult
+    sealed interface ReplacePasswordResult {
+        data object Success : ReplacePasswordResult
 
-        data object UserNotFound : ResetPasswordResult
+        data object UserNotFound : ReplacePasswordResult
 
-        data class Failed(val error: ErrorType) : ResetPasswordResult
+        data class Failed(val error: ErrorType) : ReplacePasswordResult
 
         sealed interface ErrorType {
             class InternalServerError(val e: Throwable) : ErrorType

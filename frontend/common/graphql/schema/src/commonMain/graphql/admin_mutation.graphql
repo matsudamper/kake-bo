@@ -22,9 +22,9 @@ mutation AdminSearchUsers($query: String!) {
     }
 }
 
-mutation AdminResetPassword($userName: String!, $password: String!) {
+mutation AdminReplacePassword($userName: String!, $password: String!) {
     adminMutation {
-        resetPassword(userName: $userName, password: $password) {
+        replacePassword(userName: $userName, password: $password) {
             isSuccess
             errorType
         }

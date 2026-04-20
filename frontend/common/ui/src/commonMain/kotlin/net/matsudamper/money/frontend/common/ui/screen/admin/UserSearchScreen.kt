@@ -93,11 +93,11 @@ internal fun UserSearchScreen(
                                 DropdownMenuItem(
                                     text = {
                                         Text(
-                                            text = "パスワードリセット",
+                                            text = "パスワード上書き",
                                             fontFamily = rememberCustomFontFamily(),
                                         )
                                     },
-                                    onClick = { uiState.listener.onClickResetPassword() },
+                                    onClick = { uiState.listener.onClickReplacePassword() },
                                 )
                             }
                         }
@@ -108,13 +108,13 @@ internal fun UserSearchScreen(
         }
     }
 
-    val dialogState = uiState.resetPasswordDialogState
+    val dialogState = uiState.replacePasswordDialogState
     if (dialogState != null) {
         AlertDialog(
-            onDismissRequest = { uiState.listener.onDismissResetPasswordDialog() },
+            onDismissRequest = { uiState.listener.onDismissReplacePasswordDialog() },
             title = {
                 Text(
-                    text = "パスワードリセット: ${dialogState.userName}",
+                    text = "パスワード上書き: ${dialogState.userName}",
                     fontFamily = rememberCustomFontFamily(),
                 )
             },
@@ -144,17 +144,17 @@ internal fun UserSearchScreen(
             },
             confirmButton = {
                 Button(
-                    onClick = { uiState.listener.onClickSubmitResetPassword() },
+                    onClick = { uiState.listener.onClickSubmitReplacePassword() },
                 ) {
                     Text(
-                        text = "リセット",
+                        text = "上書き",
                         fontFamily = rememberCustomFontFamily(),
                     )
                 }
             },
             dismissButton = {
                 TextButton(
-                    onClick = { uiState.listener.onDismissResetPasswordDialog() },
+                    onClick = { uiState.listener.onDismissReplacePasswordDialog() },
                 ) {
                     Text(
                         text = "キャンセル",

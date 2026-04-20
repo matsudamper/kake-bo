@@ -9,14 +9,14 @@ import net.matsudamper.money.backend.graphql.otelSupplyAsync
 import net.matsudamper.money.backend.graphql.toDataFetcher
 import net.matsudamper.money.backend.logic.AddUserUseCase
 import net.matsudamper.money.backend.logic.PasswordManager
-import net.matsudamper.money.backend.logic.ResetPasswordUseCase
+import net.matsudamper.money.backend.logic.ReplacePasswordUseCase
 import net.matsudamper.money.graphql.model.AdminMutationResolver
 import net.matsudamper.money.graphql.model.QlAdminAddUserErrorType
 import net.matsudamper.money.graphql.model.QlAdminAddUserResult
 import net.matsudamper.money.graphql.model.QlAdminLoginResult
 import net.matsudamper.money.graphql.model.QlAdminMutation
-import net.matsudamper.money.graphql.model.QlAdminResetPasswordErrorType
-import net.matsudamper.money.graphql.model.QlAdminResetPasswordResult
+import net.matsudamper.money.graphql.model.QlAdminReplacePasswordErrorType
+import net.matsudamper.money.graphql.model.QlAdminReplacePasswordResult
 import net.matsudamper.money.graphql.model.QlAdminUserSearchResult
 
 class AdminMutationResolverImpl : AdminMutationResolver {
@@ -115,52 +115,52 @@ class AdminMutationResolverImpl : AdminMutationResolver {
         }.toDataFetcher()
     }
 
-    override fun resetPassword(
+    override fun replacePassword(
         adminMutation: QlAdminMutation,
         userName: String,
         password: String,
         env: DataFetchingEnvironment,
-    ): CompletionStage<DataFetcherResult<QlAdminResetPasswordResult>> {
+    ): CompletionStage<DataFetcherResult<QlAdminReplacePasswordResult>> {
         val context = env.graphQlContext.get<GraphQlContext>(GraphQlContext::class.java.name)
         context.verifyAdminSession()
 
         return otelSupplyAsync {
-            val result = ResetPasswordUseCase(
+            val result = ReplacePasswordUseCase(
                 context.diContainer.createAdminRepository(),
                 passwordManager = PasswordManager(),
-            ).resetPassword(
+            ).replacePassword(
                 userName = userName,
                 password = password,
             )
             when (result) {
-                is ResetPasswordUseCase.Result.Failure -> {
+                is ReplacePasswordUseCase.Result.Failure -> {
                     val errorType = result.errors.map {
                         when (it) {
-                            is ResetPasswordUseCase.Result.Errors.InternalServerError -> {
-                                QlAdminResetPasswordErrorType.Unknown
+                            is ReplacePasswordUseCase.Result.Errors.InternalServerError -> {
+                                QlAdminReplacePasswordErrorType.Unknown
                             }
 
-                            is ResetPasswordUseCase.Result.Errors.PasswordLength -> {
-                                QlAdminResetPasswordErrorType.PasswordLength
+                            is ReplacePasswordUseCase.Result.Errors.PasswordLength -> {
+                                QlAdminReplacePasswordErrorType.PasswordLength
                             }
 
-                            is ResetPasswordUseCase.Result.Errors.PasswordValidation -> {
-                                QlAdminResetPasswordErrorType.PasswordInvalidChar
+                            is ReplacePasswordUseCase.Result.Errors.PasswordValidation -> {
+                                QlAdminReplacePasswordErrorType.PasswordInvalidChar
                             }
 
-                            ResetPasswordUseCase.Result.Errors.UserNotFound -> {
-                                QlAdminResetPasswordErrorType.UserNotFound
+                            ReplacePasswordUseCase.Result.Errors.UserNotFound -> {
+                                QlAdminReplacePasswordErrorType.UserNotFound
                             }
                         }
                     }
-                    QlAdminResetPasswordResult(
+                    QlAdminReplacePasswordResult(
                         isSuccess = false,
                         errorType = errorType.firstOrNull(),
                     )
                 }
 
-                is ResetPasswordUseCase.Result.Success -> {
-                    QlAdminResetPasswordResult(
+                is ReplacePasswordUseCase.Result.Success -> {
+                    QlAdminReplacePasswordResult(
                         isSuccess = true,
                         errorType = null,
                     )

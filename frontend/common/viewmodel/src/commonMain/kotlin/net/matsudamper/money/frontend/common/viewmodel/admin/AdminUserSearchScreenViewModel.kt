@@ -21,7 +21,7 @@ public class AdminUserSearchScreenViewModel(
             searchQuery = "",
             searchResults = emptyList(),
             selectedUserName = null,
-            resetPasswordDialogState = null,
+            replacePasswordDialogState = null,
             listener = createListener(),
         ),
     ).also { uiStateFlow ->
@@ -32,8 +32,8 @@ public class AdminUserSearchScreenViewModel(
                         searchQuery = viewModelState.searchQuery,
                         searchResults = viewModelState.searchResults,
                         selectedUserName = viewModelState.selectedUserName,
-                        resetPasswordDialogState = if (viewModelState.showResetPasswordDialog && viewModelState.selectedUserName != null) {
-                            AdminUserSearchUiState.ResetPasswordDialogState(
+                        replacePasswordDialogState = if (viewModelState.showReplacePasswordDialog && viewModelState.selectedUserName != null) {
+                            AdminUserSearchUiState.ReplacePasswordDialogState(
                                 userName = viewModelState.selectedUserName,
                                 password = viewModelState.password,
                                 resultMessage = viewModelState.resultMessage,
@@ -70,10 +70,10 @@ public class AdminUserSearchScreenViewModel(
                 viewModelStateFlow.update { it.copy(selectedUserName = null) }
             }
 
-            override fun onClickResetPassword() {
+            override fun onClickReplacePassword() {
                 viewModelStateFlow.update {
                     it.copy(
-                        showResetPasswordDialog = true,
+                        showReplacePasswordDialog = true,
                         password = "",
                         resultMessage = null,
                     )
@@ -84,19 +84,19 @@ public class AdminUserSearchScreenViewModel(
                 viewModelStateFlow.update { it.copy(password = password) }
             }
 
-            override fun onClickSubmitResetPassword() {
+            override fun onClickSubmitReplacePassword() {
                 viewModelScope.launch {
                     val state = viewModelStateFlow.value
                     val userName = state.selectedUserName ?: return@launch
-                    val result = adminQuery.resetPassword(
+                    val result = adminQuery.replacePassword(
                         userName = userName,
                         password = state.password,
                     )
-                    val data = result.data?.adminMutation?.resetPassword
+                    val data = result.data?.adminMutation?.replacePassword
                     if (data?.isSuccess == true) {
                         viewModelStateFlow.update {
                             it.copy(
-                                showResetPasswordDialog = false,
+                                showReplacePasswordDialog = false,
                                 selectedUserName = null,
                                 password = "",
                                 resultMessage = null,
@@ -116,10 +116,10 @@ public class AdminUserSearchScreenViewModel(
                 }
             }
 
-            override fun onDismissResetPasswordDialog() {
+            override fun onDismissReplacePasswordDialog() {
                 viewModelStateFlow.update {
                     it.copy(
-                        showResetPasswordDialog = false,
+                        showReplacePasswordDialog = false,
                         selectedUserName = null,
                         password = "",
                         resultMessage = null,
@@ -133,7 +133,7 @@ public class AdminUserSearchScreenViewModel(
         val searchQuery: String = "",
         val searchResults: List<String> = emptyList(),
         val selectedUserName: String? = null,
-        val showResetPasswordDialog: Boolean = false,
+        val showReplacePasswordDialog: Boolean = false,
         val password: String = "",
         val resultMessage: String? = null,
     )

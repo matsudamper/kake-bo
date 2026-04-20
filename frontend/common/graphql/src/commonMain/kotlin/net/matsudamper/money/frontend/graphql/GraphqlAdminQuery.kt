@@ -37,12 +37,12 @@ class GraphqlAdminQuery(
             .execute()
     }
 
-    suspend fun resetPassword(
+    suspend fun replacePassword(
         userName: String,
         password: String,
-    ): ApolloResponse<AdminResetPasswordMutation.Data> {
+    ): ApolloResponse<AdminReplacePasswordMutation.Data> {
         return graphqlClient.apolloClient.mutation(
-            AdminResetPasswordMutation(
+            AdminReplacePasswordMutation(
                 userName = userName,
                 password = password,
             ),

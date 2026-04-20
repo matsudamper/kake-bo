@@ -2,7 +2,7 @@ type AdminMutation {
     adminLogin(password: String!): AdminLoginResult!
     addUser(name: String!, password: String!): AdminAddUserResult!
     searchUsers(query: String!): AdminUserSearchResult!
-    resetPassword(userName: String!, password: String!): AdminResetPasswordResult!
+    replacePassword(userName: String!, password: String!): AdminReplacePasswordResult!
 }
 
 type AdminAddUserResult {
@@ -26,12 +26,12 @@ type AdminUserSearchResult {
     users: [String!]!
 }
 
-type AdminResetPasswordResult {
+type AdminReplacePasswordResult {
     isSuccess: Boolean!
-    errorType: AdminResetPasswordErrorType
+    errorType: AdminReplacePasswordErrorType
 }
 
-enum AdminResetPasswordErrorType {
+enum AdminReplacePasswordErrorType {
     Unknown,
     UserNotFound,
     PasswordLength,

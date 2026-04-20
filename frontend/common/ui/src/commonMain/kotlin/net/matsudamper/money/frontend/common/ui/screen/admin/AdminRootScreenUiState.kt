@@ -35,10 +35,10 @@ public data class AdminUserSearchUiState(
     val searchQuery: String,
     val searchResults: List<String>,
     val selectedUserName: String?,
-    val resetPasswordDialogState: ResetPasswordDialogState?,
+    val replacePasswordDialogState: ReplacePasswordDialogState?,
     val listener: Listener,
 ) {
-    public data class ResetPasswordDialogState(
+    public data class ReplacePasswordDialogState(
         val userName: String,
         val password: String,
         val resultMessage: String?,
@@ -54,12 +54,12 @@ public data class AdminUserSearchUiState(
 
         public fun onDismissUserMenu()
 
-        public fun onClickResetPassword()
+        public fun onClickReplacePassword()
 
         public fun onPasswordChanged(password: String)
 
-        public fun onClickSubmitResetPassword()
+        public fun onClickSubmitReplacePassword()
 
-        public fun onDismissResetPasswordDialog()
+        public fun onDismissReplacePasswordDialog()
     }
 }

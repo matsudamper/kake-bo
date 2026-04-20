@@ -2,11 +2,11 @@ package net.matsudamper.money.backend.logic
 
 import net.matsudamper.money.backend.app.interfaces.AdminRepository
 
-class ResetPasswordUseCase(
+class ReplacePasswordUseCase(
     private val adminRepository: AdminRepository,
     private val passwordManager: IPasswordManager,
 ) {
-    fun resetPassword(
+    fun replacePassword(
         userName: String,
         password: String,
     ): Result {
@@ -34,7 +34,7 @@ class ResetPasswordUseCase(
             saltByteLength = 32,
             algorithm = IPasswordManager.Algorithm.PBKDF2WithHmacSHA512,
         )
-        val resetResult = adminRepository.resetPassword(
+        val replaceResult = adminRepository.replacePassword(
             userName = userName,
             hashedPassword = passwordResult.hashedPassword,
             algorithmName = passwordResult.algorithm,
@@ -42,21 +42,21 @@ class ResetPasswordUseCase(
             iterationCount = passwordResult.iterationCount,
             keyLength = passwordResult.keyLength,
         )
-        return when (resetResult) {
-            is AdminRepository.ResetPasswordResult.Failed -> {
-                when (val error = resetResult.error) {
-                    is AdminRepository.ResetPasswordResult.ErrorType.InternalServerError -> {
+        return when (replaceResult) {
+            is AdminRepository.ReplacePasswordResult.Failed -> {
+                when (val error = replaceResult.error) {
+                    is AdminRepository.ReplacePasswordResult.ErrorType.InternalServerError -> {
                         error.e.printStackTrace()
                         Result.Failure(errors = listOf(Result.Errors.InternalServerError))
                     }
                 }
             }
 
-            AdminRepository.ResetPasswordResult.UserNotFound -> {
+            AdminRepository.ReplacePasswordResult.UserNotFound -> {
                 Result.Failure(errors = listOf(Result.Errors.UserNotFound))
             }
 
-            AdminRepository.ResetPasswordResult.Success -> {
+            AdminRepository.ReplacePasswordResult.Success -> {
                 Result.Success
             }
         }
