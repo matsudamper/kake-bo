@@ -188,4 +188,8 @@ public enum class MoneyUsageServiceType(
         id = 47,
         displayName = "チケプラトレード",
     ),
+    Cinecitta(
+        id = 48,
+        displayName = "チネチッタ",
+    ),
 }
