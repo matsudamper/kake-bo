@@ -3,9 +3,11 @@ package net.matsudamper.money.frontend.common.viewmodel.moneyusage
 import kotlinx.datetime.LocalDateTime
 import com.apollographql.apollo.api.Optional
 import net.matsudamper.money.element.ImageId
+import net.matsudamper.money.element.ImportedMailId
 import net.matsudamper.money.element.MoneyUsageId
 import net.matsudamper.money.frontend.common.base.ImageUploadClient
 import net.matsudamper.money.frontend.graphql.GraphqlClient
+import net.matsudamper.money.frontend.graphql.MoneyUsageScreenAddMailLinkMutation
 import net.matsudamper.money.frontend.graphql.MoneyUsageScreenDeleteImageMutation
 import net.matsudamper.money.frontend.graphql.MoneyUsageScreenDeleteUsageMutation
 import net.matsudamper.money.frontend.graphql.MoneyUsageScreenUpdateUsageMutation
@@ -91,6 +93,26 @@ public class MoneyUsageScreenViewModelApi(
                 .execute()
         }.map {
             it.data?.userMutation?.deleteUsage
+        }.onFailure {
+            it.printStackTrace()
+        }.fold(
+            onSuccess = { it == true },
+            onFailure = { false },
+        )
+    }
+
+    public suspend fun addMailLink(moneyUsageId: MoneyUsageId, mailId: ImportedMailId): Boolean {
+        return runCatching {
+            graphqlClient.apolloClient
+                .mutation(
+                    MoneyUsageScreenAddMailLinkMutation(
+                        moneyUsageId = moneyUsageId,
+                        mailId = mailId,
+                    ),
+                )
+                .execute()
+        }.map {
+            it.data?.userMutation?.addImportedMailLinkToMoneyUsage
         }.onFailure {
             it.printStackTrace()
         }.fold(

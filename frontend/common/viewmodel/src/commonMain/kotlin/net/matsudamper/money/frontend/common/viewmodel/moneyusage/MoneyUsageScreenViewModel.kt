@@ -15,6 +15,7 @@ import com.apollographql.apollo.cache.normalized.fetchPolicy
 import com.apollographql.apollo.cache.normalized.isFromCache
 import com.apollographql.apollo.cache.normalized.watch
 import net.matsudamper.money.element.ImageId
+import net.matsudamper.money.element.ImportedMailId
 import net.matsudamper.money.element.MoneyUsageId
 import net.matsudamper.money.frontend.common.base.ImmutableList.Companion.toImmutableList
 import net.matsudamper.money.frontend.common.base.image.SelectedImage
@@ -251,6 +252,44 @@ public class MoneyUsageScreenViewModel(
                             ),
                         )
                     }
+                }
+            }
+
+            override fun onClickAddLinkedMail() {
+                viewModelStateFlow.update { viewModelState ->
+                    viewModelState.copy(
+                        textInputDialog = MoneyUsageScreenUiState.TextInputDialog(
+                            isMultiline = false,
+                            title = "メールIDを入力",
+                            onComplete = { text ->
+                                val mailId = text.trim().toIntOrNull()
+                                if (mailId == null) {
+                                    viewModelScope.launch {
+                                        eventSender.send {
+                                            it.showToast("メールIDは数値で入力してください")
+                                        }
+                                    }
+                                    return@TextInputDialog
+                                }
+                                viewModelScope.launch {
+                                    val isSuccess = api.addMailLink(
+                                        moneyUsageId = moneyUsageId,
+                                        mailId = ImportedMailId(mailId),
+                                    )
+                                    if (isSuccess) {
+                                        dismissTextInputDialog()
+                                        fetch(policy = FetchPolicy.NetworkOnly)
+                                    } else {
+                                        eventSender.send {
+                                            it.showToast("メールの紐付けに失敗しました")
+                                        }
+                                    }
+                                }
+                            },
+                            default = "",
+                            onCancel = { dismissTextInputDialog() },
+                        ),
+                    )
                 }
             }
         }

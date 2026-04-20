@@ -40,6 +40,8 @@ type UserMutation {
     addMoneyUsagePreset(input: AddMoneyUsagePresetInput!): MoneyUsagePreset!
     updateMoneyUsagePreset(input: UpdateMoneyUsagePresetInput!): MoneyUsagePreset!
     deleteMoneyUsagePreset(id: MoneyUsagePresetId!): Boolean!
+
+    addImportedMailLinkToMoneyUsage(moneyUsageId: MoneyUsageId!, mailId: ImportedMailId!): Boolean!
 }
 
 type DeleteApiTokenResult {

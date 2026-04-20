@@ -204,6 +204,8 @@ public data class MoneyUsageScreenUiState(
         public fun onClickDelete()
 
         public fun onClickCopy()
+
+        public fun onClickAddLinkedMail()
     }
 
     public data class Clickable(
@@ -432,11 +434,21 @@ private fun LoadedContent(
                 }
             }
             item {
-                Text(
+                Row(
                     modifier = Modifier.padding(12.dp),
-                    text = "連携されたメール",
-                    style = MaterialTheme.typography.titleLarge,
-                )
+                    verticalAlignment = Alignment.CenterVertically,
+                ) {
+                    Text(
+                        modifier = Modifier.weight(1f),
+                        text = "連携されたメール",
+                        style = MaterialTheme.typography.titleLarge,
+                    )
+                    TextButton(
+                        onClick = { uiState.event.onClickAddLinkedMail() },
+                    ) {
+                        Text("メールを紐付ける")
+                    }
+                }
                 HorizontalDivider(modifier = Modifier.fillMaxWidth().height(1.dp))
             }
             if (uiState.linkedMails.isNotEmpty()) {
