@@ -22,18 +22,26 @@ import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Add
 import androidx.compose.material3.CircularProgressIndicator
+import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.FloatingActionButton
 import androidx.compose.material3.Icon
 import androidx.compose.material3.Text
+import androidx.compose.material3.pulltorefresh.PullToRefreshBox
+import androidx.compose.material3.pulltorefresh.rememberPullToRefreshState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberCoroutineScope
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalLayoutDirection
 import androidx.compose.ui.unit.dp
+import kotlinx.coroutines.launch
 import net.matsudamper.money.frontend.common.base.ImmutableList
 import net.matsudamper.money.frontend.common.ui.base.KakeBoTopAppBar
 import net.matsudamper.money.frontend.common.ui.base.KakeboScaffoldListener
@@ -72,6 +80,8 @@ public data class SettingCategoriesScreenUiState(
         public fun categoryInputCompleted(text: String)
 
         public fun dismissCategoryInput()
+
+        public fun onRefresh()
     }
 }
 
@@ -145,58 +155,75 @@ public fun MainContent(
                 val lazyListState = rememberLazyListState()
                 val fabSize = 56.dp
                 val fabPadding = 16.dp
-                Box(modifier = Modifier.fillMaxSize()) {
-                    LazyColumn(
-                        modifier = Modifier.fillMaxSize(),
-                        contentPadding = PaddingValues(
-                            start = paddingValues.calculateStartPadding(layoutDirection),
-                            end = paddingValues.calculateEndPadding(layoutDirection),
-                            bottom = fabSize + fabPadding * 2,
-                        ),
-                        state = lazyListState,
-                    ) {
-                        item {
-                            Spacer(Modifier.height(24.dp))
+                var isRefreshing by remember { mutableStateOf(false) }
+                val refreshState = rememberPullToRefreshState()
+                val coroutineScope = rememberCoroutineScope()
+                @OptIn(ExperimentalMaterial3Api::class)
+                PullToRefreshBox(
+                    modifier = Modifier.fillMaxSize(),
+                    state = refreshState,
+                    isRefreshing = isRefreshing,
+                    onRefresh = {
+                        coroutineScope.launch {
+                            isRefreshing = true
+                            uiState.event.onRefresh()
+                            isRefreshing = false
                         }
-                        items(state.item) { item ->
-                            SettingListMenuItemButton(
-                                modifier = Modifier
-                                    .fillMaxWidth(),
-                                onClick = { item.event.onClick() },
-                            ) {
-                                Row(
-                                    verticalAlignment = Alignment.CenterVertically,
+                    },
+                ) {
+                    Box(modifier = Modifier.fillMaxSize()) {
+                        LazyColumn(
+                            modifier = Modifier.fillMaxSize(),
+                            contentPadding = PaddingValues(
+                                start = paddingValues.calculateStartPadding(layoutDirection),
+                                end = paddingValues.calculateEndPadding(layoutDirection),
+                                bottom = fabSize + fabPadding * 2,
+                            ),
+                            state = lazyListState,
+                        ) {
+                            item {
+                                Spacer(Modifier.height(24.dp))
+                            }
+                            items(state.item) { item ->
+                                SettingListMenuItemButton(
+                                    modifier = Modifier
+                                        .fillMaxWidth(),
+                                    onClick = { item.event.onClick() },
                                 ) {
-                                    val color = item.color
-                                    if (color != null) {
-                                        Box(
-                                            modifier = Modifier
-                                                .size(16.dp)
-                                                .clip(CircleShape)
-                                                .background(color),
+                                    Row(
+                                        verticalAlignment = Alignment.CenterVertically,
+                                    ) {
+                                        val color = item.color
+                                        if (color != null) {
+                                            Box(
+                                                modifier = Modifier
+                                                    .size(16.dp)
+                                                    .clip(CircleShape)
+                                                    .background(color),
+                                            )
+                                            Spacer(Modifier.width(8.dp))
+                                        }
+                                        Text(
+                                            text = item.name,
                                         )
-                                        Spacer(Modifier.width(8.dp))
                                     }
-                                    Text(
-                                        text = item.name,
-                                    )
                                 }
                             }
+                            item {
+                                Spacer(Modifier.height(24.dp))
+                            }
                         }
-                        item {
-                            Spacer(Modifier.height(24.dp))
+                        FloatingActionButton(
+                            modifier = Modifier
+                                .align(Alignment.BottomEnd)
+                                .padding(
+                                    end = paddingValues.calculateEndPadding(layoutDirection) + fabPadding,
+                                    bottom = fabPadding,
+                                ),
+                            onClick = { uiState.event.onClickAddCategoryButton() },
+                        ) {
+                            Icon(Icons.Default.Add, contentDescription = "カテゴリーを追加")
                         }
-                    }
-                    FloatingActionButton(
-                        modifier = Modifier
-                            .align(Alignment.BottomEnd)
-                            .padding(
-                                end = paddingValues.calculateEndPadding(layoutDirection) + fabPadding,
-                                bottom = fabPadding,
-                            ),
-                        onClick = { uiState.event.onClickAddCategoryButton() },
-                    ) {
-                        Icon(Icons.Default.Add, contentDescription = "カテゴリーを追加")
                     }
                 }
             }

@@ -85,6 +85,12 @@ public class SettingCategoriesViewModel(
                         initialFetch()
                     }
                 }
+
+                override fun onRefresh() {
+                    viewModelScope.launch {
+                        refresh()
+                    }
+                }
             },
             loadingState = SettingCategoriesScreenUiState.LoadingState.Loading,
             showCategoryNameInput = false,
@@ -155,6 +161,15 @@ public class SettingCategoriesViewModel(
                     responseList = listOf(data),
                 )
             }
+        }
+    }
+
+    private suspend fun refresh() {
+        val data = api.getCategories()?.data ?: return
+        viewModelStateFlow.update {
+            it.copy(
+                responseList = listOf(data),
+            )
         }
     }
 
