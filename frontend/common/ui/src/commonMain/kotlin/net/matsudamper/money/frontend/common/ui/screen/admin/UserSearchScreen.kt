@@ -22,10 +22,6 @@ import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
-import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.input.KeyboardType
@@ -39,9 +35,6 @@ internal fun UserSearchScreen(
     modifier: Modifier = Modifier,
     uiState: AdminUserSearchUiState,
 ) {
-    var searchQuery by remember { mutableStateOf("") }
-    var passwordText by remember { mutableStateOf("") }
-
     Scaffold(
         modifier = modifier,
         topBar = {
@@ -51,8 +44,8 @@ internal fun UserSearchScreen(
             )
         },
         contentColor = MaterialTheme.colorScheme.onSurface,
-    ) {
-        Column {
+    ) { paddingValues ->
+        Column(modifier = Modifier.padding(paddingValues)) {
             Row(
                 modifier = Modifier.fillMaxWidth().padding(12.dp),
                 verticalAlignment = Alignment.CenterVertically,
@@ -61,7 +54,6 @@ internal fun UserSearchScreen(
                     modifier = Modifier.weight(1f).height(48.dp),
                     placeholder = "ユーザー名を入力",
                     onValueChange = {
-                        searchQuery = it.text
                         uiState.listener.onSearchQueryChanged(it.text)
                     },
                     type = KeyboardType.Text,
@@ -132,7 +124,6 @@ internal fun UserSearchScreen(
                         modifier = Modifier.fillMaxWidth().height(48.dp),
                         placeholder = "新しいパスワード",
                         onValueChange = {
-                            passwordText = it.text
                             uiState.listener.onPasswordChanged(it.text)
                         },
                         type = KeyboardType.Password,

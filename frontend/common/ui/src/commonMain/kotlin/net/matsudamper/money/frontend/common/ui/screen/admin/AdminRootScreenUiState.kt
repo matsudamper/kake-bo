@@ -32,6 +32,7 @@ public data class AdminAddUserUiState(
 )
 
 public data class AdminUserSearchUiState(
+    val searchQuery: String,
     val searchResults: List<String>,
     val selectedUserName: String?,
     val resetPasswordDialogState: ResetPasswordDialogState?,
@@ -39,6 +40,7 @@ public data class AdminUserSearchUiState(
 ) {
     public data class ResetPasswordDialogState(
         val userName: String,
+        val password: String,
         val resultMessage: String?,
     )
 
