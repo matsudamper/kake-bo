@@ -9,11 +9,14 @@ import net.matsudamper.money.element.ImageId
 import net.matsudamper.money.element.ImportedMailId
 import net.matsudamper.money.element.MoneyUsageSubCategoryId
 import net.matsudamper.money.frontend.common.base.ImageUploadClient
+import net.matsudamper.money.frontend.common.base.Logger
 import net.matsudamper.money.frontend.graphql.AddMoneyUsageMutation
 import net.matsudamper.money.frontend.graphql.AddMoneyUsageScreenGetSubCategoryQuery
 import net.matsudamper.money.frontend.graphql.AddMoneyUsageScreenQuery
 import net.matsudamper.money.frontend.graphql.GraphqlClient
 import net.matsudamper.money.frontend.graphql.type.AddUsageQuery
+
+private const val TAG = "AddMoneyUsageScreenApi"
 
 public class AddMoneyUsageScreenApi(
     private val graphqlClient: GraphqlClient,
@@ -54,6 +57,8 @@ public class AddMoneyUsageScreenApi(
                     ),
                 )
                 .execute()
+        }.onFailure {
+            Logger.e(TAG, it)
         }.getOrNull()
     }
 
