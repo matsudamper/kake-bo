@@ -260,7 +260,7 @@ public class MoneyUsageScreenViewModel(
                     viewModelState.copy(
                         textInputDialog = MoneyUsageScreenUiState.TextInputDialog(
                             isMultiline = false,
-                            title = "メールIDを入力",
+                            title = "紐付けるメールのIDを入力",
                             onComplete = { text ->
                                 val mailId = text.trim().toIntOrNull()
                                 if (mailId == null) {
