@@ -9,6 +9,7 @@ import net.matsudamper.money.frontend.common.ui.screen.admin.AdminRootScreen
 import net.matsudamper.money.frontend.common.viewmodel.admin.AdminAddUserScreenViewModel
 import net.matsudamper.money.frontend.common.viewmodel.admin.AdminLoginScreenViewModel
 import net.matsudamper.money.frontend.common.viewmodel.admin.AdminRootScreenViewModel
+import net.matsudamper.money.frontend.common.viewmodel.admin.AdminUserSearchScreenViewModel
 import net.matsudamper.money.frontend.graphql.GraphqlAdminQuery
 import net.matsudamper.money.frontend.graphql.GraphqlClient
 
@@ -50,6 +51,15 @@ internal fun AdminContainer(
                 )
             }
             adminAddUserScreenViewModel.uiStateFlow.collectAsState().value
+        },
+        adminUserSearchUiStateProvider = {
+            val adminUserSearchScreenViewModel = LocalScopedObjectStore.current.putOrGet<AdminUserSearchScreenViewModel>(Unit) {
+                AdminUserSearchScreenViewModel(
+                    scopedObjectFeature = it,
+                    adminQuery = GraphqlAdminQuery(koin.get<GraphqlClient>()),
+                )
+            }
+            adminUserSearchScreenViewModel.uiStateFlow.collectAsState().value
         },
         windowInsets = windowInsets,
     )

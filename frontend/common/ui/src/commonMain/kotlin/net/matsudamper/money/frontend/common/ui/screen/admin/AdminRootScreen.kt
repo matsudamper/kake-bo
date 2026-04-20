@@ -17,6 +17,7 @@ public fun AdminRootScreen(
     adminRootScreenUiStateProvider: @Composable () -> AdminRootScreenUiState,
     adminLoginScreenUiStateProvider: @Composable () -> AdminLoginScreenUiState,
     adminAddUserUiStateProvider: @Composable () -> AdminAddUserUiState,
+    adminUserSearchUiStateProvider: @Composable () -> AdminUserSearchUiState,
     windowInsets: PaddingValues,
     modifier: Modifier = Modifier,
 ) {
@@ -46,6 +47,13 @@ public fun AdminRootScreen(
             AdminScreenType.AddUser -> {
                 val uiState = adminAddUserUiStateProvider()
                 AddUserScreen(
+                    uiState = uiState,
+                )
+            }
+
+            AdminScreenType.UserSearch -> {
+                val uiState = adminUserSearchUiStateProvider()
+                UserSearchScreen(
                     uiState = uiState,
                 )
             }

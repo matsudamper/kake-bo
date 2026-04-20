@@ -37,6 +37,16 @@ internal fun AdminRootScreen(
                 onClick = { uiState.listener.onClickAddUser() },
             )
             HorizontalDivider(modifier = Modifier.fillMaxWidth())
+            RootSettingItem(
+                text = {
+                    Text(
+                        text = "ユーザー検索",
+                        fontFamily = rememberCustomFontFamily(),
+                    )
+                },
+                onClick = { uiState.listener.onClickUserSearch() },
+            )
+            HorizontalDivider(modifier = Modifier.fillMaxWidth())
         }
     }
 }

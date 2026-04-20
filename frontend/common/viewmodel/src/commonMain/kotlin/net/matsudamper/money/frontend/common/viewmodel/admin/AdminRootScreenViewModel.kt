@@ -22,6 +22,10 @@ public class AdminRootScreenViewModel(
                 override fun onClickAddUser() {
                     controller.navigateToAddUser()
                 }
+
+                override fun onClickUserSearch() {
+                    controller.navigateToUserSearch()
+                }
             },
         ),
     ).also { uiStateFlow ->

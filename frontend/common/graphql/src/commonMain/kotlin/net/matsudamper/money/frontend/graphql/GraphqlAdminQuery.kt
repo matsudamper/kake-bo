@@ -27,4 +27,26 @@ class GraphqlAdminQuery(
         )
             .execute()
     }
+
+    suspend fun searchUsers(query: String): ApolloResponse<AdminSearchUsersMutation.Data> {
+        return graphqlClient.apolloClient.mutation(
+            AdminSearchUsersMutation(
+                query = query,
+            ),
+        )
+            .execute()
+    }
+
+    suspend fun resetPassword(
+        userName: String,
+        password: String,
+    ): ApolloResponse<AdminResetPasswordMutation.Data> {
+        return graphqlClient.apolloClient.mutation(
+            AdminResetPasswordMutation(
+                userName = userName,
+                password = password,
+            ),
+        )
+            .execute()
+    }
 }

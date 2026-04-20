@@ -9,11 +9,15 @@ import net.matsudamper.money.backend.graphql.otelSupplyAsync
 import net.matsudamper.money.backend.graphql.toDataFetcher
 import net.matsudamper.money.backend.logic.AddUserUseCase
 import net.matsudamper.money.backend.logic.PasswordManager
+import net.matsudamper.money.backend.logic.ResetPasswordUseCase
 import net.matsudamper.money.graphql.model.AdminMutationResolver
 import net.matsudamper.money.graphql.model.QlAdminAddUserErrorType
 import net.matsudamper.money.graphql.model.QlAdminAddUserResult
 import net.matsudamper.money.graphql.model.QlAdminLoginResult
 import net.matsudamper.money.graphql.model.QlAdminMutation
+import net.matsudamper.money.graphql.model.QlAdminResetPasswordErrorType
+import net.matsudamper.money.graphql.model.QlAdminResetPasswordResult
+import net.matsudamper.money.graphql.model.QlAdminUserSearchResult
 
 class AdminMutationResolverImpl : AdminMutationResolver {
     override fun addUser(
@@ -91,6 +95,76 @@ class AdminMutationResolverImpl : AdminMutationResolver {
                 QlAdminLoginResult(
                     isSuccess = false,
                 )
+            }
+        }.toDataFetcher()
+    }
+
+    override fun searchUsers(
+        adminMutation: QlAdminMutation,
+        query: String,
+        env: DataFetchingEnvironment,
+    ): CompletionStage<DataFetcherResult<QlAdminUserSearchResult>> {
+        val context = env.graphQlContext.get<GraphQlContext>(GraphQlContext::class.java.name)
+        context.verifyAdminSession()
+
+        return otelSupplyAsync {
+            val users = context.diContainer.createAdminRepository().searchUsers(query)
+            QlAdminUserSearchResult(
+                users = users,
+            )
+        }.toDataFetcher()
+    }
+
+    override fun resetPassword(
+        adminMutation: QlAdminMutation,
+        userName: String,
+        password: String,
+        env: DataFetchingEnvironment,
+    ): CompletionStage<DataFetcherResult<QlAdminResetPasswordResult>> {
+        val context = env.graphQlContext.get<GraphQlContext>(GraphQlContext::class.java.name)
+        context.verifyAdminSession()
+
+        return otelSupplyAsync {
+            val result = ResetPasswordUseCase(
+                context.diContainer.createAdminRepository(),
+                passwordManager = PasswordManager(),
+            ).resetPassword(
+                userName = userName,
+                password = password,
+            )
+            when (result) {
+                is ResetPasswordUseCase.Result.Failure -> {
+                    val errorType = result.errors.map {
+                        when (it) {
+                            is ResetPasswordUseCase.Result.Errors.InternalServerError -> {
+                                QlAdminResetPasswordErrorType.Unknown
+                            }
+
+                            is ResetPasswordUseCase.Result.Errors.PasswordLength -> {
+                                QlAdminResetPasswordErrorType.PasswordLength
+                            }
+
+                            is ResetPasswordUseCase.Result.Errors.PasswordValidation -> {
+                                QlAdminResetPasswordErrorType.PasswordInvalidChar
+                            }
+
+                            ResetPasswordUseCase.Result.Errors.UserNotFound -> {
+                                QlAdminResetPasswordErrorType.UserNotFound
+                            }
+                        }
+                    }
+                    QlAdminResetPasswordResult(
+                        isSuccess = false,
+                        errorType = errorType.firstOrNull(),
+                    )
+                }
+
+                is ResetPasswordUseCase.Result.Success -> {
+                    QlAdminResetPasswordResult(
+                        isSuccess = true,
+                        errorType = null,
+                    )
+                }
             }
         }.toDataFetcher()
     }

@@ -13,3 +13,20 @@ mutation AdminAddUser($userName: String!,$password: String!) {
         }
     }
 }
+
+mutation AdminSearchUsers($query: String!) {
+    adminMutation {
+        searchUsers(query: $query) {
+            users
+        }
+    }
+}
+
+mutation AdminResetPassword($userName: String!, $password: String!) {
+    adminMutation {
+        resetPassword(userName: $userName, password: $password) {
+            isSuccess
+            errorType
+        }
+    }
+}

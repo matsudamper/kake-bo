@@ -73,4 +73,65 @@ class AdminRepositoryImpl : AdminRepository {
 
         return AdminRepository.AddUserResult.Success
     }
+
+    override fun searchUsers(query: String): List<String> {
+        return runCatching {
+            DbConnectionImpl.use {
+                DSL.using(it)
+                    .select(users.USER_NAME)
+                    .from(users)
+                    .where(users.USER_NAME.contains(query))
+                    .orderBy(users.USER_NAME)
+                    .limit(20)
+                    .fetch()
+                    .map { record -> record.value1()!! }
+            }
+        }.getOrElse { emptyList() }
+    }
+
+    override fun resetPassword(
+        userName: String,
+        hashedPassword: String,
+        algorithmName: String,
+        salt: ByteArray,
+        iterationCount: Int,
+        keyLength: Int,
+    ): AdminRepository.ResetPasswordResult {
+        runCatching {
+            DbConnectionImpl.use {
+                val userId = DSL.using(it)
+                    .select(users.USER_ID)
+                    .from(users)
+                    .where(users.USER_NAME.eq(userName))
+                    .fetchOne()
+                    ?.value1()
+                    ?: return AdminRepository.ResetPasswordResult.UserNotFound
+
+                DSL.using(it)
+                    .transaction { config ->
+                        config.dsl()
+                            .update(userPasswords)
+                            .set(userPasswords.PASSWORD_HASH, hashedPassword)
+                            .where(userPasswords.USER_ID.eq(userId))
+                            .execute()
+
+                        config.dsl()
+                            .update(userPasswordExtendData)
+                            .set(userPasswordExtendData.ALGORITHM, algorithmName)
+                            .set(userPasswordExtendData.SALT, salt)
+                            .set(userPasswordExtendData.ITERATION_COUNT, iterationCount)
+                            .set(userPasswordExtendData.KEY_LENGTH, keyLength)
+                            .where(userPasswordExtendData.USER_ID.eq(userId))
+                            .execute()
+                    }
+            }
+        }
+            .onFailure { e ->
+                return AdminRepository.ResetPasswordResult.Failed(
+                    AdminRepository.ResetPasswordResult.ErrorType.InternalServerError(e),
+                )
+            }
+
+        return AdminRepository.ResetPasswordResult.Success
+    }
 }

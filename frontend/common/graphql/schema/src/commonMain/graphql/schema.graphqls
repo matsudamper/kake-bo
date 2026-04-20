@@ -88,6 +88,30 @@ type AdminMutation {
   adminLogin(password: String!): AdminLoginResult!
 
   addUser(name: String!, password: String!): AdminAddUserResult!
+
+  searchUsers(query: String!): AdminUserSearchResult!
+
+  resetPassword(userName: String!, password: String!): AdminResetPasswordResult!
+}
+
+enum AdminResetPasswordErrorType {
+  Unknown
+
+  UserNotFound
+
+  PasswordLength
+
+  PasswordInvalidChar
+}
+
+type AdminResetPasswordResult {
+  isSuccess: Boolean!
+
+  errorType: AdminResetPasswordErrorType
+}
+
+type AdminUserSearchResult {
+  users: [String!]!
 }
 
 type ApiToken {

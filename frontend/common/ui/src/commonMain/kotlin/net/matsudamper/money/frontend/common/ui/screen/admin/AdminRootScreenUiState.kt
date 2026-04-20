@@ -20,6 +20,8 @@ public data class AdminRootScreenUiState(
 ) {
     public interface Listener {
         public fun onClickAddUser()
+
+        public fun onClickUserSearch()
     }
 }
 
@@ -28,3 +30,34 @@ public data class AdminAddUserUiState(
     val onChangePassword: (String) -> Unit,
     val onClickAddButton: () -> Unit,
 )
+
+public data class AdminUserSearchUiState(
+    val searchResults: List<String>,
+    val selectedUserName: String?,
+    val resetPasswordDialogState: ResetPasswordDialogState?,
+    val listener: Listener,
+) {
+    public data class ResetPasswordDialogState(
+        val userName: String,
+        val resultMessage: String?,
+    )
+
+    @Immutable
+    public interface Listener {
+        public fun onSearchQueryChanged(query: String)
+
+        public fun onClickSearch()
+
+        public fun onClickUser(userName: String)
+
+        public fun onDismissUserMenu()
+
+        public fun onClickResetPassword()
+
+        public fun onPasswordChanged(password: String)
+
+        public fun onClickSubmitResetPassword()
+
+        public fun onDismissResetPasswordDialog()
+    }
+}

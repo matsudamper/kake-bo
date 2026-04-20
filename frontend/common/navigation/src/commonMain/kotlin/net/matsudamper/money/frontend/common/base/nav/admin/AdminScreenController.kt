@@ -14,6 +14,8 @@ public interface AdminScreenController {
 
     public fun navigateToAddUser()
 
+    public fun navigateToUserSearch()
+
     public fun popBackStack()
 }
 
@@ -28,6 +30,7 @@ public enum class AdminScreenType {
     Login,
     Root,
     AddUser,
+    UserSearch,
 }
 
 public class AdminScreenControllerImpl : AdminScreenController {
@@ -49,6 +52,12 @@ public class AdminScreenControllerImpl : AdminScreenController {
     override fun navigateToAddUser() {
         _screen.update {
             it.plus(AdminScreenType.AddUser)
+        }
+    }
+
+    override fun navigateToUserSearch() {
+        _screen.update {
+            it.plus(AdminScreenType.UserSearch)
         }
     }
 
