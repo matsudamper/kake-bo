@@ -21,16 +21,25 @@ public class AdminLoginScreenViewModel(
 
     public val uiStateFlow: StateFlow<AdminLoginScreenUiState> = MutableStateFlow(
         AdminLoginScreenUiState(
-            onChangePassword = {
-                viewModelStateFlow.update { state -> state.copy(password = it) }
-            },
-            onClickLogin = {
-                login(viewModelStateFlow.value.password.text)
+            password = TextFieldValue(),
+            listener = object : AdminLoginScreenUiState.Listener {
+                override fun onPasswordChanged(text: String) {
+                    viewModelStateFlow.update { state -> state.copy(password = TextFieldValue(text)) }
+                }
+
+                override fun onClickLogin() {
+                    login(viewModelStateFlow.value.password.text)
+                }
             },
         ),
     ).also { uiStateFlow ->
         viewModelScope.launch {
-            viewModelStateFlow.collect {
+            viewModelStateFlow.collect { viewModelState ->
+                uiStateFlow.update { uiState ->
+                    uiState.copy(
+                        password = viewModelState.password,
+                    )
+                }
             }
         }
     }.asStateFlow()

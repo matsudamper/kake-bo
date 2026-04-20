@@ -40,7 +40,7 @@ ktlint = { id = "org.jlleitschuh.gradle.ktlint", version.require = "14.2.0" }
 kotest = { id = "io.kotest", version.require = "6.1.11" }
 kobylynskyi-graphqlCodegen = { id = "io.github.kobylynskyi.graphql.codegen", version.require = "5.10.1-BUILD-2dd014e63d18dcb3c0fcd704b1f3b6db2ac18b1e" }
 jetbrainsCompose = { id = "org.jetbrains.compose", version.ref = "compose" }
-protobuf = { id = "com.google.protobuf", version.require = "0.9.6" }
+protobuf = { id = "com.google.protobuf", version.require = "0.10.0" }
 paparazzi = { id = "app.cash.paparazzi", version.ref = "paparazzi" }
 graalvmNative = { id = "org.graalvm.buildtools.native", version.ref = "graalvmNative" }
 ksp = { id = "com.google.devtools.ksp", version.ref = "ksp" }
@@ -183,7 +183,7 @@ timber = { module = "com.jakewharton.timber:timber", version.ref = "timber" }
 
 # Other
 lettuce = { module = "io.lettuce:lettuce-core", version.require = "7.5.1.RELEASE" }
-jsoup = { module = "org.jsoup:jsoup", version.require = "1.22.1" }
+jsoup = { module = "org.jsoup:jsoup", version.require = "1.22.2" }
 hikariCP = { module = "com.zaxxer:HikariCP", version.require = "7.0.2" }
 mariadbClient = { module = "org.mariadb.jdbc:mariadb-java-client", version.require = "3.5.8" }
 

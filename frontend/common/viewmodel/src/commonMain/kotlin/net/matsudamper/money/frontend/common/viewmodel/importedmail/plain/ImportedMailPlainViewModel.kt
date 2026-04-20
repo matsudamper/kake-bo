@@ -11,6 +11,7 @@ import com.apollographql.apollo.api.ApolloResponse
 import com.apollographql.apollo.cache.normalized.FetchPolicy
 import com.apollographql.apollo.cache.normalized.fetchPolicy
 import net.matsudamper.money.element.ImportedMailId
+import net.matsudamper.money.frontend.common.base.HtmlEscape
 import net.matsudamper.money.frontend.common.base.IO
 import net.matsudamper.money.frontend.common.base.Logger
 import net.matsudamper.money.frontend.common.base.nav.ScopedObjectFeature
@@ -82,14 +83,15 @@ public class ImportedMailPlainViewModel(
                     return@collectLatest
                 }
 
+                val plain = mailData.plain
                 loadingState = ImportedMailPlainScreenUiState.LoadingState.Loaded(
-                    html = sequence {
-                        yield(
-                            mailData.plain
-                                ?.replace("\r\n", "<br>")
-                                ?.replace("\n", "<br>"),
-                        )
-                    }.filterNotNull().firstOrNull().orEmpty(),
+                    html = if (plain != null) {
+                        HtmlEscape.escape(plain)
+                            .replace("\r\n", "<br>")
+                            .replace("\n", "<br>")
+                    } else {
+                        ""
+                    },
                 )
 
                 uiStateFlow.update {
