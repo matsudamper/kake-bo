@@ -11,6 +11,7 @@ import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import net.matsudamper.money.element.MailId
 import net.matsudamper.money.frontend.common.base.ImmutableList.Companion.toImmutableList
+import net.matsudamper.money.frontend.common.base.Logger
 import net.matsudamper.money.frontend.common.base.immutableListOf
 import net.matsudamper.money.frontend.common.base.nav.ScopedObjectFeature
 import net.matsudamper.money.frontend.common.base.nav.user.ScreenNavController
@@ -24,6 +25,8 @@ import net.matsudamper.money.frontend.common.viewmodel.lib.EventSender
 import net.matsudamper.money.frontend.graphql.GetMailQuery
 import net.matsudamper.money.frontend.graphql.MailImportScreenGraphqlApi
 import net.matsudamper.money.frontend.graphql.type.DeleteMailResultError
+
+private const val TAG = "MailImportViewModel"
 
 public class MailImportViewModel(
     scopedObjectFeature: ScopedObjectFeature,
@@ -224,6 +227,8 @@ public class MailImportViewModel(
                     withContext(ioDispatcher) {
                         graphqlApi.getMail(viewModelStateFlow.value.cursor)
                     }
+                }.onFailure {
+                    Logger.e(TAG, it)
                 }.getOrNull() ?: return@launch
             } finally {
                 viewModelStateFlow.update { viewModelState ->
@@ -251,6 +256,8 @@ public class MailImportViewModel(
         viewModelScope.launch {
             val result = runCatching {
                 graphqlApi.mailImport(viewModelStateFlow.value.checked)
+            }.onFailure {
+                Logger.e(TAG, it)
             }.getOrNull()
             val onError = suspend {
                 viewModelEventSender.send { it.globalToast("Importに失敗しました") }

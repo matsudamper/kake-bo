@@ -14,6 +14,7 @@ import kotlinx.coroutines.launch
 import com.apollographql.apollo.api.Optional
 import net.matsudamper.money.element.MoneyUsageId
 import net.matsudamper.money.frontend.common.base.ImageUploadClient
+import net.matsudamper.money.frontend.common.base.Logger
 import net.matsudamper.money.frontend.common.base.image.SelectedImage
 import net.matsudamper.money.frontend.graphql.GraphqlClient
 import net.matsudamper.money.frontend.graphql.MoneyUsageScreenQuery
@@ -25,6 +26,7 @@ private const val STATUS_PENDING = "PENDING"
 private const val STATUS_UPLOADING = "UPLOADING"
 private const val STATUS_COMPLETED = "COMPLETED"
 private const val STATUS_FAILED = "FAILED"
+private const val TAG = "ImageUploadQueueJsImpl"
 
 public class ImageUploadQueueJsImpl private constructor(
     private val dao: ImageUploadRoomDao,
@@ -148,7 +150,7 @@ public class ImageUploadQueueJsImpl private constructor(
                 contentType = entity.contentType,
             ) ?: throw IllegalStateException("upload returned null")
         }
-        val uploaded = uploadedResult.getOrNull()
+        val uploaded = uploadedResult.onFailure { Logger.e(TAG, it) }.getOrNull()
         if (uploaded == null) {
             dao.updateStatusWithError(
                 itemId,
@@ -172,7 +174,7 @@ public class ImageUploadQueueJsImpl private constructor(
                 .data?.user?.moneyUsage?.moneyUsageScreenMoneyUsage?.images
                 ?.map { it.id }
         }
-        val currentImageIds = queryResult.getOrNull()
+        val currentImageIds = queryResult.onFailure { Logger.e(TAG, it) }.getOrNull()
 
         val updatedImageIds = ((currentImageIds ?: listOf()) + uploaded.imageId)
             .distinctBy { it.value }

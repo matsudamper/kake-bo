@@ -9,6 +9,11 @@ public actual val Logger: ILogger = object : ILogger {
         println("e: [$tag] $message")
     }
 
+    override fun e(tag: String, throwable: Throwable) {
+        println("e: [$tag] ${throwable.message}")
+        throwable.printStackTrace()
+    }
+
     override fun w(tag: String, message: String) {
         println("w: [$tag] $message")
     }

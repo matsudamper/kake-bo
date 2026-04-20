@@ -9,6 +9,7 @@ import kotlinx.coroutines.launch
 import com.apollographql.apollo.api.ApolloResponse
 import net.matsudamper.money.element.ImportedMailId
 import net.matsudamper.money.frontend.common.base.ImmutableList.Companion.toImmutableList
+import net.matsudamper.money.frontend.common.base.Logger
 import net.matsudamper.money.frontend.common.base.nav.ScopedObjectFeature
 import net.matsudamper.money.frontend.common.base.nav.user.ScreenStructure
 import net.matsudamper.money.frontend.common.ui.screen.importedmail.root.MailScreenUiState
@@ -18,6 +19,8 @@ import net.matsudamper.money.frontend.common.viewmodel.lib.EventHandler
 import net.matsudamper.money.frontend.common.viewmodel.lib.EventSender
 import net.matsudamper.money.frontend.common.viewmodel.lib.Formatter
 import net.matsudamper.money.frontend.graphql.ImportedMailScreenQuery
+
+private const val TAG = "ImportedMailScreenViewModel"
 
 public class ImportedMailScreenViewModel(
     scopedObjectFeature: ScopedObjectFeature,
@@ -98,6 +101,7 @@ public class ImportedMailScreenViewModel(
                             }
 
                             if (apolloResult.isFailure) {
+                                Logger.e(TAG, apolloResult.exceptionOrNull() ?: Exception("unknown error"))
                                 return@run MailScreenUiState.LoadingState.Error
                             }
 
