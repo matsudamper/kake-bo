@@ -146,7 +146,7 @@ public fun SettingMailCategoryFiltersScreen(
                 when (val loadingState = uiState.loadingState) {
                     is SettingMailCategoryFilterScreenUiState.LoadingState.Error,
                     is SettingMailCategoryFilterScreenUiState.LoadingState.Loading,
-                        -> Unit
+                    -> Unit
 
                     is SettingMailCategoryFilterScreenUiState.LoadingState.Loaded -> {
                         FloatingActionButton(
