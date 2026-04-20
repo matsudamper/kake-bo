@@ -184,4 +184,8 @@ public enum class MoneyUsageServiceType(
         id = 46,
         displayName = "キューリグオンラインストア",
     ),
+    TixplusTrade(
+        id = 47,
+        displayName = "チケプラトレード",
+    ),
 }
