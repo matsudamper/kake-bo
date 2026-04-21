@@ -30,18 +30,13 @@ import androidx.compose.material3.pulltorefresh.PullToRefreshBox
 import androidx.compose.material3.pulltorefresh.rememberPullToRefreshState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
-import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
-import androidx.compose.runtime.rememberCoroutineScope
-import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalLayoutDirection
 import androidx.compose.ui.unit.dp
-import kotlinx.coroutines.launch
 import net.matsudamper.money.frontend.common.base.ImmutableList
 import net.matsudamper.money.frontend.common.ui.base.KakeBoTopAppBar
 import net.matsudamper.money.frontend.common.ui.base.KakeboScaffoldListener
@@ -51,6 +46,7 @@ import net.matsudamper.money.frontend.common.ui.layout.html.text.fullscreen.Full
 public data class SettingCategoriesScreenUiState(
     val event: Event,
     val loadingState: LoadingState,
+    val isRefreshing: Boolean,
     val showCategoryNameInput: Boolean,
     val kakeboScaffoldListener: KakeboScaffoldListener,
 ) {
@@ -155,21 +151,13 @@ public fun MainContent(
                 val lazyListState = rememberLazyListState()
                 val fabSize = 56.dp
                 val fabPadding = 16.dp
-                var isRefreshing by remember { mutableStateOf(false) }
                 val refreshState = rememberPullToRefreshState()
-                val coroutineScope = rememberCoroutineScope()
                 @OptIn(ExperimentalMaterial3Api::class)
                 PullToRefreshBox(
                     modifier = Modifier.fillMaxSize(),
                     state = refreshState,
-                    isRefreshing = isRefreshing,
-                    onRefresh = {
-                        coroutineScope.launch {
-                            isRefreshing = true
-                            uiState.event.onRefresh()
-                            isRefreshing = false
-                        }
-                    },
+                    isRefreshing = uiState.isRefreshing,
+                    onRefresh = { uiState.event.onRefresh() },
                 ) {
                     Box(modifier = Modifier.fillMaxSize()) {
                         LazyColumn(
