@@ -43,6 +43,8 @@ import net.matsudamper.money.frontend.common.ui.base.KakeboScaffoldListener
 import net.matsudamper.money.frontend.common.ui.base.RootScreenScaffold
 import net.matsudamper.money.frontend.common.ui.layout.html.text.fullscreen.FullScreenTextInput
 
+private val FabPadding = 16.dp
+
 public data class SettingCategoriesScreenUiState(
     val event: Event,
     val loadingState: LoadingState,
@@ -144,13 +146,29 @@ public fun MainContent(
                 text = "カテゴリー一覧",
             )
         },
+        fab = {
+            when (uiState.loadingState) {
+                is SettingCategoriesScreenUiState.LoadingState.Loading -> Unit
+                is SettingCategoriesScreenUiState.LoadingState.Loaded -> {
+                    FloatingActionButton(
+                        modifier = Modifier
+                            .padding(
+                                end = FabPadding,
+                                bottom = FabPadding,
+                            ),
+                        onClick = { uiState.event.onClickAddCategoryButton() },
+                    ) {
+                        Icon(Icons.Default.Add, contentDescription = "カテゴリーを追加")
+                    }
+                }
+            }
+        },
     ) { paddingValues ->
         when (val state = uiState.loadingState) {
             is SettingCategoriesScreenUiState.LoadingState.Loaded -> {
                 val layoutDirection = LocalLayoutDirection.current
                 val lazyListState = rememberLazyListState()
                 val fabSize = 56.dp
-                val fabPadding = 16.dp
                 val refreshState = rememberPullToRefreshState()
                 @OptIn(ExperimentalMaterial3Api::class)
                 PullToRefreshBox(
@@ -159,58 +177,45 @@ public fun MainContent(
                     isRefreshing = uiState.isRefreshing,
                     onRefresh = { uiState.event.onRefresh() },
                 ) {
-                    Box(modifier = Modifier.fillMaxSize()) {
-                        LazyColumn(
-                            modifier = Modifier.fillMaxSize(),
-                            contentPadding = PaddingValues(
-                                start = paddingValues.calculateStartPadding(layoutDirection),
-                                end = paddingValues.calculateEndPadding(layoutDirection),
-                                bottom = fabSize + fabPadding * 2,
-                            ),
-                            state = lazyListState,
-                        ) {
-                            item {
-                                Spacer(Modifier.height(24.dp))
-                            }
-                            items(state.item) { item ->
-                                SettingListMenuItemButton(
-                                    modifier = Modifier
-                                        .fillMaxWidth(),
-                                    onClick = { item.event.onClick() },
+                    LazyColumn(
+                        modifier = Modifier.fillMaxSize(),
+                        contentPadding = PaddingValues(
+                            start = paddingValues.calculateStartPadding(layoutDirection),
+                            end = paddingValues.calculateEndPadding(layoutDirection),
+                            bottom = fabSize + (FabPadding * 2),
+                        ),
+                        state = lazyListState,
+                    ) {
+                        item {
+                            Spacer(Modifier.height(24.dp))
+                        }
+                        items(state.item) { item ->
+                            SettingListMenuItemButton(
+                                modifier = Modifier
+                                    .fillMaxWidth(),
+                                onClick = { item.event.onClick() },
+                            ) {
+                                Row(
+                                    verticalAlignment = Alignment.CenterVertically,
                                 ) {
-                                    Row(
-                                        verticalAlignment = Alignment.CenterVertically,
-                                    ) {
-                                        val color = item.color
-                                        if (color != null) {
-                                            Box(
-                                                modifier = Modifier
-                                                    .size(16.dp)
-                                                    .clip(CircleShape)
-                                                    .background(color),
-                                            )
-                                            Spacer(Modifier.width(8.dp))
-                                        }
-                                        Text(
-                                            text = item.name,
+                                    val color = item.color
+                                    if (color != null) {
+                                        Box(
+                                            modifier = Modifier
+                                                .size(16.dp)
+                                                .clip(CircleShape)
+                                                .background(color),
                                         )
+                                        Spacer(Modifier.width(8.dp))
                                     }
+                                    Text(
+                                        text = item.name,
+                                    )
                                 }
                             }
-                            item {
-                                Spacer(Modifier.height(24.dp))
-                            }
                         }
-                        FloatingActionButton(
-                            modifier = Modifier
-                                .align(Alignment.BottomEnd)
-                                .padding(
-                                    end = paddingValues.calculateEndPadding(layoutDirection) + fabPadding,
-                                    bottom = fabPadding,
-                                ),
-                            onClick = { uiState.event.onClickAddCategoryButton() },
-                        ) {
-                            Icon(Icons.Default.Add, contentDescription = "カテゴリーを追加")
+                        item {
+                            Spacer(Modifier.height(24.dp))
                         }
                     }
                 }
