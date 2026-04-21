@@ -2,6 +2,18 @@ package net.matsudamper.money.backend.logic
 
 import java.util.Base64
 
+/**
+ * 管理者パスワードをhash化してコンソールに出力するローカル実行用ツール。
+ *
+ * DBの `admin_passwords` テーブルに登録するhash化パスワードとsaltを生成するために使用する。
+ * 出力されたDB INSERT文を手動でDBに実行することで管理者パスワードを設定できる。
+ *
+ * 実行方法:
+ * - 引数にパスワードを渡す場合: `./gradlew :backend:app:run --args='<password>'`
+ * - 引数なしの場合: 対話的に入力を求める
+ *
+ * 環境変数 `USER_PASSWORD_PEPPER` が必要。
+ */
 fun main(args: Array<String>) {
     val password = if (args.isNotEmpty()) {
         args[0]
