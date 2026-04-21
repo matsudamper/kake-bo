@@ -5,6 +5,7 @@
 package net.matsudamper.money.db.schema.keys
 
 
+import net.matsudamper.money.db.schema.tables.JAdminPasswords
 import net.matsudamper.money.db.schema.tables.JAdminSessions
 import net.matsudamper.money.db.schema.tables.JApiTokens
 import net.matsudamper.money.db.schema.tables.JCategoryMailFilterConditionOperatorType
@@ -26,6 +27,7 @@ import net.matsudamper.money.db.schema.tables.JUserPasswords
 import net.matsudamper.money.db.schema.tables.JUserSessions
 import net.matsudamper.money.db.schema.tables.JUsers
 import net.matsudamper.money.db.schema.tables.JWebAuthAuthenticator
+import net.matsudamper.money.db.schema.tables.records.JAdminPasswordsRecord
 import net.matsudamper.money.db.schema.tables.records.JAdminSessionsRecord
 import net.matsudamper.money.db.schema.tables.records.JApiTokensRecord
 import net.matsudamper.money.db.schema.tables.records.JCategoryMailFilterConditionOperatorTypeRecord
@@ -58,6 +60,7 @@ import org.jooq.impl.Internal
 // UNIQUE and PRIMARY KEY definitions
 // -------------------------------------------------------------------------
 
+val KEY_ADMIN_PASSWORDS_PRIMARY: UniqueKey<JAdminPasswordsRecord> = Internal.createUniqueKey(JAdminPasswords.ADMIN_PASSWORDS, DSL.name("KEY_admin_passwords_PRIMARY"), arrayOf(JAdminPasswords.ADMIN_PASSWORDS.ID), true)
 val KEY_ADMIN_SESSIONS_PRIMARY: UniqueKey<JAdminSessionsRecord> = Internal.createUniqueKey(JAdminSessions.ADMIN_SESSIONS, DSL.name("KEY_admin_sessions_PRIMARY"), arrayOf(JAdminSessions.ADMIN_SESSIONS.SESSION_ID), true)
 val KEY_API_TOKENS_PRIMARY: UniqueKey<JApiTokensRecord> = Internal.createUniqueKey(JApiTokens.API_TOKENS, DSL.name("KEY_api_tokens_PRIMARY"), arrayOf(JApiTokens.API_TOKENS.API_TOKEN_ID), true)
 val KEY_API_TOKENS_TOKEN: UniqueKey<JApiTokensRecord> = Internal.createUniqueKey(JApiTokens.API_TOKENS, DSL.name("KEY_api_tokens_token"), arrayOf(JApiTokens.API_TOKENS.TOKEN_HASH), true)

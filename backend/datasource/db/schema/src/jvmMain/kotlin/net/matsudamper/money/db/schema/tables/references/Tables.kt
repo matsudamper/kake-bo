@@ -5,6 +5,7 @@
 package net.matsudamper.money.db.schema.tables.references
 
 
+import net.matsudamper.money.db.schema.tables.JAdminPasswords
 import net.matsudamper.money.db.schema.tables.JAdminSessions
 import net.matsudamper.money.db.schema.tables.JApiTokens
 import net.matsudamper.money.db.schema.tables.JCategoryMailFilterConditionOperatorType
@@ -28,6 +29,11 @@ import net.matsudamper.money.db.schema.tables.JUsers
 import net.matsudamper.money.db.schema.tables.JWebAuthAuthenticator
 
 
+
+/**
+ * The table <code>money.admin_passwords</code>.
+ */
+val ADMIN_PASSWORDS: JAdminPasswords = JAdminPasswords.ADMIN_PASSWORDS
 
 /**
  * The table <code>money.admin_sessions</code>.

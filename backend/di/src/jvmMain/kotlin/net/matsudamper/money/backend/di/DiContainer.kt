@@ -1,6 +1,7 @@
 package net.matsudamper.money.backend.di
 
 import java.time.Clock
+import net.matsudamper.money.backend.app.interfaces.AdminLoginRepository
 import net.matsudamper.money.backend.app.interfaces.AdminRepository
 import net.matsudamper.money.backend.app.interfaces.AdminSessionRepository
 import net.matsudamper.money.backend.app.interfaces.ApiTokenRepository
@@ -27,6 +28,7 @@ import net.matsudamper.money.backend.datasource.challenge.ChallengeRepositoryPro
 import net.matsudamper.money.backend.datasource.db.DbConnectionImpl
 import net.matsudamper.money.backend.datasource.db.repository.AdminRepositoryImpl
 import net.matsudamper.money.backend.datasource.db.repository.ApiTokenRepositoryImpl
+import net.matsudamper.money.backend.datasource.db.repository.DbAdminLoginRepository
 import net.matsudamper.money.backend.datasource.db.repository.DbAdminSessionRepository
 import net.matsudamper.money.backend.datasource.db.repository.DbFidoRepository
 import net.matsudamper.money.backend.datasource.db.repository.DbImportedImportedMailRepository
@@ -84,6 +86,8 @@ interface DiContainer {
 
     fun createAdminRepository(): AdminRepository
 
+    fun createAdminLoginRepository(): AdminLoginRepository
+
     fun userLoginRepository(): UserLoginRepository
     fun createApiTokenRepository(): ApiTokenRepository
     fun traceLogger(): TraceLogger
@@ -93,6 +97,10 @@ interface DiContainer {
 class MainDiContainer : DiContainer {
     override fun createAdminRepository(): AdminRepository {
         return AdminRepositoryImpl()
+    }
+
+    override fun createAdminLoginRepository(): AdminLoginRepository {
+        return DbAdminLoginRepository(dbConnection = DbConnectionImpl)
     }
 
     override fun createMailRepository(

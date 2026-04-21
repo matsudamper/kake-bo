@@ -20,8 +20,6 @@ public object ServerEnv {
     public val appFingerprint: String get() = System.getenv()["APP_FINGERPRINT"]!!
     public val apkKeyHash: String get() = System.getenv()["APK_KEY_HASH"].orEmpty()
 
-    public val adminPassword: String get() = System.getenv()["ADMIN_PASSWORD"]!!
-
     public val userPasswordPepper: String get() = System.getenv("USER_PASSWORD_PEPPER")!!
 
     public val enableRedis: Boolean get() = System.getenv("ENABLE_REDIS")?.toBooleanStrictOrNull() ?: false
