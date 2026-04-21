@@ -1,12 +1,16 @@
 package net.matsudamper.money.backend.logic
 
-import java.util.Base64
-
 /**
- * 管理者パスワードをhash化してコンソールに出力するローカル実行用ツール。
+ * 管理者パスワードをhash化して環境変数の設定値をコンソールに出力するローカル実行用ツール。
  *
- * DBの `admin_passwords` テーブルに登録するhash化パスワードとsaltを生成するために使用する。
- * 出力されたDB INSERT文を手動でDBに実行することで管理者パスワードを設定できる。
+ * 出力された値をサーバーの環境変数に設定することで管理者パスワードを設定できる。
+ *
+ * 設定が必要な環境変数:
+ * - `ADMIN_PASSWORD_HASH`: hash化されたパスワード（Base64）
+ * - `ADMIN_PASSWORD_SALT`: ソルト（hex文字列）
+ * - `ADMIN_PASSWORD_ALGORITHM`: アルゴリズム名（例: PBKDF2WithHmacSHA512）
+ * - `ADMIN_PASSWORD_ITERATION_COUNT`: イテレーション回数
+ * - `ADMIN_PASSWORD_KEY_LENGTH`: キー長さ（ビット数）
  *
  * 実行方法:
  * - 引数にパスワードを渡す場合: `./gradlew :backend:app:run --args='<password>'`
@@ -34,22 +38,10 @@ fun main(args: Array<String>) {
         algorithm = IPasswordManager.Algorithm.PBKDF2WithHmacSHA512,
     )
 
-    val base64Encoder = Base64.getEncoder()
     println("=== 管理者パスワードhash化結果 ===")
-    println("password_hash: ${result.hashedPassword}")
-    println("salt (base64): ${base64Encoder.encodeToString(result.salt)}")
-    println("salt (hex): ${result.salt.joinToString("") { "%02x".format(it) }}")
-    println("algorithm: ${result.algorithm}")
-    println("iteration_count: ${result.iterationCount}")
-    println("key_length: ${result.keyLength}")
-    println()
-    println("=== DB INSERT文 ===")
-    println(
-        "INSERT INTO admin_passwords (password_hash, salt, algorithm, iteration_count, key_length) " +
-            "VALUES ('${result.hashedPassword}', " +
-            "X'${result.salt.joinToString("") { "%02x".format(it) }}', " +
-            "'${result.algorithm}', " +
-            "${result.iterationCount}, " +
-            "${result.keyLength});",
-    )
+    println("ADMIN_PASSWORD_HASH=${result.hashedPassword}")
+    println("ADMIN_PASSWORD_SALT=${result.salt.joinToString("") { "%02x".format(it) }}")
+    println("ADMIN_PASSWORD_ALGORITHM=${result.algorithm}")
+    println("ADMIN_PASSWORD_ITERATION_COUNT=${result.iterationCount}")
+    println("ADMIN_PASSWORD_KEY_LENGTH=${result.keyLength}")
 }

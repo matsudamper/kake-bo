@@ -6,7 +6,6 @@ package net.matsudamper.money.db.schema
 
 import kotlin.collections.List
 
-import net.matsudamper.money.db.schema.tables.JAdminPasswords
 import net.matsudamper.money.db.schema.tables.JAdminSessions
 import net.matsudamper.money.db.schema.tables.JApiTokens
 import net.matsudamper.money.db.schema.tables.JCategoryMailFilterConditionOperatorType
@@ -47,11 +46,6 @@ open class JMoney : SchemaImpl(DSL.name("money"), DefaultCatalog.DEFAULT_CATALOG
          */
         val MONEY: JMoney = JMoney()
     }
-
-    /**
-     * The table <code>money.admin_passwords</code>.
-     */
-    val ADMIN_PASSWORDS: JAdminPasswords get() = JAdminPasswords.ADMIN_PASSWORDS
 
     /**
      * The table <code>money.admin_sessions</code>.
@@ -162,7 +156,6 @@ open class JMoney : SchemaImpl(DSL.name("money"), DefaultCatalog.DEFAULT_CATALOG
     override fun getCatalog(): Catalog = DefaultCatalog.DEFAULT_CATALOG
 
     override fun getTables(): List<Table<*>> = listOf(
-        JAdminPasswords.ADMIN_PASSWORDS,
         JAdminSessions.ADMIN_SESSIONS,
         JApiTokens.API_TOKENS,
         JCategoryMailFilterConditionOperatorType.CATEGORY_MAIL_FILTER_CONDITION_OPERATOR_TYPE,

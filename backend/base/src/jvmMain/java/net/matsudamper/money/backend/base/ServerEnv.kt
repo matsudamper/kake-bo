@@ -22,6 +22,12 @@ public object ServerEnv {
 
     public val userPasswordPepper: String get() = System.getenv("USER_PASSWORD_PEPPER")!!
 
+    public val adminPasswordHash: String? get() = System.getenv("ADMIN_PASSWORD_HASH")
+    public val adminPasswordSalt: String? get() = System.getenv("ADMIN_PASSWORD_SALT")
+    public val adminPasswordAlgorithm: String? get() = System.getenv("ADMIN_PASSWORD_ALGORITHM")
+    public val adminPasswordIterationCount: Int? get() = System.getenv("ADMIN_PASSWORD_ITERATION_COUNT")?.toInt()
+    public val adminPasswordKeyLength: Int? get() = System.getenv("ADMIN_PASSWORD_KEY_LENGTH")?.toInt()
+
     public val enableRedis: Boolean get() = System.getenv("ENABLE_REDIS")?.toBooleanStrictOrNull() ?: false
     public val redisHost: String? get() = System.getenv("REDIS_HOST")?.takeIf { it.isNotBlank() }
     public val redisPort: Int? get() = System.getenv("REDIS_PORT")?.toInt()

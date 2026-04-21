@@ -28,7 +28,7 @@ import net.matsudamper.money.backend.datasource.challenge.ChallengeRepositoryPro
 import net.matsudamper.money.backend.datasource.db.DbConnectionImpl
 import net.matsudamper.money.backend.datasource.db.repository.AdminRepositoryImpl
 import net.matsudamper.money.backend.datasource.db.repository.ApiTokenRepositoryImpl
-import net.matsudamper.money.backend.datasource.db.repository.DbAdminLoginRepository
+import net.matsudamper.money.backend.datasource.db.repository.EnvAdminLoginRepository
 import net.matsudamper.money.backend.datasource.db.repository.DbAdminSessionRepository
 import net.matsudamper.money.backend.datasource.db.repository.DbFidoRepository
 import net.matsudamper.money.backend.datasource.db.repository.DbImportedImportedMailRepository
@@ -100,7 +100,7 @@ class MainDiContainer : DiContainer {
     }
 
     override fun createAdminLoginRepository(): AdminLoginRepository {
-        return DbAdminLoginRepository(dbConnection = DbConnectionImpl)
+        return EnvAdminLoginRepository()
     }
 
     override fun createMailRepository(
