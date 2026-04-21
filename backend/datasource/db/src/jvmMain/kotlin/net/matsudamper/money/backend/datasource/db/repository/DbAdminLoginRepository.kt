@@ -1,6 +1,5 @@
 package net.matsudamper.money.backend.datasource.db.repository
 
-import java.util.Base64
 import net.matsudamper.money.backend.app.interfaces.AdminLoginRepository
 import net.matsudamper.money.backend.datasource.db.DbConnection
 import net.matsudamper.money.db.schema.tables.JAdminPasswords
@@ -11,7 +10,6 @@ class DbAdminLoginRepository(
     private val dbConnection: DbConnection,
 ) : AdminLoginRepository {
     private val adminPasswords = JAdminPasswords.ADMIN_PASSWORDS
-    private val bases64Encoder = Base64.getEncoder()
 
     override fun getLoginEncryptInfo(): AdminLoginRepository.LoginEncryptInfo? {
         val result = dbConnection.use {

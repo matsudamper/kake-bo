@@ -95,10 +95,10 @@ class AdminMutationResolverImpl : AdminMutationResolver {
                 keyLength = encryptInfo.keyLength,
                 algorithm = algorithm,
             )
-            val bases64Encoder = java.util.Base64.getEncoder()
-            val hashedPasswordString = bases64Encoder.encodeToString(hashedPassword)
+            val base64Encoder = java.util.Base64.getEncoder()
+            val encodedPassword = base64Encoder.encodeToString(hashedPassword)
 
-            if (context.diContainer.createAdminLoginRepository().verifyPassword(hashedPasswordString)) {
+            if (context.diContainer.createAdminLoginRepository().verifyPassword(encodedPassword)) {
                 val adminSession = context.diContainer.createAdminUserSessionRepository().createSession()
                 context.setAdminSessionCookie(
                     value = adminSession.adminSessionId.id,
