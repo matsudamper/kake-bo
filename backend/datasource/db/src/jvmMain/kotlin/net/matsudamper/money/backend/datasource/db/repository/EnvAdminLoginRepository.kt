@@ -10,7 +10,11 @@ class EnvAdminLoginRepository : AdminLoginRepository {
         val iterationCount = ServerEnv.adminPasswordIterationCount ?: return null
         val keyLength = ServerEnv.adminPasswordKeyLength ?: return null
 
-        val salt = saltHex.chunked(2).map { it.toInt(16).toByte() }.toByteArray()
+        val salt = try {
+            saltHex.chunked(2).map { it.toInt(16).toByte() }.toByteArray()
+        } catch (_: NumberFormatException) {
+            return null
+        }
         return AdminLoginRepository.LoginEncryptInfo(
             salt = salt,
             algorithm = algorithm,

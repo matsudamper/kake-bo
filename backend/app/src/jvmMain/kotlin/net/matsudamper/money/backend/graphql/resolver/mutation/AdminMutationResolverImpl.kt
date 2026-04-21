@@ -95,8 +95,7 @@ class AdminMutationResolverImpl : AdminMutationResolver {
                 keyLength = encryptInfo.keyLength,
                 algorithm = algorithm,
             )
-            val base64Encoder = java.util.Base64.getEncoder()
-            val encodedPassword = base64Encoder.encodeToString(hashedPassword)
+            val encodedPassword = java.util.Base64.getEncoder().encodeToString(hashedPassword)
 
             if (context.diContainer.createAdminLoginRepository().verifyPassword(encodedPassword)) {
                 val adminSession = context.diContainer.createAdminUserSessionRepository().createSession()
