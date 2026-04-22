@@ -189,4 +189,4 @@ mariadbClient = { module = "org.mariadb.jdbc:mariadb-java-client", version.requi
 
 # Play
 androidxCredentialsPlayServicesAuth = { module = "androidx.credentials:credentials-play-services-auth", version.require = "1.6.0" }
-androidxCredentials = { module = "androidx.credentials:credentials", version.require = "1.5.0" }
+androidxCredentials = { module = "androidx.credentials:credentials", version.require = "1.6.0" }
