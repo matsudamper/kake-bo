@@ -22,9 +22,12 @@ import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Add
 import androidx.compose.material3.CircularProgressIndicator
+import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.FloatingActionButton
 import androidx.compose.material3.Icon
 import androidx.compose.material3.Text
+import androidx.compose.material3.pulltorefresh.PullToRefreshBox
+import androidx.compose.material3.pulltorefresh.rememberPullToRefreshState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.remember
@@ -45,6 +48,7 @@ private val FabPadding = 16.dp
 public data class SettingCategoriesScreenUiState(
     val event: Event,
     val loadingState: LoadingState,
+    val isRefreshing: Boolean,
     val showCategoryNameInput: Boolean,
     val kakeboScaffoldListener: KakeboScaffoldListener,
 ) {
@@ -74,6 +78,8 @@ public data class SettingCategoriesScreenUiState(
         public fun categoryInputCompleted(text: String)
 
         public fun dismissCategoryInput()
+
+        public fun onRefresh()
     }
 }
 
@@ -163,45 +169,54 @@ public fun MainContent(
                 val layoutDirection = LocalLayoutDirection.current
                 val lazyListState = rememberLazyListState()
                 val fabSize = 56.dp
-                LazyColumn(
+                val refreshState = rememberPullToRefreshState()
+                @OptIn(ExperimentalMaterial3Api::class)
+                PullToRefreshBox(
                     modifier = Modifier.fillMaxSize(),
-                    contentPadding = PaddingValues(
-                        start = paddingValues.calculateStartPadding(layoutDirection),
-                        end = paddingValues.calculateEndPadding(layoutDirection),
-                        bottom = fabSize + (FabPadding * 2),
-                    ),
-                    state = lazyListState,
+                    state = refreshState,
+                    isRefreshing = uiState.isRefreshing,
+                    onRefresh = { uiState.event.onRefresh() },
                 ) {
-                    item {
-                        Spacer(Modifier.height(24.dp))
-                    }
-                    items(state.item) { item ->
-                        SettingListMenuItemButton(
-                            modifier = Modifier
-                                .fillMaxWidth(),
-                            onClick = { item.event.onClick() },
-                        ) {
-                            Row(
-                                verticalAlignment = Alignment.CenterVertically,
+                    LazyColumn(
+                        modifier = Modifier.fillMaxSize(),
+                        contentPadding = PaddingValues(
+                            start = paddingValues.calculateStartPadding(layoutDirection),
+                            end = paddingValues.calculateEndPadding(layoutDirection),
+                            bottom = fabSize + (FabPadding * 2),
+                        ),
+                        state = lazyListState,
+                    ) {
+                        item {
+                            Spacer(Modifier.height(24.dp))
+                        }
+                        items(state.item) { item ->
+                            SettingListMenuItemButton(
+                                modifier = Modifier
+                                    .fillMaxWidth(),
+                                onClick = { item.event.onClick() },
                             ) {
-                                val color = item.color
-                                if (color != null) {
-                                    Box(
-                                        modifier = Modifier
-                                            .size(16.dp)
-                                            .clip(CircleShape)
-                                            .background(color),
+                                Row(
+                                    verticalAlignment = Alignment.CenterVertically,
+                                ) {
+                                    val color = item.color
+                                    if (color != null) {
+                                        Box(
+                                            modifier = Modifier
+                                                .size(16.dp)
+                                                .clip(CircleShape)
+                                                .background(color),
+                                        )
+                                        Spacer(Modifier.width(8.dp))
+                                    }
+                                    Text(
+                                        text = item.name,
                                     )
-                                    Spacer(Modifier.width(8.dp))
                                 }
-                                Text(
-                                    text = item.name,
-                                )
                             }
                         }
-                    }
-                    item {
-                        Spacer(Modifier.height(24.dp))
+                        item {
+                            Spacer(Modifier.height(24.dp))
+                        }
                     }
                 }
             }
