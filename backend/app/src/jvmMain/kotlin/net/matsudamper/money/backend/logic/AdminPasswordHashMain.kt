@@ -14,10 +14,6 @@ import net.matsudamper.money.backend.base.ServerEnv
  *
  * `ADMIN_PASSWORD_ALGORITHM`、`ADMIN_PASSWORD_ITERATION_COUNT`、`ADMIN_PASSWORD_KEY_LENGTH` は `ServerEnv` で固定。
  *
- * 実行方法:
- * - 引数にパスワードを渡す場合: `./gradlew :backend:app:run --args='<password>'`
- * - 引数なしの場合: 対話的に入力を求める
- *
  * 環境変数 `USER_PASSWORD_PEPPER` が必要。
  */
 fun main(args: Array<String>) {
