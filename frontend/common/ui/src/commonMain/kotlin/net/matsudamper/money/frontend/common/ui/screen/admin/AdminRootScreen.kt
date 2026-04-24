@@ -10,6 +10,10 @@ import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.saveable.rememberSaveableStateHolder
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.window.DialogProperties
+import androidx.navigation3.runtime.NavEntry
+import androidx.navigation3.scene.DialogSceneStrategy
+import androidx.navigation3.ui.NavDisplay
 import net.matsudamper.money.frontend.common.base.nav.admin.AdminScreenController
 import net.matsudamper.money.frontend.common.base.nav.admin.AdminScreenControllerImpl
 import net.matsudamper.money.frontend.common.base.nav.admin.AdminScreenType
@@ -31,35 +35,62 @@ public fun AdminRootScreen(
             .fillMaxSize()
             .padding(windowInsets),
     ) {
-        when (screenStack.lastOrNull()) {
-            null -> {
-                CircularProgressIndicator(
-                    modifier = Modifier.align(Alignment.Center),
-                )
-            }
+        if (screenStack.isEmpty()) {
+            CircularProgressIndicator(
+                modifier = Modifier.align(Alignment.Center),
+            )
+        } else {
+            NavDisplay(
+                backStack = screenStack,
+                modifier = Modifier.fillMaxSize(),
+                sceneStrategy = DialogSceneStrategy(),
+                onBack = {
+                    adminScreenController.popBackStack()
+                },
+                entryProvider = { screen ->
+                    when (screen) {
+                        AdminScreenType.Login -> {
+                            NavEntry(
+                                key = screen,
+                            ) {
+                                val uiState = adminLoginScreenUiStateProvider()
+                                AdminLoginScreen(
+                                    uiState = uiState,
+                                )
+                            }
+                        }
 
-            AdminScreenType.Login -> {
-                val uiState = adminLoginScreenUiStateProvider()
-                AdminLoginScreen(
-                    uiState = uiState,
-                )
-            }
+                        AdminScreenType.Root -> {
+                            NavEntry(
+                                key = screen,
+                            ) {
+                                saveableStateHolder.SaveableStateProvider(AdminScreenType.Root.name) {
+                                    val uiState = adminRootScreenUiStateProvider()
+                                    AdminRootScreen(
+                                        uiState = uiState,
+                                    )
+                                }
+                            }
+                        }
 
-            AdminScreenType.Root -> {
-                saveableStateHolder.SaveableStateProvider(AdminScreenType.Root.name) {
-                    val uiState = adminRootScreenUiStateProvider()
-                    AdminRootScreen(
-                        uiState = uiState,
-                    )
-                }
-            }
-
-            AdminScreenType.AddUser -> {
-                val uiState = adminAddUserUiStateProvider()
-                AddUserScreen(
-                    uiState = uiState,
-                )
-            }
+                        AdminScreenType.AddUser -> {
+                            NavEntry(
+                                key = screen,
+                                metadata = DialogSceneStrategy.dialog(
+                                    dialogProperties = DialogProperties(
+                                        usePlatformDefaultWidth = false,
+                                    ),
+                                ),
+                            ) {
+                                val uiState = adminAddUserUiStateProvider()
+                                AddUserScreen(
+                                    uiState = uiState,
+                                )
+                            }
+                        }
+                    }
+                },
+            )
         }
     }
 }
