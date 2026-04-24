@@ -14,9 +14,10 @@ import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.text.input.KeyboardType
+import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.unit.dp
-import net.matsudamper.money.frontend.common.ui.layout.html.text.input.HtmlTextInput
+import net.matsudamper.money.frontend.common.ui.layout.TextField
+import net.matsudamper.money.frontend.common.ui.layout.TextFieldType
 import net.matsudamper.money.frontend.common.ui.rememberCustomFontFamily
 
 @Composable
@@ -42,20 +43,31 @@ internal fun AddUserScreen(
                 fontFamily = rememberCustomFontFamily(),
             )
             Spacer(modifier = Modifier.height(20.dp))
-            HtmlTextInput(
-                modifier = Modifier.fillMaxWidth()
-                    .height(48.dp),
-                placeholder = "ユーザー名",
-                onValueChange = { uiState.onChangeUserName(it.text) },
-                type = KeyboardType.Text,
+            val textFieldTextStyle = MaterialTheme.typography.bodyMedium
+                .merge(
+                    TextStyle(
+                        fontFamily = rememberCustomFontFamily(),
+                    ),
+                )
+            TextField(
+                modifier = Modifier.fillMaxWidth(),
+                text = uiState.userName.text,
+                textStyle = textFieldTextStyle,
+                label = "User Name",
+                maxLines = 1,
+                onValueChange = { uiState.onChangeUserName(it) },
+                autocomplete = "username",
             )
             Spacer(modifier = Modifier.height(12.dp))
-            HtmlTextInput(
-                modifier = Modifier.fillMaxWidth()
-                    .height(48.dp),
-                placeholder = "パスワード",
-                onValueChange = { uiState.onChangePassword(it.text) },
-                type = KeyboardType.Password,
+            TextField(
+                modifier = Modifier.fillMaxWidth(),
+                text = uiState.password.text,
+                textStyle = textFieldTextStyle,
+                label = "Password",
+                maxLines = 1,
+                onValueChange = { uiState.onChangePassword(it) },
+                type = TextFieldType.Password,
+                autocomplete = "new-password",
             )
             Text(
                 "使用できる記号 !@#\$%^&*()_+-?<>,.",
