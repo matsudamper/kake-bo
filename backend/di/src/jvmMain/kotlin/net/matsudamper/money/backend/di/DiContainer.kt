@@ -1,6 +1,7 @@
 package net.matsudamper.money.backend.di
 
 import java.time.Clock
+import net.matsudamper.money.backend.app.interfaces.AdminLoginRepository
 import net.matsudamper.money.backend.app.interfaces.AdminRepository
 import net.matsudamper.money.backend.app.interfaces.AdminSessionRepository
 import net.matsudamper.money.backend.app.interfaces.ApiTokenRepository
@@ -41,6 +42,7 @@ import net.matsudamper.money.backend.datasource.db.repository.DbUserImageReposit
 import net.matsudamper.money.backend.datasource.db.repository.DbUserLoginRepository
 import net.matsudamper.money.backend.datasource.db.repository.DbUserRepository
 import net.matsudamper.money.backend.datasource.db.repository.DeleteUsageImageRelationDaoImpl
+import net.matsudamper.money.backend.datasource.db.repository.EnvAdminLoginRepository
 import net.matsudamper.money.backend.datasource.session.UserSessionRepositoryProvider
 import net.matsudamper.money.backend.mail.MailRepositoryImpl
 
@@ -84,6 +86,8 @@ interface DiContainer {
 
     fun createAdminRepository(): AdminRepository
 
+    fun createAdminLoginRepository(): AdminLoginRepository
+
     fun userLoginRepository(): UserLoginRepository
     fun createApiTokenRepository(): ApiTokenRepository
     fun traceLogger(): TraceLogger
@@ -93,6 +97,10 @@ interface DiContainer {
 class MainDiContainer : DiContainer {
     override fun createAdminRepository(): AdminRepository {
         return AdminRepositoryImpl()
+    }
+
+    override fun createAdminLoginRepository(): AdminLoginRepository {
+        return EnvAdminLoginRepository()
     }
 
     override fun createMailRepository(
