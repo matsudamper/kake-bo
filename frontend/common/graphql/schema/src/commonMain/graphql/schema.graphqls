@@ -515,6 +515,8 @@ scalar OffsetDateTime
 type Query {
   isLoggedIn: Boolean!
 
+  isAdminLoggedIn: Boolean!
+
   user: User
 
   fidoLoginInfo: FidoLoginInfo!

@@ -7,6 +7,7 @@ import graphql.schema.DataFetchingEnvironment
 import net.matsudamper.money.backend.app.interfaces.UserSessionRepository
 import net.matsudamper.money.backend.base.ServerEnv
 import net.matsudamper.money.backend.graphql.GraphQlContext
+import net.matsudamper.money.backend.graphql.GraphqlMoneyException
 import net.matsudamper.money.backend.graphql.otelSupplyAsync
 import net.matsudamper.money.backend.graphql.toDataFetcher
 import net.matsudamper.money.backend.lib.ChallengeModel
@@ -35,6 +36,18 @@ class QueryResolverImpl : QueryResolver {
             when (info) {
                 is UserSessionRepository.VerifySessionResult.Failure -> false
                 is UserSessionRepository.VerifySessionResult.Success -> true
+            }
+        }.toDataFetcher()
+    }
+
+    override fun isAdminLoggedIn(env: DataFetchingEnvironment): CompletionStage<DataFetcherResult<Boolean>> {
+        val context = env.graphQlContext.get<GraphQlContext>(GraphQlContext::class.java.name)
+        return otelSupplyAsync {
+            try {
+                context.verifyAdminSession()
+                true
+            } catch (_: GraphqlMoneyException.SessionNotVerify) {
+                false
             }
         }.toDataFetcher()
     }

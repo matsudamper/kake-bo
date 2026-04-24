@@ -2,10 +2,13 @@ package net.matsudamper.money.frontend.common.ui.screen.admin
 
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.PaddingValues
+import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
+import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.saveable.rememberSaveableStateHolder
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import net.matsudamper.money.frontend.common.base.nav.admin.AdminScreenController
 import net.matsudamper.money.frontend.common.base.nav.admin.AdminScreenControllerImpl
@@ -23,11 +26,19 @@ public fun AdminRootScreen(
     val adminScreenControllerImpl = adminScreenController as AdminScreenControllerImpl
     val saveableStateHolder = rememberSaveableStateHolder()
     val screenStack = adminScreenControllerImpl.screen.collectAsState().value
-    Box(modifier = modifier.padding(windowInsets)) {
+    Box(
+        modifier = modifier
+            .fillMaxSize()
+            .padding(windowInsets),
+    ) {
         when (screenStack.lastOrNull()) {
-            null,
-            AdminScreenType.Login,
-            -> {
+            null -> {
+                CircularProgressIndicator(
+                    modifier = Modifier.align(Alignment.Center),
+                )
+            }
+
+            AdminScreenType.Login -> {
                 val uiState = adminLoginScreenUiStateProvider()
                 AdminLoginScreen(
                     uiState = uiState,

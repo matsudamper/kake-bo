@@ -3,6 +3,7 @@ package net.matsudamper.money.frontend.common.viewmodel.admin
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.launch
 import net.matsudamper.money.frontend.common.base.nav.ScopedObjectFeature
 import net.matsudamper.money.frontend.common.base.nav.admin.AdminScreenController
 import net.matsudamper.money.frontend.common.ui.screen.admin.AdminRootScreenUiState
@@ -14,7 +15,21 @@ public class AdminRootScreenViewModel(
     private val adminQuery: GraphqlAdminQuery,
     private val controller: AdminScreenController,
 ) : CommonViewModel(scopedObjectFeature) {
-    private val viewModelStateFlow = MutableStateFlow(ViewModelState())
+    init {
+        viewModelScope.launch {
+            when (adminQuery.isLoggedIn()) {
+                GraphqlAdminQuery.IsLoggedInResult.LoggedIn -> {
+                    controller.navigateToRoot()
+                }
+
+                GraphqlAdminQuery.IsLoggedInResult.NotLoggedIn,
+                GraphqlAdminQuery.IsLoggedInResult.ServerError,
+                -> {
+                    controller.navigateToLogin()
+                }
+            }
+        }
+    }
 
     public val uiStateFlow: StateFlow<AdminRootScreenUiState> = MutableStateFlow(
         AdminRootScreenUiState(
@@ -24,10 +39,5 @@ public class AdminRootScreenViewModel(
                 }
             },
         ),
-    ).also { uiStateFlow ->
-    }.asStateFlow()
-
-    private data class ViewModelState(
-        val any: Any? = null,
-    )
+    ).asStateFlow()
 }
