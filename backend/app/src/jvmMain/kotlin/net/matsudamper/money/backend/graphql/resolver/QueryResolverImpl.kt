@@ -33,7 +33,7 @@ class QueryResolverImpl : QueryResolver {
             ?: throw IllegalStateException("DOMAIN is not configured")
 
         return otelSupplyAsync {
-            val size = input.size.coerceAtMost(MAX_ADMIN_UNLINKED_IMAGE_SIZE)
+            val size = input.size.coerceIn(0, MAX_ADMIN_UNLINKED_IMAGE_SIZE)
             if (size == 0) {
                 QlAdminUnlinkedImagesConnection(
                     nodes = listOf(),
