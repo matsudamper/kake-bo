@@ -26,6 +26,8 @@ public data class AdminRootScreenUiState(
 }
 
 public data class AdminAddUserUiState(
+    val userName: TextFieldValue,
+    val password: TextFieldValue,
     val onChangeUserName: (String) -> Unit,
     val onChangePassword: (String) -> Unit,
     val onClickAddButton: () -> Unit,
