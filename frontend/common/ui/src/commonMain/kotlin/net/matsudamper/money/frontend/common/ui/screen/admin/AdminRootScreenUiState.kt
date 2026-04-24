@@ -20,6 +20,8 @@ public data class AdminRootScreenUiState(
 ) {
     public interface Listener {
         public fun onClickAddUser()
+
+        public fun onClickLogout()
     }
 }
 

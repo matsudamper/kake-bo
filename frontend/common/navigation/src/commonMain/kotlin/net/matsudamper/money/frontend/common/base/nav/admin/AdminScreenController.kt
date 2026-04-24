@@ -31,7 +31,7 @@ public enum class AdminScreenType {
 }
 
 public class AdminScreenControllerImpl : AdminScreenController {
-    private val _screen: MutableStateFlow<List<AdminScreenType>> = MutableStateFlow(listOf(AdminScreenType.Login))
+    private val _screen: MutableStateFlow<List<AdminScreenType>> = MutableStateFlow(emptyList())
     public val screen: StateFlow<List<AdminScreenType>> = _screen.asStateFlow()
 
     override fun navigateToLogin() {
@@ -42,19 +42,27 @@ public class AdminScreenControllerImpl : AdminScreenController {
 
     override fun navigateToRoot() {
         _screen.update {
-            it.plus(AdminScreenType.Root)
+            listOf(AdminScreenType.Root)
         }
     }
 
     override fun navigateToAddUser() {
-        _screen.update {
-            it.plus(AdminScreenType.AddUser)
+        _screen.update { current ->
+            when (current.lastOrNull()) {
+                AdminScreenType.AddUser -> current
+                AdminScreenType.Root -> current + AdminScreenType.AddUser
+                else -> listOf(AdminScreenType.Root, AdminScreenType.AddUser)
+            }
         }
     }
 
     override fun popBackStack() {
-        _screen.update {
-            it.dropLast(1)
+        _screen.update { current ->
+            if (current.size <= 1) {
+                current
+            } else {
+                current.dropLast(1)
+            }
         }
     }
 }

@@ -27,6 +27,7 @@ internal fun AdminContainer(
             scopedObjectFeature = it,
             controller = controller,
             adminQuery = GraphqlAdminQuery(koin.get<GraphqlClient>()),
+            globalEventSender = globalEventSender,
         )
     }
     AdminRootScreen(
