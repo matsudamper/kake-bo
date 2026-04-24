@@ -43,6 +43,7 @@ import net.matsudamper.money.backend.datasource.db.repository.DbUserLoginReposit
 import net.matsudamper.money.backend.datasource.db.repository.DbUserRepository
 import net.matsudamper.money.backend.datasource.db.repository.DeleteUsageImageRelationDaoImpl
 import net.matsudamper.money.backend.datasource.db.repository.EnvAdminLoginRepository
+import net.matsudamper.money.backend.datasource.session.AdminSessionRepositoryProvider
 import net.matsudamper.money.backend.datasource.session.UserSessionRepositoryProvider
 import net.matsudamper.money.backend.mail.MailRepositoryImpl
 
@@ -218,8 +219,19 @@ class MainDiContainer : DiContainer {
         return challengeRepository
     }
 
+    private val adminSessionRepository: AdminSessionRepository = if (ServerEnv.enableRedis) {
+        AdminSessionRepositoryProvider.provideRedisRepository(
+            host = ServerEnv.redisHost!!,
+            port = ServerEnv.redisPort!!,
+            index = ServerVariables.REDIS_INDEX_ADMIN_SESSION,
+            clock = clock(),
+        )
+    } else {
+        DbAdminSessionRepository(dbConnection = DbConnectionImpl, clock = clock())
+    }
+
     override fun createAdminUserSessionRepository(): AdminSessionRepository {
-        return DbAdminSessionRepository(dbConnection = DbConnectionImpl, clock = clock())
+        return adminSessionRepository
     }
 
     override fun userLoginRepository(): UserLoginRepository {
