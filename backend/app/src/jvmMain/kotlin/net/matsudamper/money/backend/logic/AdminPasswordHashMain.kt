@@ -1,5 +1,6 @@
 package net.matsudamper.money.backend.logic
 
+import java.util.HexFormat
 import net.matsudamper.money.backend.base.ServerEnv
 
 /**
@@ -42,5 +43,5 @@ fun main(args: Array<String>) {
 
     println("=== 管理者パスワードhash化結果 ===")
     println("ADMIN_PASSWORD_HASH=${result.hashedPassword}")
-    println("ADMIN_PASSWORD_SALT=${result.salt.joinToString("") { "%02x".format(it) }}")
+    println("ADMIN_PASSWORD_SALT=${HexFormat.of().formatHex(result.salt)}")
 }
