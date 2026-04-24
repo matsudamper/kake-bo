@@ -32,6 +32,7 @@ import net.matsudamper.money.element.MoneyUsageCategoryId
 import net.matsudamper.money.element.MoneyUsageId
 import net.matsudamper.money.element.MoneyUsagePresetId
 import net.matsudamper.money.element.MoneyUsageSubCategoryId
+import net.matsudamper.money.frontend.common.base.Logger
 import net.matsudamper.money.frontend.graphql.type.ApiTokenId as ApolloApiTokenId
 import net.matsudamper.money.frontend.graphql.type.FidoId as ApolloFidoId
 import net.matsudamper.money.frontend.graphql.type.ImageId as ApolloImageId

@@ -9,6 +9,7 @@ import net.matsudamper.money.frontend.common.ui.screen.admin.AdminRootScreen
 import net.matsudamper.money.frontend.common.viewmodel.admin.AdminAddUserScreenViewModel
 import net.matsudamper.money.frontend.common.viewmodel.admin.AdminLoginScreenViewModel
 import net.matsudamper.money.frontend.common.viewmodel.admin.AdminRootScreenViewModel
+import net.matsudamper.money.frontend.common.viewmodel.admin.AdminUnlinkedImagesScreenViewModel
 import net.matsudamper.money.frontend.common.viewmodel.lib.EventSender
 import net.matsudamper.money.frontend.common.viewmodel.root.GlobalEvent
 import net.matsudamper.money.frontend.graphql.GraphqlAdminQuery
@@ -55,6 +56,15 @@ internal fun AdminContainer(
                 )
             }
             adminAddUserScreenViewModel.uiStateFlow.collectAsState().value
+        },
+        adminUnlinkedImagesUiStateProvider = {
+            val adminUnlinkedImagesScreenViewModel = LocalScopedObjectStore.current.putOrGet<AdminUnlinkedImagesScreenViewModel>(Unit) {
+                AdminUnlinkedImagesScreenViewModel(
+                    scopedObjectFeature = it,
+                    adminQuery = GraphqlAdminQuery(koin.get<GraphqlClient>()),
+                )
+            }
+            adminUnlinkedImagesScreenViewModel.uiStateFlow.collectAsState().value
         },
         windowInsets = windowInsets,
     )

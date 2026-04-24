@@ -24,6 +24,7 @@ public fun AdminRootScreen(
     adminRootScreenUiStateProvider: @Composable () -> AdminRootScreenUiState,
     adminLoginScreenUiStateProvider: @Composable () -> AdminLoginScreenUiState,
     adminAddUserUiStateProvider: @Composable () -> AdminAddUserUiState,
+    adminUnlinkedImagesUiStateProvider: @Composable () -> AdminUnlinkedImagesScreenUiState,
     windowInsets: PaddingValues,
     modifier: Modifier = Modifier,
 ) {
@@ -85,6 +86,18 @@ public fun AdminRootScreen(
                                 val uiState = adminAddUserUiStateProvider()
                                 AddUserScreen(
                                     uiState = uiState,
+                                )
+                            }
+                        }
+
+                        AdminScreenType.UnlinkedImages -> {
+                            NavEntry(
+                                key = screen,
+                            ) {
+                                val uiState = adminUnlinkedImagesUiStateProvider()
+                                AdminUnlinkedImagesScreen(
+                                    uiState = uiState,
+                                    onClickBack = { adminScreenController.popBackStack() },
                                 )
                             }
                         }

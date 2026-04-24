@@ -92,6 +92,87 @@ internal fun Route.getImage(
             }
         }
     }
+
+    get(ImageApiPath.adminImageV1ByDisplayId("{displayId}")) {
+        val cookieManager = KtorCookieManager(call = call)
+        val adminSessionId = cookieManager.getAdminSessionId()
+        if (adminSessionId == null) {
+            call.respondApiError(
+                status = HttpStatusCode.Unauthorized,
+                message = "Unauthorized",
+            )
+            return@get
+        }
+        val adminSession = diContainer.createAdminUserSessionRepository().verifySession(adminSessionId)
+        if (adminSession == null) {
+            call.respondApiError(
+                status = HttpStatusCode.Unauthorized,
+                message = "Unauthorized",
+            )
+            return@get
+        }
+        cookieManager.setAdminSession(
+            idValue = adminSession.adminSessionId.id,
+            expires = adminSession.expire.atOffset(java.time.ZoneOffset.UTC),
+        )
+
+        val displayId = call.parameters["displayId"]
+        if (displayId == null) {
+            call.respondApiError(
+                status = HttpStatusCode.BadRequest,
+                message = "InvalidImageId",
+            )
+            return@get
+        }
+
+        val imageData = diContainer.createAdminImageRepository().getImageDataByDisplayId(
+            displayId = displayId,
+        )
+        if (imageData == null) {
+            call.respondApiError(
+                status = HttpStatusCode.NotFound,
+                message = "NotFound",
+            )
+            return@get
+        }
+
+        when (
+            val result = imageReadHandler.handle(
+                request = ImageReadHandler.Request(
+                    displayId = displayId,
+                    relativePath = imageData.relativePath,
+                    storageDirectory = imageUploadConfig.storageDirectory,
+                ),
+            )
+        ) {
+            is ImageReadHandler.Result.BadRequest -> {
+                call.respondApiError(
+                    status = HttpStatusCode.BadRequest,
+                    message = result.message,
+                )
+            }
+
+            ImageReadHandler.Result.NotFound -> {
+                call.respondApiError(
+                    status = HttpStatusCode.NotFound,
+                    message = "NotFound",
+                )
+            }
+
+            is ImageReadHandler.Result.Success -> {
+                val responseContentType = runCatching {
+                    ContentType.parse(imageData.contentType)
+                }.getOrDefault(ContentType.Application.OctetStream)
+
+                call.respond(
+                    LocalFileContent(
+                        file = result.file,
+                        contentType = responseContentType,
+                    ),
+                )
+            }
+        }
+    }
 }
 
 private suspend fun ApplicationCall.respondApiError(
