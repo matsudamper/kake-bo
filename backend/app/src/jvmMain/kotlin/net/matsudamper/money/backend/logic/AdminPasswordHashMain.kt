@@ -11,9 +11,8 @@ import net.matsudamper.money.backend.base.ServerEnv
  * 設定が必要な環境変数:
  * - `ADMIN_PASSWORD_HASH`: hash化されたパスワード（Base64）
  * - `ADMIN_PASSWORD_SALT`: ソルト（hex文字列）
- * - `ADMIN_PASSWORD_KEY_LENGTH`: キー長さ（ビット数）
  *
- * `ADMIN_PASSWORD_ALGORITHM` と `ADMIN_PASSWORD_ITERATION_COUNT` は `ServerEnv` で固定。
+ * `ADMIN_PASSWORD_ALGORITHM`、`ADMIN_PASSWORD_ITERATION_COUNT`、`ADMIN_PASSWORD_KEY_LENGTH` は `ServerEnv` で固定。
  *
  * 実行方法:
  * - 引数にパスワードを渡す場合: `./gradlew :backend:app:run --args='<password>'`
