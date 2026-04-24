@@ -16,6 +16,18 @@ import net.matsudamper.money.graphql.model.QlAdminLoginResult
 import net.matsudamper.money.graphql.model.QlAdminMutation
 
 class AdminMutationResolverImpl : AdminMutationResolver {
+    override fun adminLogout(
+        adminMutation: QlAdminMutation,
+        env: DataFetchingEnvironment,
+    ): CompletionStage<DataFetcherResult<Boolean>> {
+        val context = env.graphQlContext.get<GraphQlContext>(GraphQlContext::class.java.name)
+
+        return otelSupplyAsync {
+            context.clearAdminSession()
+            true
+        }.toDataFetcher()
+    }
+
     override fun addUser(
         adminMutation: QlAdminMutation,
         name: String,

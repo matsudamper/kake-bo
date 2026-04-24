@@ -38,6 +38,13 @@ class GraphqlAdminQuery(
             .execute()
     }
 
+    suspend fun adminLogout(): Boolean {
+        return graphqlClient.apolloClient
+            .mutation(AdminLogoutMutation())
+            .execute()
+            .data?.adminMutation?.adminLogout == true
+    }
+
     suspend fun addUser(
         userName: String,
         password: String,
