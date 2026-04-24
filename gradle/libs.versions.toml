@@ -1,7 +1,7 @@
 [versions]
 java = "24"
 javaToolchain = "24"
-kotlin = "2.3.20"
+kotlin = "2.3.21"
 apollo = "4.4.3"
 ktor = "3.4.3"
 activity = "1.13.0"
@@ -26,7 +26,7 @@ room3 = "3.0.0-alpha03"
 sqlite = "2.7.0-alpha03"
 workmanager = "2.11.2"
 timber = "5.0.1"
-ksp = "2.3.6"
+ksp = "2.3.7"
 
 [plugins]
 apollo = { id = "com.apollographql.apollo", version.ref = "apollo" }
@@ -189,4 +189,4 @@ mariadbClient = { module = "org.mariadb.jdbc:mariadb-java-client", version.requi
 
 # Play
 androidxCredentialsPlayServicesAuth = { module = "androidx.credentials:credentials-play-services-auth", version.require = "1.6.0" }
-androidxCredentials = { module = "androidx.credentials:credentials", version.require = "1.5.0" }
+androidxCredentials = { module = "androidx.credentials:credentials", version.require = "1.6.0" }
