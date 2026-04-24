@@ -87,6 +87,9 @@ class DbAdminImageRepository : AdminImageRepository {
         }
     }
 
+    /**
+     * [JUserImages.UPLOADED]の状態は加味しない。アップロード中に失敗したゴミファイルも返す。
+     */
     override fun getImageDataByDisplayId(displayId: String): AdminImageRepository.ImageData? {
         return DbConnectionImpl.use { connection ->
             DSL.using(connection)
