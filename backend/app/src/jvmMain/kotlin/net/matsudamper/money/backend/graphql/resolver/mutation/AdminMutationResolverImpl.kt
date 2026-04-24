@@ -1,6 +1,7 @@
 package net.matsudamper.money.backend.graphql.resolver.mutation
 
 import java.util.concurrent.CompletionStage
+import kotlinx.coroutines.runBlocking
 import graphql.execution.DataFetcherResult
 import graphql.schema.DataFetchingEnvironment
 import net.matsudamper.money.backend.graphql.GraphQlContext
@@ -90,36 +91,41 @@ class AdminMutationResolverImpl : AdminMutationResolver {
     ): CompletionStage<DataFetcherResult<QlAdminLoginResult>> {
         val context = env.graphQlContext.get<GraphQlContext>(GraphQlContext::class.java.name)
         return otelSupplyAsync {
-            val encryptInfo = context.diContainer.createAdminLoginRepository().getLoginEncryptInfo()
-                ?: return@otelSupplyAsync QlAdminLoginResult(isSuccess = false)
+            runBlocking {
+                minExecutionTime(LOGIN_MINIMUM_EXECUTION_TIME_MILLIS) {
+                    val adminLoginRepository = context.diContainer.createAdminLoginRepository()
+                    val encryptInfo = adminLoginRepository.getLoginEncryptInfo()
+                        ?: return@minExecutionTime QlAdminLoginResult(isSuccess = false)
 
-            val algorithm = IPasswordManager.Algorithm.entries
-                .firstOrNull { it.algorithmName == encryptInfo.algorithm }
-                ?: return@otelSupplyAsync QlAdminLoginResult(isSuccess = false)
+                    val algorithm = IPasswordManager.Algorithm.entries
+                        .firstOrNull { it.algorithmName == encryptInfo.algorithm }
+                        ?: return@minExecutionTime QlAdminLoginResult(isSuccess = false)
 
-            val passwordManager = PasswordManager()
-            val hashedPassword = passwordManager.getHashedPassword(
-                password = password,
-                salt = encryptInfo.salt,
-                iterationCount = encryptInfo.iterationCount,
-                keyLength = encryptInfo.keyLength,
-                algorithm = algorithm,
-            )
-            val encodedPassword = java.util.Base64.getEncoder().encodeToString(hashedPassword)
+                    val passwordManager = PasswordManager()
+                    val hashedPassword = passwordManager.getHashedPassword(
+                        password = password,
+                        salt = encryptInfo.salt,
+                        iterationCount = encryptInfo.iterationCount,
+                        keyLength = encryptInfo.keyLength,
+                        algorithm = algorithm,
+                    )
+                    val encodedPassword = java.util.Base64.getEncoder().encodeToString(hashedPassword)
 
-            if (context.diContainer.createAdminLoginRepository().verifyPassword(encodedPassword)) {
-                val adminSession = context.diContainer.createAdminUserSessionRepository().createSession()
-                context.setAdminSessionCookie(
-                    value = adminSession.adminSessionId.id,
-                    expires = adminSession.expire,
-                )
-                QlAdminLoginResult(
-                    isSuccess = true,
-                )
-            } else {
-                QlAdminLoginResult(
-                    isSuccess = false,
-                )
+                    if (adminLoginRepository.verifyPassword(encodedPassword)) {
+                        val adminSession = context.diContainer.createAdminUserSessionRepository().createSession()
+                        context.setAdminSessionCookie(
+                            value = adminSession.adminSessionId.id,
+                            expires = adminSession.expire,
+                        )
+                        QlAdminLoginResult(
+                            isSuccess = true,
+                        )
+                    } else {
+                        QlAdminLoginResult(
+                            isSuccess = false,
+                        )
+                    }
+                }
             }
         }.toDataFetcher()
     }
