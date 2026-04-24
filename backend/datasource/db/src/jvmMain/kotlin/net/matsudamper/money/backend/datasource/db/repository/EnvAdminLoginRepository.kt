@@ -6,8 +6,6 @@ import net.matsudamper.money.backend.base.ServerEnv
 class EnvAdminLoginRepository : AdminLoginRepository {
     override fun getLoginEncryptInfo(): AdminLoginRepository.LoginEncryptInfo? {
         val saltHex = ServerEnv.adminPasswordSalt ?: return null
-        val algorithm = ServerEnv.adminPasswordAlgorithm ?: return null
-        val iterationCount = ServerEnv.adminPasswordIterationCount ?: return null
         val keyLength = ServerEnv.adminPasswordKeyLength ?: return null
 
         val salt = try {
@@ -17,8 +15,8 @@ class EnvAdminLoginRepository : AdminLoginRepository {
         }
         return AdminLoginRepository.LoginEncryptInfo(
             salt = salt,
-            algorithm = algorithm,
-            iterationCount = iterationCount,
+            algorithm = ServerEnv.adminPasswordAlgorithm,
+            iterationCount = ServerEnv.adminPasswordIterationCount,
             keyLength = keyLength,
         )
     }

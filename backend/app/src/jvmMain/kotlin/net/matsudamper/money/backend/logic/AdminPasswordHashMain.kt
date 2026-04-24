@@ -1,5 +1,7 @@
 package net.matsudamper.money.backend.logic
 
+import net.matsudamper.money.backend.base.ServerEnv
+
 /**
  * 管理者パスワードをhash化して環境変数の設定値をコンソールに出力するローカル実行用ツール。
  *
@@ -8,9 +10,9 @@ package net.matsudamper.money.backend.logic
  * 設定が必要な環境変数:
  * - `ADMIN_PASSWORD_HASH`: hash化されたパスワード（Base64）
  * - `ADMIN_PASSWORD_SALT`: ソルト（hex文字列）
- * - `ADMIN_PASSWORD_ALGORITHM`: アルゴリズム名（例: PBKDF2WithHmacSHA512）
- * - `ADMIN_PASSWORD_ITERATION_COUNT`: イテレーション回数
  * - `ADMIN_PASSWORD_KEY_LENGTH`: キー長さ（ビット数）
+ *
+ * `ADMIN_PASSWORD_ALGORITHM` と `ADMIN_PASSWORD_ITERATION_COUNT` は `ServerEnv` で固定。
  *
  * 実行方法:
  * - 引数にパスワードを渡す場合: `./gradlew :backend:app:run --args='<password>'`
@@ -32,8 +34,8 @@ fun main(args: Array<String>) {
     val passwordManager = PasswordManager()
     val result = passwordManager.create(
         password = password,
-        keyByteLength = 512,
-        iterationCount = 100000,
+        keyByteLength = ServerEnv.adminPasswordKeyLength,
+        iterationCount = ServerEnv.adminPasswordIterationCount,
         saltByteLength = 32,
         algorithm = IPasswordManager.Algorithm.PBKDF2WithHmacSHA512,
     )
@@ -41,7 +43,4 @@ fun main(args: Array<String>) {
     println("=== 管理者パスワードhash化結果 ===")
     println("ADMIN_PASSWORD_HASH=${result.hashedPassword}")
     println("ADMIN_PASSWORD_SALT=${result.salt.joinToString("") { "%02x".format(it) }}")
-    println("ADMIN_PASSWORD_ALGORITHM=${result.algorithm}")
-    println("ADMIN_PASSWORD_ITERATION_COUNT=${result.iterationCount}")
-    println("ADMIN_PASSWORD_KEY_LENGTH=${result.keyLength}")
 }

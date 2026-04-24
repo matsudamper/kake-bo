@@ -79,9 +79,7 @@ class AdminMutationResolverImpl : AdminMutationResolver {
         val context = env.graphQlContext.get<GraphQlContext>(GraphQlContext::class.java.name)
         return otelSupplyAsync {
             val encryptInfo = context.diContainer.createAdminLoginRepository().getLoginEncryptInfo()
-            if (encryptInfo == null) {
-                return@otelSupplyAsync QlAdminLoginResult(isSuccess = false)
-            }
+                ?: return@otelSupplyAsync QlAdminLoginResult(isSuccess = false)
 
             val algorithm = IPasswordManager.Algorithm.entries
                 .firstOrNull { it.algorithmName == encryptInfo.algorithm }

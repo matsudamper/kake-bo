@@ -24,9 +24,10 @@ public object ServerEnv {
 
     public val adminPasswordHash: String? get() = System.getenv("ADMIN_PASSWORD_HASH")
     public val adminPasswordSalt: String? get() = System.getenv("ADMIN_PASSWORD_SALT")
-    public val adminPasswordAlgorithm: String? get() = System.getenv("ADMIN_PASSWORD_ALGORITHM")
-    public val adminPasswordIterationCount: Int? get() = System.getenv("ADMIN_PASSWORD_ITERATION_COUNT")?.toInt()
-    public val adminPasswordKeyLength: Int? get() = System.getenv("ADMIN_PASSWORD_KEY_LENGTH")?.toInt()
+
+    public val adminPasswordAlgorithm: String get() = "PBKDF2WithHmacSHA512"
+    public val adminPasswordIterationCount: Int get() = 100000
+    public val adminPasswordKeyLength: Int get() = 512
 
     public val enableRedis: Boolean get() = System.getenv("ENABLE_REDIS")?.toBooleanStrictOrNull() ?: false
     public val redisHost: String? get() = System.getenv("REDIS_HOST")?.takeIf { it.isNotBlank() }
