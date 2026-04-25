@@ -131,10 +131,6 @@ internal fun UserSearchScreen(
                         item {
                             LaunchedEffect(Unit) {
                                 uiState.listener.onClickLoadMore()
-                                while (isActive) {
-                                    delay(500)
-                                    uiState.listener.onClickLoadMore()
-                                }
                             }
                             Box(
                                 modifier = Modifier.fillMaxWidth().padding(vertical = 24.dp),
