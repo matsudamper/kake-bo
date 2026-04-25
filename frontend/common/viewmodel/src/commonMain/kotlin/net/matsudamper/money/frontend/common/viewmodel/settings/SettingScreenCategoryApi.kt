@@ -86,8 +86,26 @@ public class SettingScreenCategoryApi(
         }.getOrNull()
     }
 
-    public suspend fun getSubCategoriesPaging(id: MoneyUsageCategoryId): ApolloResponse<CategorySettingScreenSubCategoriesPagingQuery.Data>? {
-        return runCatching {
+    public fun getSubCategoriesPaging(id: MoneyUsageCategoryId): Flow<ApolloResponse<CategorySettingScreenSubCategoriesPagingQuery.Data>> {
+        return apolloClient
+            .query(
+                CategorySettingScreenSubCategoriesPagingQuery(
+                    categoryId = id,
+                    query = MoneyUsageSubCategoryQuery(
+                        cursor = Optional.present(null),
+                        size = 100,
+                    ),
+                ),
+            )
+            .fetchPolicy(FetchPolicy.CacheAndNetwork)
+            .watch()
+            .catch {
+                Logger.e(TAG, it)
+            }
+    }
+
+    public suspend fun refetchSubCategoriesPaging(id: MoneyUsageCategoryId) {
+        runCatching {
             apolloClient
                 .query(
                     CategorySettingScreenSubCategoriesPagingQuery(
@@ -102,7 +120,7 @@ public class SettingScreenCategoryApi(
                 .execute()
         }.onFailure {
             Logger.e(TAG, it)
-        }.getOrNull()
+        }
     }
 
     public suspend fun updateCategory(

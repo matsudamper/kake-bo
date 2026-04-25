@@ -226,7 +226,7 @@ public class SettingCategoryViewModel(
                             }
                         }
 
-                        initialFetchSubCategories()
+                        api.refetchSubCategoriesPaging(id = categoryId)
                     }
                 }
 
@@ -328,7 +328,7 @@ public class SettingCategoryViewModel(
     }
 
     init {
-        initialFetchSubCategories()
+        observeSubCategoriesPaging()
         fetchCategoryInfo()
     }
 
@@ -411,25 +411,27 @@ public class SettingCategoryViewModel(
         }
     }
 
-    private fun initialFetchSubCategories() {
+    private fun observeSubCategoriesPaging() {
         viewModelScope.launch {
-            val data = api.getSubCategoriesPaging(id = categoryId)?.data?.user?.moneyUsageCategory?.subCategories
+            api.getSubCategoriesPaging(id = categoryId)
+                .collect { response ->
+                    val data = response.data?.user?.moneyUsageCategory?.subCategories
+                    if (data == null) {
+                        globalEventSender.send {
+                            it.showSnackBar("データの取得に失敗しました")
+                        }
+                        return@collect
+                    }
 
-            if (data == null) {
-                globalEventSender.send {
-                    it.showSnackBar("データの取得に失敗しました")
+                    viewModelStateFlow.update {
+                        it.copy(
+                            isFirstLoading = false,
+                            responseList = listOf(data),
+                            deletedSubCategoryIds = listOf(),
+                            hasMoreSubCategories = data.cursor != null,
+                        )
+                    }
                 }
-                return@launch
-            }
-
-            viewModelStateFlow.update {
-                it.copy(
-                    isFirstLoading = false,
-                    responseList = listOf(data),
-                    deletedSubCategoryIds = listOf(),
-                    hasMoreSubCategories = data.cursor != null,
-                )
-            }
         }
     }
 
