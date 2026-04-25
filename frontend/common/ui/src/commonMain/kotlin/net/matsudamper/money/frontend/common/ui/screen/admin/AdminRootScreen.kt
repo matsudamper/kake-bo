@@ -44,7 +44,7 @@ public fun AdminRootScreen(
             NavDisplay(
                 backStack = screenStack,
                 modifier = Modifier.fillMaxSize(),
-                sceneStrategy = DialogSceneStrategy(),
+                sceneStrategies = listOf(DialogSceneStrategy()),
                 onBack = {
                     adminScreenController.popBackStack()
                 },
