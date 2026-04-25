@@ -7,7 +7,6 @@ plugins {
 kotlin {
     js(IR) {
         browser()
-        binaries.executable()
     }
     androidTarget()
     jvm { }
@@ -15,6 +14,7 @@ kotlin {
         jvmToolchain(libs.versions.javaToolchain.get().toInt())
         val commonMain by getting {
             dependencies {
+                api(projects.frontend.common.feature.logging)
                 implementation(projects.shared)
 
                 implementation(libs.composeRuntime)
@@ -33,7 +33,7 @@ kotlin {
                 implementation(libs.composeRuntime)
                 implementation(libs.composeUi)
 
-                implementation("io.ktor:ktor-client-logging-js:3.4.2")
+                implementation("io.ktor:ktor-client-logging-js:3.4.3")
                 implementation(libs.ktorClientCore)
                 implementation(libs.ktorClientJs)
             }
@@ -52,6 +52,8 @@ kotlin {
 
                 implementation(libs.composeRuntime)
                 implementation(libs.composeUi)
+
+                implementation(libs.androidxCoreKtx)
             }
         }
         val jvmTest by getting {
@@ -76,7 +78,4 @@ tasks.withType<Test>().configureEach {
 
 android {
     namespace = "net.matsudamper.money.frontend.common.base"
-    buildFeatures {
-        buildConfig = true
-    }
 }

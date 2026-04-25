@@ -4,7 +4,6 @@ import kotlinx.coroutines.flow.Flow
 import com.apollographql.apollo.api.ApolloResponse
 import com.apollographql.apollo.api.Optional
 import com.apollographql.apollo.cache.normalized.FetchPolicy
-import com.apollographql.apollo.cache.normalized.api.CacheKey
 import com.apollographql.apollo.cache.normalized.apolloStore
 import com.apollographql.apollo.cache.normalized.fetchPolicy
 import com.apollographql.apollo.cache.normalized.watch
@@ -22,33 +21,47 @@ public class ImportedMailCategoryFilterScreenPagingModel(
     private val graphqlClient: GraphqlClient,
 ) : CommonViewModel(scopedObjectFeature) {
 
-    internal fun getFlow(): Flow<ApolloResponse<ImportedMailCategoryFiltersScreenPagingQuery.Data>> {
-        return graphqlClient.apolloClient.query(firstQuery)
-            .fetchPolicy(FetchPolicy.CacheOnly)
-            .watch()
-    }
-
-    internal fun clear() {
-        graphqlClient.apolloClient.apolloStore.remove(CacheKey(firstQuery.name()))
-    }
-
     private val firstQuery = ImportedMailCategoryFiltersScreenPagingQuery(
         query = ImportedMailCategoryFiltersQuery(
             cursor = Optional.present(null),
             isAsc = true,
+            size = Optional.present(10),
             sortType = Optional.present(ImportedMailCategoryFiltersSortType.TITLE),
         ),
     )
 
+    internal fun getFlow(): Flow<ApolloResponse<ImportedMailCategoryFiltersScreenPagingQuery.Data>> {
+        return graphqlClient.apolloClient.query(firstQuery)
+            .fetchPolicy(FetchPolicy.CacheFirst)
+            .watch()
+    }
+
+    internal suspend fun refresh(): UpdateOperationResponseResult<ImportedMailCategoryFiltersScreenPagingQuery.Data> {
+        return runCatching {
+            val response = graphqlClient.apolloClient.query(firstQuery)
+                .fetchPolicy(FetchPolicy.NetworkOnly)
+                .execute()
+            val data = response.data
+                ?: return UpdateOperationResponseResult.Error(NullPointerException("ApolloResponse.data is null"))
+            graphqlClient.apolloClient.apolloStore.writeOperation(
+                operation = firstQuery,
+                operationData = data,
+                customScalarAdapters = graphqlClient.apolloClient.customScalarAdapters,
+                publish = true,
+            )
+            UpdateOperationResponseResult.Success(response)
+        }.getOrElse { UpdateOperationResponseResult.Error(it) }
+    }
+
     internal suspend fun fetch(): UpdateOperationResponseResult<ImportedMailCategoryFiltersScreenPagingQuery.Data> {
         return graphqlClient.apolloClient.updateOperation(firstQuery) update@{ before ->
-            if (before == null) return@update success(fetch(cursor = null))
+            if (before == null) return@update success(fetchPage(cursor = null))
             if (before.user?.importedMailCategoryFilters?.isLast == true) return@update noHasMore()
 
             val cursor = before.user?.importedMailCategoryFilters?.cursor ?: return@update error()
-            val newData = fetch(cursor = cursor)
+            val newData = fetchPage(cursor = cursor)
             success(
-                fetch(cursor).newBuilder()
+                newData.newBuilder()
                     .data(
                         data = before.copy(
                             user = before.user?.copy(
@@ -69,12 +82,13 @@ public class ImportedMailCategoryFilterScreenPagingModel(
         }
     }
 
-    private suspend fun fetch(cursor: String?): ApolloResponse<ImportedMailCategoryFiltersScreenPagingQuery.Data> {
+    private suspend fun fetchPage(cursor: String?): ApolloResponse<ImportedMailCategoryFiltersScreenPagingQuery.Data> {
         return graphqlClient.apolloClient.query(
             query = ImportedMailCategoryFiltersScreenPagingQuery(
                 query = ImportedMailCategoryFiltersQuery(
                     cursor = Optional.present(cursor),
                     isAsc = true,
+                    size = Optional.present(10),
                     sortType = Optional.present(ImportedMailCategoryFiltersSortType.TITLE),
                 ),
             ),

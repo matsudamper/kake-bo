@@ -52,6 +52,7 @@ import net.matsudamper.money.frontend.common.viewmodel.LocalGlobalEventHandlerLo
 import net.matsudamper.money.frontend.common.viewmodel.lib.EventSender
 import net.matsudamper.money.frontend.common.viewmodel.root.GlobalEvent
 import net.matsudamper.money.frontend.common.viewmodel.root.SettingViewModel
+import net.matsudamper.money.frontend.common.viewmodel.root.add.HomeAddExtensionEntryProvider
 import net.matsudamper.money.frontend.common.viewmodel.root.home.LoginCheckUseCaseEventListenerImpl
 import net.matsudamper.money.frontend.common.viewmodel.root.mail.HomeAddTabScreenViewModel
 import net.matsudamper.money.frontend.common.viewmodel.root.usage.RootUsageHostViewModel
@@ -158,6 +159,7 @@ public fun Content(
             val mailScreenViewModel = LocalScopedObjectStore.current.putOrGet<HomeAddTabScreenViewModel>(Unit) {
                 HomeAddTabScreenViewModel(
                     scopedObjectFeature = it,
+                    additionalEntryProviders = koin.getAll<HomeAddExtensionEntryProvider>(),
                     navController = navController,
                 )
             }
@@ -211,6 +213,7 @@ public fun Content(
                 when (navController.currentBackstackEntry) {
                     is ScreenStructure.Login,
                     is ScreenStructure.Splash,
+                    is ScreenStructure.Admin,
                     -> Unit
                     else -> rootViewModel.navigateChanged()
                 }
@@ -295,6 +298,7 @@ public fun Content(
                                 addEntryProvider<ScreenStructure.Admin> {
                                     AdminContainer(
                                         windowInsets = paddingValues.value,
+                                        globalEventSender = globalEventSender,
                                     )
                                 }
                                 addEntryProvider<ScreenStructure.NotFound> {
@@ -342,6 +346,14 @@ public fun Content(
                                         screen = current,
                                         viewModelEventHandlers = viewModelEventHandlers,
                                         kakeboScaffoldListener = kakeboScaffoldListener,
+                                        windowInsets = paddingValues.value,
+                                    )
+                                }
+
+                                addEntryProvider<ScreenStructure.NotificationUsageDetail> { current ->
+                                    NotificationUsageDetailScreenContainer(
+                                        current = current,
+                                        eventHandlerCollector = { viewModelEventHandlers.handleNotificationUsageDetail(it) },
                                         windowInsets = paddingValues.value,
                                     )
                                 }

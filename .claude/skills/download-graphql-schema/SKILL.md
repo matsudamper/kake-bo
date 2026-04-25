@@ -37,13 +37,16 @@ description: Guide for updating the frontend GraphQL schema by downloading it fr
 ./gradlew :backend:assemble
 ```
 
-実行可能スクリプトが `backend/build/bin/backend` に生成される。
+実行可能スクリプトが `backend/build/install/backend/bin/backend` に生成される。
 
 ### 2. バックエンドをバックグラウンドで起動する
 
+`run_in_background: true` で起動し、完了通知を待たずに次のステップへ進む。
+
 ```shell
-env $(cat schema_update_local.env | grep -v '^#' | xargs) ./backend/build/bin/backend &
+env $(cat schema_update_local.env | grep -v '^#' | xargs) ./backend/build/install/backend/bin/backend &
 BACKEND_PID=$!
+echo "PID: $BACKEND_PID"
 ```
 
 `schema_update_local.env` の内容：
@@ -55,15 +58,15 @@ BACKEND_PID=$!
 | `IS_DEBUG` | `true` | イントロスペクションを有効化（必須） |
 | `DB_*` | ダミー値 | DBには接続しないが変数が必要    |
 
-### 3. バックエンドの起動を待つ
+### 3. バックエンドの起動を確認する
+
+固定の sleep 後にヘルスチェックする（無限ループは使わない）。
 
 ```shell
-until curl -sf http://localhost/healthz > /dev/null 2>&1; do
-  sleep 1
-done
+sleep 8 && curl -sf http://localhost/healthz; echo "exit: $?"
 ```
 
-ヘルスチェックが成功するまで待機する（`/healthz` エンドポイントが `ok` を返せば準備完了）。
+`exit: 0` が返れば準備完了。失敗した場合はさらに数秒待ってから再実行する。
 
 ### 4. スキーマをダウンロードする
 

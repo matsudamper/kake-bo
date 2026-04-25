@@ -22,9 +22,12 @@ import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Add
 import androidx.compose.material3.CircularProgressIndicator
+import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.FloatingActionButton
 import androidx.compose.material3.Icon
 import androidx.compose.material3.Text
+import androidx.compose.material3.pulltorefresh.PullToRefreshBox
+import androidx.compose.material3.pulltorefresh.rememberPullToRefreshState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.remember
@@ -40,9 +43,12 @@ import net.matsudamper.money.frontend.common.ui.base.KakeboScaffoldListener
 import net.matsudamper.money.frontend.common.ui.base.RootScreenScaffold
 import net.matsudamper.money.frontend.common.ui.layout.html.text.fullscreen.FullScreenTextInput
 
+private val FabPadding = 16.dp
+
 public data class SettingCategoriesScreenUiState(
     val event: Event,
     val loadingState: LoadingState,
+    val isRefreshing: Boolean,
     val showCategoryNameInput: Boolean,
     val kakeboScaffoldListener: KakeboScaffoldListener,
 ) {
@@ -72,6 +78,8 @@ public data class SettingCategoriesScreenUiState(
         public fun categoryInputCompleted(text: String)
 
         public fun dismissCategoryInput()
+
+        public fun onRefresh()
     }
 }
 
@@ -138,20 +146,43 @@ public fun MainContent(
                 text = "カテゴリー一覧",
             )
         },
+        fab = {
+            when (uiState.loadingState) {
+                is SettingCategoriesScreenUiState.LoadingState.Loading -> Unit
+                is SettingCategoriesScreenUiState.LoadingState.Loaded -> {
+                    FloatingActionButton(
+                        modifier = Modifier
+                            .padding(
+                                end = FabPadding,
+                                bottom = FabPadding,
+                            ),
+                        onClick = { uiState.event.onClickAddCategoryButton() },
+                    ) {
+                        Icon(Icons.Default.Add, contentDescription = "カテゴリーを追加")
+                    }
+                }
+            }
+        },
     ) { paddingValues ->
         when (val state = uiState.loadingState) {
             is SettingCategoriesScreenUiState.LoadingState.Loaded -> {
                 val layoutDirection = LocalLayoutDirection.current
                 val lazyListState = rememberLazyListState()
                 val fabSize = 56.dp
-                val fabPadding = 16.dp
-                Box(modifier = Modifier.fillMaxSize()) {
+                val refreshState = rememberPullToRefreshState()
+                @OptIn(ExperimentalMaterial3Api::class)
+                PullToRefreshBox(
+                    modifier = Modifier.fillMaxSize(),
+                    state = refreshState,
+                    isRefreshing = uiState.isRefreshing,
+                    onRefresh = { uiState.event.onRefresh() },
+                ) {
                     LazyColumn(
                         modifier = Modifier.fillMaxSize(),
                         contentPadding = PaddingValues(
                             start = paddingValues.calculateStartPadding(layoutDirection),
                             end = paddingValues.calculateEndPadding(layoutDirection),
-                            bottom = fabSize + fabPadding * 2,
+                            bottom = fabSize + (FabPadding * 2),
                         ),
                         state = lazyListState,
                     ) {
@@ -186,17 +217,6 @@ public fun MainContent(
                         item {
                             Spacer(Modifier.height(24.dp))
                         }
-                    }
-                    FloatingActionButton(
-                        modifier = Modifier
-                            .align(Alignment.BottomEnd)
-                            .padding(
-                                end = paddingValues.calculateEndPadding(layoutDirection) + fabPadding,
-                                bottom = fabPadding,
-                            ),
-                        onClick = { uiState.event.onClickAddCategoryButton() },
-                    ) {
-                        Icon(Icons.Default.Add, contentDescription = "カテゴリーを追加")
                     }
                 }
             }

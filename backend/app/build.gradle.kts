@@ -47,3 +47,12 @@ kotlin {
 tasks.withType<Test>().configureEach {
     useJUnitPlatform()
 }
+
+tasks.register<JavaExec>("adminPasswordHash") {
+    val jvmMain = kotlin.targets.getByName("jvm").compilations.getByName("main")
+
+    dependsOn("jvmMainClasses")
+    mainClass.set("net.matsudamper.money.backend.logic.AdminPasswordHashMainKt")
+    classpath = project.files(jvmMain.output.allOutputs, jvmMain.runtimeDependencyFiles)
+    standardInput = System.`in`
+}

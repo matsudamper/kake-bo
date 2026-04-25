@@ -8,7 +8,6 @@ plugins {
 kotlin {
     js(IR) {
         browser()
-        binaries.executable()
     }
     androidTarget()
     sourceSets {

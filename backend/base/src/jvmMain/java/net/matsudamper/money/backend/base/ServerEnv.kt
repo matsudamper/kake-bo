@@ -20,9 +20,14 @@ public object ServerEnv {
     public val appFingerprint: String get() = System.getenv()["APP_FINGERPRINT"]!!
     public val apkKeyHash: String get() = System.getenv()["APK_KEY_HASH"].orEmpty()
 
-    public val adminPassword: String get() = System.getenv()["ADMIN_PASSWORD"]!!
-
     public val userPasswordPepper: String get() = System.getenv("USER_PASSWORD_PEPPER")!!
+
+    public val adminPasswordHash: String? get() = System.getenv("ADMIN_PASSWORD_HASH")
+    public val adminPasswordSalt: String? get() = System.getenv("ADMIN_PASSWORD_SALT")
+
+    public val adminPasswordAlgorithm: String get() = "PBKDF2WithHmacSHA512"
+    public val adminPasswordIterationCount: Int get() = 100000
+    public val adminPasswordKeyLength: Int get() = 512
 
     public val enableRedis: Boolean get() = System.getenv("ENABLE_REDIS")?.toBooleanStrictOrNull() ?: false
     public val redisHost: String? get() = System.getenv("REDIS_HOST")?.takeIf { it.isNotBlank() }

@@ -9,7 +9,7 @@ plugins {
 kotlin {
     js(IR) {
         browser()
-        binaries.executable()
+
     }
     jvm {}
     sourceSets {
@@ -31,6 +31,7 @@ kotlin {
 apollo {
     service("money") {
         packageName.set("net.matsudamper.money.frontend.graphql")
+        mapScalar("UserId", "net.matsudamper.money.element.UserId")
         mapScalar("MailId", "net.matsudamper.money.element.MailId")
         mapScalar("ImageId", "net.matsudamper.money.element.ImageId")
         mapScalar("FidoId", "net.matsudamper.money.element.FidoId")

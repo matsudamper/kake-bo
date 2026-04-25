@@ -89,3 +89,9 @@ mutation DeleteSubCategory($id: MoneyUsageSubCategoryId!) {
         deleteSubCategory(id: $id)
     }
 }
+
+mutation DeleteCategory($id: MoneyUsageCategoryId!) {
+    userMutation {
+        deleteCategory(id: $id)
+    }
+}

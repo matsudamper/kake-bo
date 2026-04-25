@@ -1,5 +1,7 @@
 plugins {
     alias(libs.plugins.kotlin.multiplatform)
+    alias(libs.plugins.ksp)
+    alias(libs.plugins.kotest)
     id("net.matsudamper.money.buildlogic.compose")
     id("net.matsudamper.money.buildlogic.androidLibrary")
     alias(libs.plugins.kotlin.serialization)
@@ -11,7 +13,6 @@ android {
 kotlin {
     js(IR) {
         browser()
-        binaries.executable()
     }
     jvm { }
     androidTarget()
@@ -41,7 +42,7 @@ kotlin {
                 implementation(libs.composeRuntime)
                 implementation(libs.composeUi)
 
-                implementation("io.ktor:ktor-client-logging-js:3.4.2")
+                implementation("io.ktor:ktor-client-logging-js:3.4.3")
                 implementation(libs.ktorClientCore)
                 implementation(libs.ktorClientJs)
             }
@@ -75,7 +76,8 @@ kotlin {
         }
         val jsTest by getting {
             dependencies {
-                implementation(kotlin("test"))
+                implementation(libs.kotestFrameworkEngine)
+                implementation(libs.kotestAssertionsCore)
             }
         }
     }

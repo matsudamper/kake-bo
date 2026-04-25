@@ -78,10 +78,12 @@ public fun RootHomeMonthlyPagerHostScreen(
         content = {
             val state = rememberPagerState(uiState.currentPage) { uiState.pages.size }
             LaunchedEffect(state, uiState.currentPage) {
-                state.animateScrollToPage(
-                    uiState.currentPage,
-                    animationSpec = tween(durationMillis = 300),
-                )
+                if (state.currentPage != uiState.currentPage) {
+                    state.animateScrollToPage(
+                        uiState.currentPage,
+                        animationSpec = tween(durationMillis = 300),
+                    )
+                }
             }
             var beforePage: Int? by rememberSaveable { mutableStateOf(null) }
             val event by rememberUpdatedState(uiState.event)

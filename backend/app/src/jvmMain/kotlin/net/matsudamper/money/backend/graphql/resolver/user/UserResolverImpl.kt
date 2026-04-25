@@ -205,6 +205,7 @@ class UserResolverImpl : UserResolver {
                 cursor = query.cursor?.let {
                     ImportedMailCategoryFiltersCursor.fromString(it)
                 },
+                size = query.size ?: 10,
             ).onFailure {
                 it.printStackTrace()
             }.getOrNull() ?: return@otelThenApplyAsync null

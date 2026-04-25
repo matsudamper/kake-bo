@@ -28,6 +28,7 @@ import com.apollographql.apollo.cache.normalized.FetchPolicy
 import com.apollographql.apollo.cache.normalized.fetchPolicy
 import net.matsudamper.money.element.ImageId
 import net.matsudamper.money.element.MoneyUsageId
+import net.matsudamper.money.frontend.common.base.Logger
 import net.matsudamper.money.frontend.common.feature.localstore.DataStores
 import net.matsudamper.money.frontend.graphql.GraphqlClient
 import net.matsudamper.money.frontend.graphql.MoneyUsageScreenQuery
@@ -44,13 +45,16 @@ import okhttp3.OkHttpClient
 import okhttp3.Request
 import okhttp3.RequestBody.Companion.toRequestBody
 
+private const val TAG = "ImageUploadWorker"
+
 internal class ImageUploadWorker(
     appContext: Context,
     params: WorkerParameters,
-    private val dao: ImageUploadDao,
+    private val dao: ImageUploadRoomDao,
     private val dataStores: DataStores,
     private val graphqlClient: GraphqlClient,
     private val serverHostConfig: ServerHostConfig,
+    private val localStorage: ImageUploadLocalStorage,
 ) : CoroutineWorker(appContext, params) {
 
     private val okHttpClient by lazy {
@@ -85,20 +89,33 @@ internal class ImageUploadWorker(
     }
 
     private suspend fun doUploadWork(recordId: String): Result {
-        val rawImageBytes = withContext(Dispatchers.IO) {
-            runCatching { rawImageBytesFile(applicationContext, recordId).readBytes() }.getOrNull()
-        }
+        val entity = dao.getById(recordId) ?: return Result.failure()
+        val rawImageBytes = localStorage.readRawImage(recordId)
+            ?: if (entity.imageSourceUri != null) {
+                // bytesがnullだった場合のfallback: content URIから直接読み込み
+                withContext(Dispatchers.IO) {
+                    runCatching {
+                        applicationContext.contentResolver
+                            .openInputStream(android.net.Uri.parse(entity.imageSourceUri))
+                            ?.use { it.readBytes() }
+                    }.onFailure {
+                        Logger.e(TAG, it)
+                    }.getOrNull()
+                }
+            } else {
+                null
+            }
         if (rawImageBytes == null) {
             // キャッシュがクリアされてファイルが消えた場合はDBレコードも削除してクリーンアップ
             dao.deleteById(recordId)
             return Result.success()
         }
 
-        val webpBytes = withContext(Dispatchers.Default) {
-            convertToWebP(rawImageBytes)
+        val webpResult = withContext(Dispatchers.Default) {
+            runCatching { convertToWebP(rawImageBytes) }
         }
-        if (webpBytes == null) {
-            dao.updateStatusWithError(recordId, ImageUploadQueueImpl.STATUS_FAILED, "画像変換に失敗しました")
+        val webpBytes = webpResult.getOrNull() ?: run {
+            dao.updateStatusWithError(recordId, ImageUploadQueueImpl.STATUS_FAILED, "画像変換に失敗しました", webpResult.exceptionOrNull()?.stackTraceToString())
             return Result.failure()
         }
 
@@ -112,20 +129,21 @@ internal class ImageUploadWorker(
         }
         val protocol = serverHostConfig.protocol.ifEmpty { serverProtocol.ifEmpty { "https" } }
 
-        val uploadedImageId = withContext(Dispatchers.IO) {
-            uploadImage(
-                bytes = webpBytes,
-                host = host,
-                protocol = protocol,
-                userSessionId = userSessionId,
-            )
+        val uploadResult = withContext(Dispatchers.IO) {
+            runCatching {
+                uploadImage(
+                    bytes = webpBytes,
+                    host = host,
+                    protocol = protocol,
+                    userSessionId = userSessionId,
+                )
+            }
         }
-        if (uploadedImageId == null) {
-            dao.updateStatusWithError(recordId, ImageUploadQueueImpl.STATUS_FAILED, "アップロードに失敗しました")
+        val uploadedImageId = uploadResult.getOrNull() ?: run {
+            dao.updateStatusWithError(recordId, ImageUploadQueueImpl.STATUS_FAILED, "アップロードに失敗しました", uploadResult.exceptionOrNull()?.stackTraceToString())
             return Result.failure()
         }
 
-        val entity = dao.getById(recordId) ?: return Result.failure()
         val moneyUsageId = MoneyUsageId(id = entity.moneyUsageId)
         val currentImageIds = runCatching {
             graphqlClient.apolloClient
@@ -134,12 +152,14 @@ internal class ImageUploadWorker(
                 .execute()
                 .data?.user?.moneyUsage?.moneyUsageScreenMoneyUsage?.images
                 ?.map { it.id }
+        }.onFailure {
+            Logger.e(TAG, it)
         }.getOrNull()
 
         val updatedImageIds = ((currentImageIds ?: listOf()) + uploadedImageId)
             .distinctBy { it.value }
 
-        val isSuccess = runCatching {
+        val mutationResult = runCatching {
             graphqlClient.apolloClient
                 .mutation(
                     MoneyUsageScreenUpdateUsageMutation(
@@ -151,16 +171,15 @@ internal class ImageUploadWorker(
                 )
                 .execute()
                 .data?.userMutation?.updateUsage != null
-        }.getOrDefault(false)
+        }
 
-        if (!isSuccess) {
-            dao.updateStatusWithError(recordId, ImageUploadQueueImpl.STATUS_FAILED, "使用用途の更新に失敗しました")
+        if (!mutationResult.getOrDefault(false)) {
+            dao.updateStatusWithError(recordId, ImageUploadQueueImpl.STATUS_FAILED, "使用用途の更新に失敗しました", mutationResult.exceptionOrNull()?.stackTraceToString())
             return Result.failure()
         }
 
-        dao.deleteById(recordId)
-        rawImageBytesFile(applicationContext, recordId).delete()
-        previewBytesFile(applicationContext, recordId).delete()
+        dao.updateStatus(recordId, ImageUploadQueueImpl.STATUS_COMPLETED)
+        localStorage.deleteImages(recordId)
         return Result.success()
     }
 
@@ -178,19 +197,17 @@ internal class ImageUploadWorker(
     }
 
     private fun convertToWebP(bytes: ByteArray): ByteArray? {
-        return runCatching {
-            val bitmap = BitmapFactory.decodeByteArray(bytes, 0, bytes.size) ?: return null
-            val rotatedBitmap = rotateByExif(bytes, bitmap)
-            try {
-                val stream = ByteArrayOutputStream()
-                val success = rotatedBitmap.compress(Bitmap.CompressFormat.WEBP_LOSSLESS, 100, stream)
-                if (!success) return null
-                stream.toByteArray()
-            } finally {
-                if (rotatedBitmap !== bitmap) rotatedBitmap.recycle()
-                bitmap.recycle()
-            }
-        }.getOrNull()
+        val bitmap = BitmapFactory.decodeByteArray(bytes, 0, bytes.size) ?: return null
+        val rotatedBitmap = rotateByExif(bytes, bitmap)
+        return try {
+            val stream = ByteArrayOutputStream()
+            val success = rotatedBitmap.compress(Bitmap.CompressFormat.WEBP_LOSSLESS, 100, stream)
+            if (!success) return null
+            stream.toByteArray()
+        } finally {
+            if (rotatedBitmap !== bitmap) rotatedBitmap.recycle()
+            bitmap.recycle()
+        }
     }
 
     private fun rotateByExif(bytes: ByteArray, bitmap: Bitmap): Bitmap {
@@ -220,31 +237,29 @@ internal class ImageUploadWorker(
     ): ImageId? {
         if (host.isBlank()) return null
         val requestUrl = "$protocol://$host${ImageUploadApiPath.uploadV1}"
-        return runCatching {
-            val requestBody = MultipartBody.Builder()
-                .setType(MultipartBody.FORM)
-                .addFormDataPart(
-                    name = "file",
-                    filename = "image",
-                    body = bytes.toRequestBody("image/webp".toMediaTypeOrNull()),
-                )
-                .build()
+        val requestBody = MultipartBody.Builder()
+            .setType(MultipartBody.FORM)
+            .addFormDataPart(
+                name = "file",
+                filename = "image",
+                body = bytes.toRequestBody("image/webp".toMediaTypeOrNull()),
+            )
+            .build()
 
-            val request = Request.Builder()
-                .url(requestUrl)
-                .post(requestBody)
-                .apply {
-                    if (userSessionId.isNotBlank()) {
-                        header("Cookie", "user_session_id=$userSessionId")
-                    }
+        val request = Request.Builder()
+            .url(requestUrl)
+            .post(requestBody)
+            .apply {
+                if (userSessionId.isNotBlank()) {
+                    header("Cookie", "user_session_id=$userSessionId")
                 }
-                .build()
-
-            val responseBody = okHttpClient.newCall(request).execute().use { response ->
-                response.body.string()
             }
-            Json.decodeFromString<ImageUploadImageResponse>(responseBody).success?.imageId
-        }.getOrNull()
+            .build()
+
+        val responseBody = okHttpClient.newCall(request).execute().use { response ->
+            response.body.string()
+        }
+        return Json.decodeFromString<ImageUploadImageResponse>(responseBody).success?.imageId
     }
 
     private fun createForegroundInfo(): ForegroundInfo {

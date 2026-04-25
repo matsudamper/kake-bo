@@ -26,9 +26,11 @@ import net.matsudamper.money.frontend.common.ui.screen.root.settings.SettingMail
 import net.matsudamper.money.frontend.common.ui.screen.root.settings.SettingRootScreen
 import net.matsudamper.money.frontend.common.ui.screen.root.settings.TextFieldTestScreen
 import net.matsudamper.money.frontend.common.ui.screen.root.settings.TextFieldTestScreenUiState
+import net.matsudamper.money.frontend.common.ui.screen.root.settings.UploadQueueDebugScreen
 import net.matsudamper.money.frontend.common.viewmodel.lib.EventSender
 import net.matsudamper.money.frontend.common.viewmodel.root.GlobalEvent
 import net.matsudamper.money.frontend.common.viewmodel.root.ImapSettingViewModel
+import net.matsudamper.money.frontend.common.viewmodel.root.settings.UploadQueueDebugViewModel
 import net.matsudamper.money.frontend.common.viewmodel.root.settings.api.ApiSettingScreenApi
 import net.matsudamper.money.frontend.common.viewmodel.root.settings.api.ApiSettingScreenViewModel
 import net.matsudamper.money.frontend.common.viewmodel.root.settings.categoryfilter.ImportedMailFilterCategoryScreenGraphqlApi
@@ -232,6 +234,22 @@ internal fun SettingNavContent(
                 ),
                 windowInsets = windowInsets,
             )
+        }
+
+        ScreenStructure.Root.Settings.UploadQueueDebug -> {
+            holder.SaveableStateProvider(state::class.toString()) {
+                val viewModel = LocalScopedObjectStore.current.putOrGet<UploadQueueDebugViewModel>(Unit) {
+                    UploadQueueDebugViewModel(
+                        scopedObjectFeature = it,
+                        imageUploadQueue = koin.get(),
+                    )
+                }
+                UploadQueueDebugScreen(
+                    modifier = modifier.fillMaxSize(),
+                    uiState = viewModel.uiStateFlow.collectAsState().value,
+                    windowInsets = windowInsets,
+                )
+            }
         }
 
         ScreenStructure.Root.Settings.Api -> {

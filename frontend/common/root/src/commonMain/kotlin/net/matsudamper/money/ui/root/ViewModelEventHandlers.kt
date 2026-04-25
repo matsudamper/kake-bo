@@ -36,6 +36,8 @@ import net.matsudamper.money.frontend.common.viewmodel.root.usage.RootUsageCalen
 import net.matsudamper.money.frontend.common.viewmodel.root.usage.RootUsageHostViewModel
 import net.matsudamper.money.frontend.common.viewmodel.settings.SettingCategoriesViewModelEvent
 import net.matsudamper.money.frontend.common.viewmodel.settings.SettingCategoryViewModel
+import net.matsudamper.money.frontend.feature.notification.viewmodel.NotificationUsageDetailViewModel
+import net.matsudamper.money.frontend.feature.notification.viewmodel.NotificationUsageViewModel
 import net.matsudamper.money.ui.root.platform.PlatformTools
 
 internal data class ViewModelEventHandlers(
@@ -135,6 +137,9 @@ internal data class ViewModelEventHandlers(
         coroutineScope {
             handler.collect(
                 object : SettingCategoryViewModel.Event {
+                    override fun navigateToCategories() {
+                        navController.navigateReplace(ScreenStructure.Root.Settings.Categories)
+                    }
                 },
             )
         }
@@ -238,6 +243,14 @@ internal data class ViewModelEventHandlers(
                     override fun navigate(structure: ScreenStructure) {
                         navController.navigate(structure)
                     }
+
+                    override fun navigateBack() {
+                        if (navController.canGoBack) {
+                            navController.back()
+                        } else {
+                            navController.navigate(ScreenStructure.Root.Settings.MailCategoryFilters)
+                        }
+                    }
                 },
             )
         }
@@ -255,6 +268,54 @@ internal data class ViewModelEventHandlers(
 
                     override fun back() {
                         navController.back()
+                    }
+                },
+            )
+        }
+    }
+
+    suspend fun handleNotificationUsageDetail(handler: EventHandler<NotificationUsageDetailViewModel.Event>) {
+        coroutineScope {
+            handler.collect(
+                object : NotificationUsageDetailViewModel.Event {
+                    override fun navigate(structure: ScreenStructure) {
+                        navController.navigate(structure)
+                    }
+
+                    override fun navigateBack() {
+                        if (navController.canGoBack) {
+                            navController.back()
+                        } else {
+                            navController.navigate(ScreenStructure.Root.Add.NotificationUsage)
+                        }
+                    }
+
+                    override fun navigateToHome() {
+                        navController.navigateToHome()
+                    }
+                },
+            )
+        }
+    }
+
+    suspend fun handleNotificationUsage(handler: EventHandler<NotificationUsageViewModel.Event>) {
+        coroutineScope {
+            handler.collect(
+                object : NotificationUsageViewModel.Event {
+                    override fun navigate(structure: ScreenStructure) {
+                        navController.navigate(structure)
+                    }
+
+                    override fun navigateToHome() {
+                        navController.navigateToHome()
+                    }
+
+                    override fun copyToClipboard(text: String) {
+                        platformToolsProvider().clipboardManager.copy(text)
+                    }
+
+                    override fun showToast(text: String) {
+                        platformToolsProvider().applicationNotificationManager.notify(text)
                     }
                 },
             )

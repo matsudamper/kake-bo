@@ -6,31 +6,46 @@ import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
+import net.matsudamper.money.frontend.common.base.Logger
 import net.matsudamper.money.frontend.common.base.nav.ScopedObjectFeature
 import net.matsudamper.money.frontend.common.base.nav.admin.AdminScreenController
 import net.matsudamper.money.frontend.common.ui.screen.admin.AdminLoginScreenUiState
 import net.matsudamper.money.frontend.common.viewmodel.CommonViewModel
+import net.matsudamper.money.frontend.common.viewmodel.lib.EventSender
+import net.matsudamper.money.frontend.common.viewmodel.root.GlobalEvent
 import net.matsudamper.money.frontend.graphql.GraphqlAdminQuery
+
+private const val TAG = "AdminLoginScreenViewModel"
 
 public class AdminLoginScreenViewModel(
     scopedObjectFeature: ScopedObjectFeature,
     private val adminQuery: GraphqlAdminQuery,
     private val controller: AdminScreenController,
+    private val globalEventSender: EventSender<GlobalEvent>,
 ) : CommonViewModel(scopedObjectFeature) {
     private val viewModelStateFlow = MutableStateFlow(ViewModelState())
 
     public val uiStateFlow: StateFlow<AdminLoginScreenUiState> = MutableStateFlow(
         AdminLoginScreenUiState(
-            onChangePassword = {
-                viewModelStateFlow.update { state -> state.copy(password = it) }
-            },
-            onClickLogin = {
-                login(viewModelStateFlow.value.password.text)
+            password = TextFieldValue(),
+            listener = object : AdminLoginScreenUiState.Listener {
+                override fun onPasswordChanged(text: String) {
+                    viewModelStateFlow.update { state -> state.copy(password = TextFieldValue(text)) }
+                }
+
+                override fun onClickLogin() {
+                    login(viewModelStateFlow.value.password.text)
+                }
             },
         ),
     ).also { uiStateFlow ->
         viewModelScope.launch {
-            viewModelStateFlow.collect {
+            viewModelStateFlow.collect { viewModelState ->
+                uiStateFlow.update { uiState ->
+                    uiState.copy(
+                        password = viewModelState.password,
+                    )
+                }
             }
         }
     }.asStateFlow()
@@ -38,15 +53,17 @@ public class AdminLoginScreenViewModel(
     private fun login(password: String) {
         // TODO: validate  "!@#$%^&*()_+-?<>,."
         viewModelScope.launch {
-            val result = adminQuery.adminLogin(password)
+            val result = runCatching {
+                adminQuery.adminLogin(password)
+            }.onFailure {
+                Logger.e(TAG, it)
+            }.getOrNull()
 
-            val isSuccess = result.data?.adminMutation?.adminLogin?.isSuccess ?: false
+            val isSuccess = result?.data?.adminMutation?.adminLogin?.isSuccess ?: false
             if (isSuccess) {
                 controller.navigateToRoot()
             } else {
-                result.errors.orEmpty().map {
-                    it.message
-                }
+                globalEventSender.send { it.showSnackBar("ログインに失敗しました") }
             }
         }
     }

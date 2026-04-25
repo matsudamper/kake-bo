@@ -1,7 +1,6 @@
 package net.matsudamper.money.frontend.common.viewmodel.settings
 
 import kotlinx.coroutines.flow.Flow
-import kotlinx.coroutines.flow.catch
 import com.apollographql.apollo.ApolloClient
 import com.apollographql.apollo.api.ApolloResponse
 import com.apollographql.apollo.api.Optional
@@ -10,11 +9,13 @@ import com.apollographql.apollo.cache.normalized.fetchPolicy
 import com.apollographql.apollo.cache.normalized.watch
 import net.matsudamper.money.element.MoneyUsageCategoryId
 import net.matsudamper.money.element.MoneyUsageSubCategoryId
+import net.matsudamper.money.frontend.common.base.Logger
 import net.matsudamper.money.frontend.graphql.AddCategoryMutation
 import net.matsudamper.money.frontend.graphql.AddSubCategoryMutation
 import net.matsudamper.money.frontend.graphql.CategoriesSettingScreenCategoriesPagingQuery
 import net.matsudamper.money.frontend.graphql.CategorySettingScreenQuery
 import net.matsudamper.money.frontend.graphql.CategorySettingScreenSubCategoriesPagingQuery
+import net.matsudamper.money.frontend.graphql.DeleteCategoryMutation
 import net.matsudamper.money.frontend.graphql.DeleteSubCategoryMutation
 import net.matsudamper.money.frontend.graphql.UpdateCategoryMutation
 import net.matsudamper.money.frontend.graphql.UpdateSubCategoryMutation
@@ -24,6 +25,9 @@ import net.matsudamper.money.frontend.graphql.type.MoneyUsageCategoriesInput
 import net.matsudamper.money.frontend.graphql.type.MoneyUsageSubCategoryQuery
 import net.matsudamper.money.frontend.graphql.type.UpdateCategoryQuery
 import net.matsudamper.money.frontend.graphql.type.UpdateSubCategoryQuery
+import net.matsudamper.money.frontend.graphql.updateOperation
+
+private const val TAG = "SettingScreenCategoryApi"
 
 public class SettingScreenCategoryApi(
     private val apolloClient: ApolloClient,
@@ -42,7 +46,7 @@ public class SettingScreenCategoryApi(
                 .fetchPolicy(FetchPolicy.NetworkOnly)
                 .execute()
         }.onFailure {
-            it.printStackTrace()
+            Logger.e(TAG, it)
         }.getOrNull()
     }
 
@@ -57,6 +61,8 @@ public class SettingScreenCategoryApi(
                     ),
                 )
                 .execute()
+        }.onFailure {
+            Logger.e(TAG, it)
         }.getOrNull()
     }
 
@@ -75,26 +81,27 @@ public class SettingScreenCategoryApi(
                     ),
                 )
                 .execute()
+        }.onFailure {
+            Logger.e(TAG, it)
         }.getOrNull()
     }
 
-    public suspend fun getSubCategoriesPaging(id: MoneyUsageCategoryId): ApolloResponse<CategorySettingScreenSubCategoriesPagingQuery.Data>? {
-        return runCatching {
-            apolloClient
-                .query(
-                    CategorySettingScreenSubCategoriesPagingQuery(
-                        categoryId = id,
-                        query = MoneyUsageSubCategoryQuery(
-                            cursor = Optional.present(null),
-                            size = 100,
-                        ),
-                    ),
-                )
-                .fetchPolicy(FetchPolicy.NetworkOnly)
-                .execute()
+    public fun getSubCategoriesPaging(id: MoneyUsageCategoryId): Flow<ApolloResponse<CategorySettingScreenSubCategoriesPagingQuery.Data>> {
+        return apolloClient
+            .query(createSubCategoriesPagingQuery(id))
+            .fetchPolicy(FetchPolicy.CacheAndNetwork)
+            .watch()
+    }
+
+    public suspend fun refetchSubCategoriesPaging(id: MoneyUsageCategoryId) {
+        runCatching {
+            fetchSubCategoriesPaging(
+                query = createSubCategoriesPagingQuery(id),
+                fetchPolicy = FetchPolicy.NetworkOnly,
+            )
         }.onFailure {
-            it.printStackTrace()
-        }.getOrNull()
+            Logger.e(TAG, it)
+        }
     }
 
     public suspend fun updateCategory(
@@ -114,6 +121,8 @@ public class SettingScreenCategoryApi(
                     ),
                 )
                 .execute()
+        }.onFailure {
+            Logger.e(TAG, it)
         }.getOrNull()
     }
 
@@ -126,9 +135,6 @@ public class SettingScreenCategoryApi(
             )
             .fetchPolicy(FetchPolicy.CacheAndNetwork)
             .watch()
-            .catch {
-                it.printStackTrace()
-            }
     }
 
     public suspend fun updateSubCategory(
@@ -146,11 +152,16 @@ public class SettingScreenCategoryApi(
                     ),
                 )
                 .execute()
+        }.onFailure {
+            Logger.e(TAG, it)
         }.getOrNull()
     }
 
-    public suspend fun deleteSubCategory(id: MoneyUsageSubCategoryId): Boolean {
-        return runCatching {
+    public suspend fun deleteSubCategory(
+        categoryId: MoneyUsageCategoryId,
+        id: MoneyUsageSubCategoryId,
+    ): Boolean {
+        val isDeleted = runCatching {
             apolloClient
                 .mutation(
                     DeleteSubCategoryMutation(
@@ -158,6 +169,93 @@ public class SettingScreenCategoryApi(
                     ),
                 )
                 .execute()
-        }.getOrNull()?.data?.userMutation != null
+        }.onFailure {
+            Logger.e(TAG, it)
+        }.getOrNull()?.data?.userMutation?.deleteSubCategory == true
+        if (!isDeleted) {
+            return false
+        }
+
+        val cacheQuery = createSubCategoriesPagingQuery(categoryId)
+        val updateResult = runCatching {
+            apolloClient.updateOperation(cacheQuery) update@{ before ->
+                if (before == null) {
+                    return@update success(
+                        fetchSubCategoriesPaging(
+                            query = cacheQuery,
+                            fetchPolicy = FetchPolicy.NetworkOnly,
+                        ),
+                    )
+                }
+
+                val user = before.user ?: return@update error()
+                val moneyUsageCategory = user.moneyUsageCategory ?: return@update error()
+                val subCategories = moneyUsageCategory.subCategories ?: return@update error()
+                val response = fetchSubCategoriesPaging(
+                    query = cacheQuery,
+                    fetchPolicy = FetchPolicy.CacheOnly,
+                )
+
+                success(
+                    response.newBuilder()
+                        .data(
+                            before.copy(
+                                user = user.copy(
+                                    moneyUsageCategory = moneyUsageCategory.copy(
+                                        subCategories = subCategories.copy(
+                                            nodes = subCategories.nodes.filterNot { it.id == id },
+                                        ),
+                                    ),
+                                ),
+                            ),
+                        )
+                        .build(),
+                )
+            }
+        }.onFailure {
+            Logger.e(TAG, it)
+        }.getOrNull()
+
+        if (updateResult?.isSuccess() != true) {
+            refetchSubCategoriesPaging(id = categoryId)
+        }
+
+        return true
+    }
+
+    public suspend fun deleteCategory(id: MoneyUsageCategoryId): Boolean {
+        return runCatching {
+            apolloClient
+                .mutation(
+                    DeleteCategoryMutation(
+                        id = id,
+                    ),
+                )
+                .execute()
+        }.onFailure {
+            Logger.e(TAG, it)
+        }.getOrNull()?.data?.userMutation?.deleteCategory == true
+    }
+
+    private fun createSubCategoriesPagingQuery(
+        id: MoneyUsageCategoryId,
+    ): CategorySettingScreenSubCategoriesPagingQuery {
+        return CategorySettingScreenSubCategoriesPagingQuery(
+            categoryId = id,
+            query = MoneyUsageSubCategoryQuery(
+                cursor = Optional.present(null),
+                size = 100,
+            ),
+        )
+    }
+
+    private suspend fun fetchSubCategoriesPaging(
+        query: CategorySettingScreenSubCategoriesPagingQuery,
+        fetchPolicy: FetchPolicy,
+    ): ApolloResponse<CategorySettingScreenSubCategoriesPagingQuery.Data> {
+        return apolloClient
+            .query(query)
+            .fetchPolicy(fetchPolicy)
+            .execute()
     }
 }

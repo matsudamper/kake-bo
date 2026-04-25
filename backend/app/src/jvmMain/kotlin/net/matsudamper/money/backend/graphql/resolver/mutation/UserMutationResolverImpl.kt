@@ -4,10 +4,6 @@ import java.time.ZoneOffset
 import java.util.Base64
 import java.util.concurrent.CompletableFuture
 import java.util.concurrent.CompletionStage
-import kotlin.contracts.ExperimentalContracts
-import kotlin.contracts.InvocationKind
-import kotlin.contracts.contract
-import kotlinx.coroutines.delay
 import kotlinx.coroutines.runBlocking
 import graphql.execution.DataFetcherResult
 import graphql.schema.DataFetchingEnvironment
@@ -98,7 +94,7 @@ class UserMutationResolverImpl : UserMutationResolver {
         return otelSupplyAsync {
             // 連続実行や、ユーザーが存在しているかの検知を防ぐために、最低でも1秒はかかるようにする
             val loginResult = runBlocking {
-                minExecutionTime(1000) {
+                minExecutionTime(LOGIN_MINIMUM_EXECUTION_TIME_MILLIS) {
                     val encryptInfo = context.diContainer.userLoginRepository().getLoginEncryptInfo(name)
                         ?: return@minExecutionTime UserLoginRepository.Result.Failure
                     val hashedPassword = PasswordManager().getHashedPassword(
@@ -227,7 +223,7 @@ class UserMutationResolverImpl : UserMutationResolver {
         val challengeRepository = context.diContainer.createChallengeRepository()
         return otelSupplyAsync {
             runBlocking {
-                minExecutionTime(1000) {
+                minExecutionTime(LOGIN_MINIMUM_EXECUTION_TIME_MILLIS) {
                     val requestUserId = String(
                         Base64.getUrlDecoder().decode(userFidoLoginInput.base64UserHandle),
                         Charsets.UTF_8,
@@ -475,6 +471,28 @@ class UserMutationResolverImpl : UserMutationResolver {
                 true
             } else {
                 throw IllegalStateException("delete sub category failed")
+            }
+        }.toDataFetcher()
+    }
+
+    override fun deleteCategory(
+        userMutation: QlUserMutation,
+        id: MoneyUsageCategoryId,
+        env: DataFetchingEnvironment,
+    ): CompletionStage<DataFetcherResult<Boolean>> {
+        val context = env.graphQlContext.get<GraphQlContext>(GraphQlContext::class.java.name)
+        val userId = context.verifyUserSessionAndGetUserId()
+
+        return otelSupplyAsync {
+            val result = context.diContainer.createMoneyUsageCategoryRepository()
+                .deleteCategory(
+                    userId = userId,
+                    categoryId = id,
+                )
+            if (result) {
+                true
+            } else {
+                throw IllegalStateException("delete category failed")
             }
         }.toDataFetcher()
     }
@@ -947,25 +965,4 @@ class UserMutationResolverImpl : UserMutationResolver {
                 .deletePreset(userId = userId, presetId = id)
         }.toDataFetcher()
     }
-}
-
-@OptIn(ExperimentalContracts::class)
-private suspend fun <T> minExecutionTime(
-    minMillSecond: Long,
-    block: suspend () -> T,
-): T {
-    contract {
-        callsInPlace(block, InvocationKind.EXACTLY_ONCE)
-    }
-    val startTime = System.currentTimeMillis()
-    val result = block()
-    while (true) {
-        val currentTime = System.currentTimeMillis()
-        if (currentTime - startTime >= minMillSecond) {
-            break
-        }
-        delay(10)
-    }
-
-    return result
 }

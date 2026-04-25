@@ -5,7 +5,10 @@ import com.apollographql.apollo.api.Optional
 import com.apollographql.apollo.cache.normalized.FetchPolicy
 import com.apollographql.apollo.cache.normalized.fetchPolicy
 import net.matsudamper.money.element.MailId
+import net.matsudamper.money.frontend.common.base.Logger
 import net.matsudamper.money.frontend.graphql.type.MailQuery
+
+private const val TAG = "MailImportScreenGraphqlApi"
 
 class MailImportScreenGraphqlApi(
     private val graphqlClient: GraphqlClient,
@@ -23,6 +26,8 @@ class MailImportScreenGraphqlApi(
                 )
                 .fetchPolicy(FetchPolicy.NetworkOnly)
                 .execute()
+        }.onFailure {
+            Logger.e(TAG, it)
         }.getOrNull()
     }
 
@@ -35,6 +40,8 @@ class MailImportScreenGraphqlApi(
                     ),
                 )
                 .execute()
+        }.onFailure {
+            Logger.e(TAG, it)
         }.getOrNull()
     }
 
@@ -47,6 +54,8 @@ class MailImportScreenGraphqlApi(
                     ),
                 )
                 .execute()
+        }.onFailure {
+            Logger.e(TAG, it)
         }.getOrNull()
     }
 }
