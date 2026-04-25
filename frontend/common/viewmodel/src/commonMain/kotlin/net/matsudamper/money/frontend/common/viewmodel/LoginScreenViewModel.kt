@@ -6,6 +6,7 @@ import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
+import net.matsudamper.money.frontend.common.base.DeviceNameProvider
 import net.matsudamper.money.frontend.common.base.Logger
 import net.matsudamper.money.frontend.common.base.nav.ScopedObjectFeature
 import net.matsudamper.money.frontend.common.base.nav.user.RootHomeScreenStructure
@@ -32,6 +33,7 @@ public class LoginScreenViewModel(
     private val webAuthModel: WebAuthModel,
     private val graphqlClient: GraphqlClient,
     private val serverHostConfig: ServerHostConfig?,
+    private val deviceNameProvider: DeviceNameProvider,
 ) : CommonViewModel(scopedObjectFeature) {
     private val viewModelStateFlow: MutableStateFlow<ViewModelState> = MutableStateFlow(
         run {
@@ -147,6 +149,7 @@ public class LoginScreenViewModel(
 
     private suspend fun postLogin(isSuccess: Boolean) {
         if (isSuccess) {
+            screenApi.changeSessionName(deviceNameProvider.getDeviceName())
             navController.navigateReplace(RootHomeScreenStructure.Home)
             globalEventSender.send {
                 it.showSnackBar("ログインしました")
