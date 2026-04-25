@@ -1,4 +1,4 @@
-package net.matsudamper.money.frontend.common.ui.screen.admin
+package net.matsudamper.money.frontend.common.ui.screen.admin.user
 
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
@@ -16,7 +16,6 @@ import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
-import androidx.compose.material.icons.filled.Close
 import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Button
 import androidx.compose.material3.CircularProgressIndicator
@@ -26,21 +25,22 @@ import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
-import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.material3.TopAppBar
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
-import androidx.compose.ui.window.Dialog
-import kotlinx.coroutines.delay
-import kotlinx.coroutines.isActive
 import net.matsudamper.money.frontend.common.ui.layout.TextField
 import net.matsudamper.money.frontend.common.ui.layout.TextFieldType
 import net.matsudamper.money.frontend.common.ui.rememberCustomFontFamily
+import net.matsudamper.money.frontend.common.ui.screen.admin.AdminAddUserUiState
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -109,18 +109,18 @@ internal fun UserSearchScreen(
                 HorizontalDivider(modifier = Modifier.fillMaxWidth())
 
                 LazyColumn {
-                    items(uiState.searchResults) { result ->
+                    items(uiState.users) { user ->
                         Column {
                             Row(
                                 modifier = Modifier
                                     .fillMaxWidth()
-                                    .clickable { uiState.listener.onClickUser(result.name) }
+                                    .clickable { user.listener.onClick() }
                                     .padding(12.dp),
                                 horizontalArrangement = Arrangement.SpaceBetween,
                                 verticalAlignment = Alignment.CenterVertically,
                             ) {
                                 Text(
-                                    text = "ID: ${result.userId.value} / Name: ${result.name}",
+                                    text = "ID: ${user.displayId} / Name: ${user.name}",
                                     fontFamily = rememberCustomFontFamily(),
                                 )
                             }
@@ -130,7 +130,7 @@ internal fun UserSearchScreen(
                     if (uiState.hasMore) {
                         item {
                             LaunchedEffect(Unit) {
-                                uiState.listener.onClickLoadMore()
+                                uiState.listener.loadMore()
                             }
                             Box(
                                 modifier = Modifier.fillMaxWidth().padding(vertical = 24.dp),
@@ -145,52 +145,18 @@ internal fun UserSearchScreen(
         }
     }
 
-    if (uiState.selectedUserName != null) {
-        Dialog(
-            onDismissRequest = { uiState.listener.onDismissUserMenu() },
-        ) {
-            Surface(
-                modifier = Modifier.widthIn(max = 400.dp).fillMaxWidth(),
-                shape = MaterialTheme.shapes.medium,
-                color = MaterialTheme.colorScheme.surface,
-                contentColor = MaterialTheme.colorScheme.onSurface,
-            ) {
-                Column {
-                    Row(
-                        modifier = Modifier.fillMaxWidth().padding(16.dp),
-                        horizontalArrangement = Arrangement.SpaceBetween,
-                        verticalAlignment = Alignment.CenterVertically,
-                    ) {
-                        Text(
-                            text = uiState.selectedUserName,
-                            style = MaterialTheme.typography.titleMedium,
-                            fontFamily = rememberCustomFontFamily(),
-                        )
-                        IconButton(onClick = { uiState.listener.onDismissUserMenu() }) {
-                            Icon(Icons.Default.Close, contentDescription = "Close")
-                        }
-                    }
-                    HorizontalDivider(modifier = Modifier.fillMaxWidth())
-                    Column(modifier = Modifier.padding(16.dp)) {
-                        Button(
-                            onClick = { uiState.listener.onClickReplacePassword() },
-                            modifier = Modifier.fillMaxWidth(),
-                        ) {
-                            Text(
-                                text = "パスワード上書き",
-                                fontFamily = rememberCustomFontFamily(),
-                            )
-                        }
-                    }
-                }
-            }
-        }
+
+    if (uiState.userOperationDialogUiState != null) {
+        UserOperationDialog(
+            uiState = uiState.userOperationDialogUiState,
+        )
     }
 
     val dialogState = uiState.replacePasswordDialogState
     if (dialogState != null) {
+        var password by remember { mutableStateOf("") }
         AlertDialog(
-            onDismissRequest = { uiState.listener.onDismissReplacePasswordDialog() },
+            onDismissRequest = { dialogState.listener.dismiss() },
             title = {
                 Text(
                     text = "パスワード上書き: ${dialogState.userName}",
@@ -200,11 +166,11 @@ internal fun UserSearchScreen(
             text = {
                 Column {
                     TextField(
+                        text = password,
                         modifier = Modifier.fillMaxWidth(),
-                        text = dialogState.password,
                         placeholder = "新しいパスワード",
                         onValueChange = {
-                            uiState.listener.onPasswordChanged(it)
+                            password = it
                         },
                         type = TextFieldType.Password,
                     )
@@ -224,7 +190,7 @@ internal fun UserSearchScreen(
             },
             confirmButton = {
                 Button(
-                    onClick = { uiState.listener.onClickSubmitReplacePassword() },
+                    onClick = { dialogState.listener.passwordInputDone(password) },
                 ) {
                     Text(
                         text = "上書き",
@@ -234,7 +200,7 @@ internal fun UserSearchScreen(
             },
             dismissButton = {
                 TextButton(
-                    onClick = { uiState.listener.onDismissReplacePasswordDialog() },
+                    onClick = { dialogState.listener.dismiss() },
                 ) {
                     Text(
                         text = "キャンセル",

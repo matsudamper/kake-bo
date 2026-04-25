@@ -10,7 +10,9 @@ import com.apollographql.apollo.api.ApolloResponse
 import com.apollographql.apollo.api.Optional
 import net.matsudamper.money.frontend.common.base.Logger
 import net.matsudamper.money.frontend.common.base.nav.ScopedObjectFeature
-import net.matsudamper.money.frontend.common.ui.screen.admin.AdminUserSearchUiState
+import net.matsudamper.money.frontend.common.ui.screen.admin.user.AdminUserSearchUiState
+import net.matsudamper.money.frontend.common.ui.screen.admin.user.AdminUserSearchUiState.ReplacePasswordDialogState
+import net.matsudamper.money.frontend.common.ui.screen.admin.user.UserOperationDialogState
 import net.matsudamper.money.frontend.common.viewmodel.CommonViewModel
 import net.matsudamper.money.frontend.graphql.AdminSearchUsersQuery
 import net.matsudamper.money.frontend.graphql.GraphqlAdminQuery
@@ -29,9 +31,9 @@ public class AdminUserSearchScreenViewModel(
     public val uiStateFlow: StateFlow<AdminUserSearchUiState> = MutableStateFlow(
         AdminUserSearchUiState(
             searchQuery = "",
-            searchResults = listOf(),
+            users = listOf(),
             hasMore = false,
-            selectedUserName = null,
+            userOperationDialogUiState = null,
             replacePasswordDialogState = null,
             listener = createListener(),
         ),
@@ -44,23 +46,45 @@ public class AdminUserSearchScreenViewModel(
                 uiStateFlow.update { uiState ->
                     uiState.copy(
                         searchQuery = viewModelState.searchQuery,
-                        searchResults = searchUsersConnection?.nodes.orEmpty().map { AdminUserSearchUiState.SearchResult(userId = it.userId, name = it.name) },
-                        hasMore = searchUsersConnection?.hasMore == true,
-                        selectedUserName = viewModelState.selectedUserName,
-                        replacePasswordDialogState = if (viewModelState.showReplacePasswordDialog && viewModelState.selectedUserName != null) {
-                            AdminUserSearchUiState.ReplacePasswordDialogState(
-                                userName = viewModelState.selectedUserName,
-                                password = viewModelState.password,
-                                resultMessage = viewModelState.resultMessage,
-                            )
-                        } else {
-                            null
+                        users = searchUsersConnection?.nodes.orEmpty().map { user ->
+                            createUserItem(user = user)
                         },
+                        hasMore = searchUsersConnection?.hasMore == true,
+                        userOperationDialogUiState = viewModelState.userOperationDialogUiState,
+                        replacePasswordDialogState = viewModelState.replacePasswordDialogState,
                     )
                 }
             }
         }
     }.asStateFlow()
+
+    private fun createUserItem(
+        user: AdminSearchUsersQuery.Node,
+    ): AdminUserSearchUiState.User {
+        return AdminUserSearchUiState.User(
+            displayId = user.userId.value.toString(),
+            name = user.name,
+            listener = object : AdminUserSearchUiState.User.Listener {
+                override fun onClick() {
+                    viewModelStateFlow.update { viewModelState ->
+                        viewModelState.copy(
+                            userOperationDialogUiState = createUserOperationDialogState(
+                                user = user,
+                            ),
+                        )
+                    }
+                }
+
+                override fun dismiss() {
+                    viewModelStateFlow.update { viewModelState ->
+                        viewModelState.copy(
+                            userOperationDialogUiState = null,
+                        )
+                    }
+                }
+            },
+        )
+    }
 
     private fun createListener(): AdminUserSearchUiState.Listener {
         return object : AdminUserSearchUiState.Listener {
@@ -99,72 +123,7 @@ public class AdminUserSearchScreenViewModel(
                 }
             }
 
-            override fun onClickUser(userName: String) {
-                viewModelStateFlow.update { it.copy(selectedUserName = userName) }
-            }
-
-            override fun onDismissUserMenu() {
-                viewModelStateFlow.update { it.copy(selectedUserName = null) }
-            }
-
-            override fun onClickReplacePassword() {
-                viewModelStateFlow.update {
-                    it.copy(
-                        showReplacePasswordDialog = true,
-                        password = "",
-                        resultMessage = null,
-                    )
-                }
-            }
-
-            override fun onPasswordChanged(password: String) {
-                viewModelStateFlow.update { it.copy(password = password) }
-            }
-
-            override fun onClickSubmitReplacePassword() {
-                viewModelScope.launch {
-                    val state = viewModelStateFlow.value
-                    val userName = state.selectedUserName ?: return@launch
-                    val result = adminQuery.replacePassword(
-                        userName = userName,
-                        password = state.password,
-                    )
-                    val data = result.data?.adminMutation?.replacePassword
-                    if (data?.isSuccess == true) {
-                        viewModelStateFlow.update {
-                            it.copy(
-                                showReplacePasswordDialog = false,
-                                selectedUserName = null,
-                                password = "",
-                                resultMessage = null,
-                            )
-                        }
-                    } else {
-                        val errorMessage = when (data?.errorType?.rawValue) {
-                            "UserNotFound" -> "ユーザーが見つかりません"
-                            "PasswordLength" -> "パスワードの長さが不正です（20〜256文字）"
-                            "PasswordInvalidChar" -> "パスワードに使用できない文字が含まれています"
-                            else -> "エラーが発生しました"
-                        }
-                        viewModelStateFlow.update {
-                            it.copy(resultMessage = errorMessage)
-                        }
-                    }
-                }
-            }
-
-            override fun onDismissReplacePasswordDialog() {
-                viewModelStateFlow.update {
-                    it.copy(
-                        showReplacePasswordDialog = false,
-                        selectedUserName = null,
-                        password = "",
-                        resultMessage = null,
-                    )
-                }
-            }
-
-            override fun onClickLoadMore() {
+            override fun loadMore() {
                 if (viewModelStateFlow.value.isLoadingMore) return
                 val committedQuery = viewModelStateFlow.value.committedQuery ?: return
 
@@ -186,14 +145,92 @@ public class AdminUserSearchScreenViewModel(
         }
     }
 
+    private fun createUserOperationDialogState(
+        user: AdminSearchUsersQuery.Node,
+    ): UserOperationDialogState {
+        return UserOperationDialogState(
+            userName = user.name,
+            listener = object : UserOperationDialogState.Listener {
+                override fun onDismissUserMenu() {
+                    viewModelStateFlow.update {
+                        it.copy(
+                            userOperationDialogUiState = null,
+                        )
+                    }
+                }
+
+                override fun onClickReplacePassword() {
+                    viewModelStateFlow.update { viewModelState ->
+                        viewModelState.copy(
+                            replacePasswordDialogState = createReplacePasswordDialogState(
+                                user = user,
+                            ),
+                            userOperationDialogUiState = null,
+                        )
+                    }
+                }
+            },
+        )
+    }
+
+    private fun createReplacePasswordDialogState(
+        user: AdminSearchUsersQuery.Node,
+    ): ReplacePasswordDialogState {
+        return ReplacePasswordDialogState(
+            userName = user.name,
+            resultMessage = null,
+            listener = object : ReplacePasswordDialogState.Listener {
+                override fun passwordInputDone(password: String) {
+                    passwordChange(
+                        user = user,
+                        password = password,
+                    )
+                }
+
+                override fun dismiss() {
+                    viewModelStateFlow.update {
+                        it.copy(
+                            replacePasswordDialogState = null,
+                        )
+                    }
+                }
+            },
+        )
+    }
+
+    private fun passwordChange(
+        user: AdminSearchUsersQuery.Node,
+        password: String,
+    ) {
+        viewModelScope.launch {
+            val result = adminQuery.replacePassword(
+                userName = user.name,
+                password = password,
+            )
+            val data = result.data?.adminMutation?.replacePassword
+            val message = if (data?.isSuccess == true) {
+                "パスワードを変更しました"
+            } else {
+                when (data?.errorType?.rawValue) {
+                    "UserNotFound" -> "ユーザーが見つかりません"
+                    "PasswordLength" -> "パスワードの長さが不正です（20〜256文字）"
+                    "PasswordInvalidChar" -> "パスワードに使用できない文字が含まれています"
+                    else -> "エラーが発生しました"
+                }
+            }
+            viewModelStateFlow.update {
+                it.copy(resultMessage = message)
+            }
+        }
+    }
+
     private data class ViewModelState(
         val searchQuery: String = "",
         val committedQuery: AdminSearchUsersQuery? = null,
         val apolloResponse: ApolloResponse<AdminSearchUsersQuery.Data>? = null,
         val isLoadingMore: Boolean = false,
-        val selectedUserName: String? = null,
-        val showReplacePasswordDialog: Boolean = false,
-        val password: String = "",
+        val replacePasswordDialogState: ReplacePasswordDialogState? = null,
+        val userOperationDialogUiState: UserOperationDialogState? = null,
         val resultMessage: String? = null,
     )
 
