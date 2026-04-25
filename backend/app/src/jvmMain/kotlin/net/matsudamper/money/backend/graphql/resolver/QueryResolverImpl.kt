@@ -36,7 +36,7 @@ class QueryResolverImpl : QueryResolver {
         return otelSupplyAsync {
             val result = context.diContainer.createAdminRepository().searchUsers(
                 query = input.query,
-                size = input.size,
+                size = input.size.coerceIn(0, 100),
                 cursor = input.cursor,
             )
             QlAdminUserSearchUsersConnection(
