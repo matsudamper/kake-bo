@@ -149,7 +149,6 @@ public class SettingCategoryViewModel(
                     } else {
                         val subCategoryCount = state.responseList
                             .flatMap { it.nodes }
-                            .filterNot { it.id in state.deletedSubCategoryIds }
                             .size
                         if (subCategoryCount > 0) "${subCategoryCount}件のサブカテゴリーが紐づいています" else null
                     }
@@ -260,7 +259,6 @@ public class SettingCategoryViewModel(
                         SettingCategoryScreenUiState.LoadingState.Loading
                     } else {
                         val items = viewModelState.responseList.map { it.nodes }.flatten()
-                            .filterNot { it.id in viewModelState.deletedSubCategoryIds }
                         SettingCategoryScreenUiState.LoadingState.Loaded(
                             item = items.map { item ->
                                 createItemUiState(item, item.id == viewModelState.editingSubCategoryId)
@@ -294,7 +292,10 @@ public class SettingCategoryViewModel(
 
         override fun onConfirm() {
             viewModelScope.launch {
-                val isSuccess = api.deleteSubCategory(id = item.id)
+                val isSuccess = api.deleteSubCategory(
+                    categoryId = categoryId,
+                    id = item.id,
+                )
 
                 viewModelStateFlow.update { viewModelState ->
                     viewModelState.copy(confirmDialog = null)
@@ -311,11 +312,6 @@ public class SettingCategoryViewModel(
                         globalEventSender.send {
                             it.showSnackBar("削除しました")
                         }
-                    }
-                    viewModelStateFlow.update { viewModelState ->
-                        viewModelState.copy(
-                            deletedSubCategoryIds = viewModelState.deletedSubCategoryIds.plus(item.id),
-                        )
                     }
                 }
             }
@@ -436,7 +432,6 @@ public class SettingCategoryViewModel(
                         it.copy(
                             isFirstLoading = false,
                             responseList = listOf(data),
-                            deletedSubCategoryIds = listOf(),
                             hasMoreSubCategories = data.cursor != null,
                         )
                     }
@@ -453,7 +448,6 @@ public class SettingCategoryViewModel(
         val editingSubCategoryId: MoneyUsageSubCategoryId? = null,
         val isAddingSubCategory: Boolean = false,
         val showColorPickerDialog: Boolean = false,
-        val deletedSubCategoryIds: List<MoneyUsageSubCategoryId> = listOf(),
         val confirmDialog: SettingCategoryScreenUiState.ConfirmDialog? = null,
     )
 
