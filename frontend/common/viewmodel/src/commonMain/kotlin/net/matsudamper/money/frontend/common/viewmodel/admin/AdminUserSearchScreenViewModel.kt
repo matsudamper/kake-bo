@@ -203,9 +203,20 @@ public class AdminUserSearchScreenViewModel(
         password: String,
     ) {
         viewModelScope.launch {
-            val result = adminQuery.replacePassword(
-                userName = user.name,
-                password = password,
+            val result = runCatching {
+                adminQuery.replacePassword(
+                    userName = user.name,
+                    password = password,
+                )
+            }.fold(
+                onSuccess = { it },
+                onFailure = {
+                    Logger.e(TAG, it)
+                    viewModelStateFlow.update { viewModelState ->
+                        viewModelState.copy(resultMessage = "エラーが発生しました")
+                    }
+                    return@launch
+                },
             )
             val data = result.data?.adminMutation?.replacePassword
             val message = if (data?.isSuccess == true) {
