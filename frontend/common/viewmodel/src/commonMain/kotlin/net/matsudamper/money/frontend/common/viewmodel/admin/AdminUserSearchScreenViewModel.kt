@@ -131,9 +131,10 @@ public class AdminUserSearchScreenViewModel(
                     viewModelStateFlow.update { it.copy(isLoadingMore = true) }
 
                     try {
-                        val result = pagingModel.fetch(committedQuery)
-                        if (result is UpdateOperationResponseResult.Error<*>) {
-                            result.e?.let { Logger.e(TAG, it) }
+                        val error = pagingModel.fetch(committedQuery).getError()?.e
+
+                        if (error != null) {
+                            Logger.e(TAG, error)
                         }
                     } finally {
                         viewModelStateFlow.update {
