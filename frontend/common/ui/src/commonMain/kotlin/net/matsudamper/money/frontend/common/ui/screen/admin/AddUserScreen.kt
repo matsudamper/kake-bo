@@ -56,7 +56,7 @@ internal fun AddUserScreen(
                 textStyle = textFieldTextStyle,
                 label = "User Name",
                 maxLines = 1,
-                onValueChange = { uiState.onChangeUserName(it) },
+                onValueChange = { uiState.listener.onChangeUserName(it) },
                 autocomplete = "username",
             )
             Spacer(modifier = Modifier.height(12.dp))
@@ -66,7 +66,7 @@ internal fun AddUserScreen(
                 textStyle = textFieldTextStyle,
                 label = "Password",
                 maxLines = 1,
-                onValueChange = { uiState.onChangePassword(it) },
+                onValueChange = { uiState.listener.onChangePassword(it) },
                 type = TextFieldType.Password,
                 autocomplete = "new-password",
             )
@@ -77,7 +77,7 @@ internal fun AddUserScreen(
             Spacer(modifier = Modifier.height(12.dp))
             TextButton(
                 modifier = Modifier.align(Alignment.End),
-                onClick = { uiState.onClickAddButton() },
+                onClick = { uiState.listener.onClickAddButton() },
             ) {
                 Text(
                     text = "追加",
