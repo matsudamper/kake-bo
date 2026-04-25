@@ -208,10 +208,6 @@ public class SettingCategoryViewModel(
                             name = text,
                         )?.data?.userMutation?.addSubCategory?.subCategory
 
-                        viewModelStateFlow.update {
-                            it.copy(isAddingSubCategory = false)
-                        }
-
                         if (result == null) {
                             launch {
                                 globalEventSender.send {
@@ -219,6 +215,10 @@ public class SettingCategoryViewModel(
                                 }
                             }
                             return@launch
+                        }
+
+                        viewModelStateFlow.update {
+                            it.copy(isAddingSubCategory = false)
                         }
                         launch {
                             globalEventSender.send {
