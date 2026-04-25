@@ -34,6 +34,11 @@ public object ColorUtil {
         return "${toHex2(red)}${toHex2(green)}${toHex2(blue)}"
     }
 
+    public fun contrastTextColor(backgroundColor: Color): Color {
+        val luminance = 0.299 * backgroundColor.red + 0.587 * backgroundColor.green + 0.114 * backgroundColor.blue
+        return if (luminance > 0.5) Color.Black else Color.White
+    }
+
     private fun toHex2(value: Int): String {
         return value.toString(16).uppercase().padStart(2, '0')
     }
