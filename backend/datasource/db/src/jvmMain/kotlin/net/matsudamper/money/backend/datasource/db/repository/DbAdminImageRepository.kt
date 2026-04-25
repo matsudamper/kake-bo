@@ -1,6 +1,10 @@
 package net.matsudamper.money.backend.datasource.db.repository
 
+import java.io.File
+import java.io.IOException
 import net.matsudamper.money.backend.app.interfaces.AdminImageRepository
+import net.matsudamper.money.backend.base.ServerEnv
+import net.matsudamper.money.backend.base.TraceLogger
 import net.matsudamper.money.backend.datasource.db.DbConnectionImpl
 import net.matsudamper.money.db.schema.tables.JMoneyUsageImagesRelation
 import net.matsudamper.money.db.schema.tables.JUserImages
@@ -67,6 +71,54 @@ class DbAdminImageRepository : AdminImageRepository {
                 },
             )
         }
+    }
+
+    override fun deleteImages(imageIds: List<ImageId>): Boolean {
+        if (imageIds.isEmpty()) return true
+
+        val uniqueImageIds = imageIds.map { it.value }.distinct()
+        return runCatching {
+            DbConnectionImpl.use { connection ->
+                DSL.using(connection).transaction { configuration ->
+                    val context = DSL.using(configuration)
+                    val records = context
+                        .select(
+                            userImages.IMAGE_PATH,
+                        )
+                        .from(userImages)
+                        .where(
+                            userImages.USER_IMAGE_ID.`in`(uniqueImageIds),
+                        )
+                        .fetch()
+
+                    for (record in records) {
+                        val relativePath = record.get(userImages.IMAGE_PATH)
+                            ?: throw IllegalStateException("画像パスが見つかりませんでした: ${userImages.USER_IMAGE_ID.name}=${record.get(userImages.USER_IMAGE_ID)}")
+                        val imageFile = File(ServerEnv.imageStoragePath, relativePath)
+                        if (imageFile.exists().not()) continue
+                        if (imageFile.delete().not()) {
+                            throw IOException("ファイルの削除に失敗しました: $imageFile")
+                        }
+                    }
+
+                    context
+                        .deleteFrom(usageImagesRelation)
+                        .where(
+                            usageImagesRelation.USER_IMAGE_ID.`in`(uniqueImageIds),
+                        )
+                        .execute()
+
+                    context
+                        .deleteFrom(userImages)
+                        .where(
+                            userImages.USER_IMAGE_ID.`in`(uniqueImageIds),
+                        )
+                        .execute()
+                }
+            }
+        }.onFailure { throwable ->
+            TraceLogger.impl().noticeThrowable(throwable, true)
+        }.isSuccess
     }
 
     override fun countUnlinkedImages(): Int {
