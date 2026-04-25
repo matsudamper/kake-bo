@@ -10,12 +10,16 @@ import net.matsudamper.money.backend.graphql.toDataFetcher
 import net.matsudamper.money.backend.logic.AddUserUseCase
 import net.matsudamper.money.backend.logic.IPasswordManager
 import net.matsudamper.money.backend.logic.PasswordManager
+import net.matsudamper.money.backend.logic.ReplacePasswordUseCase
 import net.matsudamper.money.element.ImageId
+import net.matsudamper.money.element.UserId
 import net.matsudamper.money.graphql.model.AdminMutationResolver
 import net.matsudamper.money.graphql.model.QlAdminAddUserErrorType
 import net.matsudamper.money.graphql.model.QlAdminAddUserResult
 import net.matsudamper.money.graphql.model.QlAdminLoginResult
 import net.matsudamper.money.graphql.model.QlAdminMutation
+import net.matsudamper.money.graphql.model.QlAdminReplacePasswordErrorType
+import net.matsudamper.money.graphql.model.QlAdminReplacePasswordResult
 
 class AdminMutationResolverImpl : AdminMutationResolver {
     override fun adminLogout(
@@ -139,6 +143,60 @@ class AdminMutationResolverImpl : AdminMutationResolver {
                             isSuccess = false,
                         )
                     }
+                }
+            }
+        }.toDataFetcher()
+    }
+
+    override fun replacePassword(
+        adminMutation: QlAdminMutation,
+        userId: UserId,
+        password: String,
+        env: DataFetchingEnvironment,
+    ): CompletionStage<DataFetcherResult<QlAdminReplacePasswordResult>> {
+        val context = env.graphQlContext.get<GraphQlContext>(GraphQlContext::class.java.name)
+        context.verifyAdminSession()
+
+        return otelSupplyAsync {
+            val result = ReplacePasswordUseCase(
+                context.diContainer.createAdminRepository(),
+                passwordManager = PasswordManager(),
+            ).replacePassword(
+                userId = userId,
+                password = password,
+            )
+            when (result) {
+                is ReplacePasswordUseCase.Result.Failure -> {
+                    val errorType = result.errors.map {
+                        when (it) {
+                            is ReplacePasswordUseCase.Result.Errors.InternalServerError -> {
+                                QlAdminReplacePasswordErrorType.Unknown
+                            }
+
+                            is ReplacePasswordUseCase.Result.Errors.PasswordLength -> {
+                                QlAdminReplacePasswordErrorType.PasswordLength
+                            }
+
+                            is ReplacePasswordUseCase.Result.Errors.PasswordValidation -> {
+                                QlAdminReplacePasswordErrorType.PasswordInvalidChar
+                            }
+
+                            ReplacePasswordUseCase.Result.Errors.UserNotFound -> {
+                                QlAdminReplacePasswordErrorType.UserNotFound
+                            }
+                        }
+                    }
+                    QlAdminReplacePasswordResult(
+                        isSuccess = false,
+                        errorType = errorType.firstOrNull(),
+                    )
+                }
+
+                is ReplacePasswordUseCase.Result.Success -> {
+                    QlAdminReplacePasswordResult(
+                        isSuccess = true,
+                        errorType = null,
+                    )
                 }
             }
         }.toDataFetcher()

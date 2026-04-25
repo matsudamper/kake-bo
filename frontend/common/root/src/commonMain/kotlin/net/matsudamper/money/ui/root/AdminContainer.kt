@@ -1,8 +1,12 @@
 package net.matsudamper.money.ui.root
 
 import androidx.compose.foundation.layout.PaddingValues
+import androidx.compose.material3.SnackbarHostState
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.rememberCoroutineScope
+import kotlinx.coroutines.launch
 import net.matsudamper.money.frontend.common.base.lifecycle.LocalScopedObjectStore
 import net.matsudamper.money.frontend.common.base.nav.admin.rememberAdminScreenController
 import net.matsudamper.money.frontend.common.ui.screen.admin.AdminRootScreen
@@ -10,6 +14,7 @@ import net.matsudamper.money.frontend.common.viewmodel.admin.AdminAddUserScreenV
 import net.matsudamper.money.frontend.common.viewmodel.admin.AdminLoginScreenViewModel
 import net.matsudamper.money.frontend.common.viewmodel.admin.AdminRootScreenViewModel
 import net.matsudamper.money.frontend.common.viewmodel.admin.AdminUnlinkedImagesScreenViewModel
+import net.matsudamper.money.frontend.common.viewmodel.admin.AdminUserSearchScreenViewModel
 import net.matsudamper.money.frontend.common.viewmodel.lib.EventSender
 import net.matsudamper.money.frontend.common.viewmodel.root.GlobalEvent
 import net.matsudamper.money.frontend.graphql.GraphqlAdminQuery
@@ -22,7 +27,6 @@ internal fun AdminContainer(
 ) {
     val koin = LocalKoin.current
     val controller = rememberAdminScreenController()
-
     val adminRootViewModel = LocalScopedObjectStore.current.putOrGet<AdminRootScreenViewModel>(Unit) {
         AdminRootScreenViewModel(
             scopedObjectFeature = it,
@@ -51,7 +55,6 @@ internal fun AdminContainer(
             val adminAddUserScreenViewModel = LocalScopedObjectStore.current.putOrGet<AdminAddUserScreenViewModel>(Unit) {
                 AdminAddUserScreenViewModel(
                     scopedObjectFeature = it,
-                    controller = controller,
                     adminQuery = GraphqlAdminQuery(koin.get<GraphqlClient>()),
                 )
             }
@@ -66,6 +69,29 @@ internal fun AdminContainer(
                 )
             }
             adminUnlinkedImagesScreenViewModel.uiStateFlow.collectAsState().value
+        },
+        adminUserSearchUiStateProvider = { snackbarHostState: SnackbarHostState ->
+            val adminUserSearchScreenViewModel = LocalScopedObjectStore.current.putOrGet<AdminUserSearchScreenViewModel>(Unit) {
+                val graphqlClient = koin.get<GraphqlClient>()
+                AdminUserSearchScreenViewModel(
+                    scopedObjectFeature = it,
+                    adminQuery = GraphqlAdminQuery(graphqlClient),
+                    pagingModel = net.matsudamper.money.frontend.common.viewmodel.admin.AdminUserSearchPagingModel(graphqlClient),
+                )
+            }
+            val coroutineScope = rememberCoroutineScope()
+            LaunchedEffect(Unit) {
+                adminUserSearchScreenViewModel.eventHandler.collect(
+                    object : AdminUserSearchScreenViewModel.Event {
+                        override fun showSnackBar(message: String) {
+                            coroutineScope.launch {
+                                snackbarHostState.showSnackbar(message)
+                            }
+                        }
+                    },
+                )
+            }
+            adminUserSearchScreenViewModel.uiStateFlow.collectAsState().value
         },
         windowInsets = windowInsets,
     )

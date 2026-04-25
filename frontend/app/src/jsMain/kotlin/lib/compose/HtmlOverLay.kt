@@ -3,7 +3,6 @@ package lib.compose
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.MutableState
 import androidx.compose.runtime.collectAsState
-import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -13,7 +12,6 @@ import kotlinx.coroutines.flow.StateFlow
 import lib.js.ResizeObserver
 import net.matsudamper.money.frontend.common.ui.layout.html.html.LocalHtmlRenderContext
 import net.matsudamper.money.frontend.common.ui.layout.html.text.fullscreen.LocalHtmlFullScreenTextInputContext
-import net.matsudamper.money.frontend.common.ui.layout.html.text.input.LocalHtmlTextInputContext
 import org.jetbrains.compose.web.css.Color
 import org.jetbrains.compose.web.css.DisplayStyle
 import org.jetbrains.compose.web.css.FlexDirection
@@ -41,17 +39,6 @@ import org.jetbrains.compose.web.renderComposable
 @Suppress("FunctionName")
 internal fun JsCompose(composeSize: StateFlow<IntSize>) {
     renderComposable(rootElementId = "ComposeTargetContainer") {
-        val htmlRenderContextState by LocalHtmlRenderContext.current.stateFlow.collectAsState()
-        val htmlFullScreenTextInputContextState by LocalHtmlFullScreenTextInputContext.current.stateFlow.collectAsState()
-
-        @Suppress("UNUSED_VARIABLE")
-        val hasFullScreenOverlay by remember {
-            derivedStateOf {
-                htmlRenderContextState.isNotEmpty() ||
-                    htmlFullScreenTextInputContextState.isNotEmpty()
-            }
-        }
-
         Canvas(
             attrs = {
                 id("ComposeTarget")
@@ -105,22 +92,6 @@ internal fun JsCompose(composeSize: StateFlow<IntSize>) {
 
         val htmlRenderContextState by LocalHtmlRenderContext.current.stateFlow.collectAsState()
         val htmlFullScreenTextInputContextState by LocalHtmlFullScreenTextInputContext.current.stateFlow.collectAsState()
-        val htmlTextInputContextState by LocalHtmlTextInputContext.current.stateFlow.collectAsState()
-
-        run {
-            val heightDensity = heightDensityState.value
-            val widthDensity = widthDensityState.value
-            if (heightDensity != null && widthDensity != null) {
-                htmlTextInputContextState.forEach { entry ->
-                    HtmlTextInput(
-                        id = "id_${entry.key}",
-                        textState = entry.value,
-                        heightDensity = heightDensity,
-                        widthDensity = widthDensity,
-                    )
-                }
-            }
-        }
 
         run {
             htmlRenderContextState.toList().lastOrNull()?.also { (id, value) ->

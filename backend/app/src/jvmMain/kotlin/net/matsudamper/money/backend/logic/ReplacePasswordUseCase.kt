@@ -1,21 +1,17 @@
 package net.matsudamper.money.backend.logic
 
 import net.matsudamper.money.backend.app.interfaces.AdminRepository
+import net.matsudamper.money.element.UserId
 
-class AddUserUseCase(
+class ReplacePasswordUseCase(
     private val adminRepository: AdminRepository,
     private val passwordManager: IPasswordManager,
 ) {
-    fun addUser(
-        userName: String,
+    fun replacePassword(
+        userId: UserId,
         password: String,
     ): Result {
         val errors = mutableListOf<Result.Errors>()
-        if (userName.length !in 3..20) {
-            errors.add(Result.Errors.UserNameLength)
-        } else if (userName.any { it !in PasswordConstraints.alphaNumerics }) {
-            errors.add(Result.Errors.UserNameValidation)
-        }
 
         val passwordErrors = PasswordValidator.validate(password)
         for (passwordError in passwordErrors) {
@@ -35,26 +31,31 @@ class AddUserUseCase(
         if (errors.isNotEmpty()) {
             return Result.Failure(errors = errors)
         }
+
         val passwordResult = PasswordConstraints.createHash(passwordManager, password)
-        val addUserResult = adminRepository.addUser(
-            userName = userName,
+        val replaceResult = adminRepository.replacePassword(
+            userId = userId,
             hashedPassword = passwordResult.hashedPassword,
             algorithmName = passwordResult.algorithm,
             salt = passwordResult.salt,
             iterationCount = passwordResult.iterationCount,
             keyLength = passwordResult.keyLength,
         )
-        return when (addUserResult) {
-            is AdminRepository.AddUserResult.Failed -> {
-                when (val error = addUserResult.error) {
-                    is AdminRepository.AddUserResult.ErrorType.InternalServerError -> {
+        return when (replaceResult) {
+            is AdminRepository.ReplacePasswordResult.Failed -> {
+                when (val error = replaceResult.error) {
+                    is AdminRepository.ReplacePasswordResult.ErrorType.InternalServerError -> {
                         error.e.printStackTrace()
                         Result.Failure(errors = listOf(Result.Errors.InternalServerError))
                     }
                 }
             }
 
-            AdminRepository.AddUserResult.Success -> {
+            AdminRepository.ReplacePasswordResult.UserNotFound -> {
+                Result.Failure(errors = listOf(Result.Errors.UserNotFound))
+            }
+
+            AdminRepository.ReplacePasswordResult.Success -> {
                 Result.Success
             }
         }
@@ -74,9 +75,7 @@ class AddUserUseCase(
                 val errorChar: List<Char>,
             ) : Errors
 
-            data object UserNameLength : Errors
-
-            data object UserNameValidation : Errors
+            data object UserNotFound : Errors
 
             data object InternalServerError : Errors
         }

@@ -17,6 +17,8 @@ public interface AdminScreenController {
 
     public fun navigateToUnlinkedImages()
 
+    public fun navigateToUserSearch()
+
     public fun popBackStack()
 }
 
@@ -32,6 +34,7 @@ public enum class AdminScreenType : NavKey {
     Root,
     AddUser,
     UnlinkedImages,
+    UserSearch,
 }
 
 public class AdminScreenControllerImpl : AdminScreenController {
@@ -66,6 +69,16 @@ public class AdminScreenControllerImpl : AdminScreenController {
                 AdminScreenType.UnlinkedImages -> current
                 AdminScreenType.Root -> current + AdminScreenType.UnlinkedImages
                 else -> listOf(AdminScreenType.Root, AdminScreenType.UnlinkedImages)
+            }
+        }
+    }
+
+    override fun navigateToUserSearch() {
+        _screen.update { current ->
+            when (current.lastOrNull()) {
+                AdminScreenType.UserSearch -> current
+                AdminScreenType.Root -> current + AdminScreenType.UserSearch
+                else -> listOf(AdminScreenType.Root, AdminScreenType.UserSearch)
             }
         }
     }

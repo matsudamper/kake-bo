@@ -16,6 +16,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.unit.dp
+import net.matsudamper.money.frontend.common.ui.Strings
 import net.matsudamper.money.frontend.common.ui.layout.TextField
 import net.matsudamper.money.frontend.common.ui.layout.TextFieldType
 import net.matsudamper.money.frontend.common.ui.rememberCustomFontFamily
@@ -55,7 +56,7 @@ internal fun AddUserScreen(
                 textStyle = textFieldTextStyle,
                 label = "User Name",
                 maxLines = 1,
-                onValueChange = { uiState.onChangeUserName(it) },
+                onValueChange = { uiState.listener.onChangeUserName(it) },
                 autocomplete = "username",
             )
             Spacer(modifier = Modifier.height(12.dp))
@@ -65,18 +66,18 @@ internal fun AddUserScreen(
                 textStyle = textFieldTextStyle,
                 label = "Password",
                 maxLines = 1,
-                onValueChange = { uiState.onChangePassword(it) },
+                onValueChange = { uiState.listener.onChangePassword(it) },
                 type = TextFieldType.Password,
                 autocomplete = "new-password",
             )
             Text(
-                "使用できる記号 !@#\$%^&*()_+-?<>,.",
+                Strings.PASSWORD_ALLOW_SYMBOLS_DESCRIPTION,
                 fontFamily = rememberCustomFontFamily(),
             )
             Spacer(modifier = Modifier.height(12.dp))
             TextButton(
                 modifier = Modifier.align(Alignment.End),
-                onClick = { uiState.onClickAddButton() },
+                onClick = { uiState.listener.onClickAddButton() },
             ) {
                 Text(
                     text = "追加",

@@ -5,8 +5,10 @@ import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.CircularProgressIndicator
+import androidx.compose.material3.SnackbarHostState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.remember
 import androidx.compose.runtime.saveable.rememberSaveableStateHolder
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -17,6 +19,8 @@ import androidx.navigation3.ui.NavDisplay
 import net.matsudamper.money.frontend.common.base.nav.admin.AdminScreenController
 import net.matsudamper.money.frontend.common.base.nav.admin.AdminScreenControllerImpl
 import net.matsudamper.money.frontend.common.base.nav.admin.AdminScreenType
+import net.matsudamper.money.frontend.common.ui.screen.admin.user.AdminUserSearchUiState
+import net.matsudamper.money.frontend.common.ui.screen.admin.user.UserSearchScreen
 
 @Composable
 public fun AdminRootScreen(
@@ -25,6 +29,7 @@ public fun AdminRootScreen(
     adminLoginScreenUiStateProvider: @Composable () -> AdminLoginScreenUiState,
     adminAddUserUiStateProvider: @Composable () -> AdminAddUserUiState,
     adminUnlinkedImagesUiStateProvider: @Composable () -> AdminUnlinkedImagesScreenUiState,
+    adminUserSearchUiStateProvider: @Composable (SnackbarHostState) -> AdminUserSearchUiState,
     windowInsets: PaddingValues,
     modifier: Modifier = Modifier,
 ) {
@@ -98,6 +103,20 @@ public fun AdminRootScreen(
                                 AdminUnlinkedImagesScreen(
                                     uiState = uiState,
                                     onClickBack = { adminScreenController.popBackStack() },
+                                )
+                            }
+                        }
+
+                        AdminScreenType.UserSearch -> {
+                            NavEntry(
+                                key = screen,
+                            ) {
+                                val snackbarHostState = remember { SnackbarHostState() }
+                                val uiState = adminUserSearchUiStateProvider(snackbarHostState)
+                                UserSearchScreen(
+                                    uiState = uiState,
+                                    onClickBack = { adminScreenController.popBackStack() },
+                                    snackbarHostState = snackbarHostState,
                                 )
                             }
                         }

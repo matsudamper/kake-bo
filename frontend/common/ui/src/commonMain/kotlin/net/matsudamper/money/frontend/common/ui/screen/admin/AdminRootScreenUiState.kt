@@ -23,6 +23,8 @@ public data class AdminRootScreenUiState(
 
         public fun onClickUnlinkedImages()
 
+        public fun onClickUserSearch()
+
         public fun onClickLogout()
     }
 }
@@ -90,11 +92,3 @@ public data class AdminUnlinkedImagesScreenUiState(
         public fun onClickDelete()
     }
 }
-
-public data class AdminAddUserUiState(
-    val userName: TextFieldValue,
-    val password: TextFieldValue,
-    val onChangeUserName: (String) -> Unit,
-    val onChangePassword: (String) -> Unit,
-    val onClickAddButton: () -> Unit,
-)

@@ -20,3 +20,14 @@ query AdminUnlinkedImagesTotalCount {
         totalCount
     }
 }
+
+query AdminSearchUsers($query: String!, $size: Int!, $cursor: String) {
+    adminSearchUsers(input: {query: $query, size: $size, cursor: $cursor}) {
+        nodes {
+            userId
+            name
+        }
+        cursor
+        hasMore
+    }
+}

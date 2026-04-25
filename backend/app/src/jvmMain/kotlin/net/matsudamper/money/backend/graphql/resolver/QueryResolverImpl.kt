@@ -13,9 +13,12 @@ import net.matsudamper.money.backend.graphql.GraphqlMoneyException
 import net.matsudamper.money.backend.graphql.otelSupplyAsync
 import net.matsudamper.money.backend.graphql.toDataFetcher
 import net.matsudamper.money.backend.lib.ChallengeModel
+import net.matsudamper.money.graphql.model.QlAdminSearchedUser
 import net.matsudamper.money.graphql.model.QlAdminUnlinkedImage
 import net.matsudamper.money.graphql.model.QlAdminUnlinkedImagesConnection
 import net.matsudamper.money.graphql.model.QlAdminUnlinkedImagesInput
+import net.matsudamper.money.graphql.model.QlAdminUserSearchInput
+import net.matsudamper.money.graphql.model.QlAdminUserSearchUsersConnection
 import net.matsudamper.money.graphql.model.QlFidoLoginInfo
 import net.matsudamper.money.graphql.model.QlImportedMailAttributes
 import net.matsudamper.money.graphql.model.QlUser
@@ -23,6 +26,27 @@ import net.matsudamper.money.graphql.model.QlUserMailAttributes
 import net.matsudamper.money.graphql.model.QueryResolver
 
 class QueryResolverImpl : QueryResolver {
+    override fun adminSearchUsers(
+        input: QlAdminUserSearchInput,
+        env: DataFetchingEnvironment,
+    ): CompletionStage<DataFetcherResult<QlAdminUserSearchUsersConnection>> {
+        val context = env.graphQlContext.get<GraphQlContext>(GraphQlContext::class.java.name)
+        context.verifyAdminSession()
+
+        return otelSupplyAsync {
+            val result = context.diContainer.createAdminRepository().searchUsers(
+                query = input.query,
+                size = input.size.coerceIn(0, 100),
+                cursor = input.cursor,
+            )
+            QlAdminUserSearchUsersConnection(
+                nodes = result.users.map { QlAdminSearchedUser(userId = it.userId, name = it.name) },
+                cursor = result.cursor,
+                hasMore = result.hasMore,
+            )
+        }.toDataFetcher()
+    }
+
     override fun adminUnlinkedImages(
         input: QlAdminUnlinkedImagesInput,
         env: DataFetchingEnvironment,

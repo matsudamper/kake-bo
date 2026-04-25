@@ -16,6 +16,7 @@ import androidx.compose.foundation.lazy.grid.GridCells
 import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Add
+import androidx.compose.material.icons.filled.Search
 import androidx.compose.material.icons.filled.Settings
 import androidx.compose.material3.Card
 import androidx.compose.material3.ExperimentalMaterial3Api
@@ -106,6 +107,23 @@ internal fun AdminRootScreen(
                             }
                         },
                         onClick = { uiState.listener.onClickUnlinkedImages() },
+                    )
+                }
+                item {
+                    RootTileItem(
+                        modifier = Modifier.padding(8.dp),
+                        title = {
+                            Text(
+                                text = "ユーザー検索",
+                                fontFamily = rememberCustomFontFamily(),
+                            )
+                        },
+                        icon = {
+                            Row {
+                                Icon(Icons.Default.Search, contentDescription = null)
+                            }
+                        },
+                        onClick = { uiState.listener.onClickUserSearch() },
                     )
                 }
             }

@@ -48,6 +48,10 @@ public class AdminRootScreenViewModel(
                     controller.navigateToUnlinkedImages()
                 }
 
+                override fun onClickUserSearch() {
+                    controller.navigateToUserSearch()
+                }
+
                 override fun onClickLogout() {
                     logout()
                 }

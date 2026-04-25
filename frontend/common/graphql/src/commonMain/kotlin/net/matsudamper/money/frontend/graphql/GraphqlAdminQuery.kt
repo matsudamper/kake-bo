@@ -4,6 +4,7 @@ import com.apollographql.apollo.api.ApolloResponse
 import com.apollographql.apollo.cache.normalized.FetchPolicy
 import com.apollographql.apollo.cache.normalized.fetchPolicy
 import net.matsudamper.money.element.ImageId
+import net.matsudamper.money.element.UserId
 
 class GraphqlAdminQuery(
     private val graphqlClient: GraphqlClient,
@@ -66,6 +67,34 @@ class GraphqlAdminQuery(
             .mutation(AdminDeleteImagesMutation(imageIds = imageIds))
             .execute()
             .data?.adminMutation?.deleteImages == true
+    }
+
+    suspend fun searchUsers(
+        query: String,
+        size: Int,
+        cursor: String?,
+    ): ApolloResponse<AdminSearchUsersQuery.Data> {
+        return graphqlClient.apolloClient.query(
+            AdminSearchUsersQuery(
+                query = query,
+                size = size,
+                cursor = com.apollographql.apollo.api.Optional.presentIfNotNull(cursor),
+            ),
+        )
+            .execute()
+    }
+
+    suspend fun replacePassword(
+        userId: UserId,
+        password: String,
+    ): ApolloResponse<AdminReplacePasswordMutation.Data> {
+        return graphqlClient.apolloClient.mutation(
+            AdminReplacePasswordMutation(
+                userId = userId,
+                password = password,
+            ),
+        )
+            .execute()
     }
 
     public sealed interface IsLoggedInResult {

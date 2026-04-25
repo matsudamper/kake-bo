@@ -12,6 +12,7 @@ sealed interface UpdateOperationResponseResult<D : Operation.Data> {
     class NoHasMore<D : Operation.Data> : UpdateOperationResponseResult<D>
 
     fun isSuccess(): Boolean = this is Success<D>
+    fun getError(): Error<D>? = this as? Error<D>
     fun getOrNull(): D? = (this as? Success<D>)?.result?.data
 }
 
