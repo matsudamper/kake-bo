@@ -46,7 +46,6 @@ import androidx.compose.material3.ProvideTextStyle
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
-import androidx.compose.material3.contentColorFor
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.Immutable
 import androidx.compose.runtime.LaunchedEffect
@@ -75,6 +74,7 @@ import net.matsudamper.money.frontend.common.ui.base.KakeboScaffoldListener
 import net.matsudamper.money.frontend.common.ui.base.ScreenBackHandler
 import net.matsudamper.money.frontend.common.ui.layout.AlertDialog
 import net.matsudamper.money.frontend.common.ui.layout.colorpicker.ColorPickerDialog
+import net.matsudamper.money.frontend.common.ui.lib.StatusBarAppearance
 
 public data class SettingCategoryScreenUiState(
     val event: Event,
@@ -239,9 +239,10 @@ private fun LoadedContent(
     windowInsets: PaddingValues,
 ) {
     val heroColor = uiState.categoryColor ?: MaterialTheme.colorScheme.primary
+    StatusBarAppearance(isLightStatusBar = ColorUtil.contrastTextColor(heroColor) == Color.Black)
     val shouldHandleBackAsEditCancel =
         uiState.heroMode == SettingCategoryScreenUiState.HeroMode.EditingCategoryName ||
-                loadedState.item.any { it.isEditing }
+            loadedState.item.any { it.isEditing }
 
     Box(modifier = modifier) {
         Column(modifier = Modifier.fillMaxSize()) {
