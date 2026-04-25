@@ -72,6 +72,11 @@ The project is organized into backend, frontend, and shared modules:
 
 - UIからのイベント取得はUiState内のイベントハンドラーを使用する。Lambdaを使用しない。`@Immutable interface`を使用する
 
+## UI - ViewModel - UiState
+- 表示に必要ない値はUiStateに入れない
+- UIに紐づく処理に必要な値はViewModelで持ち、EventのInterfaceの実装で実態を持ち、処理する。
+  - `class EventImpl(val data: Int): Event { fun onClick() { println(data) } }` 
+
 ## Paging
 ApolloのPagingは`updateOperation()`を使用し、最初のOperationに連結し、`watch()`しているだけでデータが流れてくるようにする。
 
