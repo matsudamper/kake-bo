@@ -29,6 +29,7 @@ public data class AdminRootScreenUiState(
 
 public data class AdminUnlinkedImagesScreenUiState(
     val loadingState: LoadingState,
+    val deleteDialog: DeleteDialog?,
     val event: Event,
 ) {
     public sealed interface LoadingState {
@@ -39,6 +40,10 @@ public data class AdminUnlinkedImagesScreenUiState(
             val hasMore: Boolean,
             val isLoadingMore: Boolean,
             val totalCount: Int?,
+            val selectedCount: Int,
+            val isAllSelected: Boolean,
+            val isSelectingAll: Boolean,
+            val isDeleting: Boolean,
         ) : LoadingState
     }
 
@@ -47,14 +52,42 @@ public data class AdminUnlinkedImagesScreenUiState(
         val imageUrl: String,
         val userId: String,
         val userName: String,
-    )
+        val isSelected: Boolean,
+        val event: Event,
+    ) {
+        @Immutable
+        public interface Event {
+            public fun onClickSelect()
+        }
+    }
 
+    public data class DeleteDialog(
+        val selectedCount: Int,
+        val errorMessage: String?,
+        val isLoading: Boolean,
+        val event: Event,
+    ) {
+        @Immutable
+        public interface Event {
+            public fun onConfirm()
+
+            public fun onCancel()
+
+            public fun onDismiss()
+        }
+    }
+
+    @Immutable
     public interface Event {
         public fun onResume()
 
         public fun onClickRetry()
 
         public fun onClickLoadMore()
+
+        public fun onClickSelectAll()
+
+        public fun onClickDelete()
     }
 }
 

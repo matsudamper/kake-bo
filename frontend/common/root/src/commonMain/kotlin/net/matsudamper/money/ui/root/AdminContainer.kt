@@ -61,6 +61,7 @@ internal fun AdminContainer(
             val adminUnlinkedImagesScreenViewModel = LocalScopedObjectStore.current.putOrGet<AdminUnlinkedImagesScreenViewModel>(Unit) {
                 AdminUnlinkedImagesScreenViewModel(
                     scopedObjectFeature = it,
+                    graphqlClient = koin.get<GraphqlClient>(),
                     adminQuery = GraphqlAdminQuery(koin.get<GraphqlClient>()),
                 )
             }
