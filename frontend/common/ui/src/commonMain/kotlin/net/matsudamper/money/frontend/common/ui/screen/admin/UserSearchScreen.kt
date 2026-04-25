@@ -6,25 +6,27 @@ import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.layout.widthIn
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
+import androidx.compose.material.icons.filled.Close
 import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Button
 import androidx.compose.material3.CircularProgressIndicator
-import androidx.compose.material3.DropdownMenu
-import androidx.compose.material3.DropdownMenuItem
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
+import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.material3.TopAppBar
@@ -33,6 +35,7 @@ import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.window.Dialog
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.isActive
 import net.matsudamper.money.frontend.common.ui.layout.TextField
@@ -68,80 +71,119 @@ internal fun UserSearchScreen(
         },
         contentColor = MaterialTheme.colorScheme.onSurface,
     ) { paddingValues ->
-        Column(modifier = Modifier.padding(paddingValues)) {
-            Row(
-                modifier = Modifier.fillMaxWidth().padding(12.dp),
-                verticalAlignment = Alignment.CenterVertically,
+        Box(
+            modifier = Modifier
+                .padding(paddingValues)
+                .fillMaxSize(),
+            contentAlignment = Alignment.TopCenter,
+        ) {
+            Column(
+                modifier = Modifier
+                    .widthIn(max = 600.dp)
+                    .fillMaxSize()
             ) {
-                TextField(
-                    modifier = Modifier.weight(1f).height(48.dp),
-                    text = uiState.searchQuery,
-                    placeholder = "ユーザー名を入力",
-                    onValueChange = {
-                        uiState.listener.onSearchQueryChanged(it)
-                    },
-                    type = TextFieldType.Text,
-                )
-                Spacer(modifier = Modifier.width(8.dp))
-                Button(
-                    onClick = { uiState.listener.onClickSearch() },
+                Row(
+                    modifier = Modifier.fillMaxWidth().padding(12.dp),
+                    verticalAlignment = Alignment.CenterVertically,
                 ) {
-                    Text(
-                        text = "検索",
-                        fontFamily = rememberCustomFontFamily(),
+                    TextField(
+                        modifier = Modifier.weight(1f),
+                        text = uiState.searchQuery,
+                        placeholder = "ユーザー名を入力",
+                        onValueChange = {
+                            uiState.listener.onSearchQueryChanged(it)
+                        },
+                        type = TextFieldType.Text,
                     )
-                }
-            }
-
-            HorizontalDivider(modifier = Modifier.fillMaxWidth())
-
-            LazyColumn {
-                items(uiState.searchResults) { result ->
-                    Column {
-                        Row(
-                            modifier = Modifier
-                                .fillMaxWidth()
-                                .clickable { uiState.listener.onClickUser(result.name) }
-                                .padding(12.dp),
-                            horizontalArrangement = Arrangement.SpaceBetween,
-                            verticalAlignment = Alignment.CenterVertically,
-                        ) {
-                            Text(
-                                text = result.name,
-                                fontFamily = rememberCustomFontFamily(),
-                            )
-                            DropdownMenu(
-                                expanded = uiState.selectedUserName == result.name,
-                                onDismissRequest = { uiState.listener.onDismissUserMenu() },
-                            ) {
-                                DropdownMenuItem(
-                                    text = {
-                                        Text(
-                                            text = "パスワード上書き",
-                                            fontFamily = rememberCustomFontFamily(),
-                                        )
-                                    },
-                                    onClick = { uiState.listener.onClickReplacePassword() },
-                                )
-                            }
-                        }
-                        HorizontalDivider(modifier = Modifier.fillMaxWidth())
+                    Spacer(modifier = Modifier.width(8.dp))
+                    Button(
+                        onClick = { uiState.listener.onClickSearch() },
+                    ) {
+                        Text(
+                            text = "検索",
+                            fontFamily = rememberCustomFontFamily(),
+                        )
                     }
                 }
-                if (uiState.hasMore) {
-                    item {
-                        LaunchedEffect(Unit) {
-                            uiState.listener.onClickLoadMore()
-                            while (isActive) {
-                                delay(500)
+
+                HorizontalDivider(modifier = Modifier.fillMaxWidth())
+
+                LazyColumn {
+                    items(uiState.searchResults) { result ->
+                        Column {
+                            Row(
+                                modifier = Modifier
+                                    .fillMaxWidth()
+                                    .clickable { uiState.listener.onClickUser(result.name) }
+                                    .padding(12.dp),
+                                horizontalArrangement = Arrangement.SpaceBetween,
+                                verticalAlignment = Alignment.CenterVertically,
+                            ) {
+                                Text(
+                                    text = result.name,
+                                    fontFamily = rememberCustomFontFamily(),
+                                )
+                            }
+                            HorizontalDivider(modifier = Modifier.fillMaxWidth())
+                        }
+                    }
+                    if (uiState.hasMore) {
+                        item {
+                            LaunchedEffect(Unit) {
                                 uiState.listener.onClickLoadMore()
+                                while (isActive) {
+                                    delay(500)
+                                    uiState.listener.onClickLoadMore()
+                                }
+                            }
+                            Box(
+                                modifier = Modifier.fillMaxWidth().padding(vertical = 24.dp),
+                                contentAlignment = Alignment.Center,
+                            ) {
+                                CircularProgressIndicator()
                             }
                         }
-                        Box(
-                            modifier = Modifier.fillMaxWidth().padding(vertical = 24.dp),
-                            contentAlignment = Alignment.Center,
+                    }
+                }
+            }
+        }
+    }
+
+    if (uiState.selectedUserName != null) {
+        Dialog(
+            onDismissRequest = { uiState.listener.onDismissUserMenu() },
+        ) {
+            Surface(
+                modifier = Modifier.widthIn(max = 400.dp).fillMaxWidth(),
+                shape = MaterialTheme.shapes.medium,
+                color = MaterialTheme.colorScheme.surface,
+                contentColor = MaterialTheme.colorScheme.onSurface,
+            ) {
+                Column {
+                    Row(
+                        modifier = Modifier.fillMaxWidth().padding(16.dp),
+                        horizontalArrangement = Arrangement.SpaceBetween,
+                        verticalAlignment = Alignment.CenterVertically,
+                    ) {
+                        Text(
+                            text = uiState.selectedUserName,
+                            style = MaterialTheme.typography.titleMedium,
+                            fontFamily = rememberCustomFontFamily(),
+                        )
+                        IconButton(onClick = { uiState.listener.onDismissUserMenu() }) {
+                            Icon(Icons.Default.Close, contentDescription = "Close")
+                        }
+                    }
+                    HorizontalDivider(modifier = Modifier.fillMaxWidth())
+                    Column(modifier = Modifier.padding(16.dp)) {
+                        Button(
+                            onClick = { uiState.listener.onClickReplacePassword() },
+                            modifier = Modifier.fillMaxWidth(),
                         ) {
-                            CircularProgressIndicator()
+                            Text(
+                                text = "パスワード上書き",
+                                fontFamily = rememberCustomFontFamily(),
+                            )
                         }
                     }
                 }
@@ -162,7 +204,7 @@ internal fun UserSearchScreen(
             text = {
                 Column {
                     TextField(
-                        modifier = Modifier.fillMaxWidth().height(48.dp),
+                        modifier = Modifier.fillMaxWidth(),
                         text = dialogState.password,
                         placeholder = "新しいパスワード",
                         onValueChange = {
