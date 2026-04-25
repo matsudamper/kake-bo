@@ -188,7 +188,7 @@ class DbAdminImageRepository : AdminImageRepository {
         if (imageIds.isEmpty()) return true
         return DbConnectionImpl.use { connection ->
             val ids = imageIds.map { it.value }
-            DSL.using(connection)
+            val deletedCount = DSL.using(connection)
                 .deleteFrom(userImages)
                 .where(
                     userImages.USER_IMAGE_ID.`in`(ids)
@@ -200,7 +200,7 @@ class DbAdminImageRepository : AdminImageRepository {
                         ),
                 )
                 .execute()
-            true
+            deletedCount > 0
         }
     }
 
