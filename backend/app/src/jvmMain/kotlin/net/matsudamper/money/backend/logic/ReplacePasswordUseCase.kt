@@ -12,12 +12,10 @@ class ReplacePasswordUseCase(
     ): Result {
         val errors = mutableListOf<Result.Errors>()
 
-        if (password.length !in 20..256) {
+        if (password.length !in PasswordConstraints.LENGTH_RANGE) {
             errors.add(Result.Errors.PasswordLength)
         } else {
-            val denyChars = password.toCharArray()
-                .filterNot { it in nonSymbolList }
-                .filterNot { it in passwordAllowSymbolList }
+            val denyChars = PasswordConstraints.findDenyChars(password)
             if (denyChars.isNotEmpty()) {
                 errors.add(Result.Errors.PasswordValidation(denyChars))
             }
@@ -27,13 +25,7 @@ class ReplacePasswordUseCase(
             return Result.Failure(errors = errors)
         }
 
-        val passwordResult = passwordManager.create(
-            password = password,
-            keyByteLength = 512,
-            iterationCount = 100000,
-            saltByteLength = 32,
-            algorithm = IPasswordManager.Algorithm.PBKDF2WithHmacSHA512,
-        )
+        val passwordResult = PasswordConstraints.createHash(passwordManager, password)
         val replaceResult = adminRepository.replacePassword(
             userName = userName,
             hashedPassword = passwordResult.hashedPassword,
@@ -80,32 +72,5 @@ class ReplacePasswordUseCase(
 
             data object InternalServerError : Errors
         }
-    }
-
-    companion object {
-        private val nonSymbolList = ('A'..'Z')
-            .plus('a'..'z')
-            .plus('0'..'9')
-
-        private val passwordAllowSymbolList = setOf(
-            '!',
-            '@',
-            '#',
-            '$',
-            '%',
-            '^',
-            '&',
-            '*',
-            '(',
-            ')',
-            '_',
-            '+',
-            '-',
-            '?',
-            '<',
-            '>',
-            ',',
-            '.',
-        )
     }
 }

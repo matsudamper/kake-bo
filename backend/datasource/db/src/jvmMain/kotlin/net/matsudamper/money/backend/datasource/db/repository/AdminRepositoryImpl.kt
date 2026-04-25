@@ -97,17 +97,20 @@ class AdminRepositoryImpl : AdminRepository {
         iterationCount: Int,
         keyLength: Int,
     ): AdminRepository.ReplacePasswordResult {
-        runCatching {
-            DbConnectionImpl.use {
-                val userId = DSL.using(it)
+        return try {
+            DbConnectionImpl.use { connection ->
+                val userId = DSL.using(connection)
                     .select(users.USER_ID)
                     .from(users)
                     .where(users.USER_NAME.eq(userName))
                     .fetchOne()
                     ?.value1()
-                    ?: return AdminRepository.ReplacePasswordResult.UserNotFound
 
-                DSL.using(it)
+                if (userId == null) {
+                    return@use AdminRepository.ReplacePasswordResult.UserNotFound
+                }
+
+                DSL.using(connection)
                     .transaction { config ->
                         config.dsl()
                             .update(userPasswords)
@@ -124,14 +127,13 @@ class AdminRepositoryImpl : AdminRepository {
                             .where(userPasswordExtendData.USER_ID.eq(userId))
                             .execute()
                     }
-            }
-        }
-            .onFailure { e ->
-                return AdminRepository.ReplacePasswordResult.Failed(
-                    AdminRepository.ReplacePasswordResult.ErrorType.InternalServerError(e),
-                )
-            }
 
-        return AdminRepository.ReplacePasswordResult.Success
+                AdminRepository.ReplacePasswordResult.Success
+            }
+        } catch (e: Exception) {
+            AdminRepository.ReplacePasswordResult.Failed(
+                AdminRepository.ReplacePasswordResult.ErrorType.InternalServerError(e),
+            )
+        }
     }
 }
