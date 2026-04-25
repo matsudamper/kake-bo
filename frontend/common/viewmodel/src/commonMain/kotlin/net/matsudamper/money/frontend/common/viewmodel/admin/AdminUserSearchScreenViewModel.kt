@@ -21,8 +21,8 @@ private const val TAG = "AdminUserSearchScreenViewModel"
 public class AdminUserSearchScreenViewModel(
     scopedObjectFeature: ScopedObjectFeature,
     private val adminQuery: GraphqlAdminQuery,
-    pagingModel: AdminUserSearchPagingModel,
-    ) : CommonViewModel(scopedObjectFeature) {
+    private val pagingModel: AdminUserSearchPagingModel,
+) : CommonViewModel(scopedObjectFeature) {
     private var searchJob: kotlinx.coroutines.Job? = null
     private val viewModelStateFlow = MutableStateFlow(ViewModelState())
 
