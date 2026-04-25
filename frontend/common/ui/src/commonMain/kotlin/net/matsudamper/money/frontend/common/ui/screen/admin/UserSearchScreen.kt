@@ -80,7 +80,7 @@ internal fun UserSearchScreen(
             Column(
                 modifier = Modifier
                     .widthIn(max = 600.dp)
-                    .fillMaxSize()
+                    .fillMaxSize(),
             ) {
                 Row(
                     modifier = Modifier.fillMaxWidth().padding(12.dp),

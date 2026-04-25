@@ -72,9 +72,9 @@ class GraphqlAdminQuery(
         query: String,
         size: Int,
         cursor: String?,
-    ): ApolloResponse<AdminSearchUsersMutation.Data> {
-        return graphqlClient.apolloClient.mutation(
-            AdminSearchUsersMutation(
+    ): ApolloResponse<AdminSearchUsersQuery.Data> {
+        return graphqlClient.apolloClient.query(
+            AdminSearchUsersQuery(
                 query = query,
                 size = size,
                 cursor = com.apollographql.apollo.api.Optional.presentIfNotNull(cursor),

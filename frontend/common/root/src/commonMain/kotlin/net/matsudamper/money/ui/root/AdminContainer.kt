@@ -70,9 +70,11 @@ internal fun AdminContainer(
         },
         adminUserSearchUiStateProvider = {
             val adminUserSearchScreenViewModel = LocalScopedObjectStore.current.putOrGet<AdminUserSearchScreenViewModel>(Unit) {
+                val graphqlClient = koin.get<GraphqlClient>()
                 AdminUserSearchScreenViewModel(
                     scopedObjectFeature = it,
-                    adminQuery = GraphqlAdminQuery(koin.get<GraphqlClient>()),
+                    adminQuery = GraphqlAdminQuery(graphqlClient),
+                    pagingModel = net.matsudamper.money.frontend.common.viewmodel.admin.AdminUserSearchPagingModel(graphqlClient),
                 )
             }
             adminUserSearchScreenViewModel.uiStateFlow.collectAsState().value
