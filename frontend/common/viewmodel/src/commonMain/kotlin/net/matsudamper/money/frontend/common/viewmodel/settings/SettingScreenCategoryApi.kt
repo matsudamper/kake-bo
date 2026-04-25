@@ -1,7 +1,6 @@
 package net.matsudamper.money.frontend.common.viewmodel.settings
 
 import kotlinx.coroutines.flow.Flow
-import kotlinx.coroutines.flow.catch
 import com.apollographql.apollo.ApolloClient
 import com.apollographql.apollo.api.ApolloResponse
 import com.apollographql.apollo.api.Optional
@@ -26,6 +25,7 @@ import net.matsudamper.money.frontend.graphql.type.MoneyUsageCategoriesInput
 import net.matsudamper.money.frontend.graphql.type.MoneyUsageSubCategoryQuery
 import net.matsudamper.money.frontend.graphql.type.UpdateCategoryQuery
 import net.matsudamper.money.frontend.graphql.type.UpdateSubCategoryQuery
+import net.matsudamper.money.frontend.graphql.updateOperation
 
 private const val TAG = "SettingScreenCategoryApi"
 
@@ -86,23 +86,22 @@ public class SettingScreenCategoryApi(
         }.getOrNull()
     }
 
-    public suspend fun getSubCategoriesPaging(id: MoneyUsageCategoryId): ApolloResponse<CategorySettingScreenSubCategoriesPagingQuery.Data>? {
-        return runCatching {
-            apolloClient
-                .query(
-                    CategorySettingScreenSubCategoriesPagingQuery(
-                        categoryId = id,
-                        query = MoneyUsageSubCategoryQuery(
-                            cursor = Optional.present(null),
-                            size = 100,
-                        ),
-                    ),
-                )
-                .fetchPolicy(FetchPolicy.NetworkOnly)
-                .execute()
+    public fun getSubCategoriesPaging(id: MoneyUsageCategoryId): Flow<ApolloResponse<CategorySettingScreenSubCategoriesPagingQuery.Data>> {
+        return apolloClient
+            .query(createSubCategoriesPagingQuery(id))
+            .fetchPolicy(FetchPolicy.CacheAndNetwork)
+            .watch()
+    }
+
+    public suspend fun refetchSubCategoriesPaging(id: MoneyUsageCategoryId) {
+        runCatching {
+            fetchSubCategoriesPaging(
+                query = createSubCategoriesPagingQuery(id),
+                fetchPolicy = FetchPolicy.NetworkOnly,
+            )
         }.onFailure {
             Logger.e(TAG, it)
-        }.getOrNull()
+        }
     }
 
     public suspend fun updateCategory(
@@ -136,9 +135,6 @@ public class SettingScreenCategoryApi(
             )
             .fetchPolicy(FetchPolicy.CacheAndNetwork)
             .watch()
-            .catch {
-                it.printStackTrace()
-            }
     }
 
     public suspend fun updateSubCategory(
@@ -161,8 +157,11 @@ public class SettingScreenCategoryApi(
         }.getOrNull()
     }
 
-    public suspend fun deleteSubCategory(id: MoneyUsageSubCategoryId): Boolean {
-        return runCatching {
+    public suspend fun deleteSubCategory(
+        categoryId: MoneyUsageCategoryId,
+        id: MoneyUsageSubCategoryId,
+    ): Boolean {
+        val isDeleted = runCatching {
             apolloClient
                 .mutation(
                     DeleteSubCategoryMutation(
@@ -172,7 +171,56 @@ public class SettingScreenCategoryApi(
                 .execute()
         }.onFailure {
             Logger.e(TAG, it)
-        }.getOrNull()?.data?.userMutation != null
+        }.getOrNull()?.data?.userMutation?.deleteSubCategory == true
+        if (!isDeleted) {
+            return false
+        }
+
+        val cacheQuery = createSubCategoriesPagingQuery(categoryId)
+        val updateResult = runCatching {
+            apolloClient.updateOperation(cacheQuery) update@{ before ->
+                if (before == null) {
+                    return@update success(
+                        fetchSubCategoriesPaging(
+                            query = cacheQuery,
+                            fetchPolicy = FetchPolicy.NetworkOnly,
+                        ),
+                    )
+                }
+
+                val user = before.user ?: return@update error()
+                val moneyUsageCategory = user.moneyUsageCategory ?: return@update error()
+                val subCategories = moneyUsageCategory.subCategories ?: return@update error()
+                val response = fetchSubCategoriesPaging(
+                    query = cacheQuery,
+                    fetchPolicy = FetchPolicy.CacheOnly,
+                )
+
+                success(
+                    response.newBuilder()
+                        .data(
+                            before.copy(
+                                user = user.copy(
+                                    moneyUsageCategory = moneyUsageCategory.copy(
+                                        subCategories = subCategories.copy(
+                                            nodes = subCategories.nodes.filterNot { it.id == id },
+                                        ),
+                                    ),
+                                ),
+                            ),
+                        )
+                        .build(),
+                )
+            }
+        }.onFailure {
+            Logger.e(TAG, it)
+        }.getOrNull()
+
+        if (updateResult?.isSuccess() != true) {
+            refetchSubCategoriesPaging(id = categoryId)
+        }
+
+        return true
     }
 
     public suspend fun deleteCategory(id: MoneyUsageCategoryId): Boolean {
@@ -187,5 +235,27 @@ public class SettingScreenCategoryApi(
         }.onFailure {
             Logger.e(TAG, it)
         }.getOrNull()?.data?.userMutation?.deleteCategory == true
+    }
+
+    private fun createSubCategoriesPagingQuery(
+        id: MoneyUsageCategoryId,
+    ): CategorySettingScreenSubCategoriesPagingQuery {
+        return CategorySettingScreenSubCategoriesPagingQuery(
+            categoryId = id,
+            query = MoneyUsageSubCategoryQuery(
+                cursor = Optional.present(null),
+                size = 100,
+            ),
+        )
+    }
+
+    private suspend fun fetchSubCategoriesPaging(
+        query: CategorySettingScreenSubCategoriesPagingQuery,
+        fetchPolicy: FetchPolicy,
+    ): ApolloResponse<CategorySettingScreenSubCategoriesPagingQuery.Data> {
+        return apolloClient
+            .query(query)
+            .fetchPolicy(fetchPolicy)
+            .execute()
     }
 }
