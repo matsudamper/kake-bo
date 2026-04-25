@@ -1,5 +1,6 @@
 package net.matsudamper.money.frontend.common.viewmodel.admin
 
+import androidx.compose.ui.text.input.TextFieldValue
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
@@ -20,21 +21,23 @@ public class AdminAddUserScreenViewModel(
 
     public val uiStateFlow: StateFlow<AdminAddUserUiState> = MutableStateFlow(
         AdminAddUserUiState(
+            userName = TextFieldValue(),
+            password = TextFieldValue(),
             onChangeUserName = {
                 viewModelStateFlow.update { viewModelState ->
-                    viewModelState.copy(userName = it)
+                    viewModelState.copy(userName = TextFieldValue(it))
                 }
             },
             onChangePassword = {
                 viewModelStateFlow.update { viewModelState ->
-                    viewModelState.copy(password = it)
+                    viewModelState.copy(password = TextFieldValue(it))
                 }
             },
             onClickAddButton = {
                 viewModelScope.launch {
                     val result = adminQuery.addUser(
-                        userName = viewModelStateFlow.value.userName,
-                        password = viewModelStateFlow.value.password,
+                        userName = viewModelStateFlow.value.userName.text,
+                        password = viewModelStateFlow.value.password.text,
                     )
                     println("data: ${result.data}")
                     println("errors: ${result.data?.adminMutation?.addUser?.errorType.orEmpty().joinToString(",")}")
@@ -43,10 +46,20 @@ public class AdminAddUserScreenViewModel(
             },
         ),
     ).also { uiStateFlow ->
+        viewModelScope.launch {
+            viewModelStateFlow.collect { viewModelState ->
+                uiStateFlow.update { uiState ->
+                    uiState.copy(
+                        userName = viewModelState.userName,
+                        password = viewModelState.password,
+                    )
+                }
+            }
+        }
     }.asStateFlow()
 
     private data class ViewModelState(
-        val userName: String = "",
-        val password: String = "",
+        val userName: TextFieldValue = TextFieldValue(),
+        val password: TextFieldValue = TextFieldValue(),
     )
 }

@@ -1,6 +1,8 @@
 package net.matsudamper.money.backend.di
 
 import java.time.Clock
+import net.matsudamper.money.backend.app.interfaces.AdminImageRepository
+import net.matsudamper.money.backend.app.interfaces.AdminLoginRepository
 import net.matsudamper.money.backend.app.interfaces.AdminRepository
 import net.matsudamper.money.backend.app.interfaces.AdminSessionRepository
 import net.matsudamper.money.backend.app.interfaces.ApiTokenRepository
@@ -27,6 +29,7 @@ import net.matsudamper.money.backend.datasource.challenge.ChallengeRepositoryPro
 import net.matsudamper.money.backend.datasource.db.DbConnectionImpl
 import net.matsudamper.money.backend.datasource.db.repository.AdminRepositoryImpl
 import net.matsudamper.money.backend.datasource.db.repository.ApiTokenRepositoryImpl
+import net.matsudamper.money.backend.datasource.db.repository.DbAdminImageRepository
 import net.matsudamper.money.backend.datasource.db.repository.DbAdminSessionRepository
 import net.matsudamper.money.backend.datasource.db.repository.DbFidoRepository
 import net.matsudamper.money.backend.datasource.db.repository.DbImportedImportedMailRepository
@@ -41,6 +44,8 @@ import net.matsudamper.money.backend.datasource.db.repository.DbUserImageReposit
 import net.matsudamper.money.backend.datasource.db.repository.DbUserLoginRepository
 import net.matsudamper.money.backend.datasource.db.repository.DbUserRepository
 import net.matsudamper.money.backend.datasource.db.repository.DeleteUsageImageRelationDaoImpl
+import net.matsudamper.money.backend.datasource.db.repository.EnvAdminLoginRepository
+import net.matsudamper.money.backend.datasource.session.AdminSessionRepositoryProvider
 import net.matsudamper.money.backend.datasource.session.UserSessionRepositoryProvider
 import net.matsudamper.money.backend.mail.MailRepositoryImpl
 
@@ -84,6 +89,10 @@ interface DiContainer {
 
     fun createAdminRepository(): AdminRepository
 
+    fun createAdminLoginRepository(): AdminLoginRepository
+
+    fun createAdminImageRepository(): AdminImageRepository
+
     fun userLoginRepository(): UserLoginRepository
     fun createApiTokenRepository(): ApiTokenRepository
     fun traceLogger(): TraceLogger
@@ -93,6 +102,16 @@ interface DiContainer {
 class MainDiContainer : DiContainer {
     override fun createAdminRepository(): AdminRepository {
         return AdminRepositoryImpl()
+    }
+
+    override fun createAdminLoginRepository(): AdminLoginRepository {
+        return EnvAdminLoginRepository()
+    }
+
+    private val adminImageRepository = DbAdminImageRepository()
+
+    override fun createAdminImageRepository(): AdminImageRepository {
+        return adminImageRepository
     }
 
     override fun createMailRepository(
@@ -210,8 +229,19 @@ class MainDiContainer : DiContainer {
         return challengeRepository
     }
 
+    private val adminSessionRepository: AdminSessionRepository = if (ServerEnv.enableRedis) {
+        AdminSessionRepositoryProvider.provideRedisRepository(
+            host = ServerEnv.redisHost!!,
+            port = ServerEnv.redisPort!!,
+            index = ServerVariables.REDIS_INDEX_ADMIN_SESSION,
+            clock = clock(),
+        )
+    } else {
+        DbAdminSessionRepository(dbConnection = DbConnectionImpl, clock = clock())
+    }
+
     override fun createAdminUserSessionRepository(): AdminSessionRepository {
-        return DbAdminSessionRepository(dbConnection = DbConnectionImpl, clock = clock())
+        return adminSessionRepository
     }
 
     override fun userLoginRepository(): UserLoginRepository {

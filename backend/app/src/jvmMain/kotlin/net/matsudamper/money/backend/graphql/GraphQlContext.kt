@@ -54,6 +54,11 @@ internal class GraphQlContext(
 
     fun getSessionInfo() = userSessionManager.getSessionInfo()
 
+    fun clearAdminSession() {
+        adminSession = null
+        cookieManager.clearAdminSession()
+    }
+
     fun clearUserSession() {
         userSessionManager.clearUserSession()
     }

@@ -298,6 +298,7 @@ public fun Content(
                                 addEntryProvider<ScreenStructure.Admin> {
                                     AdminContainer(
                                         windowInsets = paddingValues.value,
+                                        globalEventSender = globalEventSender,
                                     )
                                 }
                                 addEntryProvider<ScreenStructure.NotFound> {
