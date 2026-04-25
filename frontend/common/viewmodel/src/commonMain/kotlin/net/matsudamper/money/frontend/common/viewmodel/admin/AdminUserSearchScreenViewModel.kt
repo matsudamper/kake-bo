@@ -21,8 +21,9 @@ private const val TAG = "AdminUserSearchScreenViewModel"
 public class AdminUserSearchScreenViewModel(
     scopedObjectFeature: ScopedObjectFeature,
     private val adminQuery: GraphqlAdminQuery,
-    private val pagingModel: AdminUserSearchPagingModel,
-) : CommonViewModel(scopedObjectFeature) {
+    pagingModel: AdminUserSearchPagingModel,
+    ) : CommonViewModel(scopedObjectFeature) {
+    private var searchJob: kotlinx.coroutines.Job? = null
     private val viewModelStateFlow = MutableStateFlow(ViewModelState())
 
     public val uiStateFlow: StateFlow<AdminUserSearchUiState> = MutableStateFlow(
@@ -75,22 +76,25 @@ public class AdminUserSearchScreenViewModel(
                     cursor = Optional.present(null),
                 )
 
-                viewModelStateFlow.update {
-                    it.copy(
-                        committedQuery = firstQuery,
-                    )
-                }
-
-                viewModelScope.launch {
-                    pagingModel.getFlow(firstQuery).collectLatest { response ->
-                        viewModelStateFlow.update { it.copy(apolloResponse = response) }
+                searchJob?.cancel()
+                searchJob = viewModelScope.launch {
+                    viewModelStateFlow.update {
+                        it.copy(
+                            committedQuery = firstQuery,
+                        )
                     }
-                }
 
-                viewModelScope.launch {
-                    val result = pagingModel.refresh(firstQuery)
-                    if (result is UpdateOperationResponseResult.Error<*>) {
-                        result.e?.let { Logger.e(TAG, it) }
+                    launch {
+                        pagingModel.getFlow(firstQuery).collectLatest { response ->
+                            viewModelStateFlow.update { it.copy(apolloResponse = response) }
+                        }
+                    }
+
+                    launch {
+                        val result = pagingModel.refresh(firstQuery)
+                        if (result is UpdateOperationResponseResult.Error<*>) {
+                            result.e?.let { Logger.e(TAG, it) }
+                        }
                     }
                 }
             }
@@ -167,13 +171,15 @@ public class AdminUserSearchScreenViewModel(
                 viewModelScope.launch {
                     viewModelStateFlow.update { it.copy(isLoadingMore = true) }
 
-                    val result = pagingModel.fetch(committedQuery)
-                    if (result is UpdateOperationResponseResult.Error<*>) {
-                        result.e?.let { Logger.e(TAG, it) }
-                    }
-
-                    viewModelStateFlow.update {
-                        it.copy(isLoadingMore = false)
+                    try {
+                        val result = pagingModel.fetch(committedQuery)
+                        if (result is UpdateOperationResponseResult.Error<*>) {
+                            result.e?.let { Logger.e(TAG, it) }
+                        }
+                    } finally {
+                        viewModelStateFlow.update {
+                            it.copy(isLoadingMore = false)
+                        }
                     }
                 }
             }
