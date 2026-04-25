@@ -93,8 +93,6 @@ type AdminMutation {
 
   deleteImages(imageIds: [ImageId!]!): Boolean!
 
-  searchUsers(input: AdminUserSearchInput!): AdminUserSearchUsersConnection!
-
   replacePassword(userName: String!, password: String!): AdminReplacePasswordResult!
 }
 
@@ -588,6 +586,8 @@ type Query {
   isAdminLoggedIn: Boolean!
 
   adminUnlinkedImages(input: AdminUnlinkedImagesInput!): AdminUnlinkedImagesConnection!
+
+  adminSearchUsers(input: AdminUserSearchInput!): AdminUserSearchUsersConnection!
 
   user: User
 

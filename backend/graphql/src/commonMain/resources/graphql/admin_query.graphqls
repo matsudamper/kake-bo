@@ -16,3 +16,19 @@ type AdminUnlinkedImage {
     userId: UserId!
     userName: String!
 }
+
+input AdminUserSearchInput {
+    query: String!
+    size: Int!
+    cursor: String
+}
+
+type AdminUserSearchUsersConnection {
+    nodes: [AdminSearchedUser!]!
+    cursor: String
+    hasMore: Boolean!
+}
+
+type AdminSearchedUser {
+    name: String!
+}

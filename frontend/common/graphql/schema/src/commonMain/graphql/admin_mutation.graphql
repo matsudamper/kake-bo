@@ -26,18 +26,6 @@ mutation AdminDeleteImages($imageIds: [ImageId!]!) {
     }
 }
 
-mutation AdminSearchUsers($query: String!, $size: Int!, $cursor: String) {
-    adminMutation {
-        searchUsers(input: {query: $query, size: $size, cursor: $cursor}) {
-            nodes {
-                name
-            }
-            cursor
-            hasMore
-        }
-    }
-}
-
 mutation AdminReplacePassword($userName: String!, $password: String!) {
     adminMutation {
         replacePassword(userName: $userName, password: $password) {

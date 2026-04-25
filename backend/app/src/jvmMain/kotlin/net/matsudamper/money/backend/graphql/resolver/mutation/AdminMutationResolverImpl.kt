@@ -19,9 +19,6 @@ import net.matsudamper.money.graphql.model.QlAdminLoginResult
 import net.matsudamper.money.graphql.model.QlAdminMutation
 import net.matsudamper.money.graphql.model.QlAdminReplacePasswordErrorType
 import net.matsudamper.money.graphql.model.QlAdminReplacePasswordResult
-import net.matsudamper.money.graphql.model.QlAdminSearchedUser
-import net.matsudamper.money.graphql.model.QlAdminUserSearchInput
-import net.matsudamper.money.graphql.model.QlAdminUserSearchUsersConnection
 
 class AdminMutationResolverImpl : AdminMutationResolver {
     override fun adminLogout(
@@ -147,28 +144,6 @@ class AdminMutationResolverImpl : AdminMutationResolver {
                     }
                 }
             }
-        }.toDataFetcher()
-    }
-
-    override fun searchUsers(
-        adminMutation: QlAdminMutation,
-        input: QlAdminUserSearchInput,
-        env: DataFetchingEnvironment,
-    ): CompletionStage<DataFetcherResult<QlAdminUserSearchUsersConnection>> {
-        val context = env.graphQlContext.get<GraphQlContext>(GraphQlContext::class.java.name)
-        context.verifyAdminSession()
-
-        return otelSupplyAsync {
-            val result = context.diContainer.createAdminRepository().searchUsers(
-                query = input.query,
-                size = input.size,
-                cursor = input.cursor,
-            )
-            QlAdminUserSearchUsersConnection(
-                nodes = result.users.map { QlAdminSearchedUser(name = it) },
-                cursor = result.cursor,
-                hasMore = result.hasMore,
-            )
         }.toDataFetcher()
     }
 
