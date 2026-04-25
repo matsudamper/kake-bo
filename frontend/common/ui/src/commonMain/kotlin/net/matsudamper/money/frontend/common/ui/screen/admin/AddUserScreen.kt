@@ -16,6 +16,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.unit.dp
+import net.matsudamper.money.frontend.common.ui.Strings
 import net.matsudamper.money.frontend.common.ui.layout.TextField
 import net.matsudamper.money.frontend.common.ui.layout.TextFieldType
 import net.matsudamper.money.frontend.common.ui.rememberCustomFontFamily
@@ -70,7 +71,7 @@ internal fun AddUserScreen(
                 autocomplete = "new-password",
             )
             Text(
-                AdminAddUserUiState.PASSWORD_ALLOW_SYMBOLS_TEXT,
+                Strings.PASSWORD_ALLOW_SYMBOLS_DESCRIPTION,
                 fontFamily = rememberCustomFontFamily(),
             )
             Spacer(modifier = Modifier.height(12.dp))
