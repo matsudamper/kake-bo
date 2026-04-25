@@ -32,6 +32,8 @@ interface AdminRepository {
         keyLength: Int,
     ): ReplacePasswordResult
 
+    fun deletePassword(userId: net.matsudamper.money.element.UserId): DeletePasswordResult
+
     sealed interface AddUserResult {
         data object Success : AddUserResult
 
@@ -48,6 +50,18 @@ interface AdminRepository {
         data object UserNotFound : ReplacePasswordResult
 
         data class Failed(val error: ErrorType) : ReplacePasswordResult
+
+        sealed interface ErrorType {
+            class InternalServerError(val e: Throwable) : ErrorType
+        }
+    }
+
+    sealed interface DeletePasswordResult {
+        data object Success : DeletePasswordResult
+
+        data object UserNotFound : DeletePasswordResult
+
+        data class Failed(val error: ErrorType) : DeletePasswordResult
 
         sealed interface ErrorType {
             class InternalServerError(val e: Throwable) : ErrorType

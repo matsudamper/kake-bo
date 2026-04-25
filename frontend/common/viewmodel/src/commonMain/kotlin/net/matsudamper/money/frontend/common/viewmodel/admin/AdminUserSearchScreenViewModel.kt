@@ -176,6 +176,11 @@ public class AdminUserSearchScreenViewModel(
                         )
                     }
                 }
+
+                override fun onClickDeletePassword() {
+                    viewModelStateFlow.update { it.copy(userOperationDialogUiState = null) }
+                    deletePassword(user = user)
+                }
             },
         )
     }
@@ -252,6 +257,29 @@ public class AdminUserSearchScreenViewModel(
                         ),
                     )
                 }
+            }
+        }
+    }
+
+    private fun deletePassword(user: AdminSearchUsersQuery.Node) {
+        viewModelScope.launch {
+            val result = runCatching {
+                adminQuery.replacePassword(
+                    userId = user.userId,
+                    password = null,
+                )
+            }.fold(
+                onSuccess = { it },
+                onFailure = {
+                    Logger.e(TAG, it)
+                    eventSender.send { event -> event.showSnackBar("エラーが発生しました") }
+                    return@launch
+                },
+            )
+            if (result.data?.adminMutation?.replacePassword?.isSuccess == true) {
+                eventSender.send { event -> event.showSnackBar("パスワードを削除しました") }
+            } else {
+                eventSender.send { event -> event.showSnackBar("パスワード削除に失敗しました") }
             }
         }
     }

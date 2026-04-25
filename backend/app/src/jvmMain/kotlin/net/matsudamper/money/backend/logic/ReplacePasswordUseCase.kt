@@ -9,8 +9,29 @@ class ReplacePasswordUseCase(
 ) {
     fun replacePassword(
         userId: UserId,
-        password: String,
+        password: String?,
     ): Result {
+        if (password == null) {
+            return when (val result = adminRepository.deletePassword(userId)) {
+                is AdminRepository.DeletePasswordResult.Failed -> {
+                    when (val error = result.error) {
+                        is AdminRepository.DeletePasswordResult.ErrorType.InternalServerError -> {
+                            error.e.printStackTrace()
+                            Result.Failure(errors = listOf(Result.Errors.InternalServerError))
+                        }
+                    }
+                }
+
+                AdminRepository.DeletePasswordResult.UserNotFound -> {
+                    Result.Failure(errors = listOf(Result.Errors.UserNotFound))
+                }
+
+                AdminRepository.DeletePasswordResult.Success -> {
+                    Result.Success
+                }
+            }
+        }
+
         val errors = mutableListOf<Result.Errors>()
 
         val passwordErrors = PasswordValidator.validate(password)
