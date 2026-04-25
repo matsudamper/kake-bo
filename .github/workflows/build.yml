@@ -55,14 +55,23 @@ jobs:
           tar -xf backend/build/distributions/backend.tar -C backend-server --strip-components=1
           export $(grep -v '^#' schema_update_local.env | xargs)
           export PORT=8080
-          ./backend-server/bin/backend &
+
+          SERVER_LOG=backend-server/server.log
+          ./backend-server/bin/backend > "$SERVER_LOG" 2>&1 &
           SERVER_PID=$!
+          echo "サーバーを起動しました (PID: ${SERVER_PID}, PORT: ${PORT})"
 
           TIMEOUT=60
           ELAPSED=0
           until curl -sf --max-time 5 http://localhost:${PORT}/healthz > /dev/null 2>&1; do
             if [ $ELAPSED -ge $TIMEOUT ]; then
               echo "サーバー起動がタイムアウトしました (${TIMEOUT}秒)"
+              echo "--- サーバーログ ---"
+              cat "$SERVER_LOG" || true
+              echo "--- プロセス状態 ---"
+              ps -p "$SERVER_PID" 2>/dev/null || echo "プロセスはすでに終了しています"
+              echo "--- ポート使用状況 ---"
+              ss -tlnp | grep ":${PORT}" || echo "ポート ${PORT} は使用されていません"
               kill $SERVER_PID 2>/dev/null || true
               exit 1
             fi
@@ -72,9 +81,11 @@ jobs:
 
           RESPONSE=$(curl -sf --max-time 5 http://localhost:${PORT}/healthz)
           if [ "$RESPONSE" = "ok" ]; then
-            echo "healthzチェック成功"
+            echo "healthzチェック成功 (${ELAPSED}秒で起動)"
           else
             echo "healthzチェック失敗: $RESPONSE"
+            echo "--- サーバーログ ---"
+            cat "$SERVER_LOG" || true
             kill $SERVER_PID 2>/dev/null || true
             exit 1
           fi
