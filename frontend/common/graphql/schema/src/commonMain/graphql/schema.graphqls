@@ -87,9 +87,35 @@ type AdminLoginResult {
 type AdminMutation {
   adminLogin(password: String!): AdminLoginResult!
 
-  adminLogout: Boolean! @lazy
+  adminLogout: Boolean!
 
   addUser(name: String!, password: String!): AdminAddUserResult!
+}
+
+type AdminUnlinkedImage {
+  id: ImageId!
+
+  url: String!
+
+  userId: UserId!
+
+  userName: String!
+}
+
+type AdminUnlinkedImagesConnection {
+  nodes: [AdminUnlinkedImage!]!
+
+  cursor: String
+
+  hasMore: Boolean!
+
+  totalCount: Int!
+}
+
+input AdminUnlinkedImagesInput {
+  size: Int!
+
+  cursor: String
 }
 
 type ApiToken {
@@ -519,6 +545,8 @@ type Query {
 
   isAdminLoggedIn: Boolean!
 
+  adminUnlinkedImages(input: AdminUnlinkedImagesInput!): AdminUnlinkedImagesConnection!
+
   user: User
 
   fidoLoginInfo: FidoLoginInfo!
@@ -696,6 +724,8 @@ input UserFidoLoginInput {
 
   base64UserHandle: String!
 }
+
+scalar UserId
 
 type UserImapConfig {
   host: String

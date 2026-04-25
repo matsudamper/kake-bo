@@ -15,6 +15,8 @@ public interface AdminScreenController {
 
     public fun navigateToAddUser()
 
+    public fun navigateToUnlinkedImages()
+
     public fun popBackStack()
 }
 
@@ -29,6 +31,7 @@ public enum class AdminScreenType : NavKey {
     Login,
     Root,
     AddUser,
+    UnlinkedImages,
 }
 
 public class AdminScreenControllerImpl : AdminScreenController {
@@ -53,6 +56,16 @@ public class AdminScreenControllerImpl : AdminScreenController {
                 AdminScreenType.AddUser -> current
                 AdminScreenType.Root -> current + AdminScreenType.AddUser
                 else -> listOf(AdminScreenType.Root, AdminScreenType.AddUser)
+            }
+        }
+    }
+
+    override fun navigateToUnlinkedImages() {
+        _screen.update { current ->
+            when (current.lastOrNull()) {
+                AdminScreenType.UnlinkedImages -> current
+                AdminScreenType.Root -> current + AdminScreenType.UnlinkedImages
+                else -> listOf(AdminScreenType.Root, AdminScreenType.UnlinkedImages)
             }
         }
     }

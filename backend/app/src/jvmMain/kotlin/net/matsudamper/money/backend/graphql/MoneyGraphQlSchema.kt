@@ -22,6 +22,7 @@ import io.opentelemetry.instrumentation.graphql.v20_0.GraphQLTelemetry
 import net.matsudamper.money.backend.base.OpenTelemetryInitializer
 import net.matsudamper.money.backend.base.ServerEnv
 import net.matsudamper.money.backend.di.MainDiContainer
+import net.matsudamper.money.backend.graphql.resolver.AdminUnlinkedImagesConnectionResolverImpl
 import net.matsudamper.money.backend.graphql.resolver.ImageResolverImpl
 import net.matsudamper.money.backend.graphql.resolver.MoneyUsageCategoryResolverImpl
 import net.matsudamper.money.backend.graphql.resolver.MoneyUsageResolverImpl
@@ -82,9 +83,11 @@ object MoneyGraphQlSchema {
         SchemaParser.newParser()
             .schemaString(schemaFiles.joinToString("\n"))
             .scalars(
-                GraphQLScalarType.newScalar(ExtendedScalars.GraphQLLong)
-                    .name("UserId")
-                    .build(),
+                createIntScalarType(
+                    name = "UserId",
+                    deserialize = { net.matsudamper.money.element.UserId(it) },
+                    serialize = { it.value },
+                ),
                 GraphQLScalarType.newScalar(ExtendedScalars.GraphQLLong)
                     .name("Long")
                     .build(),
@@ -152,6 +155,7 @@ object MoneyGraphQlSchema {
                     .build(),
             )
             .resolvers(
+                AdminUnlinkedImagesConnectionResolverImpl(),
                 ImageResolverImpl(),
                 QueryResolverImpl(),
                 ImportedMailCategoryConditionResolverImpl(),

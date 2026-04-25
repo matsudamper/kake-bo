@@ -91,6 +91,23 @@ internal fun AdminRootScreen(
                         onClick = { uiState.listener.onClickAddUser() },
                     )
                 }
+                item {
+                    RootTileItem(
+                        modifier = Modifier.padding(8.dp),
+                        title = {
+                            Text(
+                                text = "未紐づき画像",
+                                fontFamily = rememberCustomFontFamily(),
+                            )
+                        },
+                        icon = {
+                            Row {
+                                Icon(Icons.Default.Settings, contentDescription = null)
+                            }
+                        },
+                        onClick = { uiState.listener.onClickUnlinkedImages() },
+                    )
+                }
             }
         }
     }
