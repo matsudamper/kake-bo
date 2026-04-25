@@ -13,14 +13,21 @@ class ReplacePasswordUseCase(
     ): Result {
         val errors = mutableListOf<Result.Errors>()
 
-        if (password.length !in PasswordConstraints.LENGTH_RANGE) {
-            errors.add(Result.Errors.PasswordLength)
-        } else {
-            val denyChars = PasswordConstraints.findDenyChars(password)
-            if (denyChars.isNotEmpty()) {
-                errors.add(Result.Errors.PasswordValidation(denyChars))
-            }
+        val passwordErrors = PasswordValidator.validate(password)
+        for (passwordError in passwordErrors) {
+            errors.add(
+                when (passwordError) {
+                    is PasswordValidator.Errors.PasswordLength -> {
+                        Result.Errors.PasswordLength
+                    }
+
+                    is PasswordValidator.Errors.PasswordValidation -> {
+                        Result.Errors.PasswordValidation(passwordError.errorChar)
+                    }
+                },
+            )
         }
+
 
         if (errors.isNotEmpty()) {
             return Result.Failure(errors = errors)
