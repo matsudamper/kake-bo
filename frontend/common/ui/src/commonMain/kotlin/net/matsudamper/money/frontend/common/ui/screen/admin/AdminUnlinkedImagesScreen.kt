@@ -1,5 +1,6 @@
 package net.matsudamper.money.frontend.common.ui.screen.admin
 
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -15,6 +16,7 @@ import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
 import androidx.compose.foundation.lazy.grid.items
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
+import androidx.compose.material3.Checkbox
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
@@ -23,6 +25,7 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
+import androidx.compose.material3.TextButton
 import androidx.compose.material3.TopAppBar
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
@@ -32,6 +35,7 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.unit.dp
 import coil3.compose.SubcomposeAsyncImage
+import net.matsudamper.money.frontend.common.ui.layout.AlertDialog
 import net.matsudamper.money.frontend.common.ui.layout.image.ImageLoadingPlaceholder
 import net.matsudamper.money.frontend.common.ui.rememberCustomFontFamily
 
@@ -46,9 +50,39 @@ internal fun AdminUnlinkedImagesScreen(
         uiState.event.onResume()
     }
 
+    uiState.deleteDialog?.let { deleteDialog ->
+        AlertDialog(
+            title = { Text("画像を削除しますか？") },
+            description = {
+                Column {
+                    Text("選択中の ${deleteDialog.selectedCount} 件の画像を削除します。")
+                    deleteDialog.errorMessage?.let { errorMessage ->
+                        Spacer(modifier = Modifier.height(8.dp))
+                        Text(
+                            text = errorMessage,
+                            color = MaterialTheme.colorScheme.error,
+                        )
+                    }
+                }
+            },
+            positiveButton = {
+                if (deleteDialog.isLoading) {
+                    Text("削除中...")
+                } else {
+                    Text("削除")
+                }
+            },
+            negativeButton = { Text("キャンセル") },
+            onClickPositive = { deleteDialog.event.onConfirm() },
+            onClickNegative = { deleteDialog.event.onCancel() },
+            onDismissRequest = { deleteDialog.event.onDismiss() },
+        )
+    }
+
     Scaffold(
         modifier = modifier.fillMaxSize(),
         topBar = {
+            val loadedState = uiState.loadingState as? AdminUnlinkedImagesScreenUiState.LoadingState.Loaded
             TopAppBar(
                 navigationIcon = {
                     IconButton(onClick = onClickBack) {
@@ -56,12 +90,43 @@ internal fun AdminUnlinkedImagesScreen(
                     }
                 },
                 title = {
-                    val totalCount = (uiState.loadingState as? AdminUnlinkedImagesScreenUiState.LoadingState.Loaded)?.totalCount
-                    val titleText = if (totalCount != null) "未紐づき画像 ($totalCount)" else "未紐づき画像"
+                    val totalCount = loadedState?.totalCount
+                    val titleText = if (totalCount != null) {
+                        "未紐づき画像 ($totalCount)"
+                    } else {
+                        "未紐づき画像"
+                    }
                     Text(
                         text = titleText,
                         fontFamily = rememberCustomFontFamily(),
                     )
+                },
+                actions = {
+                    if (loadedState != null) {
+                        TextButton(
+                            onClick = { uiState.event.onClickSelectAll() },
+                            enabled = loadedState.items.isNotEmpty() &&
+                                loadedState.isLoadingMore.not() &&
+                                loadedState.isDeleting.not() &&
+                                loadedState.isSelectingAll.not(),
+                        ) {
+                            Text(
+                                if (loadedState.isAllSelected) {
+                                    "全解除"
+                                } else {
+                                    "全選択"
+                                },
+                            )
+                        }
+                        TextButton(
+                            onClick = { uiState.event.onClickDelete() },
+                            enabled = loadedState.selectedCount > 0 &&
+                                loadedState.isDeleting.not() &&
+                                loadedState.isSelectingAll.not(),
+                        ) {
+                            Text("削除")
+                        }
+                    }
                 },
             )
         },
@@ -155,16 +220,28 @@ private fun UnlinkedImageItem(
     item: AdminUnlinkedImagesScreenUiState.Item,
 ) {
     Column(modifier = modifier) {
-        SubcomposeAsyncImage(
+        Box(
             modifier = Modifier
                 .fillMaxWidth()
                 .aspectRatio(1f)
-                .clip(MaterialTheme.shapes.small),
-            model = item.imageUrl,
-            contentDescription = null,
-            contentScale = ContentScale.Crop,
-            loading = { ImageLoadingPlaceholder() },
-        )
+                .clip(MaterialTheme.shapes.small)
+                .clickable { item.event.onClickSelect() },
+        ) {
+            SubcomposeAsyncImage(
+                modifier = Modifier.fillMaxSize(),
+                model = item.imageUrl,
+                contentDescription = null,
+                contentScale = ContentScale.Crop,
+                loading = { ImageLoadingPlaceholder() },
+            )
+            Checkbox(
+                modifier = Modifier
+                    .align(Alignment.TopEnd)
+                    .padding(6.dp),
+                checked = item.isSelected,
+                onCheckedChange = { item.event.onClickSelect() },
+            )
+        }
         Spacer(modifier = Modifier.height(6.dp))
         Text(
             text = "UserID: ${item.userId}",

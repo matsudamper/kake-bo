@@ -14,6 +14,8 @@ interface AdminImageRepository {
         cursor: Cursor?,
     ): Result
 
+    fun deleteImages(imageIds: List<ImageId>): Boolean
+
     fun countUnlinkedImages(): Int
 
     fun getImageDataByDisplayId(displayId: String): ImageData?
