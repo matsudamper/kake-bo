@@ -5,6 +5,7 @@ import net.matsudamper.money.backend.datasource.db.DbConnectionImpl
 import net.matsudamper.money.db.schema.tables.JUserPasswordExtendData
 import net.matsudamper.money.db.schema.tables.JUserPasswords
 import net.matsudamper.money.db.schema.tables.JUsers
+import net.matsudamper.money.element.UserId
 import org.jooq.impl.DSL
 
 class AdminRepositoryImpl : AdminRepository {
@@ -107,7 +108,7 @@ class AdminRepositoryImpl : AdminRepository {
     }
 
     override fun replacePassword(
-        userName: String,
+        userId: UserId,
         hashedPassword: String,
         algorithmName: String,
         salt: ByteArray,
@@ -116,14 +117,13 @@ class AdminRepositoryImpl : AdminRepository {
     ): AdminRepository.ReplacePasswordResult {
         return try {
             DbConnectionImpl.use { connection ->
-                val userId = DSL.using(connection)
-                    .select(users.USER_ID)
+                val userExists = DSL.using(connection)
+                    .selectOne()
                     .from(users)
-                    .where(users.USER_NAME.eq(userName))
-                    .fetchOne()
-                    ?.value1()
+                    .where(users.USER_ID.eq(userId.value))
+                    .fetchOne() != null
 
-                if (userId == null) {
+                if (!userExists) {
                     return@use AdminRepository.ReplacePasswordResult.UserNotFound
                 }
 
@@ -132,7 +132,7 @@ class AdminRepositoryImpl : AdminRepository {
                         config.dsl()
                             .update(userPasswords)
                             .set(userPasswords.PASSWORD_HASH, hashedPassword)
-                            .where(userPasswords.USER_ID.eq(userId))
+                            .where(userPasswords.USER_ID.eq(userId.value))
                             .execute()
 
                         config.dsl()
@@ -141,7 +141,7 @@ class AdminRepositoryImpl : AdminRepository {
                             .set(userPasswordExtendData.SALT, salt)
                             .set(userPasswordExtendData.ITERATION_COUNT, iterationCount)
                             .set(userPasswordExtendData.KEY_LENGTH, keyLength)
-                            .where(userPasswordExtendData.USER_ID.eq(userId))
+                            .where(userPasswordExtendData.USER_ID.eq(userId.value))
                             .execute()
                     }
 

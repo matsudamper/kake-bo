@@ -1,13 +1,14 @@
 package net.matsudamper.money.backend.logic
 
 import net.matsudamper.money.backend.app.interfaces.AdminRepository
+import net.matsudamper.money.element.UserId
 
 class ReplacePasswordUseCase(
     private val adminRepository: AdminRepository,
     private val passwordManager: IPasswordManager,
 ) {
     fun replacePassword(
-        userName: String,
+        userId: UserId,
         password: String,
     ): Result {
         val errors = mutableListOf<Result.Errors>()
@@ -27,7 +28,7 @@ class ReplacePasswordUseCase(
 
         val passwordResult = PasswordConstraints.createHash(passwordManager, password)
         val replaceResult = adminRepository.replacePassword(
-            userName = userName,
+            userId = userId,
             hashedPassword = passwordResult.hashedPassword,
             algorithmName = passwordResult.algorithm,
             salt = passwordResult.salt,

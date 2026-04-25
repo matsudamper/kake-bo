@@ -12,6 +12,7 @@ import net.matsudamper.money.backend.logic.IPasswordManager
 import net.matsudamper.money.backend.logic.PasswordManager
 import net.matsudamper.money.backend.logic.ReplacePasswordUseCase
 import net.matsudamper.money.element.ImageId
+import net.matsudamper.money.element.UserId
 import net.matsudamper.money.graphql.model.AdminMutationResolver
 import net.matsudamper.money.graphql.model.QlAdminAddUserErrorType
 import net.matsudamper.money.graphql.model.QlAdminAddUserResult
@@ -149,7 +150,7 @@ class AdminMutationResolverImpl : AdminMutationResolver {
 
     override fun replacePassword(
         adminMutation: QlAdminMutation,
-        userName: String,
+        userId: UserId,
         password: String,
         env: DataFetchingEnvironment,
     ): CompletionStage<DataFetcherResult<QlAdminReplacePasswordResult>> {
@@ -161,7 +162,7 @@ class AdminMutationResolverImpl : AdminMutationResolver {
                 context.diContainer.createAdminRepository(),
                 passwordManager = PasswordManager(),
             ).replacePassword(
-                userName = userName,
+                userId = userId,
                 password = password,
             )
             when (result) {

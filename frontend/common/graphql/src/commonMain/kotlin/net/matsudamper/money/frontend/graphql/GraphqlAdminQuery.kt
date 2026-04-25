@@ -4,6 +4,7 @@ import com.apollographql.apollo.api.ApolloResponse
 import com.apollographql.apollo.cache.normalized.FetchPolicy
 import com.apollographql.apollo.cache.normalized.fetchPolicy
 import net.matsudamper.money.element.ImageId
+import net.matsudamper.money.element.UserId
 
 class GraphqlAdminQuery(
     private val graphqlClient: GraphqlClient,
@@ -84,12 +85,12 @@ class GraphqlAdminQuery(
     }
 
     suspend fun replacePassword(
-        userName: String,
+        userId: UserId,
         password: String,
     ): ApolloResponse<AdminReplacePasswordMutation.Data> {
         return graphqlClient.apolloClient.mutation(
             AdminReplacePasswordMutation(
-                userName = userName,
+                userId = userId,
                 password = password,
             ),
         )

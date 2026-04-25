@@ -206,7 +206,7 @@ public class AdminUserSearchScreenViewModel(
         viewModelScope.launch {
             val result = runCatching {
                 adminQuery.replacePassword(
-                    userName = user.name,
+                    userId = user.userId,
                     password = password,
                 )
             }.fold(

@@ -24,7 +24,7 @@ interface AdminRepository {
     )
 
     fun replacePassword(
-        userName: String,
+        userId: net.matsudamper.money.element.UserId,
         hashedPassword: String,
         algorithmName: String,
         salt: ByteArray,

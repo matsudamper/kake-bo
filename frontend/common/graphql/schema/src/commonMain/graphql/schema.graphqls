@@ -93,7 +93,7 @@ type AdminMutation {
 
   deleteImages(imageIds: [ImageId!]!): Boolean!
 
-  replacePassword(userName: String!, password: String!): AdminReplacePasswordResult!
+  replacePassword(userId: UserId!, password: String!): AdminReplacePasswordResult!
 }
 
 input AdminUserSearchInput {

@@ -41,7 +41,6 @@ import net.matsudamper.money.frontend.common.ui.Strings
 import net.matsudamper.money.frontend.common.ui.layout.TextField
 import net.matsudamper.money.frontend.common.ui.layout.TextFieldType
 import net.matsudamper.money.frontend.common.ui.rememberCustomFontFamily
-import net.matsudamper.money.frontend.common.ui.screen.admin.AdminAddUserUiState
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -145,7 +144,6 @@ internal fun UserSearchScreen(
             }
         }
     }
-
 
     if (uiState.userOperationDialogUiState != null) {
         UserOperationDialog(
