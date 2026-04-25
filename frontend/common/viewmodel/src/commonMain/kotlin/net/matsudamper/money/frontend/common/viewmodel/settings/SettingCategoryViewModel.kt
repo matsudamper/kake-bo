@@ -8,6 +8,7 @@ import kotlinx.coroutines.flow.catch
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import com.apollographql.apollo.api.Optional
+import com.apollographql.apollo.cache.normalized.isFromCache
 import net.matsudamper.money.element.MoneyUsageCategoryId
 import net.matsudamper.money.element.MoneyUsageSubCategoryId
 import net.matsudamper.money.frontend.common.base.ColorUtil
@@ -329,7 +330,7 @@ public class SettingCategoryViewModel(
 
     init {
         observeSubCategoriesPaging()
-        fetchCategoryInfo()
+        collectCategoryInfo()
     }
 
     private fun createItemUiState(
@@ -389,7 +390,7 @@ public class SettingCategoryViewModel(
         )
     }
 
-    private fun fetchCategoryInfo() {
+    private fun collectCategoryInfo() {
         viewModelScope.launch {
             val flowResult = api.getCategoryInfo(id = categoryId)
 
@@ -400,7 +401,14 @@ public class SettingCategoryViewModel(
                     }
                 }
                 .collect { response ->
-                    val categoryInfo = response.data?.user?.moneyUsageCategory ?: return@collect
+                    val categoryInfo = response.data?.user?.moneyUsageCategory
+                    if (categoryInfo == null) {
+                        if (response.isFromCache && response.data == null) return@collect
+                        globalEventSender.send {
+                            it.showSnackBar("データの取得に失敗しました")
+                        }
+                        return@collect
+                    }
                     viewModelStateFlow.update {
                         it.copy(
                             isFirstLoading = false,
@@ -417,6 +425,7 @@ public class SettingCategoryViewModel(
                 .collect { response ->
                     val data = response.data?.user?.moneyUsageCategory?.subCategories
                     if (data == null) {
+                        if (response.isFromCache && response.data == null) return@collect
                         globalEventSender.send {
                             it.showSnackBar("データの取得に失敗しました")
                         }
