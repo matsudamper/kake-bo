@@ -4,6 +4,7 @@ import com.apollographql.apollo.api.ApolloResponse
 import com.apollographql.apollo.api.Optional
 import com.apollographql.apollo.cache.normalized.FetchPolicy
 import com.apollographql.apollo.cache.normalized.fetchPolicy
+import net.matsudamper.money.element.ImageId
 
 class GraphqlAdminQuery(
     private val graphqlClient: GraphqlClient,
@@ -79,6 +80,15 @@ class GraphqlAdminQuery(
             ),
         )
             .execute()
+    }
+
+    suspend fun deleteImages(
+        imageIds: List<ImageId>,
+    ): Boolean {
+        return graphqlClient.apolloClient
+            .mutation(AdminDeleteImagesMutation(imageIds = imageIds))
+            .execute()
+            .data?.adminMutation?.deleteImages == true
     }
 
     public sealed interface IsLoggedInResult {

@@ -90,6 +90,8 @@ type AdminMutation {
   adminLogout: Boolean!
 
   addUser(name: String!, password: String!): AdminAddUserResult!
+
+  deleteImages(imageIds: [ImageId!]!): Boolean!
 }
 
 type AdminUnlinkedImage {
