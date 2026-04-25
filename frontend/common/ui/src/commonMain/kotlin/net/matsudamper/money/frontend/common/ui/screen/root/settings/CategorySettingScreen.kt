@@ -66,6 +66,7 @@ import net.matsudamper.money.frontend.common.base.ColorUtil
 import net.matsudamper.money.frontend.common.base.ImmutableList
 import net.matsudamper.money.frontend.common.ui.AppRoot
 import net.matsudamper.money.frontend.common.ui.base.KakeboScaffoldListener
+import net.matsudamper.money.frontend.common.ui.base.ScreenBackHandler
 import net.matsudamper.money.frontend.common.ui.layout.AlertDialog
 import net.matsudamper.money.frontend.common.ui.layout.colorpicker.ColorPickerDialog
 
@@ -159,6 +160,15 @@ public fun SettingCategoryScreen(
     LaunchedEffect(Unit) {
         uiState.event.onResume()
     }
+    val isSubCategoryEditing = (uiState.loadingState as? SettingCategoryScreenUiState.LoadingState.Loaded)
+        ?.item
+        ?.any { it.isEditing } == true
+    val shouldHandleBackAsEditCancel =
+        uiState.heroMode == SettingCategoryScreenUiState.HeroMode.EditingCategoryName || isSubCategoryEditing
+
+    ScreenBackHandler(enabled = shouldHandleBackAsEditCancel) {
+        uiState.event.onClickBack()
+    }
 
     if (uiState.showColorPickerDialog) {
         ColorPickerDialog(
@@ -223,6 +233,9 @@ private fun LoadedContent(
     windowInsets: PaddingValues,
 ) {
     val heroColor = uiState.categoryColor ?: MaterialTheme.colorScheme.primary
+    val shouldHandleBackAsEditCancel =
+        uiState.heroMode == SettingCategoryScreenUiState.HeroMode.EditingCategoryName ||
+            loadedState.item.any { it.isEditing }
 
     Box(modifier = modifier) {
         Column(modifier = Modifier.fillMaxSize()) {
@@ -231,11 +244,11 @@ private fun LoadedContent(
                 categoryName = uiState.categoryName,
                 categoryColor = heroColor,
                 heroMode = uiState.heroMode,
+                shouldHandleBackAsEditCancel = shouldHandleBackAsEditCancel,
                 windowInsets = windowInsets,
                 onClickBack = { uiState.event.onClickBack() },
                 onClickEditCategoryName = { uiState.event.onClickEditCategoryName() },
                 onCategoryNameEditComplete = { text -> uiState.event.onCategoryNameEditComplete(text) },
-                onCategoryNameEditDismiss = { uiState.event.onCategoryNameEditDismiss() },
                 onClickChangeColor = { uiState.event.onClickChangeColor() },
                 onClickDeleteCategory = { uiState.event.onClickDeleteCategory() },
             )
@@ -313,17 +326,17 @@ private fun HeroSection(
     categoryName: String,
     categoryColor: Color,
     heroMode: SettingCategoryScreenUiState.HeroMode,
+    shouldHandleBackAsEditCancel: Boolean,
     windowInsets: PaddingValues,
     onClickBack: () -> Unit,
     onClickEditCategoryName: () -> Unit,
     onCategoryNameEditComplete: (String) -> Unit,
-    onCategoryNameEditDismiss: () -> Unit,
     onClickChangeColor: () -> Unit,
     onClickDeleteCategory: () -> Unit,
 ) {
-    val isEditMode = heroMode == SettingCategoryScreenUiState.HeroMode.EditingCategoryName
+    val isCategoryNameEditMode = heroMode == SettingCategoryScreenUiState.HeroMode.EditingCategoryName
     val topPadding = windowInsets.calculateTopPadding()
-    var editingText by rememberSaveable(categoryName, isEditMode) { mutableStateOf(categoryName) }
+    var editingText by rememberSaveable(categoryName, isCategoryNameEditMode) { mutableStateOf(categoryName) }
 
     Box(
         modifier = modifier
@@ -338,11 +351,11 @@ private fun HeroSection(
                 modifier = Modifier
                     .fillMaxWidth()
                     .padding(start = 4.dp, end = 8.dp),
-                isEditMode = isEditMode,
+                isCategoryNameEditMode = isCategoryNameEditMode,
+                shouldHandleBackAsEditCancel = shouldHandleBackAsEditCancel,
                 editingText = editingText,
                 onClickBack = onClickBack,
                 onCategoryNameEditComplete = onCategoryNameEditComplete,
-                onCategoryNameEditDismiss = onCategoryNameEditDismiss,
                 onClickDeleteCategory = onClickDeleteCategory,
             )
 
@@ -352,7 +365,7 @@ private fun HeroSection(
                     .padding(start = 20.dp, end = 20.dp, top = 4.dp, bottom = 24.dp),
                 categoryName = categoryName,
                 categoryColor = categoryColor,
-                isEditMode = isEditMode,
+                isEditMode = isCategoryNameEditMode,
                 editingText = editingText,
                 onEditingTextChange = { editingText = it },
                 onClickEditCategoryName = onClickEditCategoryName,
@@ -365,11 +378,11 @@ private fun HeroSection(
 @Composable
 private fun HeroTopBar(
     modifier: Modifier,
-    isEditMode: Boolean,
+    isCategoryNameEditMode: Boolean,
+    shouldHandleBackAsEditCancel: Boolean,
     editingText: String,
     onClickBack: () -> Unit,
     onCategoryNameEditComplete: (String) -> Unit,
-    onCategoryNameEditDismiss: () -> Unit,
     onClickDeleteCategory: () -> Unit,
 ) {
     var showMoreMenu by remember { mutableStateOf(false) }
@@ -379,17 +392,11 @@ private fun HeroTopBar(
         verticalAlignment = Alignment.CenterVertically,
     ) {
         IconButton(
-            onClick = {
-                if (isEditMode) {
-                    onCategoryNameEditDismiss()
-                } else {
-                    onClickBack()
-                }
-            },
+            onClick = onClickBack,
         ) {
             Icon(
-                imageVector = if (isEditMode) Icons.Default.Close else Icons.AutoMirrored.Filled.ArrowBack,
-                contentDescription = if (isEditMode) "キャンセル" else "戻る",
+                imageVector = if (shouldHandleBackAsEditCancel) Icons.Default.Close else Icons.AutoMirrored.Filled.ArrowBack,
+                contentDescription = if (shouldHandleBackAsEditCancel) "キャンセル" else "戻る",
                 tint = Color.White,
             )
         }
@@ -401,7 +408,7 @@ private fun HeroTopBar(
             color = Color.White,
         )
 
-        if (isEditMode) {
+        if (isCategoryNameEditMode) {
             TextButton(onClick = { onCategoryNameEditComplete(editingText) }) {
                 Text(
                     text = "完了",

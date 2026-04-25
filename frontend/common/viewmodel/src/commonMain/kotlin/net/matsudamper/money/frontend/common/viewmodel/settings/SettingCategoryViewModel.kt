@@ -50,6 +50,10 @@ public class SettingCategoryViewModel(
                 }
 
                 override fun onClickBack() {
+                    if (clearEditModeIfNeeded()) {
+                        return
+                    }
+
                     viewModelScope.launch {
                         viewModelEventSender.send {
                             it.navigateToCategories()
@@ -446,6 +450,21 @@ public class SettingCategoryViewModel(
                     }
                 }
         }
+    }
+
+    private fun clearEditModeIfNeeded(): Boolean {
+        val viewModelState = viewModelStateFlow.value
+        if (!viewModelState.isEditingCategoryName && viewModelState.editingSubCategoryId == null) {
+            return false
+        }
+
+        viewModelStateFlow.update {
+            it.copy(
+                isEditingCategoryName = false,
+                editingSubCategoryId = null,
+            )
+        }
+        return true
     }
 
     private data class ViewModelState(
