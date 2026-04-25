@@ -330,6 +330,7 @@ public class SettingCategoryViewModel(
         isEditing: Boolean,
     ): SettingCategoryScreenUiState.SubCategoryItem {
         return SettingCategoryScreenUiState.SubCategoryItem(
+            id = item.id,
             name = item.name,
             isEditing = isEditing,
             event = object : SettingCategoryScreenUiState.SubCategoryItem.Event {

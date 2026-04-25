@@ -1,7 +1,6 @@
 package net.matsudamper.money.frontend.common.viewmodel.settings
 
 import kotlinx.coroutines.flow.Flow
-import kotlinx.coroutines.flow.catch
 import com.apollographql.apollo.ApolloClient
 import com.apollographql.apollo.api.ApolloResponse
 import com.apollographql.apollo.api.Optional

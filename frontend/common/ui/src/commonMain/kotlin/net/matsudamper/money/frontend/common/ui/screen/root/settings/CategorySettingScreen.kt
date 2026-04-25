@@ -62,6 +62,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.compose.ui.window.Popup
 import androidx.compose.ui.window.PopupProperties
+import net.matsudamper.money.element.MoneyUsageSubCategoryId
 import net.matsudamper.money.frontend.common.base.ColorUtil
 import net.matsudamper.money.frontend.common.base.ImmutableList
 import net.matsudamper.money.frontend.common.ui.AppRoot
@@ -105,6 +106,7 @@ public data class SettingCategoryScreenUiState(
     }
 
     public data class SubCategoryItem(
+        val id: MoneyUsageSubCategoryId,
         val name: String,
         val isEditing: Boolean,
         val event: Event,
@@ -279,7 +281,7 @@ private fun LoadedContent(
                         )
                     }
                 }
-                itemsIndexed(loadedState.item) { index, item ->
+                itemsIndexed(loadedState.item, key = { _, item -> item.id.id }) { index, item ->
                     val position = when {
                         loadedState.item.size == 1 -> RowPosition.Single
                         index == 0 -> RowPosition.First
@@ -910,6 +912,7 @@ private fun CategorySettingScreenPreviewContent(
             item = ImmutableList(
                 subCategories.mapIndexed { index, name ->
                     SettingCategoryScreenUiState.SubCategoryItem(
+                        id = MoneyUsageSubCategoryId(index),
                         name = name,
                         isEditing = index == editingSubCategoryIndex,
                         event = object : SettingCategoryScreenUiState.SubCategoryItem.Event {
