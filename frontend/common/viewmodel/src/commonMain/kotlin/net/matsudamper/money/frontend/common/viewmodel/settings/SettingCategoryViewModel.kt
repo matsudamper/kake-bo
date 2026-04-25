@@ -392,6 +392,7 @@ public class SettingCategoryViewModel(
 
             flowResult
                 .catch {
+                    viewModelStateFlow.update { state -> state.copy(isFirstLoading = false) }
                     globalEventSender.send {
                         it.showSnackBar("データの取得に失敗しました")
                     }
@@ -400,6 +401,7 @@ public class SettingCategoryViewModel(
                     val categoryInfo = response.data?.user?.moneyUsageCategory
                     if (categoryInfo == null) {
                         if (response.isFromCache && response.data == null) return@collect
+                        viewModelStateFlow.update { state -> state.copy(isFirstLoading = false) }
                         globalEventSender.send {
                             it.showSnackBar("データの取得に失敗しました")
                         }
@@ -418,6 +420,12 @@ public class SettingCategoryViewModel(
     private fun observeSubCategoriesPaging() {
         viewModelScope.launch {
             api.getSubCategoriesPaging(id = categoryId)
+                .catch {
+                    viewModelStateFlow.update { state -> state.copy(isFirstLoading = false) }
+                    globalEventSender.send { event ->
+                        event.showSnackBar("データの取得に失敗しました")
+                    }
+                }
                 .collect { response ->
                     val data = response.data?.user?.moneyUsageCategory?.subCategories
                     if (data == null) {

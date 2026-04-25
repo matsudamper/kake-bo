@@ -92,9 +92,6 @@ public class SettingScreenCategoryApi(
             .query(createSubCategoriesPagingQuery(id))
             .fetchPolicy(FetchPolicy.CacheAndNetwork)
             .watch()
-            .catch {
-                Logger.e(TAG, it)
-            }
     }
 
     public suspend fun refetchSubCategoriesPaging(id: MoneyUsageCategoryId) {
@@ -139,9 +136,6 @@ public class SettingScreenCategoryApi(
             )
             .fetchPolicy(FetchPolicy.CacheAndNetwork)
             .watch()
-            .catch {
-                it.printStackTrace()
-            }
     }
 
     public suspend fun updateSubCategory(
