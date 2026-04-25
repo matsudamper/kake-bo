@@ -36,7 +36,6 @@ import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.unit.dp
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.isActive
-import net.matsudamper.money.frontend.common.ui.layout.html.text.input.HtmlTextInput
 import net.matsudamper.money.frontend.common.ui.rememberCustomFontFamily
 
 @OptIn(ExperimentalMaterial3Api::class)
