@@ -31,6 +31,7 @@ import androidx.compose.material.icons.filled.ChevronRight
 import androidx.compose.material.icons.filled.Close
 import androidx.compose.material.icons.filled.Edit
 import androidx.compose.material.icons.filled.MoreVert
+import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.CircularProgressIndicator
@@ -38,7 +39,11 @@ import androidx.compose.material3.ExtendedFloatingActionButton
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
+import androidx.compose.material3.LocalContentColor
+import androidx.compose.material3.LocalTextStyle
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.ProvideTextStyle
+import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
@@ -69,6 +74,7 @@ import net.matsudamper.money.frontend.common.ui.base.KakeboScaffoldListener
 import net.matsudamper.money.frontend.common.ui.base.ScreenBackHandler
 import net.matsudamper.money.frontend.common.ui.layout.AlertDialog
 import net.matsudamper.money.frontend.common.ui.layout.colorpicker.ColorPickerDialog
+import net.matsudamper.money.frontend.common.ui.lib.StatusBarAppearance
 
 public data class SettingCategoryScreenUiState(
     val event: Event,
@@ -233,6 +239,7 @@ private fun LoadedContent(
     windowInsets: PaddingValues,
 ) {
     val heroColor = uiState.categoryColor ?: MaterialTheme.colorScheme.primary
+    StatusBarAppearance(isLightStatusBar = ColorUtil.contrastTextColor(heroColor) == Color.Black)
     val shouldHandleBackAsEditCancel =
         uiState.heroMode == SettingCategoryScreenUiState.HeroMode.EditingCategoryName ||
             loadedState.item.any { it.isEditing }
@@ -335,42 +342,47 @@ private fun HeroSection(
     onClickDeleteCategory: () -> Unit,
 ) {
     val isCategoryNameEditMode = heroMode == SettingCategoryScreenUiState.HeroMode.EditingCategoryName
-    val topPadding = windowInsets.calculateTopPadding()
     var editingText by rememberSaveable(categoryName, isCategoryNameEditMode) { mutableStateOf(categoryName) }
 
-    Box(
-        modifier = modifier
-            .background(
-                color = categoryColor,
-                shape = RectangleShape,
-            )
-            .padding(top = topPadding),
+    Surface(
+        modifier = modifier,
+        shape = RectangleShape,
+        contentColor = ColorUtil.contrastTextColor(categoryColor).copy(alpha = 0.75f),
+        color = categoryColor,
     ) {
-        Column {
-            HeroTopBar(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .padding(start = 4.dp, end = 8.dp),
-                isCategoryNameEditMode = isCategoryNameEditMode,
-                shouldHandleBackAsEditCancel = shouldHandleBackAsEditCancel,
-                editingText = editingText,
-                onClickBack = onClickBack,
-                onCategoryNameEditComplete = onCategoryNameEditComplete,
-                onClickDeleteCategory = onClickDeleteCategory,
-            )
+        ProvideTextStyle(
+            LocalTextStyle.current.merge(
+                color = LocalContentColor.current,
+            ),
+        ) {
+            Column(
+                modifier = Modifier.padding(top = windowInsets.calculateTopPadding()),
+            ) {
+                HeroTopBar(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(start = 4.dp, end = 8.dp),
+                    isCategoryNameEditMode = isCategoryNameEditMode,
+                    shouldHandleBackAsEditCancel = shouldHandleBackAsEditCancel,
+                    editingText = editingText,
+                    onClickBack = onClickBack,
+                    onCategoryNameEditComplete = onCategoryNameEditComplete,
+                    onClickDeleteCategory = onClickDeleteCategory,
+                )
 
-            HeroBody(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .padding(start = 20.dp, end = 20.dp, top = 4.dp, bottom = 24.dp),
-                categoryName = categoryName,
-                categoryColor = categoryColor,
-                isEditMode = isCategoryNameEditMode,
-                editingText = editingText,
-                onEditingTextChange = { editingText = it },
-                onClickEditCategoryName = onClickEditCategoryName,
-                onClickChangeColor = onClickChangeColor,
-            )
+                HeroBody(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(start = 20.dp, end = 20.dp, top = 4.dp, bottom = 24.dp),
+                    categoryName = categoryName,
+                    categoryColor = categoryColor,
+                    isEditMode = isCategoryNameEditMode,
+                    editingText = editingText,
+                    onEditingTextChange = { editingText = it },
+                    onClickEditCategoryName = onClickEditCategoryName,
+                    onClickChangeColor = onClickChangeColor,
+                )
+            }
         }
     }
 }
@@ -397,7 +409,6 @@ private fun HeroTopBar(
             Icon(
                 imageVector = if (shouldHandleBackAsEditCancel) Icons.Default.Close else Icons.AutoMirrored.Filled.ArrowBack,
                 contentDescription = if (shouldHandleBackAsEditCancel) "キャンセル" else "戻る",
-                tint = Color.White,
             )
         }
 
@@ -405,14 +416,17 @@ private fun HeroTopBar(
             modifier = Modifier.weight(1f),
             text = "カテゴリ",
             style = MaterialTheme.typography.titleLarge,
-            color = Color.White,
         )
 
         if (isCategoryNameEditMode) {
-            TextButton(onClick = { onCategoryNameEditComplete(editingText) }) {
+            TextButton(
+                onClick = { onCategoryNameEditComplete(editingText) },
+                colors = ButtonDefaults.textButtonColors(
+                    contentColor = LocalContentColor.current,
+                ),
+            ) {
                 Text(
                     text = "完了",
-                    color = Color.White,
                     style = MaterialTheme.typography.labelLarge,
                     fontWeight = FontWeight.SemiBold,
                 )
@@ -423,7 +437,6 @@ private fun HeroTopBar(
                     Icon(
                         imageVector = Icons.Default.MoreVert,
                         contentDescription = "メニュー",
-                        tint = Color.White.copy(alpha = 0.9f),
                     )
                 }
                 if (showMoreMenu) {
@@ -469,7 +482,6 @@ private fun HeroBody(
             Text(
                 text = "カテゴリ名",
                 style = MaterialTheme.typography.labelMedium,
-                color = Color.White.copy(alpha = 0.75f),
             )
             Spacer(Modifier.height(8.dp))
             Row(
@@ -481,7 +493,7 @@ private fun HeroBody(
                     )
                     .border(
                         width = 2.dp,
-                        color = Color.White.copy(alpha = 0.7f),
+                        color = LocalContentColor.current,
                         shape = RoundedCornerShape(10.dp),
                     )
                     .padding(horizontal = 14.dp, vertical = 10.dp),
@@ -492,17 +504,11 @@ private fun HeroBody(
                     value = editingText,
                     onValueChange = onEditingTextChange,
                     textStyle = MaterialTheme.typography.headlineSmall.copy(
-                        color = Color.White,
                         fontWeight = FontWeight.Bold,
+                        color = LocalContentColor.current,
                     ),
-                    cursorBrush = SolidColor(Color.White),
+                    cursorBrush = SolidColor(LocalContentColor.current),
                     singleLine = true,
-                )
-                Box(
-                    modifier = Modifier
-                        .width(2.dp)
-                        .height(26.dp)
-                        .background(Color.White.copy(alpha = 0.9f)),
                 )
             }
         } else {
@@ -513,7 +519,6 @@ private fun HeroBody(
                         fontWeight = FontWeight.Bold,
                         fontSize = 30.sp,
                     ),
-                    color = Color.White,
                 )
                 Spacer(Modifier.width(4.dp))
                 IconButton(
@@ -523,7 +528,6 @@ private fun HeroBody(
                     Icon(
                         imageVector = Icons.Default.Edit,
                         contentDescription = "カテゴリ名を変更",
-                        tint = Color.White.copy(alpha = 0.9f),
                         modifier = Modifier.size(20.dp),
                     )
                 }
@@ -548,7 +552,7 @@ private fun ColorBadge(
     Row(
         modifier = Modifier
             .clip(CircleShape)
-            .background(Color.Black.copy(alpha = 0.18f))
+            .background(LocalContentColor.current.copy(alpha = 0.25f))
             .clickable(onClick = onClick)
             .padding(start = 8.dp, end = 6.dp, top = 6.dp, bottom = 6.dp),
         verticalAlignment = Alignment.CenterVertically,
@@ -560,7 +564,7 @@ private fun ColorBadge(
                 .background(color)
                 .border(
                     width = 2.dp,
-                    color = Color.White.copy(alpha = 0.8f),
+                    color = LocalContentColor.current,
                     shape = RoundedCornerShape(4.dp),
                 ),
         )
@@ -568,13 +572,11 @@ private fun ColorBadge(
         Text(
             text = hexCode,
             style = MaterialTheme.typography.labelMedium,
-            color = Color.White.copy(alpha = 0.9f),
         )
         Spacer(Modifier.width(4.dp))
         Icon(
             imageVector = Icons.Default.ChevronRight,
             contentDescription = null,
-            tint = Color.White.copy(alpha = 0.8f),
             modifier = Modifier.size(18.dp),
         )
     }
@@ -665,7 +667,6 @@ private fun SubCategoryAddRow(
                 Icon(
                     imageVector = Icons.Default.Check,
                     contentDescription = "追加",
-                    tint = Color.White,
                     modifier = Modifier.size(20.dp),
                 )
             }
@@ -723,7 +724,7 @@ private fun SubCategoryRow(
                     value = editingText,
                     onValueChange = { editingText = it },
                     textStyle = MaterialTheme.typography.bodyLarge.copy(
-                        color = MaterialTheme.colorScheme.onSurface,
+                        color = LocalContentColor.current,
                     ),
                     cursorBrush = SolidColor(accentColor),
                     singleLine = true,
@@ -747,7 +748,6 @@ private fun SubCategoryRow(
                 Icon(
                     imageVector = Icons.Default.Check,
                     contentDescription = "確定",
-                    tint = Color.White,
                     modifier = Modifier.size(20.dp),
                 )
             }
