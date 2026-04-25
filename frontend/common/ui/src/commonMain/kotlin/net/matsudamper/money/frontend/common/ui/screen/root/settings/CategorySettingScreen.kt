@@ -369,6 +369,7 @@ private fun HeroSection(
 ) {
     val isEditMode = heroMode == SettingCategoryScreenUiState.HeroMode.EditingCategoryName
     val topPadding = windowInsets.calculateTopPadding()
+    var editingText by rememberSaveable(categoryName, isEditMode) { mutableStateOf(categoryName) }
 
     Box(
         modifier = modifier
@@ -384,7 +385,7 @@ private fun HeroSection(
                     .fillMaxWidth()
                     .padding(start = 4.dp, end = 8.dp),
                 isEditMode = isEditMode,
-                categoryName = categoryName,
+                editingText = editingText,
                 onClickBack = onClickBack,
                 onCategoryNameEditComplete = onCategoryNameEditComplete,
                 onCategoryNameEditDismiss = onCategoryNameEditDismiss,
@@ -398,8 +399,9 @@ private fun HeroSection(
                 categoryName = categoryName,
                 categoryColor = categoryColor,
                 isEditMode = isEditMode,
+                editingText = editingText,
+                onEditingTextChange = { editingText = it },
                 onClickEditCategoryName = onClickEditCategoryName,
-                onCategoryNameEditComplete = onCategoryNameEditComplete,
                 onClickChangeColor = onClickChangeColor,
             )
         }
@@ -410,14 +412,13 @@ private fun HeroSection(
 private fun HeroTopBar(
     modifier: Modifier,
     isEditMode: Boolean,
-    categoryName: String,
+    editingText: String,
     onClickBack: () -> Unit,
     onCategoryNameEditComplete: (String) -> Unit,
     onCategoryNameEditDismiss: () -> Unit,
     onClickDeleteCategory: () -> Unit,
 ) {
     var showMoreMenu by remember { mutableStateOf(false) }
-    var editingText by rememberSaveable(categoryName) { mutableStateOf(categoryName) }
 
     Row(
         modifier = modifier,
@@ -497,12 +498,11 @@ private fun HeroBody(
     categoryName: String,
     categoryColor: Color,
     isEditMode: Boolean,
+    editingText: String,
+    onEditingTextChange: (String) -> Unit,
     onClickEditCategoryName: () -> Unit,
-    onCategoryNameEditComplete: (String) -> Unit,
     onClickChangeColor: () -> Unit,
 ) {
-    var editingText by rememberSaveable(categoryName, isEditMode) { mutableStateOf(categoryName) }
-
     Column(modifier = modifier) {
         if (isEditMode) {
             Text(
@@ -529,7 +529,7 @@ private fun HeroBody(
                 BasicTextField(
                     modifier = Modifier.weight(1f),
                     value = editingText,
-                    onValueChange = { editingText = it },
+                    onValueChange = onEditingTextChange,
                     textStyle = MaterialTheme.typography.headlineSmall.copy(
                         color = Color.White,
                         fontWeight = FontWeight.Bold,
