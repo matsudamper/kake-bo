@@ -28,7 +28,6 @@ class ReplacePasswordUseCase(
             )
         }
 
-
         if (errors.isNotEmpty()) {
             return Result.Failure(errors = errors)
         }
