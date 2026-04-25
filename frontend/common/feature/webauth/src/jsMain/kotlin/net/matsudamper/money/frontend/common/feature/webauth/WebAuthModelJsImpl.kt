@@ -3,10 +3,13 @@ package net.matsudamper.money.frontend.common.feature.webauth
 import kotlinx.coroutines.await
 import io.ktor.util.decodeBase64Bytes
 import io.ktor.util.encodeBase64
+import net.matsudamper.money.frontend.common.base.Logger
 import net.matsudamper.money.frontend.common.feature.webauth.CredentialsContainerCreatePublicKeyOptions.User
 import org.khronos.webgl.ArrayBuffer
 import org.khronos.webgl.Uint8Array
 import org.khronos.webgl.get
+
+private const val TAG = "WebAuthModelJsImpl"
 
 public class WebAuthModelJsImpl : WebAuthModel {
     public override suspend fun create(
@@ -38,7 +41,7 @@ public class WebAuthModelJsImpl : WebAuthModel {
                 options,
             ).await()
         }.onFailure {
-            it.printStackTrace()
+            Logger.e(TAG, it)
         }.getOrNull() ?: return null
 
         val attestationObjectBase64 = result.response.attestationObject.toBase64()
@@ -67,7 +70,7 @@ public class WebAuthModelJsImpl : WebAuthModel {
                 options,
             ).await()
         }.onFailure {
-            it.printStackTrace()
+            Logger.e(TAG, it)
         }.getOrNull() ?: return null
         console.log(result)
         return WebAuthModel.WebAuthGetResult(

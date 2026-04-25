@@ -4,14 +4,21 @@ import kotlin.Int
 import kotlin.Long
 import kotlin.String
 import kotlin.let
+import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.catch
+import kotlinx.coroutines.flow.onEach
 import com.apollographql.apollo.ApolloClient
 import com.apollographql.apollo.api.Adapter
+import com.apollographql.apollo.api.ApolloRequest
+import com.apollographql.apollo.api.ApolloResponse
 import com.apollographql.apollo.api.CustomScalarAdapters
+import com.apollographql.apollo.api.Operation
 import com.apollographql.apollo.api.json.JsonReader
 import com.apollographql.apollo.api.json.JsonWriter
 import com.apollographql.apollo.cache.normalized.api.MemoryCacheFactory
 import com.apollographql.apollo.cache.normalized.normalizedCache
 import com.apollographql.apollo.interceptor.ApolloInterceptor
+import com.apollographql.apollo.interceptor.ApolloInterceptorChain
 import com.apollographql.apollo.network.http.DefaultHttpEngine
 import com.apollographql.apollo.network.http.HttpInterceptor
 import net.matsudamper.money.element.ApiTokenId
@@ -25,6 +32,8 @@ import net.matsudamper.money.element.MoneyUsageCategoryId
 import net.matsudamper.money.element.MoneyUsageId
 import net.matsudamper.money.element.MoneyUsagePresetId
 import net.matsudamper.money.element.MoneyUsageSubCategoryId
+import net.matsudamper.money.element.UserId
+import net.matsudamper.money.frontend.common.base.Logger
 import net.matsudamper.money.frontend.graphql.type.ApiTokenId as ApolloApiTokenId
 import net.matsudamper.money.frontend.graphql.type.FidoId as ApolloFidoId
 import net.matsudamper.money.frontend.graphql.type.ImageId as ApolloImageId
@@ -37,6 +46,7 @@ import net.matsudamper.money.frontend.graphql.type.MoneyUsageCategoryId as Apoll
 import net.matsudamper.money.frontend.graphql.type.MoneyUsageId as ApolloMoneyUsageId
 import net.matsudamper.money.frontend.graphql.type.MoneyUsagePresetId as ApolloMoneyUsagePresetId
 import net.matsudamper.money.frontend.graphql.type.MoneyUsageSubCategoryId as ApolloMoneyUsageSubCategoryId
+import net.matsudamper.money.frontend.graphql.type.UserId as ApolloUserId
 
 public interface GraphqlClient {
     val apolloClient: ApolloClient
@@ -64,7 +74,7 @@ class GraphqlClientImpl(
         .serverUrl(serverUrl)
         .httpEngine(DefaultHttpEngine(timeoutMillis = 5000))
         .httpInterceptors(httpInterceptors)
-        .interceptors(interceptors)
+        .interceptors(listOf(ApolloErrorLoggingInterceptor) + interceptors)
         .normalizedCache(cacheFactory)
         .addCustomScalarAdapter(
             ApolloLong.type,
@@ -184,6 +194,17 @@ class GraphqlClientImpl(
             ),
         )
         .addCustomScalarAdapter(
+            ApolloUserId.type,
+            CustomIntAdapter(
+                serialize = {
+                    it.value
+                },
+                deserialize = { value ->
+                    UserId(value)
+                },
+            ),
+        )
+        .addCustomScalarAdapter(
             ApolloImageId.type,
             CustomIntAdapter(
                 serialize = {
@@ -207,6 +228,79 @@ class GraphqlClientImpl(
         )
         .build()
 }
+
+private object ApolloErrorLoggingInterceptor : ApolloInterceptor {
+    override fun <D : Operation.Data> intercept(
+        request: ApolloRequest<D>,
+        chain: ApolloInterceptorChain,
+    ): Flow<ApolloResponse<D>> {
+        return chain.proceed(request)
+            .onEach { response ->
+                response.exception?.let { throwable ->
+                    logApolloException(
+                        request = request,
+                        throwable = throwable,
+                        source = "response.exception",
+                    )
+                }
+                response.errors?.takeIf { it.isNotEmpty() }?.let { errors ->
+                    Logger.e(
+                        APOLLO_LOG_TAG,
+                        buildString {
+                            append(apolloLogPrefix(request))
+                            append(" GraphQL errors=")
+                            append(
+                                errors.joinToString(" | ") { error ->
+                                    buildString {
+                                        append("message=")
+                                        append(error.message)
+                                        append(", path=")
+                                        append(error.path)
+                                        append(", locations=")
+                                        append(error.locations)
+                                        append(", extensions=")
+                                        append(error.extensions)
+                                    }
+                                },
+                            )
+                        },
+                    )
+                }
+            }
+            .catch { throwable ->
+                logApolloException(
+                    request = request,
+                    throwable = throwable,
+                    source = "flow",
+                )
+                throw throwable
+            }
+    }
+}
+
+private fun logApolloException(
+    request: ApolloRequest<*>,
+    throwable: Throwable,
+    source: String,
+) {
+    Logger.e(
+        APOLLO_LOG_TAG,
+        buildString {
+            append(apolloLogPrefix(request))
+            append(" ")
+            append(source)
+            append(" throwable=")
+            append(throwable)
+        },
+    )
+    Logger.e(APOLLO_LOG_TAG, throwable)
+}
+
+private fun apolloLogPrefix(request: ApolloRequest<*>): String {
+    return "[Apollo operation=${request.operation.name()} requestId=${request.requestUuid}]"
+}
+
+private const val APOLLO_LOG_TAG = "Graphql"
 
 private class CustomStringAdapter<T>(
     val deserialize: (String) -> T?,

@@ -27,6 +27,7 @@ public class SettingCategoriesViewModel(
         ViewModelState(
             responseList = listOf(),
             isFirstLoading = true,
+            isRefreshing = false,
             showCategoryNameInput = false,
         ),
     )
@@ -85,8 +86,15 @@ public class SettingCategoriesViewModel(
                         initialFetch()
                     }
                 }
+
+                override fun onRefresh() {
+                    viewModelScope.launch {
+                        refresh()
+                    }
+                }
             },
             loadingState = SettingCategoriesScreenUiState.LoadingState.Loading,
+            isRefreshing = false,
             showCategoryNameInput = false,
             kakeboScaffoldListener = object : KakeboScaffoldListener {
                 override fun onClickTitle() {
@@ -127,6 +135,7 @@ public class SettingCategoriesViewModel(
 
                     uiState.copy(
                         loadingState = loadingState,
+                        isRefreshing = viewModelState.isRefreshing,
                         showCategoryNameInput = viewModelState.showCategoryNameInput,
                     )
                 }
@@ -158,8 +167,23 @@ public class SettingCategoriesViewModel(
         }
     }
 
+    private suspend fun refresh() {
+        viewModelStateFlow.update { it.copy(isRefreshing = true) }
+        try {
+            val data = api.getCategories()?.data ?: return
+            viewModelStateFlow.update {
+                it.copy(
+                    responseList = listOf(data),
+                )
+            }
+        } finally {
+            viewModelStateFlow.update { it.copy(isRefreshing = false) }
+        }
+    }
+
     private data class ViewModelState(
         val isFirstLoading: Boolean,
+        val isRefreshing: Boolean,
         val responseList: List<CategoriesSettingScreenCategoriesPagingQuery.Data>,
         val showCategoryNameInput: Boolean,
     )

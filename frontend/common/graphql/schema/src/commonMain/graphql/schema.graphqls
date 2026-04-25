@@ -87,11 +87,25 @@ type AdminLoginResult {
 type AdminMutation {
   adminLogin(password: String!): AdminLoginResult!
 
+  adminLogout: Boolean!
+
   addUser(name: String!, password: String!): AdminAddUserResult!
+
+  deleteImages(imageIds: [ImageId!]!): Boolean!
 
   searchUsers(query: String!): AdminUserSearchResult!
 
   replacePassword(userName: String!, password: String!): AdminReplacePasswordResult!
+}
+
+type AdminUserSearchResult {
+  users: [String!]!
+}
+
+type AdminReplacePasswordResult {
+  isSuccess: Boolean!
+
+  errorType: AdminReplacePasswordErrorType
 }
 
 enum AdminReplacePasswordErrorType {
@@ -104,14 +118,30 @@ enum AdminReplacePasswordErrorType {
   PasswordInvalidChar
 }
 
-type AdminReplacePasswordResult {
-  isSuccess: Boolean!
+type AdminUnlinkedImage {
+  id: ImageId!
 
-  errorType: AdminReplacePasswordErrorType
+  url: String!
+
+  userId: UserId!
+
+  userName: String!
 }
 
-type AdminUserSearchResult {
-  users: [String!]!
+type AdminUnlinkedImagesConnection {
+  nodes: [AdminUnlinkedImage!]!
+
+  cursor: String
+
+  hasMore: Boolean!
+
+  totalCount: Int!
+}
+
+input AdminUnlinkedImagesInput {
+  size: Int!
+
+  cursor: String
 }
 
 type ApiToken {
@@ -539,6 +569,10 @@ scalar OffsetDateTime
 type Query {
   isLoggedIn: Boolean!
 
+  isAdminLoggedIn: Boolean!
+
+  adminUnlinkedImages(input: AdminUnlinkedImagesInput!): AdminUnlinkedImagesConnection!
+
   user: User
 
   fidoLoginInfo: FidoLoginInfo!
@@ -716,6 +750,8 @@ input UserFidoLoginInput {
 
   base64UserHandle: String!
 }
+
+scalar UserId
 
 type UserImapConfig {
   host: String

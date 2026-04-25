@@ -2,6 +2,7 @@ package net.matsudamper.money.backend.base
 
 import io.opentelemetry.api.trace.Span
 import io.opentelemetry.api.trace.StatusCode
+import org.slf4j.LoggerFactory
 
 public interface TraceLogger {
     public fun noticeThrowable(e: Throwable, isError: Boolean)
@@ -16,10 +17,15 @@ public interface TraceLogger {
 }
 
 internal class OpenTracerRepository : TraceLogger {
+    private companion object {
+        private val logger = LoggerFactory.getLogger(OpenTracerRepository::class.java)
+    }
+
     private val span: Span get() = Span.current()
     override fun noticeThrowable(e: Throwable, isError: Boolean) {
         if (isError) {
             span.setStatus(StatusCode.ERROR)
+            logger.error(e.message ?: e::class.java.name, e)
         }
         span.recordException(e)
         span.setAttribute("exception.${System.nanoTime()}", e.message.orEmpty())

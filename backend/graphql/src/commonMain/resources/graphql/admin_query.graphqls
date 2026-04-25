@@ -1,0 +1,18 @@
+input AdminUnlinkedImagesInput {
+    size: Int!
+    cursor: String
+}
+
+type AdminUnlinkedImagesConnection {
+    nodes: [AdminUnlinkedImage!]!
+    cursor: String
+    hasMore: Boolean!
+    totalCount: Int! @lazy
+}
+
+type AdminUnlinkedImage {
+    id: ImageId!
+    url: String!
+    userId: UserId!
+    userName: String!
+}

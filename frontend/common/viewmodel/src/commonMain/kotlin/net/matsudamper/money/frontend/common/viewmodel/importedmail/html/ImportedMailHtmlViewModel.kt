@@ -12,6 +12,7 @@ import com.apollographql.apollo.cache.normalized.FetchPolicy
 import com.apollographql.apollo.cache.normalized.fetchPolicy
 import net.matsudamper.money.element.ImportedMailId
 import net.matsudamper.money.frontend.common.base.IO
+import net.matsudamper.money.frontend.common.base.Logger
 import net.matsudamper.money.frontend.common.base.nav.ScopedObjectFeature
 import net.matsudamper.money.frontend.common.ui.screen.importedmail.html.ImportedMailHtmlScreenUiState
 import net.matsudamper.money.frontend.common.viewmodel.CommonViewModel
@@ -19,6 +20,8 @@ import net.matsudamper.money.frontend.common.viewmodel.lib.EventHandler
 import net.matsudamper.money.frontend.common.viewmodel.lib.EventSender
 import net.matsudamper.money.frontend.graphql.GraphqlClient
 import net.matsudamper.money.frontend.graphql.ImportedMailHtmlScreenQuery
+
+private const val TAG = "ImportedMailHtmlViewModel"
 
 public class ImportedMailHtmlViewModel(
     private val id: ImportedMailId,
@@ -66,6 +69,7 @@ public class ImportedMailHtmlViewModel(
                 }
 
                 if (apolloResult.isFailure) {
+                    Logger.e(TAG, apolloResult.exceptionOrNull() ?: Exception("unknown error"))
                     uiStateFlow.update {
                         it.copy(
                             loadingState = ImportedMailHtmlScreenUiState.LoadingState.Error,

@@ -1,0 +1,42 @@
+package net.matsudamper.money.backend.logic
+
+import java.util.HexFormat
+import net.matsudamper.money.backend.base.ServerEnv
+
+/**
+ * 管理者パスワードをhash化して環境変数の設定値をコンソールに出力するローカル実行用ツール。
+ *
+ * 出力された値をサーバーの環境変数に設定することで管理者パスワードを設定できる。
+ *
+ * 設定が必要な環境変数:
+ * - `ADMIN_PASSWORD_HASH`: hash化されたパスワード（Base64）
+ * - `ADMIN_PASSWORD_SALT`: ソルト（hex文字列）
+ *
+ * `ADMIN_PASSWORD_ALGORITHM`、`ADMIN_PASSWORD_ITERATION_COUNT`、`ADMIN_PASSWORD_KEY_LENGTH` は `ServerEnv` で固定。
+ *
+ * 環境変数 `USER_PASSWORD_PEPPER` が必要。
+ */
+fun main(args: Array<String>) {
+    val password = if (args.isNotEmpty()) {
+        args[0]
+    } else {
+        print("パスワードを入力してください: ")
+        readlnOrNull() ?: run {
+            println("パスワードが入力されませんでした")
+            return
+        }
+    }
+
+    val passwordManager = PasswordManager()
+    val result = passwordManager.create(
+        password = password,
+        keyByteLength = ServerEnv.adminPasswordKeyLength,
+        iterationCount = ServerEnv.adminPasswordIterationCount,
+        saltByteLength = 32,
+        algorithm = IPasswordManager.Algorithm.PBKDF2WithHmacSHA512,
+    )
+
+    println("=== 管理者パスワードhash化結果 ===")
+    println("ADMIN_PASSWORD_HASH=${result.hashedPassword}")
+    println("ADMIN_PASSWORD_SALT=${HexFormat.of().formatHex(result.salt)}")
+}

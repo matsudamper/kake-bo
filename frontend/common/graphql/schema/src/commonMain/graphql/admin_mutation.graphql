@@ -6,11 +6,23 @@ mutation AdminLogin($password: String!) {
     }
 }
 
+mutation AdminLogout {
+    adminMutation {
+        adminLogout
+    }
+}
+
 mutation AdminAddUser($userName: String!,$password: String!) {
     adminMutation {
         addUser(name: $userName, password: $password) {
             errorType
         }
+    }
+}
+
+mutation AdminDeleteImages($imageIds: [ImageId!]!) {
+    adminMutation {
+        deleteImages(imageIds: $imageIds)
     }
 }
 

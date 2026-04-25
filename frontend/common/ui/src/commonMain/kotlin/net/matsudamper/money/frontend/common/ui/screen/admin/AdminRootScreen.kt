@@ -2,11 +2,18 @@ package net.matsudamper.money.frontend.common.ui.screen.admin
 
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.PaddingValues
+import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
+import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.saveable.rememberSaveableStateHolder
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.window.DialogProperties
+import androidx.navigation3.runtime.NavEntry
+import androidx.navigation3.scene.DialogSceneStrategy
+import androidx.navigation3.ui.NavDisplay
 import net.matsudamper.money.frontend.common.base.nav.admin.AdminScreenController
 import net.matsudamper.money.frontend.common.base.nav.admin.AdminScreenControllerImpl
 import net.matsudamper.money.frontend.common.base.nav.admin.AdminScreenType
@@ -17,6 +24,7 @@ public fun AdminRootScreen(
     adminRootScreenUiStateProvider: @Composable () -> AdminRootScreenUiState,
     adminLoginScreenUiStateProvider: @Composable () -> AdminLoginScreenUiState,
     adminAddUserUiStateProvider: @Composable () -> AdminAddUserUiState,
+    adminUnlinkedImagesUiStateProvider: @Composable () -> AdminUnlinkedImagesScreenUiState,
     adminUserSearchUiStateProvider: @Composable () -> AdminUserSearchUiState,
     windowInsets: PaddingValues,
     modifier: Modifier = Modifier,
@@ -24,39 +32,91 @@ public fun AdminRootScreen(
     val adminScreenControllerImpl = adminScreenController as AdminScreenControllerImpl
     val saveableStateHolder = rememberSaveableStateHolder()
     val screenStack = adminScreenControllerImpl.screen.collectAsState().value
-    Box(modifier = modifier.padding(windowInsets)) {
-        when (screenStack.lastOrNull()) {
-            null,
-            AdminScreenType.Login,
-            -> {
-                val uiState = adminLoginScreenUiStateProvider()
-                AdminLoginScreen(
-                    uiState = uiState,
-                )
-            }
+    Box(
+        modifier = modifier
+            .fillMaxSize()
+            .padding(windowInsets),
+    ) {
+        if (screenStack.isEmpty()) {
+            CircularProgressIndicator(
+                modifier = Modifier.align(Alignment.Center),
+            )
+        } else {
+            NavDisplay(
+                backStack = screenStack,
+                modifier = Modifier.fillMaxSize(),
+                sceneStrategy = DialogSceneStrategy(),
+                onBack = {
+                    adminScreenController.popBackStack()
+                },
+                entryProvider = { screen ->
+                    when (screen) {
+                        AdminScreenType.Login -> {
+                            NavEntry(
+                                key = screen,
+                            ) {
+                                val uiState = adminLoginScreenUiStateProvider()
+                                AdminLoginScreen(
+                                    uiState = uiState,
+                                )
+                            }
+                        }
 
-            AdminScreenType.Root -> {
-                saveableStateHolder.SaveableStateProvider(AdminScreenType.Root.name) {
-                    val uiState = adminRootScreenUiStateProvider()
-                    AdminRootScreen(
-                        uiState = uiState,
-                    )
-                }
-            }
+                        AdminScreenType.Root -> {
+                            NavEntry(
+                                key = screen,
+                            ) {
+                                saveableStateHolder.SaveableStateProvider(AdminScreenType.Root.name) {
+                                    val uiState = adminRootScreenUiStateProvider()
+                                    AdminRootScreen(
+                                        uiState = uiState,
+                                    )
+                                }
+                            }
+                        }
 
-            AdminScreenType.AddUser -> {
-                val uiState = adminAddUserUiStateProvider()
-                AddUserScreen(
-                    uiState = uiState,
-                )
-            }
+                        AdminScreenType.AddUser -> {
+                            NavEntry(
+                                key = screen,
+                                metadata = DialogSceneStrategy.dialog(
+                                    dialogProperties = DialogProperties(
+                                        usePlatformDefaultWidth = false,
+                                    ),
+                                ),
+                            ) {
+                                val uiState = adminAddUserUiStateProvider()
+                                AddUserScreen(
+                                    uiState = uiState,
+                                )
+                            }
+                        }
 
-            AdminScreenType.UserSearch -> {
-                val uiState = adminUserSearchUiStateProvider()
-                UserSearchScreen(
-                    uiState = uiState,
-                )
-            }
+                        AdminScreenType.UnlinkedImages -> {
+                            NavEntry(
+                                key = screen,
+                            ) {
+                                val uiState = adminUnlinkedImagesUiStateProvider()
+                                AdminUnlinkedImagesScreen(
+                                    uiState = uiState,
+                                    onClickBack = { adminScreenController.popBackStack() },
+                                )
+                            }
+                        }
+
+                        AdminScreenType.UserSearch -> {
+                            NavEntry(
+                                key = screen,
+                            ) {
+                                val uiState = adminUserSearchUiStateProvider()
+                                UserSearchScreen(
+                                    uiState = uiState,
+                                    onClickBack = { adminScreenController.popBackStack() },
+                                )
+                            }
+                        }
+                    }
+                },
+            )
         }
     }
 }

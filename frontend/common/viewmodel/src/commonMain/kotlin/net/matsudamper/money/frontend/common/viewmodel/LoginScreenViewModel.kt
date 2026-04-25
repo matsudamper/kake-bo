@@ -6,6 +6,7 @@ import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
+import net.matsudamper.money.frontend.common.base.Logger
 import net.matsudamper.money.frontend.common.base.nav.ScopedObjectFeature
 import net.matsudamper.money.frontend.common.base.nav.user.RootHomeScreenStructure
 import net.matsudamper.money.frontend.common.base.nav.user.ScreenNavController
@@ -19,6 +20,8 @@ import net.matsudamper.money.frontend.graphql.GraphqlClient
 import net.matsudamper.money.frontend.graphql.GraphqlUserLoginQuery
 import net.matsudamper.money.frontend.graphql.ServerHostConfig
 import net.matsudamper.money.frontend.graphql.type.UserFidoLoginInput
+
+private const val TAG = "LoginScreenViewModel"
 
 public class LoginScreenViewModel(
     scopedObjectFeature: ScopedObjectFeature,
@@ -66,6 +69,8 @@ public class LoginScreenViewModel(
                                 userName = viewModelStateFlow.value.userName.text,
                                 password = viewModelStateFlow.value.password.text,
                             )
+                        }.onFailure {
+                            Logger.e(TAG, it)
                         }.getOrNull()
                         postLogin(isSuccess = result?.data?.userMutation?.userLogin?.isSuccess == true)
                     }
