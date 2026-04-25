@@ -107,11 +107,16 @@ public data class AdminAddUserUiState(
 
 public data class AdminUserSearchUiState(
     val searchQuery: String,
-    val searchResults: List<String>,
+    val searchResults: List<SearchResult>,
+    val hasMore: Boolean,
     val selectedUserName: String?,
     val replacePasswordDialogState: ReplacePasswordDialogState?,
     val listener: Listener,
 ) {
+    public data class SearchResult(
+        val name: String,
+    )
+
     public data class ReplacePasswordDialogState(
         val userName: String,
         val password: String,
@@ -135,5 +140,7 @@ public data class AdminUserSearchUiState(
         public fun onClickSubmitReplacePassword()
 
         public fun onDismissReplacePasswordDialog()
+
+        public fun onClickLoadMore()
     }
 }

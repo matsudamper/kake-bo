@@ -68,10 +68,16 @@ class GraphqlAdminQuery(
             .data?.adminMutation?.deleteImages == true
     }
 
-    suspend fun searchUsers(query: String): ApolloResponse<AdminSearchUsersMutation.Data> {
+    suspend fun searchUsers(
+        query: String,
+        size: Int,
+        cursor: String?,
+    ): ApolloResponse<AdminSearchUsersMutation.Data> {
         return graphqlClient.apolloClient.mutation(
             AdminSearchUsersMutation(
                 query = query,
+                size = size,
+                cursor = com.apollographql.apollo.api.Optional.presentIfNotNull(cursor),
             ),
         )
             .execute()

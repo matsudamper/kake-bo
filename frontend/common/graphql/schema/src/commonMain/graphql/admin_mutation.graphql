@@ -26,10 +26,14 @@ mutation AdminDeleteImages($imageIds: [ImageId!]!) {
     }
 }
 
-mutation AdminSearchUsers($query: String!) {
+mutation AdminSearchUsers($query: String!, $size: Int!, $cursor: String) {
     adminMutation {
-        searchUsers(query: $query) {
-            users
+        searchUsers(input: {query: $query, size: $size, cursor: $cursor}) {
+            nodes {
+                name
+            }
+            cursor
+            hasMore
         }
     }
 }

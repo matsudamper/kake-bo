@@ -74,19 +74,39 @@ class AdminRepositoryImpl : AdminRepository {
         return AdminRepository.AddUserResult.Success
     }
 
-    override fun searchUsers(query: String): List<String> {
+    override fun searchUsers(query: String, size: Int, cursor: String?): AdminRepository.SearchUsersResult {
         return runCatching {
             DbConnectionImpl.use {
-                DSL.using(it)
+                val fetchSize = size + 1
+                val condition = if (cursor != null) {
+                    users.USER_NAME.contains(query).and(users.USER_NAME.gt(cursor))
+                } else {
+                    users.USER_NAME.contains(query)
+                }
+                val records = DSL.using(it)
                     .select(users.USER_NAME)
                     .from(users)
-                    .where(users.USER_NAME.contains(query))
+                    .where(condition)
                     .orderBy(users.USER_NAME)
-                    .limit(20)
+                    .limit(fetchSize)
                     .fetch()
                     .map { record -> record.value1()!! }
+
+                val hasMore = records.size > size
+                val result = if (hasMore) records.dropLast(1) else records
+                AdminRepository.SearchUsersResult(
+                    users = result,
+                    cursor = result.lastOrNull(),
+                    hasMore = hasMore,
+                )
             }
-        }.getOrElse { emptyList() }
+        }.getOrElse {
+            AdminRepository.SearchUsersResult(
+                users = listOf(),
+                cursor = null,
+                hasMore = false,
+            )
+        }
     }
 
     override fun replacePassword(

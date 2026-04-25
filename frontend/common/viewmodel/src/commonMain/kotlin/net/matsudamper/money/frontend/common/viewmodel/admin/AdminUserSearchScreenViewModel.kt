@@ -8,6 +8,7 @@ import kotlinx.coroutines.launch
 import net.matsudamper.money.frontend.common.base.nav.ScopedObjectFeature
 import net.matsudamper.money.frontend.common.ui.screen.admin.AdminUserSearchUiState
 import net.matsudamper.money.frontend.common.viewmodel.CommonViewModel
+import net.matsudamper.money.frontend.graphql.AdminSearchUsersMutation
 import net.matsudamper.money.frontend.graphql.GraphqlAdminQuery
 
 public class AdminUserSearchScreenViewModel(
@@ -19,7 +20,8 @@ public class AdminUserSearchScreenViewModel(
     public val uiStateFlow: StateFlow<AdminUserSearchUiState> = MutableStateFlow(
         AdminUserSearchUiState(
             searchQuery = "",
-            searchResults = emptyList(),
+            searchResults = listOf(),
+            hasMore = false,
             selectedUserName = null,
             replacePasswordDialogState = null,
             listener = createListener(),
@@ -30,7 +32,8 @@ public class AdminUserSearchScreenViewModel(
                 uiStateFlow.update { uiState ->
                     uiState.copy(
                         searchQuery = viewModelState.searchQuery,
-                        searchResults = viewModelState.searchResults,
+                        searchResults = viewModelState.searchResults.map { AdminUserSearchUiState.SearchResult(name = it.name) },
+                        hasMore = viewModelState.hasMore,
                         selectedUserName = viewModelState.selectedUserName,
                         replacePasswordDialogState = if (viewModelState.showReplacePasswordDialog && viewModelState.selectedUserName != null) {
                             AdminUserSearchUiState.ReplacePasswordDialogState(
@@ -56,9 +59,19 @@ public class AdminUserSearchScreenViewModel(
             override fun onClickSearch() {
                 viewModelScope.launch {
                     val query = viewModelStateFlow.value.searchQuery
-                    val result = adminQuery.searchUsers(query)
-                    val users = result.data?.adminMutation?.searchUsers?.users.orEmpty()
-                    viewModelStateFlow.update { it.copy(searchResults = users) }
+                    val result = adminQuery.searchUsers(
+                        query = query,
+                        size = PAGE_SIZE,
+                        cursor = null,
+                    )
+                    val searchUsers = result.data?.adminMutation?.searchUsers
+                    viewModelStateFlow.update {
+                        it.copy(
+                            searchResults = searchUsers?.nodes.orEmpty(),
+                            hasMore = searchUsers?.hasMore == true,
+                            cursor = searchUsers?.cursor,
+                        )
+                    }
                 }
             }
 
@@ -126,15 +139,41 @@ public class AdminUserSearchScreenViewModel(
                     )
                 }
             }
+
+            override fun onClickLoadMore() {
+                viewModelScope.launch {
+                    val state = viewModelStateFlow.value
+                    val cursor = state.cursor ?: return@launch
+                    val result = adminQuery.searchUsers(
+                        query = state.searchQuery,
+                        size = PAGE_SIZE,
+                        cursor = cursor,
+                    )
+                    val searchUsers = result.data?.adminMutation?.searchUsers
+                    viewModelStateFlow.update {
+                        it.copy(
+                            searchResults = it.searchResults + searchUsers?.nodes.orEmpty(),
+                            hasMore = searchUsers?.hasMore == true,
+                            cursor = searchUsers?.cursor,
+                        )
+                    }
+                }
+            }
         }
     }
 
     private data class ViewModelState(
         val searchQuery: String = "",
-        val searchResults: List<String> = emptyList(),
+        val searchResults: List<AdminSearchUsersMutation.Node> = listOf(),
+        val hasMore: Boolean = false,
+        val cursor: String? = null,
         val selectedUserName: String? = null,
         val showReplacePasswordDialog: Boolean = false,
         val password: String = "",
         val resultMessage: String? = null,
     )
+
+    private companion object {
+        const val PAGE_SIZE = 20
+    }
 }

@@ -90,22 +90,22 @@ internal fun UserSearchScreen(
             HorizontalDivider(modifier = Modifier.fillMaxWidth())
 
             LazyColumn {
-                items(uiState.searchResults) { userName ->
+                items(uiState.searchResults) { result ->
                     Column {
                         Row(
                             modifier = Modifier
                                 .fillMaxWidth()
-                                .clickable { uiState.listener.onClickUser(userName) }
+                                .clickable { uiState.listener.onClickUser(result.name) }
                                 .padding(12.dp),
                             horizontalArrangement = Arrangement.SpaceBetween,
                             verticalAlignment = Alignment.CenterVertically,
                         ) {
                             Text(
-                                text = userName,
+                                text = result.name,
                                 fontFamily = rememberCustomFontFamily(),
                             )
                             DropdownMenu(
-                                expanded = uiState.selectedUserName == userName,
+                                expanded = uiState.selectedUserName == result.name,
                                 onDismissRequest = { uiState.listener.onDismissUserMenu() },
                             ) {
                                 DropdownMenuItem(
@@ -120,6 +120,19 @@ internal fun UserSearchScreen(
                             }
                         }
                         HorizontalDivider(modifier = Modifier.fillMaxWidth())
+                    }
+                }
+                if (uiState.hasMore) {
+                    item {
+                        Button(
+                            modifier = Modifier.fillMaxWidth().padding(12.dp),
+                            onClick = { uiState.listener.onClickLoadMore() },
+                        ) {
+                            Text(
+                                text = "さらに読み込む",
+                                fontFamily = rememberCustomFontFamily(),
+                            )
+                        }
                     }
                 }
             }

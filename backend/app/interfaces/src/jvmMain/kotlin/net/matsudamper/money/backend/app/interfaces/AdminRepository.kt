@@ -10,7 +10,13 @@ interface AdminRepository {
         keyLength: Int,
     ): AddUserResult
 
-    fun searchUsers(query: String): List<String>
+    fun searchUsers(query: String, size: Int, cursor: String?): SearchUsersResult
+
+    data class SearchUsersResult(
+        val users: List<String>,
+        val cursor: String?,
+        val hasMore: Boolean,
+    )
 
     fun replacePassword(
         userName: String,
