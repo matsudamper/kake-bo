@@ -142,9 +142,11 @@ public class AdminUserSearchScreenViewModel(
             }
 
             override fun onClickLoadMore() {
+                if (viewModelStateFlow.value.isLoadingMore) return
                 viewModelScope.launch {
                     val state = viewModelStateFlow.value
                     val cursor = state.cursor ?: return@launch
+                    viewModelStateFlow.update { it.copy(isLoadingMore = true) }
                     val result = adminQuery.searchUsers(
                         query = state.committedQuery,
                         size = PAGE_SIZE,
@@ -156,6 +158,7 @@ public class AdminUserSearchScreenViewModel(
                             searchResults = it.searchResults + searchUsers?.nodes.orEmpty(),
                             hasMore = searchUsers?.hasMore == true,
                             cursor = searchUsers?.cursor,
+                            isLoadingMore = false,
                         )
                     }
                 }
@@ -168,6 +171,7 @@ public class AdminUserSearchScreenViewModel(
         val committedQuery: String = "",
         val searchResults: List<AdminSearchUsersMutation.Node> = listOf(),
         val hasMore: Boolean = false,
+        val isLoadingMore: Boolean = false,
         val cursor: String? = null,
         val selectedUserName: String? = null,
         val showReplacePasswordDialog: Boolean = false,

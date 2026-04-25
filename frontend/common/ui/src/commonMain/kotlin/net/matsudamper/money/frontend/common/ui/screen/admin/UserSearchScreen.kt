@@ -2,6 +2,7 @@ package net.matsudamper.money.frontend.common.ui.screen.admin
 
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
@@ -15,6 +16,7 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Button
+import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.DropdownMenu
 import androidx.compose.material3.DropdownMenuItem
 import androidx.compose.material3.ExperimentalMaterial3Api
@@ -27,10 +29,13 @@ import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.material3.TopAppBar
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.unit.dp
+import kotlinx.coroutines.delay
+import kotlinx.coroutines.isActive
 import net.matsudamper.money.frontend.common.ui.layout.html.text.input.HtmlTextInput
 import net.matsudamper.money.frontend.common.ui.rememberCustomFontFamily
 
@@ -124,14 +129,18 @@ internal fun UserSearchScreen(
                 }
                 if (uiState.hasMore) {
                     item {
-                        Button(
-                            modifier = Modifier.fillMaxWidth().padding(12.dp),
-                            onClick = { uiState.listener.onClickLoadMore() },
+                        LaunchedEffect(Unit) {
+                            uiState.listener.onClickLoadMore()
+                            while (isActive) {
+                                delay(500)
+                                uiState.listener.onClickLoadMore()
+                            }
+                        }
+                        Box(
+                            modifier = Modifier.fillMaxWidth().padding(vertical = 24.dp),
+                            contentAlignment = Alignment.Center,
                         ) {
-                            Text(
-                                text = "さらに読み込む",
-                                fontFamily = rememberCustomFontFamily(),
-                            )
+                            CircularProgressIndicator()
                         }
                     }
                 }
