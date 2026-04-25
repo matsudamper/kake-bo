@@ -113,6 +113,7 @@ type AdminUserSearchUsersConnection {
 }
 
 type AdminSearchedUser {
+  userId: UserId!
   name: String!
 }
 

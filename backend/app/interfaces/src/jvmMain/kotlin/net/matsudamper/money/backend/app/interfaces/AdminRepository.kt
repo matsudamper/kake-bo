@@ -13,9 +13,14 @@ interface AdminRepository {
     fun searchUsers(query: String, size: Int, cursor: String?): SearchUsersResult
 
     data class SearchUsersResult(
-        val users: List<String>,
+        val users: List<User>,
         val cursor: String?,
         val hasMore: Boolean,
+    )
+
+    data class User(
+        val userId: net.matsudamper.money.element.UserId,
+        val name: String,
     )
 
     fun replacePassword(

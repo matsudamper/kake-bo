@@ -120,7 +120,7 @@ internal fun UserSearchScreen(
                                 verticalAlignment = Alignment.CenterVertically,
                             ) {
                                 Text(
-                                    text = result.name,
+                                    text = "ID: ${result.userId.value} / Name: ${result.name}",
                                     fontFamily = rememberCustomFontFamily(),
                                 )
                             }

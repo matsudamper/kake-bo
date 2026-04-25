@@ -114,6 +114,7 @@ public data class AdminUserSearchUiState(
     val listener: Listener,
 ) {
     public data class SearchResult(
+        val userId: net.matsudamper.money.element.UserId,
         val name: String,
     )
 

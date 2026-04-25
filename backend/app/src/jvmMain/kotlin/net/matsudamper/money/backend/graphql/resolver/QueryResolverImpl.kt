@@ -40,7 +40,7 @@ class QueryResolverImpl : QueryResolver {
                 cursor = input.cursor,
             )
             QlAdminUserSearchUsersConnection(
-                nodes = result.users.map { QlAdminSearchedUser(name = it) },
+                nodes = result.users.map { QlAdminSearchedUser(userId = it.userId, name = it.name) },
                 cursor = result.cursor,
                 hasMore = result.hasMore,
             )

@@ -43,7 +43,7 @@ public class AdminUserSearchScreenViewModel(
                 uiStateFlow.update { uiState ->
                     uiState.copy(
                         searchQuery = viewModelState.searchQuery,
-                        searchResults = searchUsersConnection?.nodes.orEmpty().map { AdminUserSearchUiState.SearchResult(name = it.name) },
+                        searchResults = searchUsersConnection?.nodes.orEmpty().map { AdminUserSearchUiState.SearchResult(userId = it.userId, name = it.name) },
                         hasMore = searchUsersConnection?.hasMore == true,
                         selectedUserName = viewModelState.selectedUserName,
                         replacePasswordDialogState = if (viewModelState.showReplacePasswordDialog && viewModelState.selectedUserName != null) {

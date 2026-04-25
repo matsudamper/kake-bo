@@ -84,19 +84,24 @@ class AdminRepositoryImpl : AdminRepository {
                     users.USER_NAME.contains(query)
                 }
                 val records = DSL.using(it)
-                    .select(users.USER_NAME)
+                    .select(users.USER_ID, users.USER_NAME)
                     .from(users)
                     .where(condition)
                     .orderBy(users.USER_NAME)
                     .limit(fetchSize)
                     .fetch()
-                    .map { record -> record.value1()!! }
+                    .map { record ->
+                        AdminRepository.User(
+                            userId = net.matsudamper.money.element.UserId(record.value1()!!),
+                            name = record.value2()!!,
+                        )
+                    }
 
                 val hasMore = records.size > size
                 val result = if (hasMore) records.dropLast(1) else records
                 AdminRepository.SearchUsersResult(
                     users = result,
-                    cursor = result.lastOrNull(),
+                    cursor = result.lastOrNull()?.name,
                     hasMore = hasMore,
                 )
             }
