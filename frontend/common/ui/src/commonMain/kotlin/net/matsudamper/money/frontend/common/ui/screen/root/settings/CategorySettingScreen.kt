@@ -744,7 +744,7 @@ private fun SubCategoryRow(
     val isLast = position == RowPosition.Last || position == RowPosition.Single
 
     if (item.isEditing) {
-        var editingText by rememberSaveable(item.name) { mutableStateOf(item.name) }
+        var editingText by remember(item.name) { mutableStateOf(item.name) }
 
         Row(
             modifier = modifier
