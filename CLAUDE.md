@@ -59,7 +59,8 @@ The project is organized into backend, frontend, and shared modules:
 
 # フロントエンドの具体的な実装の指示
 
-MVVMを使用する
+- MVVMを使用する
+- Composable内で早期returnを使用しないif-else,whenで分岐させる
 
 ## ViewModel - UiState
 
