@@ -67,6 +67,7 @@ public class AdminUserSearchScreenViewModel(
                     val searchUsers = result.data?.adminMutation?.searchUsers
                     viewModelStateFlow.update {
                         it.copy(
+                            committedQuery = query,
                             searchResults = searchUsers?.nodes.orEmpty(),
                             hasMore = searchUsers?.hasMore == true,
                             cursor = searchUsers?.cursor,
@@ -145,7 +146,7 @@ public class AdminUserSearchScreenViewModel(
                     val state = viewModelStateFlow.value
                     val cursor = state.cursor ?: return@launch
                     val result = adminQuery.searchUsers(
-                        query = state.searchQuery,
+                        query = state.committedQuery,
                         size = PAGE_SIZE,
                         cursor = cursor,
                     )
@@ -164,6 +165,7 @@ public class AdminUserSearchScreenViewModel(
 
     private data class ViewModelState(
         val searchQuery: String = "",
+        val committedQuery: String = "",
         val searchResults: List<AdminSearchUsersMutation.Node> = listOf(),
         val hasMore: Boolean = false,
         val cursor: String? = null,
