@@ -853,13 +853,15 @@ private fun SubCategoryRow(
                         )
                     }
                 }
-                IconButton(onClick = { item.event.onClickDelete() }) {
-                    Icon(
-                        imageVector = Icons.Default.Close,
-                        contentDescription = "削除",
-                        modifier = Modifier.size(18.dp),
-                        tint = if (isEditMode) errorColor else MaterialTheme.colorScheme.onSurfaceVariant,
-                    )
+                if (!isAddMode) {
+                    IconButton(onClick = { item.event.onClickDelete() }) {
+                        Icon(
+                            imageVector = Icons.Default.Close,
+                            contentDescription = "削除",
+                            modifier = Modifier.size(18.dp),
+                            tint = if (isEditMode) errorColor else MaterialTheme.colorScheme.onSurfaceVariant,
+                        )
+                    }
                 }
             }
             if (!isLast) {
