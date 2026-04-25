@@ -1,7 +1,6 @@
 package net.matsudamper.money.frontend.graphql
 
 import com.apollographql.apollo.api.ApolloResponse
-import com.apollographql.apollo.api.Optional
 import com.apollographql.apollo.cache.normalized.FetchPolicy
 import com.apollographql.apollo.cache.normalized.fetchPolicy
 import net.matsudamper.money.element.ImageId
@@ -45,28 +44,6 @@ class GraphqlAdminQuery(
             .mutation(AdminLogoutMutation())
             .execute()
             .data?.adminMutation?.adminLogout == true
-    }
-
-    suspend fun getUnlinkedImages(
-        size: Int,
-        cursor: String?,
-    ): ApolloResponse<AdminUnlinkedImagesQuery.Data> {
-        return graphqlClient.apolloClient
-            .query(
-                AdminUnlinkedImagesQuery(
-                    size = size,
-                    cursor = Optional.present(cursor),
-                ),
-            )
-            .fetchPolicy(FetchPolicy.NetworkOnly)
-            .execute()
-    }
-
-    suspend fun getUnlinkedImagesTotalCount(): ApolloResponse<AdminUnlinkedImagesTotalCountQuery.Data> {
-        return graphqlClient.apolloClient
-            .query(AdminUnlinkedImagesTotalCountQuery())
-            .fetchPolicy(FetchPolicy.NetworkOnly)
-            .execute()
     }
 
     suspend fun addUser(

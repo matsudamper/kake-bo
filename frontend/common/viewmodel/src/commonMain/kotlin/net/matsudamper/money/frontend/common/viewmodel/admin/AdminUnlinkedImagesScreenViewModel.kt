@@ -3,28 +3,40 @@ package net.matsudamper.money.frontend.common.viewmodel.admin
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
+import com.apollographql.apollo.api.ApolloResponse
 import net.matsudamper.money.element.ImageId
 import net.matsudamper.money.frontend.common.base.Logger
 import net.matsudamper.money.frontend.common.base.nav.ScopedObjectFeature
 import net.matsudamper.money.frontend.common.ui.screen.admin.AdminUnlinkedImagesScreenUiState
 import net.matsudamper.money.frontend.common.viewmodel.CommonViewModel
 import net.matsudamper.money.frontend.graphql.AdminUnlinkedImagesQuery
+import net.matsudamper.money.frontend.graphql.AdminUnlinkedImagesTotalCountQuery
 import net.matsudamper.money.frontend.graphql.GraphqlAdminQuery
+import net.matsudamper.money.frontend.graphql.GraphqlClient
+import net.matsudamper.money.frontend.graphql.UpdateOperationResponseResult
 
 private const val TAG = "AdminUnlinkedImagesScreenViewModel"
 
 public class AdminUnlinkedImagesScreenViewModel(
     scopedObjectFeature: ScopedObjectFeature,
+    graphqlClient: GraphqlClient,
     private val adminQuery: GraphqlAdminQuery,
 ) : CommonViewModel(scopedObjectFeature) {
+    private val pagingModel = AdminUnlinkedImagesPagingModel(
+        graphqlClient = graphqlClient,
+    )
+    private val totalCountModel = AdminUnlinkedImagesTotalCountModel(
+        graphqlClient = graphqlClient,
+    )
     private val viewModelStateFlow = MutableStateFlow(ViewModelState())
 
     private val event = object : AdminUnlinkedImagesScreenUiState.Event {
         override fun onResume() {
             if (viewModelStateFlow.value.hasLoaded.not()) {
-                requestLoadInitialData()
+                requestLoadInitialData(false)
             }
         }
 
@@ -63,7 +75,7 @@ public class AdminUnlinkedImagesScreenViewModel(
         ),
     ).also { uiStateFlow ->
         viewModelScope.launch {
-            viewModelStateFlow.collect { state ->
+            viewModelStateFlow.collectLatest { state ->
                 val deleteDialog = state.deleteDialogState?.let { deleteDialogState ->
                     AdminUnlinkedImagesScreenUiState.DeleteDialog(
                         selectedCount = state.selectedImageIds.size,
@@ -85,12 +97,14 @@ public class AdminUnlinkedImagesScreenViewModel(
                     )
                 }
                 uiStateFlow.update { uiState ->
+                    val connection = state.apolloResponseState?.data?.adminUnlinkedImages
+                    val items = connection?.nodes.orEmpty()
                     uiState.copy(
                         loadingState = when {
-                            state.isLoadingFirst -> AdminUnlinkedImagesScreenUiState.LoadingState.Loading
-                            state.isError -> AdminUnlinkedImagesScreenUiState.LoadingState.Error
+                            connection == null && (state.isLoading || state.hasLoaded.not()) -> AdminUnlinkedImagesScreenUiState.LoadingState.Loading
+                            connection == null -> AdminUnlinkedImagesScreenUiState.LoadingState.Error
                             else -> AdminUnlinkedImagesScreenUiState.LoadingState.Loaded(
-                                items = state.items.map { item ->
+                                items = items.map { item ->
                                     AdminUnlinkedImagesScreenUiState.Item(
                                         id = item.id.toString(),
                                         imageUrl = item.url,
@@ -100,14 +114,14 @@ public class AdminUnlinkedImagesScreenViewModel(
                                         event = createItemEvent(item.id),
                                     )
                                 },
-                                hasMore = state.hasMore,
+                                hasMore = connection.hasMore,
                                 isLoadingMore = state.isLoadingMore,
-                                totalCount = state.totalCount,
+                                totalCount = state.totalCountResponse?.data?.adminUnlinkedImages?.totalCount,
                                 selectedCount = state.selectedImageIds.size,
-                                isAllSelected = state.items.isNotEmpty() &&
-                                    state.hasMore.not() &&
-                                    state.selectedImageIds.size == state.items.size &&
-                                    state.items.all { it.id in state.selectedImageIds },
+                                isAllSelected = items.isNotEmpty() &&
+                                    connection.hasMore.not() &&
+                                    state.selectedImageIds.size == items.size &&
+                                    items.all { it.id in state.selectedImageIds },
                                 isSelectingAll = state.isSelectingAll,
                                 isDeleting = state.deleteDialogState?.isLoading == true,
                             )
@@ -119,63 +133,74 @@ public class AdminUnlinkedImagesScreenViewModel(
         }
     }.asStateFlow()
 
-    private fun requestLoadInitialData(force: Boolean = false) {
+    init {
         viewModelScope.launch {
-            loadInitialData(force = force)
+            pagingModel.getFlow().collectLatest { response ->
+                val loadedIds = response.data?.adminUnlinkedImages?.nodes.orEmpty()
+                    .map { it.id }
+                    .toSet()
+                viewModelStateFlow.update {
+                    it.copy(
+                        apolloResponseState = response,
+                        selectedImageIds = it.selectedImageIds.filter { imageId ->
+                            imageId in loadedIds
+                        }.toSet(),
+                    )
+                }
+            }
+        }
+        viewModelScope.launch {
+            totalCountModel.getFlow().collectLatest { response ->
+                viewModelStateFlow.update {
+                    it.copy(
+                        totalCountResponse = response,
+                    )
+                }
+            }
         }
     }
 
-    private suspend fun loadInitialData(force: Boolean = false) {
-        val currentState = viewModelStateFlow.value
-        if (currentState.isLoadingFirst && force.not()) return
+    private fun requestLoadInitialData(force: Boolean) {
+        viewModelScope.launch {
+            refreshData(force = force)
+        }
+    }
+
+    private suspend fun refreshData(force: Boolean) {
+        if (viewModelStateFlow.value.isLoading) return
 
         viewModelStateFlow.update {
             it.copy(
-                items = if (force) {
-                    listOf()
-                } else {
-                    it.items
-                },
-                cursor = if (force) null else it.cursor,
-                hasMore = if (force) false else it.hasMore,
-                selectedImageIds = if (force) {
-                    emptySet()
-                } else {
-                    it.selectedImageIds
-                },
-                isLoadingFirst = true,
+                selectedImageIds = it.selectedImageIds.takeIf { !force }.orEmpty(),
+                isLoading = true,
                 isLoadingMore = false,
-                isError = false,
                 isSelectingAll = false,
                 deleteDialogState = null,
-                totalCount = if (force) null else it.totalCount,
             )
         }
 
-        val totalCount = loadTotalCount()
-        if (totalCount != null) {
-            viewModelStateFlow.update { it.copy(totalCount = totalCount) }
+        when (val result = totalCountModel.refresh()) {
+            is UpdateOperationResponseResult.Error -> {
+                result.e?.let {
+                    Logger.e(TAG, it)
+                }
+            }
+
+            is UpdateOperationResponseResult.NoHasMore,
+            is UpdateOperationResponseResult.Success,
+            -> Unit
         }
 
-        val connection = loadPage(cursor = null)
-        if (connection == null) {
-            viewModelStateFlow.update {
-                it.copy(
-                    isLoadingFirst = false,
-                    isError = true,
-                    hasLoaded = true,
-                )
-            }
-            return
-        }
+        val result = runCatching {
+            pagingModel.refresh()
+        }.onFailure {
+            Logger.e(TAG, it)
+        }.getOrElse { UpdateOperationResponseResult.Error(it) }
 
         viewModelStateFlow.update {
             it.copy(
-                items = connection.nodes,
-                cursor = connection.cursor,
-                hasMore = connection.hasMore,
-                isLoadingFirst = false,
-                isError = false,
+                lastLoadingState = result,
+                isLoading = false,
                 hasLoaded = true,
             )
         }
@@ -183,27 +208,21 @@ public class AdminUnlinkedImagesScreenViewModel(
 
     private fun fetchNextPage() {
         val state = viewModelStateFlow.value
-        if (state.isLoadingMore || state.hasMore.not() || state.isSelectingAll || state.isLoadingFirst) return
-        val cursor = state.cursor ?: return
+        val connection = state.apolloResponseState?.data?.adminUnlinkedImages ?: return
+        if (state.isLoadingMore || connection.hasMore.not() || state.isSelectingAll || state.isLoading) return
+        if (connection.cursor == null) return
 
         viewModelScope.launch {
             viewModelStateFlow.update { it.copy(isLoadingMore = true) }
-            val connection = loadPage(cursor = cursor)
-
-            if (connection == null) {
-                viewModelStateFlow.update {
-                    it.copy(
-                        isLoadingMore = false,
-                    )
-                }
-                return@launch
-            }
+            val result = runCatching {
+                pagingModel.fetch()
+            }.onFailure {
+                Logger.e(TAG, it)
+            }.getOrElse { UpdateOperationResponseResult.Error(it) }
 
             viewModelStateFlow.update {
                 it.copy(
-                    items = it.items + connection.nodes,
-                    cursor = connection.cursor,
-                    hasMore = connection.hasMore,
+                    lastLoadingState = result,
                     isLoadingMore = false,
                 )
             }
@@ -212,13 +231,14 @@ public class AdminUnlinkedImagesScreenViewModel(
 
     private fun toggleSelectAll() {
         val state = viewModelStateFlow.value
-        if (state.items.isEmpty() || state.isSelectingAll || state.isLoadingFirst || state.deleteDialogState?.isLoading == true) {
+        val connection = state.apolloResponseState?.data?.adminUnlinkedImages ?: return
+        if (connection.nodes.isEmpty() || state.isSelectingAll || state.isLoading || state.deleteDialogState?.isLoading == true) {
             return
         }
 
-        val isAllSelected = state.hasMore.not() &&
-            state.selectedImageIds.size == state.items.size &&
-            state.items.all { it.id in state.selectedImageIds }
+        val isAllSelected = connection.hasMore.not() &&
+            state.selectedImageIds.size == connection.nodes.size &&
+            connection.nodes.all { it.id in state.selectedImageIds }
         if (isAllSelected) {
             viewModelStateFlow.update { it.copy(selectedImageIds = emptySet()) }
             return
@@ -227,28 +247,54 @@ public class AdminUnlinkedImagesScreenViewModel(
         viewModelScope.launch {
             viewModelStateFlow.update { it.copy(isSelectingAll = true) }
 
-            var items = viewModelStateFlow.value.items
-            var cursor = viewModelStateFlow.value.cursor
-            var hasMore = viewModelStateFlow.value.hasMore
+            var items = connection.nodes
+            var hasMore = connection.hasMore
 
             while (hasMore) {
-                val connection = loadPage(cursor = cursor)
+                when (
+                    val result = runCatching {
+                        pagingModel.fetch()
+                    }.onFailure {
+                        Logger.e(TAG, it)
+                    }.getOrElse { UpdateOperationResponseResult.Error(it) }
+                ) {
+                    is UpdateOperationResponseResult.Error -> {
+                        viewModelStateFlow.update {
+                            it.copy(
+                                lastLoadingState = result,
+                                isSelectingAll = false,
+                            )
+                        }
+                        return@launch
+                    }
 
-                if (connection == null) {
-                    viewModelStateFlow.update { it.copy(isSelectingAll = false) }
-                    return@launch
-                }
+                    is UpdateOperationResponseResult.NoHasMore -> {
+                        viewModelStateFlow.update {
+                            it.copy(
+                                lastLoadingState = result,
+                            )
+                        }
+                        hasMore = false
+                    }
 
-                items = items + connection.nodes
-                cursor = connection.cursor
-                hasMore = connection.hasMore
-
-                viewModelStateFlow.update {
-                    it.copy(
-                        items = items,
-                        cursor = cursor,
-                        hasMore = hasMore,
-                    )
+                    is UpdateOperationResponseResult.Success -> {
+                        val newConnection = result.result.data?.adminUnlinkedImages
+                            ?: run {
+                                viewModelStateFlow.update {
+                                    it.copy(
+                                        isSelectingAll = false,
+                                    )
+                                }
+                                return@launch
+                            }
+                        items = newConnection.nodes
+                        hasMore = newConnection.hasMore
+                        viewModelStateFlow.update {
+                            it.copy(
+                                lastLoadingState = result,
+                            )
+                        }
+                    }
                 }
             }
 
@@ -294,13 +340,19 @@ public class AdminUnlinkedImagesScreenViewModel(
                 return@launch
             }
 
+            runCatching {
+                pagingModel.removeDeletedImagesFromCache(imageIds)
+                totalCountModel.removeDeletedImagesFromCache(imageIds)
+            }.onFailure {
+                Logger.e(TAG, it)
+            }
+
             viewModelStateFlow.update {
                 it.copy(
                     selectedImageIds = emptySet(),
                     deleteDialogState = null,
                 )
             }
-            loadInitialData(force = true)
         }
     }
 
@@ -328,43 +380,13 @@ public class AdminUnlinkedImagesScreenViewModel(
         }
     }
 
-    private suspend fun loadTotalCount(): Int? {
-        return runCatching {
-            adminQuery.getUnlinkedImagesTotalCount()
-                .data?.adminUnlinkedImages?.totalCount
-        }.onFailure {
-            Logger.e(TAG, it)
-        }.getOrNull()
-    }
-
-    private suspend fun loadPage(
-        cursor: String?,
-    ): PageData? {
-        return runCatching {
-            val connection = adminQuery.getUnlinkedImages(
-                size = PAGE_SIZE,
-                cursor = cursor,
-            ).data?.adminUnlinkedImages
-                ?: return@runCatching null
-            PageData(
-                nodes = connection.nodes,
-                cursor = connection.cursor,
-                hasMore = connection.hasMore,
-            )
-        }.onFailure {
-            Logger.e(TAG, it)
-        }.getOrNull()
-    }
-
     private data class ViewModelState(
-        val items: List<AdminUnlinkedImagesQuery.Node> = listOf(),
-        val cursor: String? = null,
-        val hasMore: Boolean = false,
-        val isLoadingFirst: Boolean = false,
+        val apolloResponseState: ApolloResponse<AdminUnlinkedImagesQuery.Data>? = null,
+        val totalCountResponse: ApolloResponse<AdminUnlinkedImagesTotalCountQuery.Data>? = null,
+        val lastLoadingState: UpdateOperationResponseResult<AdminUnlinkedImagesQuery.Data>? = null,
+        val isLoading: Boolean = false,
         val isLoadingMore: Boolean = false,
-        val isError: Boolean = false,
         val hasLoaded: Boolean = false,
-        val totalCount: Int? = null,
         val selectedImageIds: Set<ImageId> = emptySet(),
         val isSelectingAll: Boolean = false,
         val deleteDialogState: DeleteDialogState? = null,
@@ -373,12 +395,6 @@ public class AdminUnlinkedImagesScreenViewModel(
     private data class DeleteDialogState(
         val isLoading: Boolean,
         val errorMessage: String?,
-    )
-
-    private data class PageData(
-        val nodes: List<AdminUnlinkedImagesQuery.Node>,
-        val cursor: String?,
-        val hasMore: Boolean,
     )
 
     private companion object {
