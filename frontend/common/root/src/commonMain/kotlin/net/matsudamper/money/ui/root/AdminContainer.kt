@@ -52,7 +52,6 @@ internal fun AdminContainer(
             val adminAddUserScreenViewModel = LocalScopedObjectStore.current.putOrGet<AdminAddUserScreenViewModel>(Unit) {
                 AdminAddUserScreenViewModel(
                     scopedObjectFeature = it,
-                    controller = controller,
                     adminQuery = GraphqlAdminQuery(koin.get<GraphqlClient>()),
                 )
             }
