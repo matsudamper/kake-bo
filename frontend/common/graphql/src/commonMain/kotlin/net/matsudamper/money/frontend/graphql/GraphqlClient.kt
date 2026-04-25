@@ -17,6 +17,8 @@ import com.apollographql.apollo.api.json.JsonReader
 import com.apollographql.apollo.api.json.JsonWriter
 import com.apollographql.apollo.cache.normalized.api.MemoryCacheFactory
 import com.apollographql.apollo.cache.normalized.normalizedCache
+import com.apollographql.apollo.exception.CacheMissException
+import com.apollographql.apollo.exception.DefaultApolloException
 import com.apollographql.apollo.interceptor.ApolloInterceptor
 import com.apollographql.apollo.interceptor.ApolloInterceptorChain
 import com.apollographql.apollo.network.http.DefaultHttpEngine
@@ -236,7 +238,7 @@ private object ApolloErrorLoggingInterceptor : ApolloInterceptor {
     ): Flow<ApolloResponse<D>> {
         return chain.proceed(request)
             .onEach { response ->
-                response.exception?.let { throwable ->
+                response.exception?.takeUnless(::shouldIgnoreApolloException)?.let { throwable ->
                     logApolloException(
                         request = request,
                         throwable = throwable,
@@ -278,6 +280,11 @@ private object ApolloErrorLoggingInterceptor : ApolloInterceptor {
     }
 }
 
+private fun shouldIgnoreApolloException(throwable: Throwable): Boolean {
+    return throwable is CacheMissException ||
+        (throwable is DefaultApolloException && throwable.message == WATCHER_STARTED_MESSAGE)
+}
+
 private fun logApolloException(
     request: ApolloRequest<*>,
     throwable: Throwable,
@@ -301,6 +308,7 @@ private fun apolloLogPrefix(request: ApolloRequest<*>): String {
 }
 
 private const val APOLLO_LOG_TAG = "Graphql"
+private const val WATCHER_STARTED_MESSAGE = "The watcher has started"
 
 private class CustomStringAdapter<T>(
     val deserialize: (String) -> T?,
