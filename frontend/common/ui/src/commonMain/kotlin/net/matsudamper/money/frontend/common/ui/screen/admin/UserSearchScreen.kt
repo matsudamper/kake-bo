@@ -32,10 +32,11 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.unit.dp
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.isActive
+import net.matsudamper.money.frontend.common.ui.layout.TextField
+import net.matsudamper.money.frontend.common.ui.layout.TextFieldType
 import net.matsudamper.money.frontend.common.ui.rememberCustomFontFamily
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -72,13 +73,14 @@ internal fun UserSearchScreen(
                 modifier = Modifier.fillMaxWidth().padding(12.dp),
                 verticalAlignment = Alignment.CenterVertically,
             ) {
-                HtmlTextInput(
+                TextField(
                     modifier = Modifier.weight(1f).height(48.dp),
+                    text = uiState.searchQuery,
                     placeholder = "ユーザー名を入力",
                     onValueChange = {
-                        uiState.listener.onSearchQueryChanged(it.text)
+                        uiState.listener.onSearchQueryChanged(it)
                     },
-                    type = KeyboardType.Text,
+                    type = TextFieldType.Text,
                 )
                 Spacer(modifier = Modifier.width(8.dp))
                 Button(
@@ -159,13 +161,14 @@ internal fun UserSearchScreen(
             },
             text = {
                 Column {
-                    HtmlTextInput(
+                    TextField(
                         modifier = Modifier.fillMaxWidth().height(48.dp),
+                        text = dialogState.password,
                         placeholder = "新しいパスワード",
                         onValueChange = {
-                            uiState.listener.onPasswordChanged(it.text)
+                            uiState.listener.onPasswordChanged(it)
                         },
-                        type = KeyboardType.Password,
+                        type = TextFieldType.Password,
                     )
                     Text(
                         AdminAddUserUiState.PASSWORD_ALLOW_SYMBOLS_TEXT,
