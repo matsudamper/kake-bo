@@ -28,52 +28,66 @@ public data class AdminRootScreenUiState(
 }
 
 public data class AdminUnlinkedImagesScreenUiState(
-    val screenState: ScreenState,
+    val loadingState: LoadingState,
+    val deleteDialog: DeleteDialog?,
     val event: Event,
 ) {
-    public sealed interface ScreenState {
-        public data object Loading : ScreenState
-        public data object Error : ScreenState
-        public data class MonthList(
-            val months: List<MonthItem>,
-        ) : ScreenState
-
-        public data class MonthDetail(
-            val yearMonth: String,
+    public sealed interface LoadingState {
+        public data object Loading : LoadingState
+        public data object Error : LoadingState
+        public data class Loaded(
             val items: List<Item>,
-            val selectedIds: Set<String>,
+            val hasMore: Boolean,
+            val isLoadingMore: Boolean,
+            val totalCount: Int?,
+            val selectedCount: Int,
+            val isAllSelected: Boolean,
+            val isSelectingAll: Boolean,
             val isDeleting: Boolean,
-        ) : ScreenState
+        ) : LoadingState
     }
-
-    public data class MonthItem(
-        val yearMonth: String,
-        val count: Int,
-    )
 
     public data class Item(
         val id: String,
         val imageUrl: String,
         val userId: String,
         val userName: String,
-    )
+        val isSelected: Boolean,
+        val event: Event,
+    ) {
+        @Immutable
+        public interface Event {
+            public fun onClickSelect()
+        }
+    }
 
+    public data class DeleteDialog(
+        val selectedCount: Int,
+        val errorMessage: String?,
+        val isLoading: Boolean,
+        val event: Event,
+    ) {
+        @Immutable
+        public interface Event {
+            public fun onConfirm()
+
+            public fun onCancel()
+
+            public fun onDismiss()
+        }
+    }
+
+    @Immutable
     public interface Event {
         public fun onResume()
 
         public fun onClickRetry()
 
-        public fun onClickMonth(yearMonth: String)
-
-        public fun onClickBack()
-
-        public fun onToggleImageSelection(id: String)
+        public fun onClickLoadMore()
 
         public fun onClickSelectAll()
 
-        public fun onClickDeselectAll()
-
-        public fun onClickDeleteSelected()
+        public fun onClickDelete()
     }
 }
 

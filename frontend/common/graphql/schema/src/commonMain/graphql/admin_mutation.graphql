@@ -20,8 +20,8 @@ mutation AdminAddUser($userName: String!,$password: String!) {
     }
 }
 
-mutation AdminDeleteUnlinkedImages($imageIds: [ImageId!]!) {
+mutation AdminDeleteImages($imageIds: [ImageId!]!) {
     adminMutation {
-        deleteUnlinkedImages(imageIds: $imageIds)
+        deleteImages(imageIds: $imageIds)
     }
 }

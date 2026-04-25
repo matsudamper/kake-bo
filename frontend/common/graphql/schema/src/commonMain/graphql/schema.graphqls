@@ -91,7 +91,7 @@ type AdminMutation {
 
   addUser(name: String!, password: String!): AdminAddUserResult!
 
-  deleteUnlinkedImages(imageIds: [ImageId!]!): Boolean!
+  deleteImages(imageIds: [ImageId!]!): Boolean!
 }
 
 type AdminUnlinkedImage {

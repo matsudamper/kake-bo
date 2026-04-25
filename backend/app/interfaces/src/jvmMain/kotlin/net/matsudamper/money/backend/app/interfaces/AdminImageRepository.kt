@@ -14,6 +14,8 @@ interface AdminImageRepository {
         cursor: Cursor?,
     ): Result
 
+    fun deleteImages(imageIds: List<ImageId>): Boolean
+
     fun countUnlinkedImages(): Int
 
     fun getImageDataByDisplayId(displayId: String): ImageData?
@@ -21,8 +23,6 @@ interface AdminImageRepository {
     fun getImageDirectoryMonths(): List<ImageDirectoryMonth>
 
     fun getUnlinkedImagesByMonth(yearMonth: String): List<Item>
-
-    fun deleteImages(imageIds: List<ImageId>): Boolean
 
     data class ImageDirectoryMonth(
         val yearMonth: String,

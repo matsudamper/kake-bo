@@ -85,6 +85,19 @@ class AdminMutationResolverImpl : AdminMutationResolver {
         }.toDataFetcher()
     }
 
+    override fun deleteImages(
+        adminMutation: QlAdminMutation,
+        imageIds: List<ImageId>,
+        env: DataFetchingEnvironment,
+    ): CompletionStage<DataFetcherResult<Boolean>> {
+        val context = env.graphQlContext.get<GraphQlContext>(GraphQlContext::class.java.name)
+        context.verifyAdminSession()
+
+        return otelSupplyAsync {
+            context.diContainer.createAdminImageRepository().deleteImages(imageIds)
+        }.toDataFetcher()
+    }
+
     override fun adminLogin(
         adminMutation: QlAdminMutation,
         password: String,
@@ -128,19 +141,6 @@ class AdminMutationResolverImpl : AdminMutationResolver {
                     }
                 }
             }
-        }.toDataFetcher()
-    }
-
-    override fun deleteUnlinkedImages(
-        adminMutation: QlAdminMutation,
-        imageIds: List<ImageId>,
-        env: DataFetchingEnvironment,
-    ): CompletionStage<DataFetcherResult<Boolean>> {
-        val context = env.graphQlContext.get<GraphQlContext>(GraphQlContext::class.java.name)
-        context.verifyAdminSession()
-
-        return otelSupplyAsync {
-            context.diContainer.createAdminImageRepository().deleteImages(imageIds)
         }.toDataFetcher()
     }
 }
