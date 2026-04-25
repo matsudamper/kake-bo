@@ -57,7 +57,7 @@ The project is organized into backend, frontend, and shared modules:
 メール、通知のパーサのテストは書かない。パーサで例をコメントする時はマスキングやダミーデータを使用し、ユーザーから依頼された文章を含むことを禁止する。
 すべての応答、説明、およびコミットメッセージは日本語で行う。
 
-# 具体的な実装の指示
+# フロントエンドの具体的な実装の指示
 
 MVVMを使用する
 
@@ -70,6 +70,9 @@ MVVMを使用する
 ## UiState - UI
 
 - UIからのイベント取得はUiState内のイベントハンドラーを使用する。Lambdaを使用しない。`@Immutable interface`を使用する
+
+## Paging
+ApolloのPagingは`updateOperation()`を使用し、最初のOperationに連結し、`watch()`しているだけでデータが流れてくるようにする。
 
 # ビルドとテスト
 
