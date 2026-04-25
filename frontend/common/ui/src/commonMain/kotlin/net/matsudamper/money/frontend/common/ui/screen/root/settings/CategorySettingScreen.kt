@@ -29,7 +29,6 @@ import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.filled.Check
 import androidx.compose.material.icons.filled.ChevronRight
 import androidx.compose.material.icons.filled.Close
-import androidx.compose.material.icons.filled.DragIndicator
 import androidx.compose.material.icons.filled.Edit
 import androidx.compose.material.icons.filled.MoreVert
 import androidx.compose.material3.Card
@@ -67,6 +66,7 @@ import net.matsudamper.money.frontend.common.base.ColorUtil
 import net.matsudamper.money.frontend.common.base.ImmutableList
 import net.matsudamper.money.frontend.common.ui.AppRoot
 import net.matsudamper.money.frontend.common.ui.base.KakeboScaffoldListener
+import net.matsudamper.money.frontend.common.ui.base.ScreenBackHandler
 import net.matsudamper.money.frontend.common.ui.layout.AlertDialog
 import net.matsudamper.money.frontend.common.ui.layout.colorpicker.ColorPickerDialog
 
@@ -160,6 +160,15 @@ public fun SettingCategoryScreen(
     LaunchedEffect(Unit) {
         uiState.event.onResume()
     }
+    val isSubCategoryEditing = (uiState.loadingState as? SettingCategoryScreenUiState.LoadingState.Loaded)
+        ?.item
+        ?.any { it.isEditing } == true
+    val shouldHandleBackAsEditCancel =
+        uiState.heroMode == SettingCategoryScreenUiState.HeroMode.EditingCategoryName || isSubCategoryEditing
+
+    ScreenBackHandler(enabled = shouldHandleBackAsEditCancel) {
+        uiState.event.onClickBack()
+    }
 
     if (uiState.showColorPickerDialog) {
         ColorPickerDialog(
@@ -224,7 +233,9 @@ private fun LoadedContent(
     windowInsets: PaddingValues,
 ) {
     val heroColor = uiState.categoryColor ?: MaterialTheme.colorScheme.primary
-    val isEditMode = uiState.heroMode == SettingCategoryScreenUiState.HeroMode.EditingCategoryName
+    val shouldHandleBackAsEditCancel =
+        uiState.heroMode == SettingCategoryScreenUiState.HeroMode.EditingCategoryName ||
+            loadedState.item.any { it.isEditing }
 
     Box(modifier = modifier) {
         Column(modifier = Modifier.fillMaxSize()) {
@@ -233,11 +244,11 @@ private fun LoadedContent(
                 categoryName = uiState.categoryName,
                 categoryColor = heroColor,
                 heroMode = uiState.heroMode,
+                shouldHandleBackAsEditCancel = shouldHandleBackAsEditCancel,
                 windowInsets = windowInsets,
                 onClickBack = { uiState.event.onClickBack() },
                 onClickEditCategoryName = { uiState.event.onClickEditCategoryName() },
                 onCategoryNameEditComplete = { text -> uiState.event.onCategoryNameEditComplete(text) },
-                onCategoryNameEditDismiss = { uiState.event.onCategoryNameEditDismiss() },
                 onClickChangeColor = { uiState.event.onClickChangeColor() },
                 onClickDeleteCategory = { uiState.event.onClickDeleteCategory() },
             )
@@ -248,24 +259,14 @@ private fun LoadedContent(
                     .weight(1f)
                     .fillMaxWidth(),
                 state = lazyListState,
-                contentPadding = PaddingValues(bottom = if (isEditMode) 24.dp else 88.dp),
+                contentPadding = PaddingValues(bottom = 88.dp),
             ) {
-                if (isEditMode) {
-                    item {
-                        Text(
-                            modifier = Modifier.padding(horizontal = 16.dp, vertical = 10.dp),
-                            text = "ドラッグして並び替え",
-                            style = MaterialTheme.typography.bodySmall,
-                            color = MaterialTheme.colorScheme.onSurfaceVariant,
-                        )
-                    }
-                }
                 item {
                     SubCategoryHeader(
                         modifier = Modifier
                             .fillMaxWidth()
                             .padding(horizontal = 16.dp)
-                            .padding(top = if (isEditMode) 0.dp else 16.dp, bottom = 8.dp),
+                            .padding(top = 16.dp, bottom = 8.dp),
                         count = loadedState.item.size,
                     )
                 }
@@ -294,50 +295,14 @@ private fun LoadedContent(
                             .padding(horizontal = 12.dp),
                         item = item,
                         position = position,
-                        isEditMode = isEditMode,
                         isAddMode = uiState.isAddingSubCategory,
                     )
-                }
-                if (isEditMode) {
-                    item {
-                        Card(
-                            modifier = Modifier
-                                .fillMaxWidth()
-                                .padding(horizontal = 12.dp, vertical = 8.dp),
-                            shape = RoundedCornerShape(12.dp),
-                            colors = CardDefaults.cardColors(
-                                containerColor = MaterialTheme.colorScheme.surface,
-                            ),
-                            elevation = CardDefaults.cardElevation(defaultElevation = 1.dp),
-                            onClick = { uiState.event.onClickAddSubCategory() },
-                        ) {
-                            Row(
-                                modifier = Modifier
-                                    .fillMaxWidth()
-                                    .padding(horizontal = 16.dp, vertical = 14.dp),
-                                verticalAlignment = Alignment.CenterVertically,
-                            ) {
-                                Icon(
-                                    imageVector = Icons.Default.Add,
-                                    contentDescription = null,
-                                    tint = MaterialTheme.colorScheme.primary,
-                                    modifier = Modifier.size(20.dp),
-                                )
-                                Spacer(Modifier.width(10.dp))
-                                Text(
-                                    text = "サブカテゴリを追加",
-                                    style = MaterialTheme.typography.labelLarge,
-                                    color = MaterialTheme.colorScheme.primary,
-                                )
-                            }
-                        }
-                    }
                 }
                 item { Spacer(Modifier.height(8.dp)) }
             }
         }
 
-        if (!isEditMode && !uiState.isAddingSubCategory) {
+        if (!uiState.isAddingSubCategory) {
             ExtendedFloatingActionButton(
                 modifier = Modifier
                     .align(Alignment.BottomEnd)
@@ -361,17 +326,17 @@ private fun HeroSection(
     categoryName: String,
     categoryColor: Color,
     heroMode: SettingCategoryScreenUiState.HeroMode,
+    shouldHandleBackAsEditCancel: Boolean,
     windowInsets: PaddingValues,
     onClickBack: () -> Unit,
     onClickEditCategoryName: () -> Unit,
     onCategoryNameEditComplete: (String) -> Unit,
-    onCategoryNameEditDismiss: () -> Unit,
     onClickChangeColor: () -> Unit,
     onClickDeleteCategory: () -> Unit,
 ) {
-    val isEditMode = heroMode == SettingCategoryScreenUiState.HeroMode.EditingCategoryName
+    val isCategoryNameEditMode = heroMode == SettingCategoryScreenUiState.HeroMode.EditingCategoryName
     val topPadding = windowInsets.calculateTopPadding()
-    var editingText by rememberSaveable(categoryName, isEditMode) { mutableStateOf(categoryName) }
+    var editingText by rememberSaveable(categoryName, isCategoryNameEditMode) { mutableStateOf(categoryName) }
 
     Box(
         modifier = modifier
@@ -386,11 +351,11 @@ private fun HeroSection(
                 modifier = Modifier
                     .fillMaxWidth()
                     .padding(start = 4.dp, end = 8.dp),
-                isEditMode = isEditMode,
+                isCategoryNameEditMode = isCategoryNameEditMode,
+                shouldHandleBackAsEditCancel = shouldHandleBackAsEditCancel,
                 editingText = editingText,
                 onClickBack = onClickBack,
                 onCategoryNameEditComplete = onCategoryNameEditComplete,
-                onCategoryNameEditDismiss = onCategoryNameEditDismiss,
                 onClickDeleteCategory = onClickDeleteCategory,
             )
 
@@ -400,7 +365,7 @@ private fun HeroSection(
                     .padding(start = 20.dp, end = 20.dp, top = 4.dp, bottom = 24.dp),
                 categoryName = categoryName,
                 categoryColor = categoryColor,
-                isEditMode = isEditMode,
+                isEditMode = isCategoryNameEditMode,
                 editingText = editingText,
                 onEditingTextChange = { editingText = it },
                 onClickEditCategoryName = onClickEditCategoryName,
@@ -413,11 +378,11 @@ private fun HeroSection(
 @Composable
 private fun HeroTopBar(
     modifier: Modifier,
-    isEditMode: Boolean,
+    isCategoryNameEditMode: Boolean,
+    shouldHandleBackAsEditCancel: Boolean,
     editingText: String,
     onClickBack: () -> Unit,
     onCategoryNameEditComplete: (String) -> Unit,
-    onCategoryNameEditDismiss: () -> Unit,
     onClickDeleteCategory: () -> Unit,
 ) {
     var showMoreMenu by remember { mutableStateOf(false) }
@@ -427,17 +392,11 @@ private fun HeroTopBar(
         verticalAlignment = Alignment.CenterVertically,
     ) {
         IconButton(
-            onClick = {
-                if (isEditMode) {
-                    onCategoryNameEditDismiss()
-                } else {
-                    onClickBack()
-                }
-            },
+            onClick = onClickBack,
         ) {
             Icon(
-                imageVector = if (isEditMode) Icons.Default.Close else Icons.AutoMirrored.Filled.ArrowBack,
-                contentDescription = if (isEditMode) "キャンセル" else "戻る",
+                imageVector = if (shouldHandleBackAsEditCancel) Icons.Default.Close else Icons.AutoMirrored.Filled.ArrowBack,
+                contentDescription = if (shouldHandleBackAsEditCancel) "キャンセル" else "戻る",
                 tint = Color.White,
             )
         }
@@ -449,7 +408,7 @@ private fun HeroTopBar(
             color = Color.White,
         )
 
-        if (isEditMode) {
+        if (isCategoryNameEditMode) {
             TextButton(onClick = { onCategoryNameEditComplete(editingText) }) {
                 Text(
                     text = "完了",
@@ -728,13 +687,11 @@ private enum class RowPosition { Single, First, Middle, Last }
 @Composable
 private fun SubCategoryRow(
     item: SettingCategoryScreenUiState.SubCategoryItem,
-    isEditMode: Boolean,
     isAddMode: Boolean,
     position: RowPosition,
     modifier: Modifier = Modifier,
 ) {
     val accentColor = MaterialTheme.colorScheme.primary
-    val errorColor = MaterialTheme.colorScheme.error
     val rowShape = when (position) {
         RowPosition.Single -> RoundedCornerShape(12.dp)
         RowPosition.First -> RoundedCornerShape(topStart = 12.dp, topEnd = 12.dp)
@@ -823,16 +780,6 @@ private fun SubCategoryRow(
                     .padding(start = 16.dp, top = 4.dp, bottom = 4.dp, end = 4.dp),
                 verticalAlignment = Alignment.CenterVertically,
             ) {
-                if (isEditMode) {
-                    Icon(
-                        imageVector = Icons.Default.DragIndicator,
-                        contentDescription = null,
-                        tint = MaterialTheme.colorScheme.onSurfaceVariant,
-                        modifier = Modifier
-                            .size(22.dp)
-                            .padding(end = 4.dp),
-                    )
-                }
                 Text(
                     modifier = Modifier
                         .weight(1f)
@@ -845,7 +792,7 @@ private fun SubCategoryRow(
                         MaterialTheme.colorScheme.onSurface
                     },
                 )
-                if (!isEditMode && !isAddMode) {
+                if (!isAddMode) {
                     IconButton(onClick = { item.event.onClickEdit() }) {
                         Icon(
                             imageVector = Icons.Default.Edit,
@@ -861,14 +808,14 @@ private fun SubCategoryRow(
                             imageVector = Icons.Default.Close,
                             contentDescription = "削除",
                             modifier = Modifier.size(18.dp),
-                            tint = if (isEditMode) errorColor else MaterialTheme.colorScheme.onSurfaceVariant,
+                            tint = MaterialTheme.colorScheme.onSurfaceVariant,
                         )
                     }
                 }
             }
             if (!isLast) {
                 HorizontalDivider(
-                    modifier = Modifier.padding(start = if (isEditMode) 40.dp else 16.dp),
+                    modifier = Modifier.padding(start = 16.dp),
                     color = MaterialTheme.colorScheme.outlineVariant,
                 )
             }
