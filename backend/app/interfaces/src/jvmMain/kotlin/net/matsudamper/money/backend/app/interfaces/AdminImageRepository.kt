@@ -18,6 +18,17 @@ interface AdminImageRepository {
 
     fun getImageDataByDisplayId(displayId: String): ImageData?
 
+    fun getImageDirectoryMonths(): List<ImageDirectoryMonth>
+
+    fun getUnlinkedImagesByMonth(yearMonth: String): List<Item>
+
+    fun deleteImages(imageIds: List<ImageId>): Boolean
+
+    data class ImageDirectoryMonth(
+        val yearMonth: String,
+        val count: Int,
+    )
+
     data class Cursor(
         val imageId: ImageId,
     )

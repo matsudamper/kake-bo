@@ -20,3 +20,19 @@ query AdminUnlinkedImagesTotalCount {
         totalCount
     }
 }
+
+query AdminImageDirectoryMonths {
+    adminImageDirectoryMonths {
+        yearMonth
+        count
+    }
+}
+
+query AdminUnlinkedImagesByMonth($yearMonth: String!) {
+    adminUnlinkedImagesByMonth(yearMonth: $yearMonth) {
+        id
+        url
+        userId
+        userName
+    }
+}

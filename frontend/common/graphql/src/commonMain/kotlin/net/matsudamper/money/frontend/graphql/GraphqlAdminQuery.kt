@@ -4,6 +4,7 @@ import com.apollographql.apollo.api.ApolloResponse
 import com.apollographql.apollo.api.Optional
 import com.apollographql.apollo.cache.normalized.FetchPolicy
 import com.apollographql.apollo.cache.normalized.fetchPolicy
+import net.matsudamper.money.element.ImageId
 
 class GraphqlAdminQuery(
     private val graphqlClient: GraphqlClient,
@@ -66,6 +67,27 @@ class GraphqlAdminQuery(
             .query(AdminUnlinkedImagesTotalCountQuery())
             .fetchPolicy(FetchPolicy.NetworkOnly)
             .execute()
+    }
+
+    suspend fun getImageDirectoryMonths(): ApolloResponse<AdminImageDirectoryMonthsQuery.Data> {
+        return graphqlClient.apolloClient
+            .query(AdminImageDirectoryMonthsQuery())
+            .fetchPolicy(FetchPolicy.NetworkOnly)
+            .execute()
+    }
+
+    suspend fun getUnlinkedImagesByMonth(yearMonth: String): ApolloResponse<AdminUnlinkedImagesByMonthQuery.Data> {
+        return graphqlClient.apolloClient
+            .query(AdminUnlinkedImagesByMonthQuery(yearMonth = yearMonth))
+            .fetchPolicy(FetchPolicy.NetworkOnly)
+            .execute()
+    }
+
+    suspend fun deleteUnlinkedImages(imageIds: List<ImageId>): Boolean {
+        return graphqlClient.apolloClient
+            .mutation(AdminDeleteUnlinkedImagesMutation(imageIds = imageIds))
+            .execute()
+            .data?.adminMutation?.deleteUnlinkedImages == true
     }
 
     suspend fun addUser(

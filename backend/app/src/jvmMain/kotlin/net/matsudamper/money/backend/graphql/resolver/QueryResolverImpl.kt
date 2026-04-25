@@ -13,6 +13,7 @@ import net.matsudamper.money.backend.graphql.GraphqlMoneyException
 import net.matsudamper.money.backend.graphql.otelSupplyAsync
 import net.matsudamper.money.backend.graphql.toDataFetcher
 import net.matsudamper.money.backend.lib.ChallengeModel
+import net.matsudamper.money.graphql.model.QlAdminImageDirectoryMonth
 import net.matsudamper.money.graphql.model.QlAdminUnlinkedImage
 import net.matsudamper.money.graphql.model.QlAdminUnlinkedImagesConnection
 import net.matsudamper.money.graphql.model.QlAdminUnlinkedImagesInput
@@ -63,6 +64,46 @@ class QueryResolverImpl : QueryResolver {
                         AdminUnlinkedImagesCursor(imageId = cursor.imageId).toCursorString()
                     },
                     hasMore = result.cursor != null,
+                )
+            }
+        }.toDataFetcher()
+    }
+
+    override fun adminImageDirectoryMonths(
+        env: DataFetchingEnvironment,
+    ): CompletionStage<DataFetcherResult<List<QlAdminImageDirectoryMonth>>> {
+        val context = env.graphQlContext.get<GraphQlContext>(GraphQlContext::class.java.name)
+        context.verifyAdminSession()
+
+        return otelSupplyAsync {
+            context.diContainer.createAdminImageRepository().getImageDirectoryMonths().map { month ->
+                QlAdminImageDirectoryMonth(
+                    yearMonth = month.yearMonth,
+                    count = month.count,
+                )
+            }
+        }.toDataFetcher()
+    }
+
+    override fun adminUnlinkedImagesByMonth(
+        yearMonth: String,
+        env: DataFetchingEnvironment,
+    ): CompletionStage<DataFetcherResult<List<QlAdminUnlinkedImage>>> {
+        val context = env.graphQlContext.get<GraphQlContext>(GraphQlContext::class.java.name)
+        context.verifyAdminSession()
+        val domain = ServerEnv.domain
+            ?: throw IllegalStateException("DOMAIN is not configured")
+
+        return otelSupplyAsync {
+            context.diContainer.createAdminImageRepository().getUnlinkedImagesByMonth(yearMonth).map { item ->
+                QlAdminUnlinkedImage(
+                    id = item.imageId,
+                    url = ImageApiPath.adminImageV1AbsoluteByDisplayId(
+                        domain = domain,
+                        displayId = item.displayId,
+                    ),
+                    userId = item.userId,
+                    userName = item.userName,
                 )
             }
         }.toDataFetcher()

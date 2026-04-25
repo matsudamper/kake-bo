@@ -7,6 +7,8 @@ type Query {
     isLoggedIn: Boolean! @lazy
     isAdminLoggedIn: Boolean! @lazy
     adminUnlinkedImages(input: AdminUnlinkedImagesInput!): AdminUnlinkedImagesConnection! @lazy
+    adminImageDirectoryMonths: [AdminImageDirectoryMonth!]! @lazy
+    adminUnlinkedImagesByMonth(yearMonth: String!): [AdminUnlinkedImage!]! @lazy
     user: User
     fidoLoginInfo: FidoLoginInfo! @lazy
 }

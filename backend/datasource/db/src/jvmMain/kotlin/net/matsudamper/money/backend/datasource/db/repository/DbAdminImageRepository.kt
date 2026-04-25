@@ -109,4 +109,89 @@ class DbAdminImageRepository : AdminImageRepository {
                 }
         }
     }
+
+    override fun getImageDirectoryMonths(): List<AdminImageRepository.ImageDirectoryMonth> {
+        return DbConnectionImpl.use { connection ->
+            val yearMonthField = DSL.substring(userImages.IMAGE_PATH, 1, 7)
+            DSL.using(connection)
+                .select(
+                    yearMonthField.`as`("year_month"),
+                    DSL.count().`as`("cnt"),
+                )
+                .from(userImages)
+                .leftJoin(usageImagesRelation)
+                .on(
+                    usageImagesRelation.USER_ID.eq(userImages.USER_ID)
+                        .and(usageImagesRelation.USER_IMAGE_ID.eq(userImages.USER_IMAGE_ID)),
+                )
+                .where(
+                    userImages.UPLOADED.eq(true)
+                        .and(usageImagesRelation.USER_IMAGE_ID.isNull),
+                )
+                .groupBy(yearMonthField)
+                .orderBy(yearMonthField.desc())
+                .fetch()
+                .map { record ->
+                    AdminImageRepository.ImageDirectoryMonth(
+                        yearMonth = record.get("year_month", String::class.java)!!,
+                        count = record.get("cnt", Int::class.java)!!,
+                    )
+                }
+        }
+    }
+
+    override fun getUnlinkedImagesByMonth(yearMonth: String): List<AdminImageRepository.Item> {
+        return DbConnectionImpl.use { connection ->
+            DSL.using(connection)
+                .select(
+                    userImages.USER_IMAGE_ID,
+                    userImages.DISPLAY_ID,
+                    userImages.USER_ID,
+                    users.USER_NAME,
+                )
+                .from(userImages)
+                .join(users)
+                .on(users.USER_ID.eq(userImages.USER_ID))
+                .leftJoin(usageImagesRelation)
+                .on(
+                    usageImagesRelation.USER_ID.eq(userImages.USER_ID)
+                        .and(usageImagesRelation.USER_IMAGE_ID.eq(userImages.USER_IMAGE_ID)),
+                )
+                .where(
+                    userImages.UPLOADED.eq(true)
+                        .and(usageImagesRelation.USER_IMAGE_ID.isNull)
+                        .and(userImages.IMAGE_PATH.like("$yearMonth/%")),
+                )
+                .orderBy(userImages.USER_IMAGE_ID.desc())
+                .fetch()
+                .map { record ->
+                    AdminImageRepository.Item(
+                        imageId = ImageId(record.get(userImages.USER_IMAGE_ID)!!),
+                        displayId = record.get(userImages.DISPLAY_ID)!!,
+                        userId = UserId(record.get(userImages.USER_ID)!!),
+                        userName = record.get(users.USER_NAME)!!,
+                    )
+                }
+        }
+    }
+
+    override fun deleteImages(imageIds: List<ImageId>): Boolean {
+        if (imageIds.isEmpty()) return true
+        return DbConnectionImpl.use { connection ->
+            val ids = imageIds.map { it.value }
+            DSL.using(connection)
+                .deleteFrom(userImages)
+                .where(
+                    userImages.USER_IMAGE_ID.`in`(ids)
+                        .and(
+                            userImages.USER_IMAGE_ID.notIn(
+                                DSL.select(usageImagesRelation.USER_IMAGE_ID)
+                                    .from(usageImagesRelation),
+                            ),
+                        ),
+                )
+                .execute()
+            true
+        }
+    }
 }

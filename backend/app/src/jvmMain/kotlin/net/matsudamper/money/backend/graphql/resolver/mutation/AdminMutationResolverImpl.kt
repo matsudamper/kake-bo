@@ -10,6 +10,7 @@ import net.matsudamper.money.backend.graphql.toDataFetcher
 import net.matsudamper.money.backend.logic.AddUserUseCase
 import net.matsudamper.money.backend.logic.IPasswordManager
 import net.matsudamper.money.backend.logic.PasswordManager
+import net.matsudamper.money.element.ImageId
 import net.matsudamper.money.graphql.model.AdminMutationResolver
 import net.matsudamper.money.graphql.model.QlAdminAddUserErrorType
 import net.matsudamper.money.graphql.model.QlAdminAddUserResult
@@ -127,6 +128,19 @@ class AdminMutationResolverImpl : AdminMutationResolver {
                     }
                 }
             }
+        }.toDataFetcher()
+    }
+
+    override fun deleteUnlinkedImages(
+        adminMutation: QlAdminMutation,
+        imageIds: List<ImageId>,
+        env: DataFetchingEnvironment,
+    ): CompletionStage<DataFetcherResult<Boolean>> {
+        val context = env.graphQlContext.get<GraphQlContext>(GraphQlContext::class.java.name)
+        context.verifyAdminSession()
+
+        return otelSupplyAsync {
+            context.diContainer.createAdminImageRepository().deleteImages(imageIds)
         }.toDataFetcher()
     }
 }

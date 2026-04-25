@@ -90,6 +90,8 @@ type AdminMutation {
   adminLogout: Boolean!
 
   addUser(name: String!, password: String!): AdminAddUserResult!
+
+  deleteUnlinkedImages(imageIds: [ImageId!]!): Boolean!
 }
 
 type AdminUnlinkedImage {
@@ -110,6 +112,12 @@ type AdminUnlinkedImagesConnection {
   hasMore: Boolean!
 
   totalCount: Int!
+}
+
+type AdminImageDirectoryMonth {
+  yearMonth: String!
+
+  count: Int!
 }
 
 input AdminUnlinkedImagesInput {
@@ -546,6 +554,10 @@ type Query {
   isAdminLoggedIn: Boolean!
 
   adminUnlinkedImages(input: AdminUnlinkedImagesInput!): AdminUnlinkedImagesConnection!
+
+  adminImageDirectoryMonths: [AdminImageDirectoryMonth!]!
+
+  adminUnlinkedImagesByMonth(yearMonth: String!): [AdminUnlinkedImage!]!
 
   user: User
 

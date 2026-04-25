@@ -28,19 +28,28 @@ public data class AdminRootScreenUiState(
 }
 
 public data class AdminUnlinkedImagesScreenUiState(
-    val loadingState: LoadingState,
+    val screenState: ScreenState,
     val event: Event,
 ) {
-    public sealed interface LoadingState {
-        public data object Loading : LoadingState
-        public data object Error : LoadingState
-        public data class Loaded(
+    public sealed interface ScreenState {
+        public data object Loading : ScreenState
+        public data object Error : ScreenState
+        public data class MonthList(
+            val months: List<MonthItem>,
+        ) : ScreenState
+
+        public data class MonthDetail(
+            val yearMonth: String,
             val items: List<Item>,
-            val hasMore: Boolean,
-            val isLoadingMore: Boolean,
-            val totalCount: Int?,
-        ) : LoadingState
+            val selectedIds: Set<String>,
+            val isDeleting: Boolean,
+        ) : ScreenState
     }
+
+    public data class MonthItem(
+        val yearMonth: String,
+        val count: Int,
+    )
 
     public data class Item(
         val id: String,
@@ -54,7 +63,17 @@ public data class AdminUnlinkedImagesScreenUiState(
 
         public fun onClickRetry()
 
-        public fun onClickLoadMore()
+        public fun onClickMonth(yearMonth: String)
+
+        public fun onClickBack()
+
+        public fun onToggleImageSelection(id: String)
+
+        public fun onClickSelectAll()
+
+        public fun onClickDeselectAll()
+
+        public fun onClickDeleteSelected()
     }
 }
 

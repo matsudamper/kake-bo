@@ -16,3 +16,8 @@ type AdminUnlinkedImage {
     userId: UserId!
     userName: String!
 }
+
+type AdminImageDirectoryMonth {
+    yearMonth: String!
+    count: Int!
+}
