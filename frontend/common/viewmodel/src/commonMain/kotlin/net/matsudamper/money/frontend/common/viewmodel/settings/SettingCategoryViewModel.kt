@@ -50,11 +50,7 @@ public class SettingCategoryViewModel(
                 }
 
                 override fun onClickBack() {
-                    viewModelScope.launch {
-                        viewModelEventSender.send {
-                            it.navigateToCategories()
-                        }
-                    }
+                    navController.back()
                 }
 
                 override fun onClickEditCategoryName() {
