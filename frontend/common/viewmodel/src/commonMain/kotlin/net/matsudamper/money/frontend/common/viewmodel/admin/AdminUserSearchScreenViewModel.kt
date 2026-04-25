@@ -234,6 +234,11 @@ public class AdminUserSearchScreenViewModel(
                 eventSender.send {
                     it.showSnackBar("パスワードを変更しました")
                 }
+                viewModelStateFlow.update {
+                    it.copy(
+                        replacePasswordDialogState = null,
+                    )
+                }
             } else {
                 viewModelStateFlow.update {
                     it.copy(
