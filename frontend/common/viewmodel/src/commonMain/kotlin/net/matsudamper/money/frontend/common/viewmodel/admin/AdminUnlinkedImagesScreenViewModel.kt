@@ -179,6 +179,7 @@ public class AdminUnlinkedImagesScreenViewModel(
     private fun deleteSelectedImages() {
         val state = viewModelStateFlow.value
         if (state.isDeleting || state.selectedIds.isEmpty()) return
+        val yearMonth = state.selectedYearMonth ?: return
 
         val imageIds = state.monthDetailItems
             .filter { state.selectedIds.contains(it.id) }
@@ -193,10 +194,7 @@ public class AdminUnlinkedImagesScreenViewModel(
             }.getOrDefault(false)
 
             if (success) {
-                val yearMonth = state.selectedYearMonth
-                if (yearMonth != null) {
-                    fetchMonthDetail(yearMonth)
-                }
+                fetchMonthDetail(yearMonth)
             }
             viewModelStateFlow.update { it.copy(isDeleting = false) }
         }

@@ -110,9 +110,17 @@ class DbAdminImageRepository : AdminImageRepository {
         }
     }
 
+    /**
+     * IMAGE_PATHは「YYYY-MM/filename」形式で保存されている。
+     * 先頭7文字（YYYY-MM部分）でグループ化して月別の未紐づき画像数を返す。
+     */
     override fun getImageDirectoryMonths(): List<AdminImageRepository.ImageDirectoryMonth> {
         return DbConnectionImpl.use { connection ->
-            val yearMonthField = DSL.substring(userImages.IMAGE_PATH, 1, 7)
+            val yearMonthField = DSL.substring(
+                userImages.IMAGE_PATH,
+                YEAR_MONTH_START_INDEX,
+                YEAR_MONTH_LENGTH,
+            )
             DSL.using(connection)
                 .select(
                     yearMonthField.`as`("year_month"),
@@ -141,6 +149,7 @@ class DbAdminImageRepository : AdminImageRepository {
     }
 
     override fun getUnlinkedImagesByMonth(yearMonth: String): List<AdminImageRepository.Item> {
+        require(YEAR_MONTH_PATTERN.matches(yearMonth)) { "yearMonth must be in YYYY-MM format" }
         return DbConnectionImpl.use { connection ->
             DSL.using(connection)
                 .select(
@@ -193,5 +202,16 @@ class DbAdminImageRepository : AdminImageRepository {
                 .execute()
             true
         }
+    }
+
+    private companion object {
+        /** IMAGE_PATHのYYYY-MM部分の開始位置（1-indexed） */
+        private const val YEAR_MONTH_START_INDEX = 1
+
+        /** IMAGE_PATHのYYYY-MM部分の長さ */
+        private const val YEAR_MONTH_LENGTH = 7
+
+        /** YYYY-MM形式の正規表現パターン */
+        private val YEAR_MONTH_PATTERN = Regex("""\d{4}-\d{2}""")
     }
 }
