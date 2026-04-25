@@ -96,33 +96,6 @@ type AdminMutation {
   replacePassword(userId: UserId!, password: String!): AdminReplacePasswordResult!
 }
 
-input AdminUserSearchInput {
-  query: String!
-
-  size: Int!
-
-  cursor: String
-}
-
-type AdminUserSearchUsersConnection {
-  nodes: [AdminSearchedUser!]!
-
-  cursor: String
-
-  hasMore: Boolean!
-}
-
-type AdminSearchedUser {
-  userId: UserId!
-  name: String!
-}
-
-type AdminReplacePasswordResult {
-  isSuccess: Boolean!
-
-  errorType: AdminReplacePasswordErrorType
-}
-
 enum AdminReplacePasswordErrorType {
   Unknown
 
@@ -131,6 +104,18 @@ enum AdminReplacePasswordErrorType {
   PasswordLength
 
   PasswordInvalidChar
+}
+
+type AdminReplacePasswordResult {
+  isSuccess: Boolean!
+
+  errorType: AdminReplacePasswordErrorType
+}
+
+type AdminSearchedUser {
+  userId: UserId!
+
+  name: String!
 }
 
 type AdminUnlinkedImage {
@@ -157,6 +142,22 @@ input AdminUnlinkedImagesInput {
   size: Int!
 
   cursor: String
+}
+
+input AdminUserSearchInput {
+  query: String!
+
+  size: Int!
+
+  cursor: String
+}
+
+type AdminUserSearchUsersConnection {
+  nodes: [AdminSearchedUser!]!
+
+  cursor: String
+
+  hasMore: Boolean!
 }
 
 type ApiToken {
