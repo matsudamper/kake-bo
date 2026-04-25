@@ -147,7 +147,7 @@ internal fun UserSearchScreen(
                         type = KeyboardType.Password,
                     )
                     Text(
-                        "使用できる記号 !@#\$%^&*()_+-?<>,.",
+                        AdminAddUserUiState.PASSWORD_ALLOW_SYMBOLS_TEXT,
                         fontFamily = rememberCustomFontFamily(),
                     )
                     if (dialogState.resultMessage != null) {

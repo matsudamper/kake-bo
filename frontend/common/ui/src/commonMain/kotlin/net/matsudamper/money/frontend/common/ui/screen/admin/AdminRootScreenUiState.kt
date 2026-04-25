@@ -99,7 +99,11 @@ public data class AdminAddUserUiState(
     val onChangeUserName: (String) -> Unit,
     val onChangePassword: (String) -> Unit,
     val onClickAddButton: () -> Unit,
-)
+) {
+    public companion object {
+        public const val PASSWORD_ALLOW_SYMBOLS_TEXT: String = "使用できる記号 !@#\$%^&*()_+-?<>,."
+    }
+}
 
 public data class AdminUserSearchUiState(
     val searchQuery: String,

@@ -70,7 +70,7 @@ internal fun AddUserScreen(
                 autocomplete = "new-password",
             )
             Text(
-                "使用できる記号 !@#\$%^&*()_+-?<>,.",
+                AdminAddUserUiState.PASSWORD_ALLOW_SYMBOLS_TEXT,
                 fontFamily = rememberCustomFontFamily(),
             )
             Spacer(modifier = Modifier.height(12.dp))
