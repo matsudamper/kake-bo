@@ -25,6 +25,8 @@ import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
+import androidx.compose.material3.SnackbarHost
+import androidx.compose.material3.SnackbarHostState
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.material3.TopAppBar
@@ -47,6 +49,7 @@ import net.matsudamper.money.frontend.common.ui.rememberCustomFontFamily
 internal fun UserSearchScreen(
     modifier: Modifier = Modifier,
     uiState: AdminUserSearchUiState,
+    snackbarHostState: SnackbarHostState,
     onClickBack: () -> Unit,
 ) {
     Scaffold(
@@ -70,6 +73,9 @@ internal fun UserSearchScreen(
             )
         },
         contentColor = MaterialTheme.colorScheme.onSurface,
+        snackbarHost = {
+            SnackbarHost(hostState = snackbarHostState)
+        },
     ) { paddingValues ->
         Box(
             modifier = Modifier

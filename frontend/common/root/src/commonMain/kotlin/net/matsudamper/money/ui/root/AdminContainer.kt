@@ -1,8 +1,12 @@
 package net.matsudamper.money.ui.root
 
 import androidx.compose.foundation.layout.PaddingValues
+import androidx.compose.material3.SnackbarHostState
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.rememberCoroutineScope
+import kotlinx.coroutines.launch
 import net.matsudamper.money.frontend.common.base.lifecycle.LocalScopedObjectStore
 import net.matsudamper.money.frontend.common.base.nav.admin.rememberAdminScreenController
 import net.matsudamper.money.frontend.common.ui.screen.admin.AdminRootScreen
@@ -23,7 +27,6 @@ internal fun AdminContainer(
 ) {
     val koin = LocalKoin.current
     val controller = rememberAdminScreenController()
-
     val adminRootViewModel = LocalScopedObjectStore.current.putOrGet<AdminRootScreenViewModel>(Unit) {
         AdminRootScreenViewModel(
             scopedObjectFeature = it,
@@ -67,13 +70,25 @@ internal fun AdminContainer(
             }
             adminUnlinkedImagesScreenViewModel.uiStateFlow.collectAsState().value
         },
-        adminUserSearchUiStateProvider = {
+        adminUserSearchUiStateProvider = { snackbarHostState: SnackbarHostState ->
             val adminUserSearchScreenViewModel = LocalScopedObjectStore.current.putOrGet<AdminUserSearchScreenViewModel>(Unit) {
                 val graphqlClient = koin.get<GraphqlClient>()
                 AdminUserSearchScreenViewModel(
                     scopedObjectFeature = it,
                     adminQuery = GraphqlAdminQuery(graphqlClient),
                     pagingModel = net.matsudamper.money.frontend.common.viewmodel.admin.AdminUserSearchPagingModel(graphqlClient),
+                )
+            }
+            val coroutineScope = rememberCoroutineScope()
+            LaunchedEffect(Unit) {
+                adminUserSearchScreenViewModel.eventHandler.collect(
+                    object : AdminUserSearchScreenViewModel.Event {
+                        override fun showSnackBar(message: String) {
+                            coroutineScope.launch {
+                                snackbarHostState.showSnackbar(message)
+                            }
+                        }
+                    },
                 )
             }
             adminUserSearchScreenViewModel.uiStateFlow.collectAsState().value

@@ -1,5 +1,6 @@
 package net.matsudamper.money.frontend.common.viewmodel.admin
 
+import kotlinx.coroutines.Job
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
@@ -14,6 +15,8 @@ import net.matsudamper.money.frontend.common.ui.screen.admin.user.AdminUserSearc
 import net.matsudamper.money.frontend.common.ui.screen.admin.user.AdminUserSearchUiState.ReplacePasswordDialogState
 import net.matsudamper.money.frontend.common.ui.screen.admin.user.UserOperationDialogState
 import net.matsudamper.money.frontend.common.viewmodel.CommonViewModel
+import net.matsudamper.money.frontend.common.viewmodel.lib.EventHandler
+import net.matsudamper.money.frontend.common.viewmodel.lib.EventSender
 import net.matsudamper.money.frontend.graphql.AdminSearchUsersQuery
 import net.matsudamper.money.frontend.graphql.GraphqlAdminQuery
 import net.matsudamper.money.frontend.graphql.UpdateOperationResponseResult
@@ -25,8 +28,11 @@ public class AdminUserSearchScreenViewModel(
     private val adminQuery: GraphqlAdminQuery,
     private val pagingModel: AdminUserSearchPagingModel,
 ) : CommonViewModel(scopedObjectFeature) {
-    private var searchJob: kotlinx.coroutines.Job? = null
+    private var searchJob: Job? = null
     private val viewModelStateFlow = MutableStateFlow(ViewModelState())
+
+    private val eventSender: EventSender<Event> = EventSender()
+    public val eventHandler: EventHandler<Event> = eventSender.asHandler()
 
     public val uiStateFlow: StateFlow<AdminUserSearchUiState> = MutableStateFlow(
         AdminUserSearchUiState(
@@ -214,24 +220,33 @@ public class AdminUserSearchScreenViewModel(
                 onFailure = {
                     Logger.e(TAG, it)
                     viewModelStateFlow.update { viewModelState ->
-                        viewModelState.copy(resultMessage = "エラーが発生しました")
+                        viewModelState.copy(
+                            replacePasswordDialogState = viewModelState.replacePasswordDialogState?.copy(
+                                resultMessage = "エラーが発生しました",
+                            ),
+                        )
                     }
                     return@launch
                 },
             )
             val data = result.data?.adminMutation?.replacePassword
-            val message = if (data?.isSuccess == true) {
-                "パスワードを変更しました"
-            } else {
-                when (data?.errorType?.rawValue) {
-                    "UserNotFound" -> "ユーザーが見つかりません"
-                    "PasswordLength" -> "パスワードの長さが不正です（20〜256文字）"
-                    "PasswordInvalidChar" -> "パスワードに使用できない文字が含まれています"
-                    else -> "エラーが発生しました"
+            if (data?.isSuccess == true) {
+                eventSender.send {
+                    it.showSnackBar("パスワードを変更しました")
                 }
-            }
-            viewModelStateFlow.update {
-                it.copy(resultMessage = message)
+            } else {
+                viewModelStateFlow.update {
+                    it.copy(
+                        replacePasswordDialogState = it.replacePasswordDialogState?.copy(
+                            resultMessage = when (data?.errorType?.rawValue) {
+                                "UserNotFound" -> "ユーザーが見つかりません"
+                                "PasswordLength" -> "パスワードの長さが不正です（20〜256文字）"
+                                "PasswordInvalidChar" -> "パスワードに使用できない文字が含まれています"
+                                else -> "エラーが発生しました"
+                            },
+                        ),
+                    )
+                }
             }
         }
     }
@@ -243,8 +258,11 @@ public class AdminUserSearchScreenViewModel(
         val isLoadingMore: Boolean = false,
         val replacePasswordDialogState: ReplacePasswordDialogState? = null,
         val userOperationDialogUiState: UserOperationDialogState? = null,
-        val resultMessage: String? = null,
     )
+
+    public interface Event {
+        public fun showSnackBar(message: String)
+    }
 
     private companion object {
         const val PAGE_SIZE = 20
