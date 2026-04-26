@@ -9,6 +9,8 @@ import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.update
 
 public interface AdminScreenController {
+    public val screen: StateFlow<List<AdminScreenType>>
+
     public fun navigateToLogin()
 
     public fun navigateToRoot()
@@ -39,7 +41,7 @@ public enum class AdminScreenType : NavKey {
 
 public class AdminScreenControllerImpl : AdminScreenController {
     private val _screen: MutableStateFlow<List<AdminScreenType>> = MutableStateFlow(emptyList())
-    public val screen: StateFlow<List<AdminScreenType>> = _screen.asStateFlow()
+    public override val screen: StateFlow<List<AdminScreenType>> = _screen.asStateFlow()
 
     override fun navigateToLogin() {
         _screen.update {

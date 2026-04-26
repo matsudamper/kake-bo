@@ -5,10 +5,15 @@ import androidx.compose.material3.SnackbarHostState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.getValue
 import androidx.compose.runtime.rememberCoroutineScope
+import androidx.compose.runtime.rememberUpdatedState
 import kotlinx.coroutines.launch
 import net.matsudamper.money.frontend.common.base.lifecycle.LocalScopedObjectStore
+import net.matsudamper.money.frontend.common.base.nav.admin.AdminScreenType
 import net.matsudamper.money.frontend.common.base.nav.admin.rememberAdminScreenController
+import net.matsudamper.money.frontend.common.base.nav.user.ScreenNavController
+import net.matsudamper.money.frontend.common.base.nav.user.ScreenStructure
 import net.matsudamper.money.frontend.common.ui.screen.admin.AdminRootScreen
 import net.matsudamper.money.frontend.common.viewmodel.admin.AdminAddUserScreenViewModel
 import net.matsudamper.money.frontend.common.viewmodel.admin.AdminLoginScreenViewModel
@@ -22,11 +27,27 @@ import net.matsudamper.money.frontend.graphql.GraphqlClient
 
 @Composable
 internal fun AdminContainer(
+    current: ScreenStructure.Admin,
+    navController: ScreenNavController,
     windowInsets: PaddingValues,
     globalEventSender: EventSender<GlobalEvent>,
 ) {
     val koin = LocalKoin.current
     val controller = rememberAdminScreenController()
+    val navControllerState by rememberUpdatedState(navController)
+    LaunchedEffect(controller) {
+        controller.screen.collect { stack ->
+            val top = stack.lastOrNull() ?: return@collect
+            val structure: ScreenStructure.Admin = when (top) {
+                AdminScreenType.Login -> ScreenStructure.Admin.Login
+                AdminScreenType.Root -> ScreenStructure.Admin.Root
+                AdminScreenType.AddUser -> ScreenStructure.Admin.AddUser
+                AdminScreenType.UnlinkedImages -> ScreenStructure.Admin.UnlinkedImages
+                AdminScreenType.UserSearch -> ScreenStructure.Admin.UserSearch
+            }
+            navControllerState.navigate(structure)
+        }
+    }
     val adminRootViewModel = LocalScopedObjectStore.current.putOrGet<AdminRootScreenViewModel>(Unit) {
         AdminRootScreenViewModel(
             scopedObjectFeature = it,

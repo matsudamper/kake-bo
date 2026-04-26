@@ -118,9 +118,25 @@ public enum class Screens : Direction {
         override val title: String = "ログイン"
         override val placeholderUrl: String = "/login"
     },
-    Admin {
-        override val title: String = "ログイン"
+    AdminRoot {
+        override val title: String = "管理者"
         override val placeholderUrl: String = "/admin"
+    },
+    AdminLogin {
+        override val title: String = "管理者ログイン"
+        override val placeholderUrl: String = "/admin/login"
+    },
+    AdminAddUser {
+        override val title: String = "ユーザー追加"
+        override val placeholderUrl: String = "/admin/add-user"
+    },
+    AdminUnlinkedImages {
+        override val title: String = "リンクなし画像"
+        override val placeholderUrl: String = "/admin/unlinked-images"
+    },
+    AdminUserSearch {
+        override val title: String = "ユーザー検索"
+        override val placeholderUrl: String = "/admin/user-search"
     },
     MailImport {
         override val title: String = "メールインポート"

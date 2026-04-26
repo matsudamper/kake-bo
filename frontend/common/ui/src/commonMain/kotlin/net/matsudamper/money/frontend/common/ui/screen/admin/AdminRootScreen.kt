@@ -17,7 +17,6 @@ import androidx.navigation3.runtime.NavEntry
 import androidx.navigation3.scene.DialogSceneStrategy
 import androidx.navigation3.ui.NavDisplay
 import net.matsudamper.money.frontend.common.base.nav.admin.AdminScreenController
-import net.matsudamper.money.frontend.common.base.nav.admin.AdminScreenControllerImpl
 import net.matsudamper.money.frontend.common.base.nav.admin.AdminScreenType
 import net.matsudamper.money.frontend.common.ui.screen.admin.user.AdminUserSearchUiState
 import net.matsudamper.money.frontend.common.ui.screen.admin.user.UserSearchScreen
@@ -33,9 +32,8 @@ public fun AdminRootScreen(
     windowInsets: PaddingValues,
     modifier: Modifier = Modifier,
 ) {
-    val adminScreenControllerImpl = adminScreenController as AdminScreenControllerImpl
     val saveableStateHolder = rememberSaveableStateHolder()
-    val screenStack = adminScreenControllerImpl.screen.collectAsState().value
+    val screenStack = adminScreenController.screen.collectAsState().value
     Box(
         modifier = modifier
             .fillMaxSize()

@@ -286,11 +286,38 @@ public sealed interface ScreenStructure : IScreenStructure {
         override val sameScreenId: String = "ScreenStructure#Login"
     }
 
-    @Serializable
-    public data object Admin : ScreenStructure {
-        override val direction: Screens = Screens.Admin
-        override val stackGroupId: String? = null
-        override val sameScreenId: String = "ScreenStructure#Admin"
+    public sealed interface Admin : ScreenStructure {
+        override val stackGroupId: String? get() = null
+
+        @Serializable
+        public data object Root : Admin {
+            override val direction: Screens = Screens.AdminRoot
+            override val sameScreenId: String = "ScreenStructure#Admin"
+        }
+
+        @Serializable
+        public data object Login : Admin {
+            override val direction: Screens = Screens.AdminLogin
+            override val sameScreenId: String = "ScreenStructure#Admin"
+        }
+
+        @Serializable
+        public data object AddUser : Admin {
+            override val direction: Screens = Screens.AdminAddUser
+            override val sameScreenId: String = "ScreenStructure#Admin"
+        }
+
+        @Serializable
+        public data object UnlinkedImages : Admin {
+            override val direction: Screens = Screens.AdminUnlinkedImages
+            override val sameScreenId: String = "ScreenStructure#Admin"
+        }
+
+        @Serializable
+        public data object UserSearch : Admin {
+            override val direction: Screens = Screens.AdminUserSearch
+            override val sameScreenId: String = "ScreenStructure#Admin"
+        }
     }
 
     @Serializable

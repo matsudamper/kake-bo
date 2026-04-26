@@ -295,8 +295,42 @@ public fun Content(
                                         windowInsets = paddingValues.value,
                                     )
                                 }
-                                addEntryProvider<ScreenStructure.Admin> {
+                                addEntryProvider<ScreenStructure.Admin.Root> { current ->
                                     AdminContainer(
+                                        current = current,
+                                        navController = navController,
+                                        windowInsets = paddingValues.value,
+                                        globalEventSender = globalEventSender,
+                                    )
+                                }
+                                addEntryProvider<ScreenStructure.Admin.Login> { current ->
+                                    AdminContainer(
+                                        current = current,
+                                        navController = navController,
+                                        windowInsets = paddingValues.value,
+                                        globalEventSender = globalEventSender,
+                                    )
+                                }
+                                addEntryProvider<ScreenStructure.Admin.AddUser> { current ->
+                                    AdminContainer(
+                                        current = current,
+                                        navController = navController,
+                                        windowInsets = paddingValues.value,
+                                        globalEventSender = globalEventSender,
+                                    )
+                                }
+                                addEntryProvider<ScreenStructure.Admin.UnlinkedImages> { current ->
+                                    AdminContainer(
+                                        current = current,
+                                        navController = navController,
+                                        windowInsets = paddingValues.value,
+                                        globalEventSender = globalEventSender,
+                                    )
+                                }
+                                addEntryProvider<ScreenStructure.Admin.UserSearch> { current ->
+                                    AdminContainer(
+                                        current = current,
+                                        navController = navController,
                                         windowInsets = paddingValues.value,
                                         globalEventSender = globalEventSender,
                                     )
