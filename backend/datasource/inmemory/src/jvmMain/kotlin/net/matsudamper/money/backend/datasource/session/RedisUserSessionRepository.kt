@@ -159,6 +159,7 @@ internal class RedisUserSessionRepository(
         val currentSessionUserId = SessionKeys.Session(currentSessionId).get(commands)?.userId ?: return false
         val targetSessionUserId = SessionKeys.Session(recordData.userSessionId).get(commands)?.userId ?: return false
         if (currentSessionUserId != targetSessionUserId) return false
+        if (recordData.userSessionId == currentSessionId) return false
 
         clearSession(recordData.userSessionId)
         return true
