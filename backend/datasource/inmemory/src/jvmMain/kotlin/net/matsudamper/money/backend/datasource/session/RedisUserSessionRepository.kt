@@ -3,6 +3,7 @@ package net.matsudamper.money.backend.datasource.session
 import java.time.Clock
 import java.time.LocalDateTime
 import java.util.UUID
+import kotlin.time.Duration.Companion.days
 import kotlinx.serialization.Serializable
 import io.lettuce.core.ClientOptions
 import io.lettuce.core.MaintNotificationsConfig
@@ -82,16 +83,15 @@ internal class RedisUserSessionRepository(
 
         val jsonData = ObjectMapper.kotlinxSerialization.encodeToString(sessionData)
 
-        val sessionKey = SessionKeys.Session(sessionId).key
         commands.set(
-            sessionKey,
+            SessionKeys.Session(sessionId).key,
             jsonData,
-            SetArgs().ex(ServerVariables.USER_SESSION_EXPIRE_DAY * 24 * 60 * 60),
+            SetArgs().ex(ServerVariables.USER_SESSION_EXPIRE_DAY.days.inWholeSeconds),
         )
 
         val userSessionsKey = SessionKeys.UserSessions(userId).key
         commands.sadd(userSessionsKey, sessionId.id)
-        commands.expire(userSessionsKey, ServerVariables.USER_SESSION_EXPIRE_DAY * 24 * 60 * 60)
+        commands.expire(userSessionsKey, ServerVariables.USER_SESSION_EXPIRE_DAY.days.inWholeSeconds)
 
         return UserSessionRepository.CreateSessionResult(
             sessionId = sessionId,
@@ -119,11 +119,11 @@ internal class RedisUserSessionRepository(
         val userId = UserId(sessionData.userId)
         val sessionName = sessionData.sessionName
 
-        commands.expire(sessionKey, ServerVariables.USER_SESSION_EXPIRE_DAY * 24 * 60 * 60)
-        commands.expire(SessionKeys.UserSessions(userId).key, ServerVariables.USER_SESSION_EXPIRE_DAY * 24 * 60 * 60)
+        commands.expire(sessionKey, ServerVariables.USER_SESSION_EXPIRE_DAY.days.inWholeSeconds)
+        commands.expire(SessionKeys.UserSessions(userId).key, ServerVariables.USER_SESSION_EXPIRE_DAY.days.inWholeSeconds)
 
         if (sessionName.isNotEmpty()) {
-            commands.expire(SessionKeys.UserSessionByUser(userId, sessionName).key, ServerVariables.USER_SESSION_EXPIRE_DAY * 24 * 60 * 60)
+            commands.expire(SessionKeys.UserSessionByUser(userId, sessionName).key, ServerVariables.USER_SESSION_EXPIRE_DAY.days.inWholeSeconds)
         }
 
         return UserSessionRepository.VerifySessionResult.Success(
@@ -251,6 +251,7 @@ internal class RedisUserSessionRepository(
 
     sealed interface SessionKeys {
         val key: String
+
         class Session(sessionId: UserSessionId) : SessionKeys {
             override val key: String = "user_session:${sessionId.id}"
         }
