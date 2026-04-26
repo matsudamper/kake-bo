@@ -36,6 +36,7 @@ interface UserSessionRepository {
     )
 
     data class SessionInfo(
+        val sessionRecordId: SessionRecordId,
         val name: String,
         val latestAccess: Instant,
     )

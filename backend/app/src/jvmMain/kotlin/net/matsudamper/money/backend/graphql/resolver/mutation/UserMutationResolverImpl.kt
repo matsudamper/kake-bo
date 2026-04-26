@@ -42,6 +42,7 @@ import net.matsudamper.money.element.MoneyUsageCategoryId
 import net.matsudamper.money.element.MoneyUsageId
 import net.matsudamper.money.element.MoneyUsagePresetId
 import net.matsudamper.money.element.MoneyUsageSubCategoryId
+import net.matsudamper.money.element.SessionRecordId
 import net.matsudamper.money.element.UserId
 import net.matsudamper.money.graphql.model.QlAddCategoryInput
 import net.matsudamper.money.graphql.model.QlAddCategoryResult
@@ -167,7 +168,7 @@ class UserMutationResolverImpl : UserMutationResolver {
 
     override fun deleteSession(
         userMutation: QlUserMutation,
-        name: String,
+        id: SessionRecordId,
         env: DataFetchingEnvironment,
     ): CompletionStage<DataFetcherResult<QlDeleteSessionResult>> {
         val context = env.graphQlContext.get<GraphQlContext>(GraphQlContext::class.java.name)
@@ -176,9 +177,8 @@ class UserMutationResolverImpl : UserMutationResolver {
 
         return otelSupplyAsync {
             val isSuccess = userSessionRepository.deleteSession(
-                userId = sessionInfo.userId,
-                sessionName = name,
-                currentSessionName = sessionInfo.sessionName,
+                currentSessionId = sessionInfo.sessionId,
+                targetSessionRecordId = id,
             )
             QlDeleteSessionResult(
                 isSuccess = isSuccess,
@@ -188,23 +188,25 @@ class UserMutationResolverImpl : UserMutationResolver {
 
     override fun changeSessionName(
         userMutation: QlUserMutation,
+        id: SessionRecordId,
         name: String,
         env: DataFetchingEnvironment,
     ): CompletionStage<DataFetcherResult<QlChangeSessionNameResult>> {
         val context = env.graphQlContext.get<GraphQlContext>(GraphQlContext::class.java.name)
         val userSessionRepository = context.diContainer.createUserSessionRepository()
-        val sessionInfo = context.verifyUserSessionAndGetSessionInfo()
+        context.verifyUserSessionAndGetSessionInfo()
 
         return otelSupplyAsync {
             val result = userSessionRepository.changeSessionName(
-                sessionId = sessionInfo.sessionId,
-                name = name,
+                sessionRecordId = id,
+                sessionName = name,
             )
             QlChangeSessionNameResult(
                 isSuccess = result != null,
                 session = run session@{
                     result ?: return@session null
                     QlSession(
+                        id = result.sessionRecordId,
                         name = result.name,
                         lastAccess = result.latestAccess.atOffset(ZoneOffset.UTC),
                     )

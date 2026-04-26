@@ -130,6 +130,7 @@ internal class RedisUserSessionRepository(
         val sessionData = SessionKeys.Session(sessionId).get(commands) ?: return null
 
         return UserSessionRepository.SessionInfo(
+            sessionRecordId = sessionData.sessionRecordId,
             name = sessionData.name,
             latestAccess = sessionData.lastAccess.toJavaInstant(),
         )
@@ -138,16 +139,13 @@ internal class RedisUserSessionRepository(
     override fun getSessions(userId: UserId): List<UserSessionRepository.SessionInfo> {
         val sessionsKey = SessionKeys.UserSessionByUser(userId)
         val recordIdList = sessionsKey.get(commands)
-        val sessions = recordIdList.mapNotNull { recordId ->
-            SessionKeys.UserSessionRecord(recordId).get(commands)
-        }.mapNotNull {
-            SessionKeys.Session(it.userSessionId).get(commands)
-        }
-
-        return sessions.map { session ->
+        return recordIdList.mapNotNull { recordId ->
+            val sessionId = SessionKeys.UserSessionRecord(recordId).get(commands)?.userSessionId ?: return@mapNotNull null
+            val sessionData = SessionKeys.Session(sessionId).get(commands) ?: return@mapNotNull null
             UserSessionRepository.SessionInfo(
-                name = session.name,
-                latestAccess = session.lastAccess.toJavaInstant(),
+                sessionRecordId = recordId,
+                name = sessionData.name,
+                latestAccess = sessionData.lastAccess.toJavaInstant(),
             )
         }
     }
@@ -181,6 +179,7 @@ internal class RedisUserSessionRepository(
         )
 
         return UserSessionRepository.SessionInfo(
+            sessionRecordId = sessionRecordId,
             name = sessionName,
             latestAccess = sessionData.lastAccess.toJavaInstant(),
         )
