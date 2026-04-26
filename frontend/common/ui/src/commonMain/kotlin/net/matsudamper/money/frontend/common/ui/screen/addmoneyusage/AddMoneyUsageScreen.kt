@@ -5,7 +5,6 @@ import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.ExperimentalLayoutApi
-import androidx.compose.foundation.layout.FlowRow
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
@@ -18,6 +17,8 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.widthIn
 import androidx.compose.foundation.layout.windowInsetsPadding
+import androidx.compose.foundation.lazy.LazyRow
+import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.Button
@@ -39,6 +40,10 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.geometry.Offset
+import androidx.compose.ui.input.nestedscroll.NestedScrollConnection
+import androidx.compose.ui.input.nestedscroll.NestedScrollSource
+import androidx.compose.ui.input.nestedscroll.nestedScroll
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.tooling.preview.Preview
@@ -317,13 +322,22 @@ public fun AddMoneyUsageScreen(
                             if (uiState.images.isEmpty()) {
                                 Text("未設定")
                             } else {
-                                FlowRow(
+                                val imageRowScrollConnection = remember {
+                                    object : NestedScrollConnection {
+                                        override fun onPostScroll(
+                                            consumed: Offset,
+                                            available: Offset,
+                                            source: NestedScrollSource,
+                                        ): Offset = available.copy(y = 0f)
+                                    }
+                                }
+                                LazyRow(
                                     modifier = Modifier
-                                        .fillMaxWidth(),
+                                        .fillMaxWidth()
+                                        .nestedScroll(imageRowScrollConnection),
                                     horizontalArrangement = Arrangement.spacedBy(8.dp),
-                                    verticalArrangement = Arrangement.spacedBy(8.dp),
                                 ) {
-                                    uiState.images.forEach { image ->
+                                    items(uiState.images) { image ->
                                         when (image) {
                                             is ImageItem.Uploading -> {
                                                 Box(

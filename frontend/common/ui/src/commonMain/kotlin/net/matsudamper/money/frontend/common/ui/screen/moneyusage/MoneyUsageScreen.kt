@@ -10,7 +10,6 @@ import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.BoxWithConstraints
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.ExperimentalLayoutApi
-import androidx.compose.foundation.layout.FlowRow
 import androidx.compose.foundation.layout.IntrinsicSize
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
@@ -22,6 +21,7 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.material.icons.Icons
@@ -49,7 +49,11 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.input.nestedscroll.NestedScrollConnection
+import androidx.compose.ui.input.nestedscroll.NestedScrollSource
+import androidx.compose.ui.input.nestedscroll.nestedScroll
 import androidx.compose.ui.input.pointer.PointerEventType
 import androidx.compose.ui.input.pointer.isSecondaryPressed
 import androidx.compose.ui.input.pointer.pointerInput
@@ -645,12 +649,22 @@ private fun MoneyUsage(
                     if (uiState.images.isEmpty() && uiState.uploadQueueItems.isEmpty()) {
                         Text("未設定")
                     } else {
-                        FlowRow(
-                            modifier = Modifier.fillMaxWidth(),
+                        val imageRowScrollConnection = remember {
+                            object : NestedScrollConnection {
+                                override fun onPostScroll(
+                                    consumed: Offset,
+                                    available: Offset,
+                                    source: NestedScrollSource,
+                                ): Offset = available.copy(y = 0f)
+                            }
+                        }
+                        LazyRow(
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .nestedScroll(imageRowScrollConnection),
                             horizontalArrangement = Arrangement.spacedBy(8.dp),
-                            verticalArrangement = Arrangement.spacedBy(8.dp),
                         ) {
-                            uiState.images.forEach { imageItem ->
+                            items(uiState.images) { imageItem ->
                                 var showDeleteDialog by remember { mutableStateOf(false) }
                                 var showPopupMenu by remember { mutableStateOf(false) }
                                 Box(modifier = Modifier.size(180.dp)) {
@@ -711,7 +725,7 @@ private fun MoneyUsage(
                                     }
                                 }
                             }
-                            uiState.uploadQueueItems.forEach { queueItem ->
+                            items(uiState.uploadQueueItems, key = { it.id }) { queueItem ->
                                 Box(
                                     modifier = Modifier
                                         .size(180.dp)
