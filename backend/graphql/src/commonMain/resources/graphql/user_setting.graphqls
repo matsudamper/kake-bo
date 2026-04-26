@@ -22,6 +22,7 @@ type SessionAttributes {
 }
 
 type Session {
+    id: String!
     name: String!
     lastAccess: OffsetDateTime!
 }

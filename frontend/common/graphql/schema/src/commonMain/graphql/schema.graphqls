@@ -625,6 +625,8 @@ type RegisteredFidoResult {
 }
 
 type Session {
+  id: String!
+
   name: String!
 
   lastAccess: OffsetDateTime!
@@ -874,7 +876,7 @@ type UserMutation {
 
   deleteFido(id: FidoId!): DeleteFidoResult!
 
-  deleteSession(name: String!): DeleteSessionResult!
+  deleteSession(sessionId: String!): DeleteSessionResult!
 
   changeSessionName(name: String!): ChangeSessionNameResult!
 

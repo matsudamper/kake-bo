@@ -114,14 +114,14 @@ public class LoginSettingViewModel(
                                 return@sessionList immutableListOf()
                             } else {
                                 sessionList
-                                    .filterNot { it.name == currentSession.name }
+                                    .filterNot { it.id == currentSession.id }
                                     .map { session ->
                                         LoginSettingScreenUiState.Session(
                                             name = session.name,
                                             lastAccess = Formatter.formatDateTime(
                                                 session.lastAccess.toLocalDateTime(TimeZone.currentSystemDefault()),
                                             ),
-                                            event = SessionEventImpl(name = session.name),
+                                            event = SessionEventImpl(sessionId = session.id, name = session.name),
                                         )
                                     }.toImmutableList()
                             }
@@ -132,7 +132,7 @@ public class LoginSettingViewModel(
                                 lastAccess = Formatter.formatDateTime(
                                     currentSession.lastAccess.toLocalDateTime(TimeZone.currentSystemDefault()),
                                 ),
-                                event = SessionEventImpl(name = currentSession.name),
+                                event = SessionEventImpl(sessionId = currentSession.id, name = currentSession.name),
                             )
                         },
                     )
@@ -249,11 +249,12 @@ public class LoginSettingViewModel(
     }
 
     private inner class SessionEventImpl(
+        private val sessionId: String,
         private val name: String,
-    ) : LoginSettingScreenUiState.Session.Event, EqualsImpl(name) {
+    ) : LoginSettingScreenUiState.Session.Event, EqualsImpl(sessionId) {
         override fun onClickDelete() {
             viewModelScope.launch {
-                val result = api.deleteSession(name)
+                val result = api.deleteSession(sessionId)
                 if (result) {
                     eventSender.send { it.showToast("削除しました") }
                     api.getScreen().first()

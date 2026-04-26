@@ -16,8 +16,8 @@ interface UserSessionRepository {
 
     fun deleteSession(
         userId: UserId,
-        sessionName: String,
-        currentSessionName: String,
+        sessionId: UserSessionId,
+        currentSessionId: UserSessionId,
     ): Boolean
 
     fun getSessions(userId: UserId): List<SessionInfo>
@@ -35,6 +35,7 @@ interface UserSessionRepository {
     )
 
     data class SessionInfo(
+        val sessionId: UserSessionId,
         val name: String,
         val latestAccess: LocalDateTime,
     )

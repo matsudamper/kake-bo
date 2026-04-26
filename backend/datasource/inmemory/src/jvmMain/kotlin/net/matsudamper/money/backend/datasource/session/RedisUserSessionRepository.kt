@@ -153,6 +153,7 @@ internal class RedisUserSessionRepository(
         }
 
         return UserSessionRepository.SessionInfo(
+            sessionId = sessionId,
             name = sessionData.sessionName,
             latestAccess = latestAccess,
         )
@@ -183,6 +184,7 @@ internal class RedisUserSessionRepository(
             }
 
             UserSessionRepository.SessionInfo(
+                sessionId = UserSessionId(sessionIdStr),
                 name = sessionData.sessionName,
                 latestAccess = latestAccess,
             )
@@ -191,17 +193,18 @@ internal class RedisUserSessionRepository(
 
     override fun deleteSession(
         userId: UserId,
-        sessionName: String,
-        currentSessionName: String,
+        sessionId: UserSessionId,
+        currentSessionId: UserSessionId,
     ): Boolean {
-        if (sessionName == currentSessionName) {
+        if (sessionId == currentSessionId) {
             return false
         }
 
-        val userSessionKey = getUserSessionKey(userId, sessionName)
-        val sessionIdStr = commands.get(userSessionKey) ?: return false
+        val sessionsKey = getUserSessionsKey(userId)
+        if (!commands.sismember(sessionsKey, sessionId.id)) {
+            return false
+        }
 
-        val sessionId = UserSessionId(sessionIdStr)
         clearSession(sessionId)
 
         return true
@@ -243,6 +246,7 @@ internal class RedisUserSessionRepository(
         commands.set(sessionKey, updatedJsonData)
 
         return UserSessionRepository.SessionInfo(
+            sessionId = sessionId,
             name = name,
             latestAccess = latestAccess,
         )

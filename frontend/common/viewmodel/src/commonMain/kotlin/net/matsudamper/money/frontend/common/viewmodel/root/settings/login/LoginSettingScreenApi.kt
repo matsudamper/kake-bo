@@ -79,11 +79,11 @@ public class LoginSettingScreenApi(
         }.getOrNull() ?: false
     }
 
-    public suspend fun deleteSession(name: String): Boolean {
+    public suspend fun deleteSession(sessionId: String): Boolean {
         return runCatching {
             apolloClient
                 .mutation(
-                    LoginSettingScreenDeleteSessionMutation(name),
+                    LoginSettingScreenDeleteSessionMutation(sessionId),
                 )
                 .execute()
                 .data?.userMutation?.deleteSession?.isSuccess

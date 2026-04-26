@@ -76,6 +76,7 @@ internal class LocalUserSessionRepository(
             LocalDateTime.now(clock)
         }
         return UserSessionRepository.SessionInfo(
+            sessionId = sessionId,
             name = sessionData.sessionName,
             latestAccess = latestAccess,
         )
@@ -94,6 +95,7 @@ internal class LocalUserSessionRepository(
                     LocalDateTime.now(clock)
                 }
                 UserSessionRepository.SessionInfo(
+                    sessionId = sessionId,
                     name = data.sessionName,
                     latestAccess = latestAccess,
                 )
@@ -103,14 +105,18 @@ internal class LocalUserSessionRepository(
 
     override fun deleteSession(
         userId: UserId,
-        sessionName: String,
-        currentSessionName: String,
+        sessionId: UserSessionId,
+        currentSessionId: UserSessionId,
     ): Boolean {
-        if (sessionName == currentSessionName) {
+        if (sessionId == currentSessionId) {
             return false
         }
 
-        val sessionId = userSessionNames[userId to sessionName] ?: return false
+        val userSessionIds = userSessions[userId] ?: return false
+        if (!userSessionIds.contains(sessionId)) {
+            return false
+        }
+
         clearSession(sessionId)
         return true
     }
@@ -141,6 +147,7 @@ internal class LocalUserSessionRepository(
         }
 
         return UserSessionRepository.SessionInfo(
+            sessionId = sessionId,
             name = name,
             latestAccess = latestAccess,
         )

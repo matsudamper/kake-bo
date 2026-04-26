@@ -12,6 +12,7 @@ import net.matsudamper.money.backend.app.interfaces.MoneyUsagePresetRepository
 import net.matsudamper.money.backend.app.interfaces.MoneyUsageRepository
 import net.matsudamper.money.backend.app.interfaces.MoneyUsageSubCategoryRepository
 import net.matsudamper.money.backend.app.interfaces.UserLoginRepository
+import net.matsudamper.money.backend.app.interfaces.element.UserSessionId
 import net.matsudamper.money.backend.base.ServerVariables
 import net.matsudamper.money.backend.dataloader.ImportedMailCategoryFilterDataLoaderDefine
 import net.matsudamper.money.backend.fido.Auth4JModel
@@ -167,7 +168,7 @@ class UserMutationResolverImpl : UserMutationResolver {
 
     override fun deleteSession(
         userMutation: QlUserMutation,
-        name: String,
+        sessionId: String,
         env: DataFetchingEnvironment,
     ): CompletionStage<DataFetcherResult<QlDeleteSessionResult>> {
         val context = env.graphQlContext.get<GraphQlContext>(GraphQlContext::class.java.name)
@@ -177,8 +178,8 @@ class UserMutationResolverImpl : UserMutationResolver {
         return otelSupplyAsync {
             val isSuccess = userSessionRepository.deleteSession(
                 userId = sessionInfo.userId,
-                sessionName = name,
-                currentSessionName = sessionInfo.sessionName,
+                sessionId = UserSessionId(sessionId),
+                currentSessionId = sessionInfo.sessionId,
             )
             QlDeleteSessionResult(
                 isSuccess = isSuccess,
@@ -205,6 +206,7 @@ class UserMutationResolverImpl : UserMutationResolver {
                 session = run session@{
                     result ?: return@session null
                     QlSession(
+                        id = result.sessionId.id,
                         name = result.name,
                         lastAccess = result.latestAccess.atOffset(ZoneOffset.UTC),
                     )

@@ -21,6 +21,7 @@ class SessionAttributesResolverImpl : SessionAttributesResolver {
 
         return otelSupplyAsync {
             QlSession(
+                id = sessionInfo.sessionId.id,
                 name = sessionInfo.sessionName,
                 lastAccess = sessionInfo.latestAccess.atOffset(ZoneOffset.UTC),
             )
@@ -38,6 +39,7 @@ class SessionAttributesResolverImpl : SessionAttributesResolver {
         return otelSupplyAsync {
             userSessionRepository.getSessions(sessionInfo.userId).map { session ->
                 QlSession(
+                    id = session.sessionId.id,
                     name = session.name,
                     lastAccess = session.latestAccess.atOffset(ZoneOffset.UTC),
                 )
