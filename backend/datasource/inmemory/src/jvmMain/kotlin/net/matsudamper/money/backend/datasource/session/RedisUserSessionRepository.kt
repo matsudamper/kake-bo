@@ -4,7 +4,6 @@ import java.time.Clock
 import java.time.LocalDateTime
 import java.util.UUID
 import kotlinx.serialization.Serializable
-import kotlinx.serialization.encodeToString
 import io.lettuce.core.ClientOptions
 import io.lettuce.core.MaintNotificationsConfig
 import io.lettuce.core.RedisClient
@@ -44,7 +43,7 @@ internal class RedisUserSessionRepository(
     private val commands by lazy { connection.sync() }
 
     override fun clearSession(sessionId: UserSessionId) {
-        val sessionKey = getSessionKey(sessionId)
+        val sessionKey = SessionKeys.Session(sessionId).key
         val jsonData = commands.get(sessionKey)
 
         if (jsonData != null) {
@@ -60,10 +59,10 @@ internal class RedisUserSessionRepository(
                 val userId = UserId(sessionData.userId)
                 val sessionName = sessionData.sessionName
 
-                commands.srem(getUserSessionsKey(userId), sessionId.id)
+                commands.srem(SessionKeys.UserSessions(userId).key, sessionId.id)
 
                 if (sessionName.isNotEmpty()) {
-                    commands.del(getUserSessionKey(userId, sessionName))
+                    commands.del(SessionKeys.UserSessionByUser(userId, sessionName).key)
                 }
             }
         }
@@ -78,19 +77,21 @@ internal class RedisUserSessionRepository(
         val sessionData = SessionData(
             userId = userId.value,
             latestAccess = now.toString(),
+            sessionName = UUID.randomUUID().toString().replace("-", ""),
         )
 
         val jsonData = ObjectMapper.kotlinxSerialization.encodeToString(sessionData)
 
-        val sessionKey = getSessionKey(sessionId)
+        val sessionKey = SessionKeys.Session(sessionId).key
         commands.set(
             sessionKey,
             jsonData,
             SetArgs().ex(ServerVariables.USER_SESSION_EXPIRE_DAY * 24 * 60 * 60),
         )
 
-        commands.sadd(getUserSessionsKey(userId), sessionId.id)
-        commands.expire(getUserSessionsKey(userId), ServerVariables.USER_SESSION_EXPIRE_DAY * 24 * 60 * 60)
+        val userSessionsKey = SessionKeys.UserSessions(userId).key
+        commands.sadd(userSessionsKey, sessionId.id)
+        commands.expire(userSessionsKey, ServerVariables.USER_SESSION_EXPIRE_DAY * 24 * 60 * 60)
 
         return UserSessionRepository.CreateSessionResult(
             sessionId = sessionId,
@@ -104,7 +105,7 @@ internal class RedisUserSessionRepository(
     ): UserSessionRepository.VerifySessionResult {
         val now = LocalDateTime.now(clock)
 
-        val sessionKey = getSessionKey(sessionId)
+        val sessionKey = SessionKeys.Session(sessionId).key
         val jsonData = commands.get(sessionKey) ?: return UserSessionRepository.VerifySessionResult.Failure
 
         val sessionData = try {
@@ -119,10 +120,10 @@ internal class RedisUserSessionRepository(
         val sessionName = sessionData.sessionName
 
         commands.expire(sessionKey, ServerVariables.USER_SESSION_EXPIRE_DAY * 24 * 60 * 60)
-        commands.expire(getUserSessionsKey(userId), ServerVariables.USER_SESSION_EXPIRE_DAY * 24 * 60 * 60)
+        commands.expire(SessionKeys.UserSessions(userId).key, ServerVariables.USER_SESSION_EXPIRE_DAY * 24 * 60 * 60)
 
         if (sessionName.isNotEmpty()) {
-            commands.expire(getUserSessionKey(userId, sessionName), ServerVariables.USER_SESSION_EXPIRE_DAY * 24 * 60 * 60)
+            commands.expire(SessionKeys.UserSessionByUser(userId, sessionName).key, ServerVariables.USER_SESSION_EXPIRE_DAY * 24 * 60 * 60)
         }
 
         return UserSessionRepository.VerifySessionResult.Success(
@@ -133,7 +134,7 @@ internal class RedisUserSessionRepository(
     }
 
     override fun getSessionInfo(sessionId: UserSessionId): UserSessionRepository.SessionInfo? {
-        val sessionKey = getSessionKey(sessionId)
+        val sessionKey = SessionKeys.Session(sessionId).key
         val jsonData = commands.get(sessionKey) ?: return null
 
         val sessionData = try {
@@ -159,11 +160,11 @@ internal class RedisUserSessionRepository(
     }
 
     override fun getSessions(userId: UserId): List<UserSessionRepository.SessionInfo> {
-        val sessionsKey = getUserSessionsKey(userId)
+        val sessionsKey = SessionKeys.UserSessions(userId).key
         val sessionIds = commands.smembers(sessionsKey)
 
         return sessionIds.mapNotNull { sessionIdStr ->
-            val sessionKey = getSessionKey(UserSessionId(sessionIdStr))
+            val sessionKey = SessionKeys.Session(UserSessionId(sessionIdStr)).key
             val jsonData = commands.get(sessionKey) ?: return@mapNotNull null
 
             val sessionData = try {
@@ -198,7 +199,7 @@ internal class RedisUserSessionRepository(
             return false
         }
 
-        val userSessionKey = getUserSessionKey(userId, sessionName)
+        val userSessionKey = SessionKeys.UserSessionByUser(userId, sessionName).key
         val sessionIdStr = commands.get(userSessionKey) ?: return false
 
         val sessionId = UserSessionId(sessionIdStr)
@@ -211,7 +212,7 @@ internal class RedisUserSessionRepository(
         sessionId: UserSessionId,
         name: String,
     ): UserSessionRepository.SessionInfo? {
-        val sessionKey = getSessionKey(sessionId)
+        val sessionKey = SessionKeys.Session(sessionId).key
         val jsonData = commands.get(sessionKey) ?: return null
 
         val sessionData = try {
@@ -233,10 +234,10 @@ internal class RedisUserSessionRepository(
         }
 
         if (oldName.isNotEmpty()) {
-            commands.del(getUserSessionKey(userId, oldName))
+            commands.del(SessionKeys.UserSessionByUser(userId, oldName).key)
         }
 
-        commands.set(getUserSessionKey(userId, name), sessionId.id)
+        commands.set(SessionKeys.UserSessionByUser(userId, name).key, sessionId.id)
 
         val updatedSessionData = sessionData.copy(sessionName = name)
         val updatedJsonData = ObjectMapper.kotlinxSerialization.encodeToString(updatedSessionData)
@@ -248,16 +249,25 @@ internal class RedisUserSessionRepository(
         )
     }
 
-    private fun getSessionKey(sessionId: UserSessionId): String = "user_session:${sessionId.id}"
+    sealed interface SessionKeys {
+        val key: String
+        class Session(sessionId: UserSessionId) : SessionKeys {
+            override val key: String = "user_session:${sessionId.id}"
+        }
 
-    private fun getUserSessionKey(userId: UserId, sessionName: String): String = "user_session_by_user:${userId.value}:$sessionName"
+        class UserSessionByUser(userId: UserId, sessionName: String) : SessionKeys {
+            override val key: String = "user_session_by_user:${userId.value}:$sessionName"
+        }
 
-    private fun getUserSessionsKey(userId: UserId): String = "user_sessions:${userId.value}"
+        class UserSessions(userId: UserId) : SessionKeys {
+            override val key: String = "user_sessions:${userId.value}"
+        }
+    }
 
     @Serializable
     private data class SessionData(
         val userId: Int,
-        val sessionName: String = "",
+        val sessionName: String,
         val latestAccess: String,
     )
 }

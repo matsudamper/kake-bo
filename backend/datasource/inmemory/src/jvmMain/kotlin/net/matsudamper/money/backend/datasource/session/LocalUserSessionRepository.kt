@@ -39,6 +39,7 @@ internal class LocalUserSessionRepository(
             userId = userId.value,
             latestAccess = now.toString(),
             sessionId = sessionId.id,
+            sessionName = UUID.randomUUID().toString().replace("-", ""),
         )
         sessions[sessionId] = sessionData
 
@@ -148,7 +149,7 @@ internal class LocalUserSessionRepository(
 
     private data class SessionData(
         val userId: Int,
-        val sessionName: String = "",
+        val sessionName: String,
         val latestAccess: String,
         val sessionId: String,
     )
