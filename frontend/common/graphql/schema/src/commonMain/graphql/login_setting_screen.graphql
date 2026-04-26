@@ -8,10 +8,12 @@ query LoginSettingScreen {
             }
             sessionAttributes {
                 currentSession {
+                    id
                     name
                     lastAccess
                 }
                 sessions {
+                    id
                     name
                     lastAccess
                 }

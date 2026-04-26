@@ -7,6 +7,7 @@ import com.apollographql.apollo.cache.normalized.FetchPolicy
 import com.apollographql.apollo.cache.normalized.fetchPolicy
 import com.apollographql.apollo.cache.normalized.watch
 import net.matsudamper.money.element.FidoId
+import net.matsudamper.money.element.SessionRecordId
 import net.matsudamper.money.frontend.common.base.Logger
 import net.matsudamper.money.frontend.graphql.LoginSettingScreenChangeSessionNameMutation
 import net.matsudamper.money.frontend.graphql.LoginSettingScreenDeleteSessionMutation
@@ -79,11 +80,11 @@ public class LoginSettingScreenApi(
         }.getOrNull() ?: false
     }
 
-    public suspend fun deleteSession(name: String): Boolean {
+    public suspend fun deleteSession(id: SessionRecordId): Boolean {
         return runCatching {
             apolloClient
                 .mutation(
-                    LoginSettingScreenDeleteSessionMutation(name),
+                    LoginSettingScreenDeleteSessionMutation(id),
                 )
                 .execute()
                 .data?.userMutation?.deleteSession?.isSuccess
@@ -92,11 +93,11 @@ public class LoginSettingScreenApi(
         }.getOrNull() ?: false
     }
 
-    public suspend fun changeSessionName(name: String): Boolean {
+    public suspend fun changeSessionName(id: SessionRecordId, name: String): Boolean {
         return runCatching {
             apolloClient
                 .mutation(
-                    LoginSettingScreenChangeSessionNameMutation(name),
+                    LoginSettingScreenChangeSessionNameMutation(id = id, name = name),
                 )
                 .execute()
                 .data?.userMutation?.changeSessionName?.isSuccess
