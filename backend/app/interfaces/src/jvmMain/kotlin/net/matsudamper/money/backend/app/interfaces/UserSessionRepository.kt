@@ -12,6 +12,7 @@ interface UserSessionRepository {
     fun clearSession(sessionId: UserSessionId)
 
     fun changeSessionName(
+        currentSessionId: UserSessionId,
         sessionRecordId: SessionRecordId,
         sessionName: String,
     ): SessionInfo?

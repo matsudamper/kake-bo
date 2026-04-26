@@ -194,12 +194,13 @@ class UserMutationResolverImpl : UserMutationResolver {
     ): CompletionStage<DataFetcherResult<QlChangeSessionNameResult>> {
         val context = env.graphQlContext.get<GraphQlContext>(GraphQlContext::class.java.name)
         val userSessionRepository = context.diContainer.createUserSessionRepository()
-        context.verifyUserSessionAndGetSessionInfo()
+        val sessionInfo = context.verifyUserSessionAndGetSessionInfo()
 
         return otelSupplyAsync {
             val result = userSessionRepository.changeSessionName(
                 sessionRecordId = id,
                 sessionName = name,
+                currentSessionId = sessionInfo.sessionId,
             )
             QlChangeSessionNameResult(
                 isSuccess = result != null,

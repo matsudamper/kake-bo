@@ -156,20 +156,27 @@ internal class RedisUserSessionRepository(
     ): Boolean {
         val userSessionRecord = SessionKeys.UserSessionRecord(targetSessionRecordId)
         val recordData = userSessionRecord.get(commands) ?: return false
+        val currentSessionUserId = SessionKeys.Session(currentSessionId).get(commands)?.userId ?: return false
+        val targetSessionUserId = SessionKeys.Session(recordData.userSessionId).get(commands)?.userId ?: return false
+        if (currentSessionUserId != targetSessionUserId) return false
 
         clearSession(recordData.userSessionId)
         return true
     }
 
     override fun changeSessionName(
+        currentSessionId: UserSessionId,
         sessionRecordId: SessionRecordId,
         sessionName: String,
     ): UserSessionRepository.SessionInfo? {
+        val currentSessionUserId = SessionKeys.Session(currentSessionId).get(commands)?.userId ?: return null
         val recordKey = SessionKeys.UserSessionRecord(sessionRecordId)
         val recordData = recordKey.get(commands) ?: return null
 
         val sessionKey = SessionKeys.Session(recordData.userSessionId)
         val sessionData = sessionKey.get(commands) ?: return null
+
+        if (sessionData.userId != currentSessionUserId) return null
 
         sessionKey.set(
             commands,
