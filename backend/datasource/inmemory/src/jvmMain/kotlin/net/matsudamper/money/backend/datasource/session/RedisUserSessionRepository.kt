@@ -178,7 +178,7 @@ internal class RedisUserSessionRepository(
 
         if (sessionData.userId != currentSessionUserId) return null
 
-        sessionKey.set(
+        sessionKey.update(
             commands,
             sessionData.copy(
                 name = sessionName,
@@ -216,6 +216,14 @@ private sealed interface SessionKeys {
                 SetArgs()
                     .nx()
                     .ex(ServerVariables.USER_SESSION_EXPIRE_DAY.days.inWholeSeconds),
+            )
+        }
+
+        fun update(commands: RedisCommands<String, String>, data: SessionData): String? {
+            return commands.set(
+                key,
+                ObjectMapper.kotlinxSerialization.encodeToString(data),
+                SetArgs().keepttl(),
             )
         }
 
