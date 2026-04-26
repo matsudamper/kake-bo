@@ -91,17 +91,24 @@ internal class LocalUserSessionRepository(
         currentSessionId: UserSessionId,
         targetSessionRecordId: SessionRecordId,
     ): Boolean {
+        val currentUserId = sessions[currentSessionId]?.userId ?: return false
         val sessionId = sessionRecords[targetSessionRecordId] ?: return false
+        val targetSessionData = sessions[sessionId] ?: return false
+        if (currentUserId != targetSessionData.userId) return false
+
         clearSession(sessionId)
         return true
     }
 
     override fun changeSessionName(
+        currentSessionId: UserSessionId,
         sessionRecordId: SessionRecordId,
         sessionName: String,
     ): UserSessionRepository.SessionInfo? {
+        val currentUserId = sessions[currentSessionId]?.userId ?: return null
         val sessionId = sessionRecords[sessionRecordId] ?: return null
         val sessionData = sessions[sessionId] ?: return null
+        if (sessionData.userId != currentUserId) return null
 
         sessions[sessionId] = sessionData.copy(name = sessionName)
 
