@@ -1,0 +1,33 @@
+query AdminIsLoggedIn {
+    isAdminLoggedIn
+}
+
+query AdminUnlinkedImages($size: Int!, $cursor: String) {
+    adminUnlinkedImages(input: { size: $size, cursor: $cursor }) {
+        nodes {
+            id
+            url
+            userId
+            userName
+        }
+        cursor
+        hasMore
+    }
+}
+
+query AdminUnlinkedImagesTotalCount {
+    adminUnlinkedImages(input: { size: 0 }) {
+        totalCount
+    }
+}
+
+query AdminSearchUsers($query: String!, $size: Int!, $cursor: String) {
+    adminSearchUsers(input: {query: $query, size: $size, cursor: $cursor}) {
+        nodes {
+            userId
+            name
+        }
+        cursor
+        hasMore
+    }
+}

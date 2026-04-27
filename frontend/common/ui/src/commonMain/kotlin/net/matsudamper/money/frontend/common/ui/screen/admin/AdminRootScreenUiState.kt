@@ -20,11 +20,75 @@ public data class AdminRootScreenUiState(
 ) {
     public interface Listener {
         public fun onClickAddUser()
+
+        public fun onClickUnlinkedImages()
+
+        public fun onClickUserSearch()
+
+        public fun onClickLogout()
     }
 }
 
-public data class AdminAddUserUiState(
-    val onChangeUserName: (String) -> Unit,
-    val onChangePassword: (String) -> Unit,
-    val onClickAddButton: () -> Unit,
-)
+public data class AdminUnlinkedImagesScreenUiState(
+    val loadingState: LoadingState,
+    val deleteDialog: DeleteDialog?,
+    val event: Event,
+) {
+    public sealed interface LoadingState {
+        public data object Loading : LoadingState
+        public data object Error : LoadingState
+        public data class Loaded(
+            val items: List<Item>,
+            val hasMore: Boolean,
+            val isLoadingMore: Boolean,
+            val totalCount: Int?,
+            val selectedCount: Int,
+            val isAllSelected: Boolean,
+            val isSelectingAll: Boolean,
+            val isDeleting: Boolean,
+        ) : LoadingState
+    }
+
+    public data class Item(
+        val id: String,
+        val imageUrl: String,
+        val userId: String,
+        val userName: String,
+        val isSelected: Boolean,
+        val event: Event,
+    ) {
+        @Immutable
+        public interface Event {
+            public fun onClickSelect()
+        }
+    }
+
+    public data class DeleteDialog(
+        val selectedCount: Int,
+        val errorMessage: String?,
+        val isLoading: Boolean,
+        val event: Event,
+    ) {
+        @Immutable
+        public interface Event {
+            public fun onConfirm()
+
+            public fun onCancel()
+
+            public fun onDismiss()
+        }
+    }
+
+    @Immutable
+    public interface Event {
+        public fun onResume()
+
+        public fun onClickRetry()
+
+        public fun onClickLoadMore()
+
+        public fun onClickSelectAll()
+
+        public fun onClickDelete()
+    }
+}

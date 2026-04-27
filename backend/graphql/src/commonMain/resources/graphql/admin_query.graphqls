@@ -1,0 +1,35 @@
+input AdminUnlinkedImagesInput {
+    size: Int!
+    cursor: String
+}
+
+type AdminUnlinkedImagesConnection {
+    nodes: [AdminUnlinkedImage!]!
+    cursor: String
+    hasMore: Boolean!
+    totalCount: Int! @lazy
+}
+
+type AdminUnlinkedImage {
+    id: ImageId!
+    url: String!
+    userId: UserId!
+    userName: String!
+}
+
+input AdminUserSearchInput {
+    query: String!
+    size: Int!
+    cursor: String
+}
+
+type AdminUserSearchUsersConnection {
+    nodes: [AdminSearchedUser!]!
+    cursor: String
+    hasMore: Boolean!
+}
+
+type AdminSearchedUser {
+    userId: UserId!
+    name: String!
+}

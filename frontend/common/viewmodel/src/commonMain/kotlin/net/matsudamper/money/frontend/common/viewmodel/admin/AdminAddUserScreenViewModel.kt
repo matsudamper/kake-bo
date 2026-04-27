@@ -1,12 +1,12 @@
 package net.matsudamper.money.frontend.common.viewmodel.admin
 
+import androidx.compose.ui.text.input.TextFieldValue
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import net.matsudamper.money.frontend.common.base.nav.ScopedObjectFeature
-import net.matsudamper.money.frontend.common.base.nav.admin.AdminScreenController
 import net.matsudamper.money.frontend.common.ui.screen.admin.AdminAddUserUiState
 import net.matsudamper.money.frontend.common.viewmodel.CommonViewModel
 import net.matsudamper.money.frontend.graphql.GraphqlAdminQuery
@@ -14,39 +14,52 @@ import net.matsudamper.money.frontend.graphql.GraphqlAdminQuery
 public class AdminAddUserScreenViewModel(
     scopedObjectFeature: ScopedObjectFeature,
     private val adminQuery: GraphqlAdminQuery,
-    private val controller: AdminScreenController,
 ) : CommonViewModel(scopedObjectFeature) {
     private val viewModelStateFlow = MutableStateFlow(ViewModelState())
 
     public val uiStateFlow: StateFlow<AdminAddUserUiState> = MutableStateFlow(
         AdminAddUserUiState(
-            onChangeUserName = {
-                viewModelStateFlow.update { viewModelState ->
-                    viewModelState.copy(userName = it)
+            userName = TextFieldValue(),
+            password = TextFieldValue(),
+            object : AdminAddUserUiState.Listener {
+                override fun onChangeUserName(value: String) {
+                    viewModelStateFlow.update { viewModelState ->
+                        viewModelState.copy(userName = TextFieldValue(value))
+                    }
                 }
-            },
-            onChangePassword = {
-                viewModelStateFlow.update { viewModelState ->
-                    viewModelState.copy(password = it)
+
+                override fun onChangePassword(value: String) {
+                    viewModelStateFlow.update { viewModelState ->
+                        viewModelState.copy(password = TextFieldValue(value))
+                    }
                 }
-            },
-            onClickAddButton = {
-                viewModelScope.launch {
-                    val result = adminQuery.addUser(
-                        userName = viewModelStateFlow.value.userName,
-                        password = viewModelStateFlow.value.password,
-                    )
-                    println("data: ${result.data}")
-                    println("errors: ${result.data?.adminMutation?.addUser?.errorType.orEmpty().joinToString(",")}")
-                    println(result.errors?.joinToString { it.message })
+
+                override fun onClickAddButton() {
+                    viewModelScope.launch {
+                        adminQuery.addUser(
+                            userName = viewModelStateFlow.value.userName.text,
+                            password = viewModelStateFlow.value.password.text,
+                        )
+                        // TODO エラーハンドリング
+                    }
                 }
             },
         ),
     ).also { uiStateFlow ->
+        viewModelScope.launch {
+            viewModelStateFlow.collect { viewModelState ->
+                uiStateFlow.update { uiState ->
+                    uiState.copy(
+                        userName = viewModelState.userName,
+                        password = viewModelState.password,
+                    )
+                }
+            }
+        }
     }.asStateFlow()
 
     private data class ViewModelState(
-        val userName: String = "",
-        val password: String = "",
+        val userName: TextFieldValue = TextFieldValue(),
+        val password: TextFieldValue = TextFieldValue(),
     )
 }

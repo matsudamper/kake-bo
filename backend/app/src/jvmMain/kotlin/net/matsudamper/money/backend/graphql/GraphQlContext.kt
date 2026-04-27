@@ -46,6 +46,7 @@ internal class GraphQlContext(
 
         return SessionInfo(
             userId = userId,
+            sessionRecordId = currentSessionInfo.sessionRecordId,
             sessionName = currentSessionInfo.name,
             latestAccess = currentSessionInfo.latestAccess,
             sessionId = sessionId,
@@ -53,6 +54,11 @@ internal class GraphQlContext(
     }
 
     fun getSessionInfo() = userSessionManager.getSessionInfo()
+
+    fun clearAdminSession() {
+        adminSession = null
+        cookieManager.clearAdminSession()
+    }
 
     fun clearUserSession() {
         userSessionManager.clearUserSession()

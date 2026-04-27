@@ -31,8 +31,8 @@ type UserMutation {
 
     registerFido(input: RegisterFidoInput!): RegisteredFidoResult!
     deleteFido(id: FidoId!): DeleteFidoResult!
-    deleteSession(name: String!): DeleteSessionResult!
-    changeSessionName(name: String!): ChangeSessionNameResult!
+    deleteSession(id: SessionRecordId!): DeleteSessionResult!
+    changeSessionName(id: SessionRecordId!, name: String!): ChangeSessionNameResult!
 
     registerApiToken(name: String!): RegisterApiTokenResult!
     deleteApiToken(id: ApiTokenId!): DeleteApiTokenResult!

@@ -9,8 +9,11 @@ import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.onStart
 import kotlinx.coroutines.withContext
+import net.matsudamper.money.frontend.common.base.Logger
 import net.matsudamper.money.frontend.common.base.image.SelectedImage
 import net.matsudamper.money.ui.root.platform.ImagePicker
+
+private const val TAG = "ImagePickerImpl"
 
 internal class ImagePickerImpl(
     private val componentActivity: ComponentActivity,
@@ -36,6 +39,8 @@ internal class ImagePickerImpl(
             val imageBytes = withContext(Dispatchers.IO) {
                 runCatching {
                     componentActivity.contentResolver.openInputStream(uri)?.use { it.readBytes() }
+                }.onFailure {
+                    Logger.e(TAG, it)
                 }.getOrNull()
             }
             SelectedImage(

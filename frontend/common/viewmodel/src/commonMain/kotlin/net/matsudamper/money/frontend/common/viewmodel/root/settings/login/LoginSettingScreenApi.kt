@@ -4,9 +4,12 @@ import kotlinx.coroutines.flow.Flow
 import com.apollographql.apollo.ApolloClient
 import com.apollographql.apollo.api.ApolloResponse
 import com.apollographql.apollo.cache.normalized.FetchPolicy
+import com.apollographql.apollo.cache.normalized.apolloStore
 import com.apollographql.apollo.cache.normalized.fetchPolicy
 import com.apollographql.apollo.cache.normalized.watch
 import net.matsudamper.money.element.FidoId
+import net.matsudamper.money.element.SessionRecordId
+import net.matsudamper.money.frontend.common.base.Logger
 import net.matsudamper.money.frontend.graphql.LoginSettingScreenChangeSessionNameMutation
 import net.matsudamper.money.frontend.graphql.LoginSettingScreenDeleteSessionMutation
 import net.matsudamper.money.frontend.graphql.LoginSettingScreenLogoutMutation
@@ -14,6 +17,8 @@ import net.matsudamper.money.frontend.graphql.LoginSettingScreenQuery
 import net.matsudamper.money.frontend.graphql.SettingScreenAddFidoMutation
 import net.matsudamper.money.frontend.graphql.SettingScreenDeleteFidoMutation
 import net.matsudamper.money.frontend.graphql.type.RegisterFidoInput
+
+private const val TAG = "LoginSettingScreenApi"
 
 public class LoginSettingScreenApi(
     private val apolloClient: ApolloClient,
@@ -33,6 +38,12 @@ public class LoginSettingScreenApi(
                 .mutation(
                     LoginSettingScreenLogoutMutation(),
                 ).execute().data?.userMutation?.logout
+        }.onSuccess { result ->
+            if (result == true) {
+                apolloClient.apolloStore.clearAll()
+            }
+        }.onFailure {
+            Logger.e(TAG, it)
         }.getOrNull() ?: false
     }
 
@@ -57,7 +68,7 @@ public class LoginSettingScreenApi(
                 .fetchPolicy(FetchPolicy.NetworkOnly)
                 .execute()
         }.onFailure {
-            it.printStackTrace()
+            Logger.e(TAG, it)
         }.getOrNull()
     }
 
@@ -69,28 +80,34 @@ public class LoginSettingScreenApi(
                 )
                 .execute()
                 .data?.userMutation?.deleteFido?.isSuccess
+        }.onFailure {
+            Logger.e(TAG, it)
         }.getOrNull() ?: false
     }
 
-    public suspend fun deleteSession(name: String): Boolean {
+    public suspend fun deleteSession(id: SessionRecordId): Boolean {
         return runCatching {
             apolloClient
                 .mutation(
-                    LoginSettingScreenDeleteSessionMutation(name),
+                    LoginSettingScreenDeleteSessionMutation(id),
                 )
                 .execute()
                 .data?.userMutation?.deleteSession?.isSuccess
+        }.onFailure {
+            Logger.e(TAG, it)
         }.getOrNull() ?: false
     }
 
-    public suspend fun changeSessionName(name: String): Boolean {
+    public suspend fun changeSessionName(id: SessionRecordId, name: String): Boolean {
         return runCatching {
             apolloClient
                 .mutation(
-                    LoginSettingScreenChangeSessionNameMutation(name),
+                    LoginSettingScreenChangeSessionNameMutation(id = id, name = name),
                 )
                 .execute()
                 .data?.userMutation?.changeSessionName?.isSuccess
+        }.onFailure {
+            Logger.e(TAG, it)
         }.getOrNull() ?: false
     }
 }

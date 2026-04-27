@@ -13,31 +13,29 @@ class AddUserUseCase(
         val errors = mutableListOf<Result.Errors>()
         if (userName.length !in 3..20) {
             errors.add(Result.Errors.UserNameLength)
-        } else if (userName.any { it !in nonSymbolList }) {
+        } else if (userName.any { it !in PasswordConstraints.alphaNumerics }) {
             errors.add(Result.Errors.UserNameValidation)
         }
 
-        if (password.length !in 20..256) {
-            errors.add(Result.Errors.PasswordLength)
-        } else {
-            val denyChars = password.toCharArray()
-                .filterNot { it in nonSymbolList }
-                .filterNot { it in passwordAllowSymbolList }
-            if (denyChars.isNotEmpty()) {
-                errors.add(Result.Errors.PasswordValidation(denyChars))
-            }
+        val passwordErrors = PasswordValidator.validate(password)
+        for (passwordError in passwordErrors) {
+            errors.add(
+                when (passwordError) {
+                    is PasswordValidator.Errors.PasswordLength -> {
+                        Result.Errors.PasswordLength
+                    }
+
+                    is PasswordValidator.Errors.PasswordValidation -> {
+                        Result.Errors.PasswordValidation(passwordError.errorChar)
+                    }
+                },
+            )
         }
 
         if (errors.isNotEmpty()) {
             return Result.Failure(errors = errors)
         }
-        val passwordResult = passwordManager.create(
-            password = password,
-            keyByteLength = 512,
-            iterationCount = 100000,
-            saltByteLength = 32,
-            algorithm = IPasswordManager.Algorithm.PBKDF2WithHmacSHA512,
-        )
+        val passwordResult = PasswordConstraints.createHash(passwordManager, password)
         val addUserResult = adminRepository.addUser(
             userName = userName,
             hashedPassword = passwordResult.hashedPassword,
@@ -82,32 +80,5 @@ class AddUserUseCase(
 
             data object InternalServerError : Errors
         }
-    }
-
-    companion object {
-        private val nonSymbolList = ('A'..'Z')
-            .plus('a'..'z')
-            .plus('0'..'9')
-
-        private val passwordAllowSymbolList = setOf(
-            '!',
-            '@',
-            '#',
-            '$',
-            '%',
-            '^',
-            '&',
-            '*',
-            '(',
-            ')',
-            '_',
-            '+',
-            '-',
-            '?',
-            '<',
-            '>',
-            ',',
-            '.',
-        )
     }
 }

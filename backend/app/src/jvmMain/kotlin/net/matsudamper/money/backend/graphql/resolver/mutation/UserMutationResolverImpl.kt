@@ -4,10 +4,6 @@ import java.time.ZoneOffset
 import java.util.Base64
 import java.util.concurrent.CompletableFuture
 import java.util.concurrent.CompletionStage
-import kotlin.contracts.ExperimentalContracts
-import kotlin.contracts.InvocationKind
-import kotlin.contracts.contract
-import kotlinx.coroutines.delay
 import kotlinx.coroutines.runBlocking
 import graphql.execution.DataFetcherResult
 import graphql.schema.DataFetchingEnvironment
@@ -46,6 +42,7 @@ import net.matsudamper.money.element.MoneyUsageCategoryId
 import net.matsudamper.money.element.MoneyUsageId
 import net.matsudamper.money.element.MoneyUsagePresetId
 import net.matsudamper.money.element.MoneyUsageSubCategoryId
+import net.matsudamper.money.element.SessionRecordId
 import net.matsudamper.money.element.UserId
 import net.matsudamper.money.graphql.model.QlAddCategoryInput
 import net.matsudamper.money.graphql.model.QlAddCategoryResult
@@ -98,7 +95,7 @@ class UserMutationResolverImpl : UserMutationResolver {
         return otelSupplyAsync {
             // 連続実行や、ユーザーが存在しているかの検知を防ぐために、最低でも1秒はかかるようにする
             val loginResult = runBlocking {
-                minExecutionTime(1000) {
+                minExecutionTime(LOGIN_MINIMUM_EXECUTION_TIME_MILLIS) {
                     val encryptInfo = context.diContainer.userLoginRepository().getLoginEncryptInfo(name)
                         ?: return@minExecutionTime UserLoginRepository.Result.Failure
                     val hashedPassword = PasswordManager().getHashedPassword(
@@ -171,7 +168,7 @@ class UserMutationResolverImpl : UserMutationResolver {
 
     override fun deleteSession(
         userMutation: QlUserMutation,
-        name: String,
+        id: SessionRecordId,
         env: DataFetchingEnvironment,
     ): CompletionStage<DataFetcherResult<QlDeleteSessionResult>> {
         val context = env.graphQlContext.get<GraphQlContext>(GraphQlContext::class.java.name)
@@ -180,9 +177,8 @@ class UserMutationResolverImpl : UserMutationResolver {
 
         return otelSupplyAsync {
             val isSuccess = userSessionRepository.deleteSession(
-                userId = sessionInfo.userId,
-                sessionName = name,
-                currentSessionName = sessionInfo.sessionName,
+                currentSessionId = sessionInfo.sessionId,
+                targetSessionRecordId = id,
             )
             QlDeleteSessionResult(
                 isSuccess = isSuccess,
@@ -192,6 +188,7 @@ class UserMutationResolverImpl : UserMutationResolver {
 
     override fun changeSessionName(
         userMutation: QlUserMutation,
+        id: SessionRecordId,
         name: String,
         env: DataFetchingEnvironment,
     ): CompletionStage<DataFetcherResult<QlChangeSessionNameResult>> {
@@ -201,14 +198,16 @@ class UserMutationResolverImpl : UserMutationResolver {
 
         return otelSupplyAsync {
             val result = userSessionRepository.changeSessionName(
-                sessionId = sessionInfo.sessionId,
-                name = name,
+                sessionRecordId = id,
+                sessionName = name,
+                currentSessionId = sessionInfo.sessionId,
             )
             QlChangeSessionNameResult(
                 isSuccess = result != null,
                 session = run session@{
                     result ?: return@session null
                     QlSession(
+                        id = result.sessionRecordId,
                         name = result.name,
                         lastAccess = result.latestAccess.atOffset(ZoneOffset.UTC),
                     )
@@ -227,7 +226,7 @@ class UserMutationResolverImpl : UserMutationResolver {
         val challengeRepository = context.diContainer.createChallengeRepository()
         return otelSupplyAsync {
             runBlocking {
-                minExecutionTime(1000) {
+                minExecutionTime(LOGIN_MINIMUM_EXECUTION_TIME_MILLIS) {
                     val requestUserId = String(
                         Base64.getUrlDecoder().decode(userFidoLoginInput.base64UserHandle),
                         Charsets.UTF_8,
@@ -969,25 +968,4 @@ class UserMutationResolverImpl : UserMutationResolver {
                 .deletePreset(userId = userId, presetId = id)
         }.toDataFetcher()
     }
-}
-
-@OptIn(ExperimentalContracts::class)
-private suspend fun <T> minExecutionTime(
-    minMillSecond: Long,
-    block: suspend () -> T,
-): T {
-    contract {
-        callsInPlace(block, InvocationKind.EXACTLY_ONCE)
-    }
-    val startTime = System.currentTimeMillis()
-    val result = block()
-    while (true) {
-        val currentTime = System.currentTimeMillis()
-        if (currentTime - startTime >= minMillSecond) {
-            break
-        }
-        delay(10)
-    }
-
-    return result
 }

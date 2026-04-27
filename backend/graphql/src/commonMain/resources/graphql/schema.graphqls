@@ -5,6 +5,9 @@ schema {
 
 type Query {
     isLoggedIn: Boolean! @lazy
+    isAdminLoggedIn: Boolean! @lazy
+    adminUnlinkedImages(input: AdminUnlinkedImagesInput!): AdminUnlinkedImagesConnection! @lazy
+    adminSearchUsers(input: AdminUserSearchInput!): AdminUserSearchUsersConnection! @lazy
     user: User
     fidoLoginInfo: FidoLoginInfo! @lazy
 }
