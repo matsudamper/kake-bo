@@ -64,12 +64,8 @@ public class LoginSettingViewModel(
                     }
                 }
 
-                override fun onClickPlatform() {
-                    createFido(WebAuthModel.WebAuthModelType.PLATFORM)
-                }
-
-                override fun onClickCrossPlatform() {
-                    createFido(WebAuthModel.WebAuthModelType.CROSS_PLATFORM)
+                override fun onClickAddFido() {
+                    createFido()
                 }
 
                 override fun onClickLogout() {
@@ -159,7 +155,7 @@ public class LoginSettingViewModel(
         }
     }
 
-    private fun createFido(type: WebAuthModel.WebAuthModelType) {
+    private fun createFido() {
         viewModelScope.launch {
             val fidoInfo = fidoApi.getFidoInfo()
                 .onFailure { Logger.e(TAG, it) }
@@ -172,7 +168,6 @@ public class LoginSettingViewModel(
             val createResult = webAuthModel.create(
                 id = fidoInfo.id,
                 name = fidoInfo.name,
-                type = type,
                 challenge = fidoInfo.challenge,
                 domain = fidoInfo.domain,
                 base64ExcludeCredentialIdList = viewModelStateFlow.value.apolloScreenResponse?.data?.user?.settings?.registeredFidoList.orEmpty().map {
