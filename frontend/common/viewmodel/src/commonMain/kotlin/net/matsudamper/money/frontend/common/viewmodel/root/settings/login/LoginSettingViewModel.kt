@@ -72,7 +72,7 @@ public class LoginSettingViewModel(
                     viewModelScope.launch {
                         val result = api.logout()
                         if (result) {
-                            eventSender.send { it.navigate(ScreenStructure.Login) }
+                            eventSender.send { it.navigateToLogin() }
                         } else {
                             eventSender.send { it.showToast("ログアウトに失敗しました") }
                         }
@@ -316,5 +316,7 @@ public class LoginSettingViewModel(
         public fun showToast(text: String)
 
         public fun navigate(structure: ScreenStructure)
+
+        public fun navigateToLogin()
     }
 }
