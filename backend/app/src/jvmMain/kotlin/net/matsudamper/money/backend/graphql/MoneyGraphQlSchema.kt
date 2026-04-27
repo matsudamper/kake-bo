@@ -56,6 +56,7 @@ import net.matsudamper.money.element.MoneyUsageCategoryId
 import net.matsudamper.money.element.MoneyUsageId
 import net.matsudamper.money.element.MoneyUsagePresetId
 import net.matsudamper.money.element.MoneyUsageSubCategoryId
+import net.matsudamper.money.element.SessionRecordId
 import net.matsudamper.money.graphql.model.GraphQlInputField
 
 object MoneyGraphQlSchema {
@@ -134,6 +135,11 @@ object MoneyGraphQlSchema {
                 createStringScalarType(
                     name = "ApiTokenId",
                     deserialize = { ApiTokenId(it) },
+                    serialize = { it.value },
+                ),
+                createStringScalarType(
+                    name = "SessionRecordId",
+                    deserialize = { SessionRecordId(it) },
                     serialize = { it.value },
                 ),
                 createIntScalarType(

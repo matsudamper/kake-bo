@@ -12,6 +12,7 @@ import kotlinx.coroutines.withContext
 import kotlinx.datetime.TimeZone
 import kotlinx.datetime.toLocalDateTime
 import com.apollographql.apollo.api.ApolloResponse
+import net.matsudamper.money.element.SessionRecordId
 import net.matsudamper.money.frontend.common.base.ImmutableList.Companion.toImmutableList
 import net.matsudamper.money.frontend.common.base.Logger
 import net.matsudamper.money.frontend.common.base.immutableListOf
@@ -117,7 +118,7 @@ public class LoginSettingViewModel(
                                             lastAccess = Formatter.formatDateTime(
                                                 session.lastAccess.toLocalDateTime(TimeZone.currentSystemDefault()),
                                             ),
-                                            event = SessionEventImpl(name = session.name),
+                                            event = SessionEventImpl(id = session.id, name = session.name),
                                         )
                                     }.toImmutableList()
                             }
@@ -128,7 +129,7 @@ public class LoginSettingViewModel(
                                 lastAccess = Formatter.formatDateTime(
                                     currentSession.lastAccess.toLocalDateTime(TimeZone.currentSystemDefault()),
                                 ),
-                                event = SessionEventImpl(name = currentSession.name),
+                                event = SessionEventImpl(id = currentSession.id, name = currentSession.name),
                             )
                         },
                     )
@@ -244,11 +245,12 @@ public class LoginSettingViewModel(
     }
 
     private inner class SessionEventImpl(
+        private val id: SessionRecordId,
         private val name: String,
-    ) : LoginSettingScreenUiState.Session.Event, EqualsImpl(name) {
+    ) : LoginSettingScreenUiState.Session.Event, EqualsImpl(id) {
         override fun onClickDelete() {
             viewModelScope.launch {
-                val result = api.deleteSession(name)
+                val result = api.deleteSession(id)
                 if (result) {
                     eventSender.send { it.showToast("削除しました") }
                     api.getScreen().first()
@@ -279,9 +281,9 @@ public class LoginSettingViewModel(
             }
         }
 
-        private fun changeName(name: String) {
+        private fun changeName(newName: String) {
             viewModelScope.launch {
-                val result = api.changeSessionName(name)
+                val result = api.changeSessionName(id = id, name = newName)
                 if (result) {
                     api.getScreen().first()
                 } else {

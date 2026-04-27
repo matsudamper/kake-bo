@@ -34,6 +34,7 @@ import net.matsudamper.money.element.MoneyUsageCategoryId
 import net.matsudamper.money.element.MoneyUsageId
 import net.matsudamper.money.element.MoneyUsagePresetId
 import net.matsudamper.money.element.MoneyUsageSubCategoryId
+import net.matsudamper.money.element.SessionRecordId
 import net.matsudamper.money.element.UserId
 import net.matsudamper.money.frontend.common.base.Logger
 import net.matsudamper.money.frontend.graphql.type.ApiTokenId as ApolloApiTokenId
@@ -48,6 +49,7 @@ import net.matsudamper.money.frontend.graphql.type.MoneyUsageCategoryId as Apoll
 import net.matsudamper.money.frontend.graphql.type.MoneyUsageId as ApolloMoneyUsageId
 import net.matsudamper.money.frontend.graphql.type.MoneyUsagePresetId as ApolloMoneyUsagePresetId
 import net.matsudamper.money.frontend.graphql.type.MoneyUsageSubCategoryId as ApolloMoneyUsageSubCategoryId
+import net.matsudamper.money.frontend.graphql.type.SessionRecordId as ApolloSessionRecordId
 import net.matsudamper.money.frontend.graphql.type.UserId as ApolloUserId
 
 public interface GraphqlClient {
@@ -225,6 +227,17 @@ class GraphqlClientImpl(
                 },
                 deserialize = { value ->
                     MoneyUsagePresetId(value)
+                },
+            ),
+        )
+        .addCustomScalarAdapter(
+            ApolloSessionRecordId.type,
+            CustomStringAdapter(
+                serialize = {
+                    it.value
+                },
+                deserialize = { value ->
+                    SessionRecordId(value)
                 },
             ),
         )
