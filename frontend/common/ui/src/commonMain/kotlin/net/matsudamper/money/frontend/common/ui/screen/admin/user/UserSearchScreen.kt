@@ -47,7 +47,7 @@ import org.jetbrains.compose.resources.painterResource
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-internal fun UserSearchScreen(
+public fun UserSearchScreen(
     modifier: Modifier = Modifier,
     uiState: AdminUserSearchUiState,
     snackbarHostState: SnackbarHostState,

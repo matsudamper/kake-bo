@@ -79,7 +79,7 @@ public class LoginScreenViewModel(
                 }
 
                 override fun onClickNavigateAdmin() {
-                    navController.navigate(ScreenStructure.Admin)
+                    navController.navigate(ScreenStructure.Admin.Root)
                 }
 
                 override fun onClickSecurityKeyLogin() {
