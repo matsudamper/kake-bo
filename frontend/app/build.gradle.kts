@@ -107,7 +107,7 @@ android {
         targetSdk = 36
         manifestPlaceholders["SERVER_HOST"] = System.getenv("ANDROID_SERVER_HOST")
             ?: localProperties["net.matsudamper.money.android.serverHost"] as? String
-                    ?: ""
+            ?: ""
     }
     compileOptions {
         sourceCompatibility = JavaVersion.toVersion(libs.versions.java.get().toInt())
