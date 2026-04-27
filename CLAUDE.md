@@ -56,6 +56,7 @@ The project is organized into backend, frontend, and shared modules:
 
 メール、通知のパーサのテストは書かない。パーサで例をコメントする時はマスキングやダミーデータを使用し、ユーザーから依頼された文章を含むことを禁止する。
 すべての応答、説明、およびコミットメッセージは日本語で行う。
+`material-icons-extended`は使用禁止、svgのみ使用すること。
 
 # フロントエンドの具体的な実装の指示
 
