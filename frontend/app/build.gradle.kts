@@ -31,6 +31,7 @@ kotlin {
                 implementation(libs.composeFoundation)
                 implementation(libs.composeMaterial3)
                 implementation(libs.composeRuntime)
+                implementation(libs.composeComponentsResources)
 
                 implementation(libs.koinCore)
                 implementation(libs.coilRuntime)

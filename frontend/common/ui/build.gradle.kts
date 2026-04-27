@@ -32,7 +32,7 @@ kotlin {
                 implementation(libs.composeFoundation)
                 implementation(libs.composeMaterial3)
                 implementation(libs.composeUiToolingPreview)
-                implementation(compose.components.resources)
+                implementation(libs.composeComponentsResources)
             }
         }
         val jsMain by getting {
