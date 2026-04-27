@@ -22,7 +22,7 @@ import net.matsudamper.money.frontend.common.ui.layout.TextFieldType
 import net.matsudamper.money.frontend.common.ui.rememberCustomFontFamily
 
 @Composable
-internal fun AddUserScreen(
+public fun AddUserScreen(
     modifier: Modifier = Modifier,
     uiState: AdminAddUserUiState,
 ) {

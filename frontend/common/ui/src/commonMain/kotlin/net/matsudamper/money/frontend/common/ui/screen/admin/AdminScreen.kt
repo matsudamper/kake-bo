@@ -35,7 +35,7 @@ import org.jetbrains.compose.resources.painterResource
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-internal fun AdminRootScreen(
+public fun AdminRootScreen(
     modifier: Modifier = Modifier,
     uiState: AdminRootScreenUiState,
 ) {

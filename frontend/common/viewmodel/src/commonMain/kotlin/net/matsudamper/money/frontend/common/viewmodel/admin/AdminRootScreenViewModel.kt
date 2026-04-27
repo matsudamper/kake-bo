@@ -6,7 +6,8 @@ import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.launch
 import net.matsudamper.money.frontend.common.base.Logger
 import net.matsudamper.money.frontend.common.base.nav.ScopedObjectFeature
-import net.matsudamper.money.frontend.common.base.nav.admin.AdminScreenController
+import net.matsudamper.money.frontend.common.base.nav.user.ScreenNavController
+import net.matsudamper.money.frontend.common.base.nav.user.ScreenStructure
 import net.matsudamper.money.frontend.common.ui.screen.admin.AdminRootScreenUiState
 import net.matsudamper.money.frontend.common.viewmodel.CommonViewModel
 import net.matsudamper.money.frontend.common.viewmodel.lib.EventSender
@@ -18,20 +19,20 @@ private const val TAG = "AdminRootScreenViewModel"
 public class AdminRootScreenViewModel(
     scopedObjectFeature: ScopedObjectFeature,
     private val adminQuery: GraphqlAdminQuery,
-    private val controller: AdminScreenController,
+    private val navController: ScreenNavController,
     private val globalEventSender: EventSender<GlobalEvent>,
 ) : CommonViewModel(scopedObjectFeature) {
     init {
         viewModelScope.launch {
             when (adminQuery.isLoggedIn()) {
                 GraphqlAdminQuery.IsLoggedInResult.LoggedIn -> {
-                    controller.navigateToRoot()
+                    // Do nothing, already in root
                 }
 
                 GraphqlAdminQuery.IsLoggedInResult.NotLoggedIn,
                 GraphqlAdminQuery.IsLoggedInResult.ServerError,
                 -> {
-                    controller.navigateToLogin()
+                    navController.navigateReplace(ScreenStructure.Admin.Login)
                 }
             }
         }
@@ -41,15 +42,15 @@ public class AdminRootScreenViewModel(
         AdminRootScreenUiState(
             listener = object : AdminRootScreenUiState.Listener {
                 override fun onClickAddUser() {
-                    controller.navigateToAddUser()
+                    navController.navigate(ScreenStructure.Admin.AddUser)
                 }
 
                 override fun onClickUnlinkedImages() {
-                    controller.navigateToUnlinkedImages()
+                    navController.navigate(ScreenStructure.Admin.UnlinkedImages)
                 }
 
                 override fun onClickUserSearch() {
-                    controller.navigateToUserSearch()
+                    navController.navigate(ScreenStructure.Admin.UserSearch)
                 }
 
                 override fun onClickLogout() {
@@ -68,7 +69,7 @@ public class AdminRootScreenViewModel(
             }.getOrDefault(false)
 
             if (isSuccess) {
-                controller.navigateToLogin()
+                navController.navigateReplace(ScreenStructure.Admin.Login)
             } else {
                 globalEventSender.send { it.showSnackBar("ログアウトに失敗しました") }
             }

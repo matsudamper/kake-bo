@@ -42,7 +42,7 @@ import org.jetbrains.compose.resources.painterResource
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-internal fun AdminUnlinkedImagesScreen(
+public fun AdminUnlinkedImagesScreen(
     modifier: Modifier = Modifier,
     uiState: AdminUnlinkedImagesScreenUiState,
     onClickBack: () -> Unit,

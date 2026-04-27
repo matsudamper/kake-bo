@@ -8,7 +8,8 @@ import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import net.matsudamper.money.frontend.common.base.Logger
 import net.matsudamper.money.frontend.common.base.nav.ScopedObjectFeature
-import net.matsudamper.money.frontend.common.base.nav.admin.AdminScreenController
+import net.matsudamper.money.frontend.common.base.nav.user.ScreenNavController
+import net.matsudamper.money.frontend.common.base.nav.user.ScreenStructure
 import net.matsudamper.money.frontend.common.ui.screen.admin.AdminLoginScreenUiState
 import net.matsudamper.money.frontend.common.viewmodel.CommonViewModel
 import net.matsudamper.money.frontend.common.viewmodel.lib.EventSender
@@ -20,7 +21,7 @@ private const val TAG = "AdminLoginScreenViewModel"
 public class AdminLoginScreenViewModel(
     scopedObjectFeature: ScopedObjectFeature,
     private val adminQuery: GraphqlAdminQuery,
-    private val controller: AdminScreenController,
+    private val navController: ScreenNavController,
     private val globalEventSender: EventSender<GlobalEvent>,
 ) : CommonViewModel(scopedObjectFeature) {
     private val viewModelStateFlow = MutableStateFlow(ViewModelState())
@@ -61,7 +62,7 @@ public class AdminLoginScreenViewModel(
 
             val isSuccess = result?.data?.adminMutation?.adminLogin?.isSuccess ?: false
             if (isSuccess) {
-                controller.navigateToRoot()
+                navController.navigateReplace(ScreenStructure.Admin.Root)
             } else {
                 globalEventSender.send { it.showSnackBar("ログインに失敗しました") }
             }
