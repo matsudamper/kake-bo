@@ -180,9 +180,14 @@ private fun RootHostScaffoldContent(
                     .weight(1f)
                     .fillMaxHeight(),
             ) {
+                val contentSides = if (LocalIsLargeScreen.current) {
+                    WindowInsetsSides.Top + WindowInsetsSides.End
+                } else {
+                    WindowInsetsSides.Top + WindowInsetsSides.Horizontal
+                }
                 content(
                     windowInsets.asWindowInsets()
-                        .only(WindowInsetsSides.Top + WindowInsetsSides.Horizontal)
+                        .only(contentSides)
                         .asPaddingValues(),
                 )
             }
