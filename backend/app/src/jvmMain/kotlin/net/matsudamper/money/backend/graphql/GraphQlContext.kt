@@ -46,6 +46,7 @@ internal class GraphQlContext(
 
         return SessionInfo(
             userId = userId,
+            sessionRecordId = currentSessionInfo.sessionRecordId,
             sessionName = currentSessionInfo.name,
             latestAccess = currentSessionInfo.latestAccess,
             sessionId = sessionId,

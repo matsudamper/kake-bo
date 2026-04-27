@@ -5,9 +5,21 @@ query LoginScreenFidoInfo {
     }
 }
 
-mutation LoginScreenChangeSessionName($name: String!) {
+query LoginScreenCurrentSession {
+    user {
+        settings {
+            sessionAttributes {
+                currentSession {
+                    id
+                }
+            }
+        }
+    }
+}
+
+mutation LoginScreenChangeSessionName($id: SessionRecordId!, $name: String!) {
     userMutation {
-        changeSessionName(name: $name) {
+        changeSessionName(id: $id, name: $name) {
             isSuccess
         }
     }

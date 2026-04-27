@@ -625,6 +625,8 @@ type RegisteredFidoResult {
 }
 
 type Session {
+  id: SessionRecordId!
+
   name: String!
 
   lastAccess: OffsetDateTime!
@@ -635,6 +637,8 @@ type SessionAttributes {
 
   sessions: [Session!]!
 }
+
+scalar SessionRecordId
 
 type SettingsMutation {
   updateImapConfig(config: UpdateUserImapConfigInput!): UserImapConfig
@@ -874,9 +878,9 @@ type UserMutation {
 
   deleteFido(id: FidoId!): DeleteFidoResult!
 
-  deleteSession(name: String!): DeleteSessionResult!
+  deleteSession(id: SessionRecordId!): DeleteSessionResult!
 
-  changeSessionName(name: String!): ChangeSessionNameResult!
+  changeSessionName(id: SessionRecordId!, name: String!): ChangeSessionNameResult!
 
   registerApiToken(name: String!): RegisterApiTokenResult!
 
