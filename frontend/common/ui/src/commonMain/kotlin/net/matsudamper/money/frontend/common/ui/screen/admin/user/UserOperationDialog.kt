@@ -6,8 +6,6 @@ import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.widthIn
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.Close
 import androidx.compose.material3.Button
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
@@ -21,7 +19,10 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.window.Dialog
+import net.matsudamper.money.frontend.common.ui.generated.resources.Res
+import net.matsudamper.money.frontend.common.ui.generated.resources.ic_close
 import net.matsudamper.money.frontend.common.ui.rememberCustomFontFamily
+import org.jetbrains.compose.resources.painterResource
 
 public class UserOperationDialogState(
     public val userName: String,
@@ -60,7 +61,7 @@ internal fun UserOperationDialog(
                         fontFamily = rememberCustomFontFamily(),
                     )
                     IconButton(onClick = { uiState.listener.onDismissUserMenu() }) {
-                        Icon(Icons.Default.Close, contentDescription = "Close")
+                        Icon(painter = painterResource(Res.drawable.ic_close), contentDescription = "Close")
                     }
                 }
                 HorizontalDivider(modifier = Modifier.fillMaxWidth())

@@ -14,10 +14,6 @@ import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.grid.GridCells
 import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.Add
-import androidx.compose.material.icons.filled.Search
-import androidx.compose.material.icons.filled.Settings
 import androidx.compose.material3.Card
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
@@ -30,7 +26,12 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.coerceAtLeast
 import androidx.compose.ui.unit.dp
+import net.matsudamper.money.frontend.common.ui.generated.resources.Res
+import net.matsudamper.money.frontend.common.ui.generated.resources.ic_add
+import net.matsudamper.money.frontend.common.ui.generated.resources.ic_search
+import net.matsudamper.money.frontend.common.ui.generated.resources.ic_settings
 import net.matsudamper.money.frontend.common.ui.rememberCustomFontFamily
+import org.jetbrains.compose.resources.painterResource
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -85,8 +86,8 @@ internal fun AdminRootScreen(
                         },
                         icon = {
                             Row {
-                                Icon(Icons.Default.Add, contentDescription = null)
-                                Icon(Icons.Default.Settings, contentDescription = null)
+                                Icon(painter = painterResource(Res.drawable.ic_add), contentDescription = null)
+                                Icon(painter = painterResource(Res.drawable.ic_settings), contentDescription = null)
                             }
                         },
                         onClick = { uiState.listener.onClickAddUser() },
@@ -103,7 +104,7 @@ internal fun AdminRootScreen(
                         },
                         icon = {
                             Row {
-                                Icon(Icons.Default.Settings, contentDescription = null)
+                                Icon(painter = painterResource(Res.drawable.ic_settings), contentDescription = null)
                             }
                         },
                         onClick = { uiState.listener.onClickUnlinkedImages() },
@@ -120,7 +121,7 @@ internal fun AdminRootScreen(
                         },
                         icon = {
                             Row {
-                                Icon(Icons.Default.Search, contentDescription = null)
+                                Icon(painter = painterResource(Res.drawable.ic_search), contentDescription = null)
                             }
                         },
                         onClick = { uiState.listener.onClickUserSearch() },

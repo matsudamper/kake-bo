@@ -22,11 +22,6 @@ import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.automirrored.filled.ArrowBack
-import androidx.compose.material.icons.filled.Add
-import androidx.compose.material.icons.filled.Close
-import androidx.compose.material.icons.filled.MoreVert
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
@@ -47,7 +42,7 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
-import androidx.compose.ui.graphics.vector.ImageVector
+import androidx.compose.ui.graphics.painter.Painter
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.window.Popup
@@ -58,7 +53,10 @@ import net.matsudamper.money.frontend.common.ui.base.KakeBoTopAppBar
 import net.matsudamper.money.frontend.common.ui.base.KakeboScaffoldListener
 import net.matsudamper.money.frontend.common.ui.base.RootScreenScaffold
 import net.matsudamper.money.frontend.common.ui.generated.resources.Res
+import net.matsudamper.money.frontend.common.ui.generated.resources.ic_add
+import net.matsudamper.money.frontend.common.ui.generated.resources.ic_arrow_back
 import net.matsudamper.money.frontend.common.ui.generated.resources.ic_check_circle
+import net.matsudamper.money.frontend.common.ui.generated.resources.ic_close
 import net.matsudamper.money.frontend.common.ui.generated.resources.ic_computer
 import net.matsudamper.money.frontend.common.ui.generated.resources.ic_delete
 import net.matsudamper.money.frontend.common.ui.generated.resources.ic_devices
@@ -68,6 +66,7 @@ import net.matsudamper.money.frontend.common.ui.generated.resources.ic_expand_mo
 import net.matsudamper.money.frontend.common.ui.generated.resources.ic_key
 import net.matsudamper.money.frontend.common.ui.generated.resources.ic_lock
 import net.matsudamper.money.frontend.common.ui.generated.resources.ic_logout
+import net.matsudamper.money.frontend.common.ui.generated.resources.ic_more_vert
 import net.matsudamper.money.frontend.common.ui.generated.resources.ic_shield
 import net.matsudamper.money.frontend.common.ui.generated.resources.ic_smartphone
 import net.matsudamper.money.frontend.common.ui.layout.AlertDialog
@@ -193,7 +192,7 @@ public fun LoginSettingScreen(
             KakeBoTopAppBar(
                 navigation = {
                     IconButton(onClick = { uiState.event.onClickBack() }) {
-                        Icon(Icons.AutoMirrored.Filled.ArrowBack, contentDescription = null)
+                        Icon(painter = painterResource(Res.drawable.ic_arrow_back), contentDescription = null)
                     }
                 },
                 title = {
@@ -585,7 +584,7 @@ private fun FidoCardContent(
                 ) {
                     Icon(
                         modifier = Modifier.size(18.dp),
-                        imageVector = Icons.Default.Add,
+                        painter = painterResource(Res.drawable.ic_add),
                         contentDescription = null,
                     )
                 }
@@ -635,7 +634,7 @@ private fun FidoItemRow(
             contentColor = MaterialTheme.colorScheme.error,
             contentDescription = "削除",
             onClick = { fido.event.onClickDelete() },
-            icon = Icons.Default.Close,
+            icon = painterResource(Res.drawable.ic_close),
         )
     }
 }
@@ -646,7 +645,7 @@ private fun IconCircleButton(
     contentColor: androidx.compose.ui.graphics.Color,
     contentDescription: String,
     onClick: () -> Unit,
-    icon: ImageVector,
+    icon: Painter,
 ) {
     Box(
         modifier = Modifier
@@ -658,7 +657,7 @@ private fun IconCircleButton(
     ) {
         Icon(
             modifier = Modifier.size(20.dp),
-            imageVector = icon,
+            painter = icon,
             tint = contentColor,
             contentDescription = contentDescription,
         )
@@ -861,7 +860,7 @@ private fun OtherSessionMoreMenu(
 ) {
     var visibleMenu by remember { mutableStateOf(false) }
     IconButton(onClick = { visibleMenu = !visibleMenu }) {
-        Icon(Icons.Default.MoreVert, contentDescription = "メニューを開く")
+        Icon(painter = painterResource(Res.drawable.ic_more_vert), contentDescription = "メニューを開く")
         if (visibleMenu) {
             Popup(
                 onDismissRequest = { visibleMenu = false },

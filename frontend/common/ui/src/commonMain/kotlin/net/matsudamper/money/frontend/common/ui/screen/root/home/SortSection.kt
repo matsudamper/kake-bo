@@ -5,8 +5,6 @@ import androidx.compose.foundation.layout.BoxWithConstraints
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.rememberScrollState
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.automirrored.filled.Sort
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.DropdownMenu
@@ -25,6 +23,9 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.layout.Layout
 import androidx.compose.ui.unit.dp
 import kotlin.math.max
+import net.matsudamper.money.frontend.common.ui.generated.resources.Res
+import net.matsudamper.money.frontend.common.ui.generated.resources.ic_sort
+import org.jetbrains.compose.resources.painterResource
 
 public enum class SortSectionType {
     Date,
@@ -97,7 +98,7 @@ public fun SortSection(
                     },
                 ) {
                     Icon(
-                        imageVector = Icons.AutoMirrored.Default.Sort,
+                        painter = painterResource(Res.drawable.ic_sort),
                         contentDescription = null,
                     )
                     DropdownMenu(

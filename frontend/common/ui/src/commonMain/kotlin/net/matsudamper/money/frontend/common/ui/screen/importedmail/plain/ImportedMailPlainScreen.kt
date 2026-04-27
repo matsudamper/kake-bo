@@ -9,8 +9,6 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.Close
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
@@ -25,7 +23,10 @@ import net.matsudamper.money.frontend.common.ui.base.KakeBoTopAppBar
 import net.matsudamper.money.frontend.common.ui.base.KakeboScaffold
 import net.matsudamper.money.frontend.common.ui.base.KakeboScaffoldListener
 import net.matsudamper.money.frontend.common.ui.base.LoadingErrorContent
+import net.matsudamper.money.frontend.common.ui.generated.resources.Res
+import net.matsudamper.money.frontend.common.ui.generated.resources.ic_close
 import net.matsudamper.money.frontend.common.ui.layout.html.html.HtmlText
+import org.jetbrains.compose.resources.painterResource
 
 public data class ImportedMailPlainScreenUiState(
     val loadingState: LoadingState,
@@ -89,7 +90,7 @@ public fun ImportedMailPlainScreen(
                                     uiState.event.onClickClose()
                                 },
                             ) {
-                                Icon(Icons.Filled.Close, contentDescription = "Close")
+                                Icon(painter = painterResource(Res.drawable.ic_close), contentDescription = "Close")
                             }
                         },
                         title = {

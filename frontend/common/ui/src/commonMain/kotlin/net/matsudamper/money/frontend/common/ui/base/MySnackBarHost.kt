@@ -1,8 +1,6 @@
 package net.matsudamper.money.frontend.common.ui.base
 
 import androidx.compose.foundation.layout.padding
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.Close
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
@@ -16,7 +14,10 @@ import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
+import net.matsudamper.money.frontend.common.ui.generated.resources.Res
+import net.matsudamper.money.frontend.common.ui.generated.resources.ic_close
 import net.matsudamper.money.frontend.common.ui.rememberCustomFontFamily
+import org.jetbrains.compose.resources.painterResource
 
 @Composable
 public fun MySnackBarHost(
@@ -52,7 +53,7 @@ public fun MySnackBarHost(
                         onClick = { snackbarData.dismiss() },
                         content = {
                             Icon(
-                                Icons.Filled.Close,
+                                painter = painterResource(Res.drawable.ic_close),
                                 contentDescription = null,
                             )
                         },
