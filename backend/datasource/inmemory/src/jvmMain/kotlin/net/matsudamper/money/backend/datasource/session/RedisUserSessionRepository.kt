@@ -113,6 +113,7 @@ internal class RedisUserSessionRepository(
 
         val sessionRecordId = sessionData.sessionRecordId
 
+        sessionKey.updateExpire(commands)
         SessionKeys.UserSessionRecord(sessionRecordId)
             .updateExpire(commands)
 
@@ -239,6 +240,15 @@ private sealed interface SessionKeys {
                 TraceLogger.impl().setAttribute("jsonData", jsonData)
                 null
             }
+        }
+
+        fun updateExpire(
+            commands: RedisCommands<String, String>,
+        ) {
+            commands.expire(
+                key,
+                ServerVariables.USER_SESSION_EXPIRE_DAY.days.inWholeSeconds,
+            )
         }
 
         @Serializable
