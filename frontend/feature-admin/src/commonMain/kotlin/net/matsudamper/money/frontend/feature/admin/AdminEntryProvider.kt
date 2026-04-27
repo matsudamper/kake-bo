@@ -2,6 +2,8 @@ package net.matsudamper.money.frontend.feature.admin
 
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.padding
+import androidx.compose.material3.BasicAlertDialog
+import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.SnackbarHostState
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.State
@@ -16,7 +18,6 @@ import net.matsudamper.money.frontend.common.base.nav.addEntryProvider
 import net.matsudamper.money.frontend.common.base.nav.user.IScreenStructure
 import net.matsudamper.money.frontend.common.base.nav.user.ScreenNavController
 import net.matsudamper.money.frontend.common.base.nav.user.ScreenStructure
-import net.matsudamper.money.frontend.common.di.LocalKoin
 import net.matsudamper.money.frontend.common.viewmodel.lib.EventSender
 import net.matsudamper.money.frontend.common.viewmodel.root.GlobalEvent
 import net.matsudamper.money.frontend.feature.admin.ui.AddUserScreen
@@ -32,7 +33,9 @@ import net.matsudamper.money.frontend.feature.admin.viewmodel.AdminUserSearchPag
 import net.matsudamper.money.frontend.feature.admin.viewmodel.AdminUserSearchScreenViewModel
 import net.matsudamper.money.frontend.graphql.GraphqlAdminQuery
 import net.matsudamper.money.frontend.graphql.GraphqlClient
+import net.matsudamper.money.frontend.common.di.LocalKoin
 
+@OptIn(ExperimentalMaterial3Api::class)
 public object AdminEntryProvider {
     public fun EntryProviderScope<IScreenStructure>.addProviders(
         navController: ScreenNavController,
@@ -76,10 +79,13 @@ public object AdminEntryProvider {
                     adminQuery = GraphqlAdminQuery(koin.get<GraphqlClient>()),
                 )
             }
-            AddUserScreen(
-                uiState = adminAddUserScreenViewModel.uiStateFlow.collectAsState().value,
-                modifier = Modifier.padding(paddingValues.value),
-            )
+            BasicAlertDialog(
+                onDismissRequest = { navController.back() },
+            ) {
+                AddUserScreen(
+                    uiState = adminAddUserScreenViewModel.uiStateFlow.collectAsState().value,
+                )
+            }
         }
         addEntryProvider<ScreenStructure.Admin.UnlinkedImages, IScreenStructure> { current ->
             val koin = LocalKoin.current
