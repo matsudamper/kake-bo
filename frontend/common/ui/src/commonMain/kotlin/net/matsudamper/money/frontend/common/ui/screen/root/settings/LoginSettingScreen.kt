@@ -4,6 +4,7 @@ import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
+import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.BoxWithConstraints
 import androidx.compose.foundation.layout.Column
@@ -11,6 +12,7 @@ import androidx.compose.foundation.layout.IntrinsicSize
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
@@ -51,6 +53,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.window.Popup
 import androidx.compose.ui.window.PopupProperties
 import net.matsudamper.money.frontend.common.base.ImmutableList
+import net.matsudamper.money.frontend.common.ui.LocalIsLargeScreen
 import net.matsudamper.money.frontend.common.ui.base.KakeBoTopAppBar
 import net.matsudamper.money.frontend.common.ui.base.KakeboScaffoldListener
 import net.matsudamper.money.frontend.common.ui.base.RootScreenScaffold
@@ -222,8 +225,35 @@ public fun LoginSettingScreen(
     }
 }
 
+private enum class LoginSettingTab {
+    SecurityKey,
+    Password,
+    Session,
+}
+
 @Composable
 private fun LoadedContent(
+    uiState: LoginSettingScreenUiState.LoadingState.Loaded,
+    event: LoginSettingScreenUiState.Event,
+    modifier: Modifier = Modifier,
+) {
+    if (LocalIsLargeScreen.current) {
+        TabletLoadedContent(
+            uiState = uiState,
+            event = event,
+            modifier = modifier,
+        )
+    } else {
+        PhoneLoadedContent(
+            uiState = uiState,
+            event = event,
+            modifier = modifier,
+        )
+    }
+}
+
+@Composable
+private fun PhoneLoadedContent(
     uiState: LoginSettingScreenUiState.LoadingState.Loaded,
     event: LoginSettingScreenUiState.Event,
     modifier: Modifier = Modifier,
@@ -289,6 +319,171 @@ private fun LoadedContent(
             }
         }
     }
+}
+
+@Composable
+private fun TabletLoadedContent(
+    uiState: LoginSettingScreenUiState.LoadingState.Loaded,
+    event: LoginSettingScreenUiState.Event,
+    modifier: Modifier = Modifier,
+) {
+    var selectedTab by remember { mutableStateOf(LoginSettingTab.SecurityKey) }
+    Row(modifier = modifier.fillMaxSize()) {
+        Column(
+            modifier = Modifier
+                .width(320.dp)
+                .fillMaxHeight()
+                .padding(start = 12.dp, end = 12.dp, top = 16.dp, bottom = 24.dp),
+        ) {
+            Column(
+                modifier = Modifier.weight(1f),
+                verticalArrangement = Arrangement.spacedBy(4.dp),
+            ) {
+                TabletNavRow(
+                    leadingIconRes = Res.drawable.ic_shield,
+                    title = "セキュリティーキー",
+                    badgeCount = uiState.fidoList.size,
+                    selected = selectedTab == LoginSettingTab.SecurityKey,
+                    onClick = { selectedTab = LoginSettingTab.SecurityKey },
+                )
+                TabletNavRow(
+                    leadingIconRes = Res.drawable.ic_lock,
+                    title = "パスワード",
+                    badgeCount = null,
+                    selected = selectedTab == LoginSettingTab.Password,
+                    onClick = { selectedTab = LoginSettingTab.Password },
+                )
+                TabletNavRow(
+                    leadingIconRes = Res.drawable.ic_devices,
+                    title = "セッション",
+                    badgeCount = uiState.sessionList.size + 1,
+                    selected = selectedTab == LoginSettingTab.Session,
+                    onClick = { selectedTab = LoginSettingTab.Session },
+                )
+            }
+            LogoutButton(onClick = { event.onClickLogout() })
+        }
+        Column(
+            modifier = Modifier
+                .weight(1f)
+                .fillMaxHeight()
+                .padding(start = 4.dp, end = 16.dp, top = 16.dp, bottom = 24.dp),
+        ) {
+            when (selectedTab) {
+                LoginSettingTab.SecurityKey -> {
+                    TabletDetailSection(title = "セキュリティーキー") {
+                        Card(shape = RoundedCornerShape(20.dp)) {
+                            FidoCardContent(
+                                fidoList = uiState.fidoList,
+                                onClickAddFido = { event.onClickAddFido() },
+                            )
+                        }
+                    }
+                }
+
+                LoginSettingTab.Password -> {
+                    TabletDetailSection(title = "パスワード") {
+                        Card(shape = RoundedCornerShape(20.dp)) {
+                            PasswordCardContent(password = uiState.password)
+                        }
+                    }
+                }
+
+                LoginSettingTab.Session -> {
+                    TabletDetailSection(title = "セッション") {
+                        Card(shape = RoundedCornerShape(20.dp)) {
+                            SessionCardContent(
+                                currentSession = uiState.currentSession,
+                                sessionList = uiState.sessionList,
+                            )
+                        }
+                    }
+                }
+            }
+        }
+    }
+}
+
+@Composable
+private fun TabletNavRow(
+    leadingIconRes: DrawableResource,
+    title: String,
+    badgeCount: Int?,
+    selected: Boolean,
+    onClick: () -> Unit,
+) {
+    val backgroundColor = if (selected) {
+        MaterialTheme.colorScheme.primaryContainer
+    } else {
+        androidx.compose.ui.graphics.Color.Transparent
+    }
+    val contentColor = if (selected) {
+        MaterialTheme.colorScheme.onPrimaryContainer
+    } else {
+        MaterialTheme.colorScheme.onSurface
+    }
+    Surface(
+        modifier = Modifier.fillMaxWidth(),
+        shape = RoundedCornerShape(16.dp),
+        color = backgroundColor,
+        contentColor = contentColor,
+    ) {
+        Row(
+            modifier = Modifier
+                .fillMaxWidth()
+                .clickable { onClick() }
+                .padding(horizontal = 16.dp, vertical = 14.dp),
+            verticalAlignment = Alignment.CenterVertically,
+        ) {
+            Icon(
+                modifier = Modifier.size(24.dp),
+                painter = painterResource(leadingIconRes),
+                contentDescription = null,
+            )
+            Spacer(Modifier.width(16.dp))
+            Text(
+                modifier = Modifier.weight(1f),
+                text = title,
+                style = MaterialTheme.typography.titleMedium,
+                fontWeight = if (selected) FontWeight.Bold else FontWeight.Medium,
+            )
+            if (badgeCount != null) {
+                Surface(
+                    shape = RoundedCornerShape(50),
+                    color = if (selected) {
+                        MaterialTheme.colorScheme.primary
+                    } else {
+                        MaterialTheme.colorScheme.surfaceVariant
+                    },
+                    contentColor = if (selected) {
+                        MaterialTheme.colorScheme.onPrimary
+                    } else {
+                        MaterialTheme.colorScheme.onSurfaceVariant
+                    },
+                ) {
+                    Text(
+                        modifier = Modifier.padding(horizontal = 10.dp, vertical = 2.dp),
+                        text = badgeCount.toString(),
+                        style = MaterialTheme.typography.labelMedium,
+                    )
+                }
+            }
+        }
+    }
+}
+
+@Composable
+private fun TabletDetailSection(
+    title: String,
+    content: @Composable () -> Unit,
+) {
+    Text(
+        modifier = Modifier.padding(start = 4.dp, bottom = 12.dp),
+        text = title,
+        style = MaterialTheme.typography.titleSmall,
+        color = MaterialTheme.colorScheme.onSurfaceVariant,
+    )
+    content()
 }
 
 @Composable
