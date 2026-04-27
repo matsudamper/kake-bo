@@ -965,4 +965,22 @@ class UserMutationResolverImpl : UserMutationResolver {
                 .deletePreset(userId = userId, presetId = id)
         }.toDataFetcher()
     }
+
+    override fun addImportedMailLinkToMoneyUsage(
+        userMutation: QlUserMutation,
+        moneyUsageId: MoneyUsageId,
+        mailId: ImportedMailId,
+        env: DataFetchingEnvironment,
+    ): CompletionStage<DataFetcherResult<Boolean>> {
+        val context = env.graphQlContext.get<GraphQlContext>(GraphQlContext::class.java.name)
+        val userId = context.verifyUserSessionAndGetUserId()
+        return otelSupplyAsync {
+            context.diContainer.createMoneyUsageRepository()
+                .addMailRelation(
+                    userId = userId,
+                    usageId = moneyUsageId,
+                    importedMailId = mailId,
+                )
+        }.toDataFetcher()
+    }
 }

@@ -26,6 +26,12 @@ mutation MoneyUsageScreenDeleteImage($usageId: MoneyUsageId!, $imageId: ImageId!
     }
 }
 
+mutation MoneyUsageScreenAddMailLink($moneyUsageId: MoneyUsageId!, $mailId: ImportedMailId!) {
+    userMutation {
+        addImportedMailLinkToMoneyUsage(moneyUsageId: $moneyUsageId, mailId: $mailId)
+    }
+}
+
 fragment MoneyUsageScreenMoneyUsage on MoneyUsage {
     id
     title
