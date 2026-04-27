@@ -113,6 +113,7 @@ internal class RedisUserSessionRepository(
 
         val sessionRecordId = sessionData.sessionRecordId
 
+        sessionKey.update(commands, sessionData.copy(lastAccess = Instant.now(clock).toKotlinInstant()))
         sessionKey.updateExpire(commands)
         SessionKeys.UserSessionRecord(sessionRecordId)
             .updateExpire(commands)
