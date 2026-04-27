@@ -8,7 +8,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 
 @Composable
-internal fun ImageLoadingPlaceholder(
+public fun ImageLoadingPlaceholder(
     modifier: Modifier = Modifier,
 ) {
     Box(

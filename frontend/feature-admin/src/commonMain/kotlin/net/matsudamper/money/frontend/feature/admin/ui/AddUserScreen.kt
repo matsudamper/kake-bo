@@ -1,4 +1,4 @@
-package net.matsudamper.money.frontend.common.ui.screen.admin
+package net.matsudamper.money.frontend.feature.admin.ui
 
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
@@ -22,7 +22,7 @@ import net.matsudamper.money.frontend.common.ui.layout.TextFieldType
 import net.matsudamper.money.frontend.common.ui.rememberCustomFontFamily
 
 @Composable
-public fun AddUserScreen(
+internal fun AddUserScreen(
     modifier: Modifier = Modifier,
     uiState: AdminAddUserUiState,
 ) {

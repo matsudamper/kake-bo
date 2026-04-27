@@ -3,7 +3,6 @@ package net.matsudamper.money.ui.root
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.BasicAlertDialog
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Scaffold
@@ -13,7 +12,6 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.LaunchedEffect
-import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.key
 import androidx.compose.runtime.movableContentOf
@@ -42,26 +40,16 @@ import net.matsudamper.money.frontend.common.base.nav.rememberScopedObjectStoreO
 import net.matsudamper.money.frontend.common.base.nav.user.IScreenStructure
 import net.matsudamper.money.frontend.common.base.nav.user.ScreenNavController
 import net.matsudamper.money.frontend.common.base.nav.user.ScreenStructure
+import net.matsudamper.money.frontend.common.di.LocalKoin
 import net.matsudamper.money.frontend.common.ui.base.KakeboScaffoldListener
 import net.matsudamper.money.frontend.common.ui.base.MySnackBarHost
 import net.matsudamper.money.frontend.common.ui.base.rootHostScaffoldEntryDecorator
-import net.matsudamper.money.frontend.common.ui.screen.admin.AddUserScreen
-import net.matsudamper.money.frontend.common.ui.screen.admin.AdminLoginScreen
-import net.matsudamper.money.frontend.common.ui.screen.admin.AdminRootScreen
-import net.matsudamper.money.frontend.common.ui.screen.admin.AdminUnlinkedImagesScreen
-import net.matsudamper.money.frontend.common.ui.screen.admin.user.UserSearchScreen
 import net.matsudamper.money.frontend.common.ui.screen.status.NotFoundScreen
 import net.matsudamper.money.frontend.common.ui.screen.status.ServerErrorScreen
 import net.matsudamper.money.frontend.common.ui.screen.status.ServerErrorScreenUiState
 import net.matsudamper.money.frontend.common.usecase.LoginCheckUseCaseImpl
 import net.matsudamper.money.frontend.common.viewmodel.GlobalEventHandlerLoginCheckUseCaseDelegate
 import net.matsudamper.money.frontend.common.viewmodel.LocalGlobalEventHandlerLoginCheckUseCaseDelegate
-import net.matsudamper.money.frontend.common.viewmodel.admin.AdminAddUserScreenViewModel
-import net.matsudamper.money.frontend.common.viewmodel.admin.AdminLoginScreenViewModel
-import net.matsudamper.money.frontend.common.viewmodel.admin.AdminRootScreenViewModel
-import net.matsudamper.money.frontend.common.viewmodel.admin.AdminUnlinkedImagesScreenViewModel
-import net.matsudamper.money.frontend.common.viewmodel.admin.AdminUserSearchPagingModel
-import net.matsudamper.money.frontend.common.viewmodel.admin.AdminUserSearchScreenViewModel
 import net.matsudamper.money.frontend.common.viewmodel.lib.EventSender
 import net.matsudamper.money.frontend.common.viewmodel.root.GlobalEvent
 import net.matsudamper.money.frontend.common.viewmodel.root.SettingViewModel
@@ -69,8 +57,7 @@ import net.matsudamper.money.frontend.common.viewmodel.root.add.HomeAddExtension
 import net.matsudamper.money.frontend.common.viewmodel.root.home.LoginCheckUseCaseEventListenerImpl
 import net.matsudamper.money.frontend.common.viewmodel.root.mail.HomeAddTabScreenViewModel
 import net.matsudamper.money.frontend.common.viewmodel.root.usage.RootUsageHostViewModel
-import net.matsudamper.money.frontend.graphql.GraphqlAdminQuery
-import net.matsudamper.money.frontend.graphql.GraphqlClient
+import net.matsudamper.money.frontend.feature.admin.AdminEntryProvider
 import net.matsudamper.money.frontend.graphql.GraphqlUserLoginQuery
 import net.matsudamper.money.ui.root.platform.PlatformTools
 import net.matsudamper.money.ui.root.viewmodel.LocalViewModelProviders
@@ -310,91 +297,11 @@ public fun Content(
                                         windowInsets = paddingValues.value,
                                     )
                                 }
-                                addEntryProvider<ScreenStructure.Admin.Root> { current ->
-                                    val koin = LocalKoin.current
-                                    val adminRootViewModel = LocalScopedObjectStore.current.putOrGet<AdminRootScreenViewModel>(Unit) {
-                                        AdminRootScreenViewModel(
-                                            scopedObjectFeature = it,
-                                            navController = navController,
-                                            adminQuery = GraphqlAdminQuery(koin.get<GraphqlClient>()),
-                                            globalEventSender = globalEventSender,
-                                        )
-                                    }
-                                    AdminRootScreen(
-                                        uiState = adminRootViewModel.uiStateFlow.collectAsState().value,
-                                        modifier = Modifier.padding(paddingValues.value),
-                                    )
-                                }
-                                addEntryProvider<ScreenStructure.Admin.Login> { current ->
-                                    val koin = LocalKoin.current
-                                    val loginViewModel = LocalScopedObjectStore.current.putOrGet<AdminLoginScreenViewModel>(Unit) {
-                                        AdminLoginScreenViewModel(
-                                            scopedObjectFeature = it,
-                                            navController = navController,
-                                            adminQuery = GraphqlAdminQuery(koin.get<GraphqlClient>()),
-                                            globalEventSender = globalEventSender,
-                                        )
-                                    }
-                                    AdminLoginScreen(
-                                        uiState = loginViewModel.uiStateFlow.collectAsState().value,
-                                    )
-                                }
-                                addEntryProvider<ScreenStructure.Admin.AddUser> { current ->
-                                    val koin = LocalKoin.current
-                                    val adminAddUserScreenViewModel = LocalScopedObjectStore.current.putOrGet<AdminAddUserScreenViewModel>(Unit) {
-                                        AdminAddUserScreenViewModel(
-                                            scopedObjectFeature = it,
-                                            adminQuery = GraphqlAdminQuery(koin.get<GraphqlClient>()),
-                                        )
-                                    }
-                                    AddUserScreen(
-                                        uiState = adminAddUserScreenViewModel.uiStateFlow.collectAsState().value,
-                                        modifier = Modifier.padding(paddingValues.value),
-                                    )
-                                }
-                                addEntryProvider<ScreenStructure.Admin.UnlinkedImages> { current ->
-                                    val koin = LocalKoin.current
-                                    val adminUnlinkedImagesScreenViewModel = LocalScopedObjectStore.current.putOrGet<AdminUnlinkedImagesScreenViewModel>(Unit) {
-                                        AdminUnlinkedImagesScreenViewModel(
-                                            scopedObjectFeature = it,
-                                            graphqlClient = koin.get<GraphqlClient>(),
-                                            adminQuery = GraphqlAdminQuery(koin.get<GraphqlClient>()),
-                                        )
-                                    }
-                                    AdminUnlinkedImagesScreen(
-                                        uiState = adminUnlinkedImagesScreenViewModel.uiStateFlow.collectAsState().value,
-                                        onClickBack = { navController.back() },
-                                        modifier = Modifier.padding(paddingValues.value),
-                                    )
-                                }
-                                addEntryProvider<ScreenStructure.Admin.UserSearch> { current ->
-                                    val koin = LocalKoin.current
-                                    val graphqlClient = koin.get<GraphqlClient>()
-                                    val adminUserSearchScreenViewModel = LocalScopedObjectStore.current.putOrGet<AdminUserSearchScreenViewModel>(Unit) {
-                                        AdminUserSearchScreenViewModel(
-                                            scopedObjectFeature = it,
-                                            adminQuery = GraphqlAdminQuery(graphqlClient),
-                                            pagingModel = AdminUserSearchPagingModel(graphqlClient),
-                                        )
-                                    }
-                                    val snackbarHostState = remember { SnackbarHostState() }
-                                    val coroutineScope = rememberCoroutineScope()
-                                    LaunchedEffect(Unit) {
-                                        adminUserSearchScreenViewModel.eventHandler.collect(
-                                            object : AdminUserSearchScreenViewModel.Event {
-                                                override fun showSnackBar(message: String) {
-                                                    coroutineScope.launch {
-                                                        snackbarHostState.showSnackbar(message)
-                                                    }
-                                                }
-                                            },
-                                        )
-                                    }
-                                    UserSearchScreen(
-                                        uiState = adminUserSearchScreenViewModel.uiStateFlow.collectAsState().value,
-                                        onClickBack = { navController.back() },
-                                        snackbarHostState = snackbarHostState,
-                                        modifier = Modifier.padding(paddingValues.value),
+                                with(AdminEntryProvider) {
+                                    addProviders(
+                                        navController = navController,
+                                        globalEventSender = globalEventSender,
+                                        paddingValues = paddingValues,
                                     )
                                 }
                                 addEntryProvider<ScreenStructure.NotFound> {

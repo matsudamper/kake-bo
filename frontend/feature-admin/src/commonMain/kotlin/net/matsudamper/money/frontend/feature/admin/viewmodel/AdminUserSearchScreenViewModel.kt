@@ -1,4 +1,4 @@
-package net.matsudamper.money.frontend.common.viewmodel.admin
+package net.matsudamper.money.frontend.feature.admin.viewmodel
 
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -11,19 +11,19 @@ import com.apollographql.apollo.api.ApolloResponse
 import com.apollographql.apollo.api.Optional
 import net.matsudamper.money.frontend.common.base.Logger
 import net.matsudamper.money.frontend.common.base.nav.ScopedObjectFeature
-import net.matsudamper.money.frontend.common.ui.screen.admin.user.AdminUserSearchUiState
-import net.matsudamper.money.frontend.common.ui.screen.admin.user.AdminUserSearchUiState.ReplacePasswordDialogState
-import net.matsudamper.money.frontend.common.ui.screen.admin.user.UserOperationDialogState
 import net.matsudamper.money.frontend.common.viewmodel.CommonViewModel
 import net.matsudamper.money.frontend.common.viewmodel.lib.EventHandler
 import net.matsudamper.money.frontend.common.viewmodel.lib.EventSender
+import net.matsudamper.money.frontend.feature.admin.ui.user.AdminUserSearchUiState
+import net.matsudamper.money.frontend.feature.admin.ui.user.AdminUserSearchUiState.ReplacePasswordDialogState
+import net.matsudamper.money.frontend.feature.admin.ui.user.UserOperationDialogState
 import net.matsudamper.money.frontend.graphql.AdminSearchUsersQuery
 import net.matsudamper.money.frontend.graphql.GraphqlAdminQuery
 import net.matsudamper.money.frontend.graphql.UpdateOperationResponseResult
 
 private const val TAG = "AdminUserSearchScreenViewModel"
 
-public class AdminUserSearchScreenViewModel(
+internal class AdminUserSearchScreenViewModel(
     scopedObjectFeature: ScopedObjectFeature,
     private val adminQuery: GraphqlAdminQuery,
     private val pagingModel: AdminUserSearchPagingModel,
@@ -265,8 +265,8 @@ public class AdminUserSearchScreenViewModel(
         val userOperationDialogUiState: UserOperationDialogState? = null,
     )
 
-    public interface Event {
-        public fun showSnackBar(message: String)
+    interface Event {
+        fun showSnackBar(message: String)
     }
 
     private companion object {
