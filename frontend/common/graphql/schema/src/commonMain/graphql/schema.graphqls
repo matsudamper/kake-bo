@@ -138,6 +138,12 @@ type AdminUnlinkedImagesConnection {
   totalCount: Int!
 }
 
+type AdminImageDirectoryMonth {
+  yearMonth: String!
+
+  count: Int!
+}
+
 input AdminUnlinkedImagesInput {
   size: Int!
 
@@ -588,6 +594,10 @@ type Query {
   isAdminLoggedIn: Boolean!
 
   adminUnlinkedImages(input: AdminUnlinkedImagesInput!): AdminUnlinkedImagesConnection!
+
+  adminImageDirectoryMonths: [AdminImageDirectoryMonth!]!
+
+  adminUnlinkedImagesByMonth(yearMonth: String!): [AdminUnlinkedImage!]!
 
   adminSearchUsers(input: AdminUserSearchInput!): AdminUserSearchUsersConnection!
 
