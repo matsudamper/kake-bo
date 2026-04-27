@@ -149,7 +149,11 @@ public class LoginScreenViewModel(
 
     private suspend fun postLogin(isSuccess: Boolean) {
         if (isSuccess) {
-            screenApi.changeSessionName(deviceNameProvider.getDeviceName())
+            val currentSessionId = screenApi.currentSession()
+                .data?.user?.settings?.sessionAttributes?.currentSession?.id
+            if (currentSessionId != null) {
+                screenApi.changeSessionName(id = currentSessionId, name = deviceNameProvider.getDeviceName())
+            }
             navController.navigateReplace(RootHomeScreenStructure.Home)
             globalEventSender.send {
                 it.showSnackBar("ログインしました")
