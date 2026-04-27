@@ -8,7 +8,7 @@ plugins {
 }
 
 compose.resources {
-    publicResClass = false
+    publicResClass = true
     packageOfResClass = "net.matsudamper.money.frontend.common.ui.generated.resources"
     generateResClass = ResourcesExtension.ResourceClassGeneration.Always
 }

@@ -13,8 +13,6 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.widthIn
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.automirrored.filled.OpenInNew
 import androidx.compose.material3.Icon
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -37,6 +35,9 @@ import net.matsudamper.money.frontend.common.ui.base.KakeBoTopAppBar
 import net.matsudamper.money.frontend.common.ui.base.KakeboScaffoldListener
 import net.matsudamper.money.frontend.common.ui.base.LocalScrollToTopHandler
 import net.matsudamper.money.frontend.common.ui.base.RootScreenScaffold
+import net.matsudamper.money.frontend.common.ui.generated.resources.Res
+import net.matsudamper.money.frontend.common.ui.generated.resources.ic_open_in_new
+import org.jetbrains.compose.resources.painterResource
 
 public data class RootSettingScreenUiState(
     val kotlinVersion: String,
@@ -180,7 +181,7 @@ private fun MainContent(
                         onClick = { uiState.event.onClickGitHub() },
                         trailingContent = {
                             Icon(
-                                imageVector = Icons.AutoMirrored.Filled.OpenInNew,
+                                painter = painterResource(Res.drawable.ic_open_in_new),
                                 contentDescription = "外部アプリで開く",
                             )
                         },

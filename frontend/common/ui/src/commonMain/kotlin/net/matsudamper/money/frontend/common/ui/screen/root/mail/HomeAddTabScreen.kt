@@ -17,12 +17,6 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.grid.GridCells
 import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
 import androidx.compose.foundation.lazy.grid.items
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.automirrored.filled.KeyboardArrowLeft
-import androidx.compose.material.icons.filled.Add
-import androidx.compose.material.icons.filled.Email
-import androidx.compose.material.icons.filled.List
-import androidx.compose.material.icons.filled.Notifications
 import androidx.compose.material3.Card
 import androidx.compose.material3.Icon
 import androidx.compose.material3.Text
@@ -37,6 +31,13 @@ import net.matsudamper.money.frontend.common.base.ImmutableList
 import net.matsudamper.money.frontend.common.ui.base.KakeBoTopAppBar
 import net.matsudamper.money.frontend.common.ui.base.KakeboScaffoldListener
 import net.matsudamper.money.frontend.common.ui.base.RootScreenScaffold
+import net.matsudamper.money.frontend.common.ui.generated.resources.Res
+import net.matsudamper.money.frontend.common.ui.generated.resources.ic_add
+import net.matsudamper.money.frontend.common.ui.generated.resources.ic_email
+import net.matsudamper.money.frontend.common.ui.generated.resources.ic_keyboard_arrow_left
+import net.matsudamper.money.frontend.common.ui.generated.resources.ic_list
+import net.matsudamper.money.frontend.common.ui.generated.resources.ic_notifications
+import org.jetbrains.compose.resources.painterResource
 
 public data class HomeAddTabScreenUiState(
     val kakeboScaffoldListener: KakeboScaffoldListener,
@@ -160,26 +161,26 @@ private fun AddTabItemIcon(
     when (icon) {
         HomeAddTabScreenUiState.Icon.ImportMail -> {
             Row {
-                Icon(Icons.AutoMirrored.Filled.KeyboardArrowLeft, contentDescription = null)
-                Icon(Icons.Default.Email, contentDescription = null)
+                Icon(painter = painterResource(Res.drawable.ic_keyboard_arrow_left), contentDescription = null)
+                Icon(painter = painterResource(Res.drawable.ic_email), contentDescription = null)
             }
         }
 
         HomeAddTabScreenUiState.Icon.ImportedMail -> {
             Row {
-                Icon(Icons.Default.Add, contentDescription = null)
-                Icon(Icons.Default.Email, contentDescription = null)
+                Icon(painter = painterResource(Res.drawable.ic_add), contentDescription = null)
+                Icon(painter = painterResource(Res.drawable.ic_email), contentDescription = null)
             }
         }
 
         HomeAddTabScreenUiState.Icon.Preset -> {
-            Icon(Icons.Default.List, contentDescription = null)
+            Icon(painter = painterResource(Res.drawable.ic_list), contentDescription = null)
         }
 
         HomeAddTabScreenUiState.Icon.Notification -> {
             Row {
-                Icon(Icons.Default.Add, contentDescription = null)
-                Icon(Icons.Default.Notifications, contentDescription = null)
+                Icon(painter = painterResource(Res.drawable.ic_add), contentDescription = null)
+                Icon(painter = painterResource(Res.drawable.ic_notifications), contentDescription = null)
             }
         }
     }

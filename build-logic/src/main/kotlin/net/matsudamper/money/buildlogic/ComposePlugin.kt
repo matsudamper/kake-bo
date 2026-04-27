@@ -24,7 +24,6 @@ class ComposePlugin : Plugin<Project> {
                 val compose = extensionOf(this, "compose") as ComposePlugin.Dependencies
                 sourceSets.getByName("commonMain") {
                     dependencies {
-                        implementation(compose.materialIconsExtended)
                     }
                 }
             }

@@ -24,9 +24,6 @@ import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.lazy.rememberLazyListState
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.automirrored.filled.ArrowBack
-import androidx.compose.material.icons.filled.MoreVert
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.CircularProgressIndicator
@@ -69,6 +66,9 @@ import net.matsudamper.money.frontend.common.ui.base.KakeBoTopAppBar
 import net.matsudamper.money.frontend.common.ui.base.KakeboScaffold
 import net.matsudamper.money.frontend.common.ui.base.KakeboScaffoldListener
 import net.matsudamper.money.frontend.common.ui.base.LoadingErrorContent
+import net.matsudamper.money.frontend.common.ui.generated.resources.Res
+import net.matsudamper.money.frontend.common.ui.generated.resources.ic_arrow_back
+import net.matsudamper.money.frontend.common.ui.generated.resources.ic_more_vert
 import net.matsudamper.money.frontend.common.ui.layout.AlertDialog
 import net.matsudamper.money.frontend.common.ui.layout.CalendarDialog
 import net.matsudamper.money.frontend.common.ui.layout.GridColumn
@@ -81,6 +81,7 @@ import net.matsudamper.money.frontend.common.ui.layout.html.text.fullscreen.Full
 import net.matsudamper.money.frontend.common.ui.layout.image.ImageLoadingPlaceholder
 import net.matsudamper.money.frontend.common.ui.layout.image.ImageUploadButton
 import net.matsudamper.money.frontend.common.ui.layout.image.ZoomableImageDialog
+import org.jetbrains.compose.resources.painterResource
 
 public data class MoneyUsageScreenUiState(
     val event: Event,
@@ -322,7 +323,7 @@ public fun MoneyUsageScreen(
             KakeBoTopAppBar(
                 navigation = {
                     IconButton(onClick = { uiState.event.onClickBack() }) {
-                        Icon(Icons.AutoMirrored.Filled.ArrowBack, "戻る")
+                        Icon(painter = painterResource(Res.drawable.ic_arrow_back), contentDescription = "戻る")
                     }
                 },
                 title = {
@@ -401,7 +402,7 @@ private fun LoadedContent(
                     Box {
                         var visiblePopup by remember { mutableStateOf(false) }
                         IconButton(onClick = { visiblePopup = !visiblePopup }) {
-                            Icon(Icons.Default.MoreVert, "メニュー")
+                            Icon(painter = painterResource(Res.drawable.ic_more_vert), contentDescription = "メニュー")
                         }
                         if (visiblePopup) {
                             UsageMenuPopup(
