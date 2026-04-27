@@ -1,6 +1,7 @@
 plugins {
     alias(libs.plugins.kotlin.multiplatform)
     alias(libs.plugins.kotlin.serialization)
+    id("net.matsudamper.money.buildlogic.compose")
     id("net.matsudamper.money.buildlogic.androidLibrary")
 }
 
@@ -22,6 +23,7 @@ kotlin {
                 implementation(projects.frontend.common.usecase)
 
                 implementation(libs.koinCore)
+                implementation(libs.composeRuntime)
                 implementation(libs.kotlin.serialization.json)
             }
         }

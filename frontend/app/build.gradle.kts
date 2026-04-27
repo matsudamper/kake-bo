@@ -31,6 +31,7 @@ kotlin {
                 implementation(libs.composeFoundation)
                 implementation(libs.composeMaterial3)
                 implementation(libs.composeRuntime)
+                implementation(libs.composeComponentsResources)
 
                 implementation(libs.koinCore)
                 implementation(libs.coilRuntime)
@@ -76,11 +77,14 @@ android {
     compileSdk = 36
     namespace = "net.matsudamper.money"
     signingConfigs {
-        create("release") {
-            storeFile = (localProperties["KEYSTORE_PATH"] as? String)?.let { file(it) } ?: return@create
-            storePassword = localProperties["KEYSTORE_PASSWORD"] as? String ?: return@create
-            keyAlias = localProperties["KEY_ALIAS"] as? String ?: return@create
-            keyPassword = localProperties["KEY_PASSWORD"] as? String ?: return@create
+        val keystorePath = localProperties["KEYSTORE_PATH"] as? String
+        if (keystorePath != null) {
+            create("release") {
+                storeFile = (localProperties["KEYSTORE_PATH"] as? String)?.let { file(it) } ?: return@create
+                storePassword = localProperties["KEYSTORE_PASSWORD"] as? String ?: return@create
+                keyAlias = localProperties["KEY_ALIAS"] as? String ?: return@create
+                keyPassword = localProperties["KEY_PASSWORD"] as? String ?: return@create
+            }
         }
     }
     val appName = "家計簿"
@@ -95,7 +99,7 @@ android {
             }
         }
         release {
-            signingConfig = signingConfigs.getByName("release")
+            signingConfig = signingConfigs.findByName("release")
         }
     }
     defaultConfig {
