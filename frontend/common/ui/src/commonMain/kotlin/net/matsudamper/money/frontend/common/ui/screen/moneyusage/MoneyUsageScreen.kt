@@ -9,21 +9,18 @@ import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.BoxWithConstraints
 import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.ExperimentalLayoutApi
-import androidx.compose.foundation.layout.FlowRow
 import androidx.compose.foundation.layout.IntrinsicSize
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.aspectRatio
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
-import androidx.compose.foundation.lazy.LazyColumn
-import androidx.compose.foundation.lazy.items
-import androidx.compose.foundation.lazy.rememberLazyListState
+import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.CircularProgressIndicator
@@ -36,7 +33,6 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.ProvideTextStyle
 import androidx.compose.material3.Text
-import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.Immutable
 import androidx.compose.runtime.LaunchedEffect
@@ -60,6 +56,7 @@ import kotlinx.datetime.LocalTime
 import coil3.compose.AsyncImage
 import coil3.compose.SubcomposeAsyncImage
 import net.matsudamper.money.frontend.common.base.ImmutableList
+import net.matsudamper.money.frontend.common.ui.LocalIsLargeScreen
 import net.matsudamper.money.frontend.common.ui.base.CategorySelectDialog
 import net.matsudamper.money.frontend.common.ui.base.CategorySelectDialogUiState
 import net.matsudamper.money.frontend.common.ui.base.KakeBoTopAppBar
@@ -68,10 +65,10 @@ import net.matsudamper.money.frontend.common.ui.base.KakeboScaffoldListener
 import net.matsudamper.money.frontend.common.ui.base.LoadingErrorContent
 import net.matsudamper.money.frontend.common.ui.generated.resources.Res
 import net.matsudamper.money.frontend.common.ui.generated.resources.ic_arrow_back
+import net.matsudamper.money.frontend.common.ui.generated.resources.ic_email
 import net.matsudamper.money.frontend.common.ui.generated.resources.ic_more_vert
 import net.matsudamper.money.frontend.common.ui.layout.AlertDialog
 import net.matsudamper.money.frontend.common.ui.layout.CalendarDialog
-import net.matsudamper.money.frontend.common.ui.layout.GridColumn
 import net.matsudamper.money.frontend.common.ui.layout.NumberInput
 import net.matsudamper.money.frontend.common.ui.layout.NumberInputValue
 import net.matsudamper.money.frontend.common.ui.layout.TimePickerDialog
@@ -334,8 +331,31 @@ public fun MoneyUsageScreen(
                         ) {
                             kakeboScaffoldListener.onClickTitle()
                         },
-                        text = "家計簿",
+                        text = "使用用途",
                     )
+                },
+                menu = {
+                    var visiblePopup by remember { mutableStateOf(false) }
+                    IconButton(onClick = { visiblePopup = !visiblePopup }) {
+                        Icon(painter = painterResource(Res.drawable.ic_more_vert), contentDescription = "メニュー")
+                    }
+                    if (visiblePopup) {
+                        UsageMenuPopup(
+                            onDismissRequest = { visiblePopup = false },
+                            onClickDelete = {
+                                visiblePopup = false
+                                if (uiState.loadingState is MoneyUsageScreenUiState.LoadingState.Loaded) {
+                                    uiState.loadingState.event.onClickDelete()
+                                }
+                            },
+                            onClickCopy = {
+                                visiblePopup = false
+                                if (uiState.loadingState is MoneyUsageScreenUiState.LoadingState.Loaded) {
+                                    uiState.loadingState.event.onClickCopy()
+                                }
+                            },
+                        )
+                    }
                 },
                 windowInsets = windowInsets,
             )
@@ -344,8 +364,7 @@ public fun MoneyUsageScreen(
         when (val state = uiState.loadingState) {
             is MoneyUsageScreenUiState.LoadingState.Loaded -> {
                 LoadedContent(
-                    modifier = Modifier
-                        .fillMaxWidth(),
+                    modifier = Modifier.fillMaxWidth(),
                     uiState = state,
                     paddingValues = paddingValues,
                 )
@@ -378,91 +397,43 @@ private fun LoadedContent(
     uiState: MoneyUsageScreenUiState.LoadingState.Loaded,
     paddingValues: PaddingValues,
 ) {
-    val state = rememberLazyListState()
+    val isLargeScreen = LocalIsLargeScreen.current
+    val scrollState = rememberScrollState()
+
     BoxWithConstraints(
-        modifier = modifier,
+        modifier = modifier.fillMaxSize().padding(paddingValues),
     ) {
-        LazyColumn(
+        Column(
             modifier = Modifier
                 .fillMaxSize()
-                .padding(horizontal = 12.dp),
-            state = state,
-            contentPadding = paddingValues,
+                .verticalScroll(scrollState)
+                .padding(16.dp),
+            verticalArrangement = Arrangement.spacedBy(16.dp),
         ) {
-            item {
+            if (isLargeScreen) {
                 Row(
-                    verticalAlignment = Alignment.CenterVertically,
+                    modifier = Modifier.fillMaxWidth(),
+                    horizontalArrangement = Arrangement.spacedBy(16.dp),
                 ) {
-                    Text(
-                        modifier = Modifier.padding(12.dp)
-                            .weight(1f),
-                        text = "使用用途",
-                        style = MaterialTheme.typography.titleLarge,
-                    )
-                    Box {
-                        var visiblePopup by remember { mutableStateOf(false) }
-                        IconButton(onClick = { visiblePopup = !visiblePopup }) {
-                            Icon(painter = painterResource(Res.drawable.ic_more_vert), contentDescription = "メニュー")
-                        }
-                        if (visiblePopup) {
-                            UsageMenuPopup(
-                                onDismissRequest = { visiblePopup = false },
-                                onClickDelete = {
-                                    visiblePopup = false
-                                    uiState.event.onClickDelete()
-                                },
-                                onClickCopy = {
-                                    visiblePopup = false
-                                    uiState.event.onClickCopy()
-                                },
-                            )
-                        }
+                    Column(modifier = Modifier.weight(1f)) {
+                        MainCard(uiState = uiState.moneyUsage)
                     }
-                }
-                HorizontalDivider(modifier = Modifier.fillMaxWidth().height(1.dp))
-
-                Card(
-                    modifier = Modifier
-                        .padding(vertical = 12.dp),
-                ) {
-                    MoneyUsage(
-                        modifier = Modifier.fillMaxWidth()
-                            .padding(12.dp),
-                        uiState = uiState.moneyUsage,
-                    )
-                }
-            }
-            item {
-                Text(
-                    modifier = Modifier.padding(12.dp),
-                    text = "連携されたメール",
-                    style = MaterialTheme.typography.titleLarge,
-                )
-                HorizontalDivider(modifier = Modifier.fillMaxWidth().height(1.dp))
-            }
-            if (uiState.linkedMails.isNotEmpty()) {
-                items(uiState.linkedMails) { mail ->
-                    Card(
-                        modifier = Modifier.fillMaxWidth()
-                            .padding(vertical = 8.dp),
-                        onClick = { mail.event.onClick() },
+                    Column(
+                        modifier = Modifier.weight(1f),
+                        verticalArrangement = Arrangement.spacedBy(16.dp),
                     ) {
-                        MailContent(
-                            modifier = Modifier.fillMaxWidth()
-                                .padding(12.dp),
-                            uiState = mail,
+                        ImagesCard(uiState = uiState.moneyUsage)
+                        MailsSection(
+                            linkedMails = uiState.linkedMails,
                         )
                     }
                 }
             } else {
-                item {
-                    Box(
-                        modifier = Modifier.fillMaxWidth().height(200.dp),
-                        contentAlignment = Alignment.Center,
-                    ) {
-                        Text("連携されたメールがありません")
-                    }
-                }
+                MainCard(uiState = uiState.moneyUsage)
+                ImagesCard(uiState = uiState.moneyUsage)
+                MailsSection(
+                    linkedMails = uiState.linkedMails,
+                )
             }
         }
     }
@@ -491,17 +462,19 @@ private fun UsageMenuPopup(
                         .clickable {
                             onClickCopy()
                         }
-                        .padding(12.dp),
+                        .padding(horizontal = 12.dp, vertical = 8.dp),
                     text = "コピー",
+                    style = MaterialTheme.typography.labelLarge,
                 )
                 Text(
                     modifier = Modifier.fillMaxWidth()
                         .clickable {
                             onClickDelete()
                         }
-                        .padding(12.dp),
+                        .padding(horizontal = 12.dp, vertical = 8.dp),
                     color = MaterialTheme.colorScheme.error,
                     text = "削除",
+                    style = MaterialTheme.typography.labelLarge,
                 )
             }
         }
@@ -509,276 +482,152 @@ private fun UsageMenuPopup(
 }
 
 @Composable
-private fun MailContent(
+private fun MainCard(
     modifier: Modifier = Modifier,
-    uiState: MoneyUsageScreenUiState.MailItem,
+    uiState: MoneyUsageScreenUiState.MoneyUsage,
 ) {
-    GridColumn(
-        modifier = modifier,
-        horizontalPadding = 8.dp,
-        verticalPadding = 4.dp,
-    ) {
-        row {
-            item {
-                Text(text = "タイトル")
-            }
-            item {
-                Text(text = uiState.subject)
-            }
-        }
-        row {
-            item {
-                Text(text = "From")
-            }
-            item {
-                Text(text = uiState.from)
-            }
-        }
-        row {
-            item {
-                Text(text = "日付")
-            }
-            item {
-                Text(text = uiState.date)
-            }
+    Card(modifier = modifier.fillMaxWidth()) {
+        Column(modifier = Modifier.padding(horizontal = 16.dp, vertical = 8.dp)) {
+            MoneyUsageSection(
+                title = "タイトル",
+                content = { Text(uiState.title) },
+                onClickChange = { uiState.event.onClickTitleChange() },
+            )
+            HorizontalDivider(modifier = Modifier.fillMaxWidth().height(1.dp))
+            MoneyUsageSection(
+                title = "日付",
+                content = { Text(uiState.date) },
+                onClickChange = { uiState.event.onClickDateChange() },
+            )
+            HorizontalDivider(modifier = Modifier.fillMaxWidth().height(1.dp))
+            MoneyUsageSection(
+                title = "時間",
+                content = { Text(uiState.time) },
+                onClickChange = { uiState.event.onClickTimeChange() },
+            )
+            HorizontalDivider(modifier = Modifier.fillMaxWidth().height(1.dp))
+            MoneyUsageSection(
+                title = "カテゴリ",
+                content = { Text(uiState.category) },
+                onClickChange = { uiState.event.onClickCategoryChange() },
+            )
+            HorizontalDivider(modifier = Modifier.fillMaxWidth().height(1.dp))
+            MoneyUsageSection(
+                title = "金額",
+                content = { Text(uiState.amount) },
+                onClickChange = { uiState.event.onClickAmountChange() },
+            )
+            HorizontalDivider(modifier = Modifier.fillMaxWidth().height(1.dp))
+            MoneyUsageSection(
+                title = "説明",
+                multiline = true,
+                content = {
+                    UrlClickableText(
+                        text = uiState.description.text,
+                        onClickUrl = { uiState.description.event.onClickUrl(it) },
+                        onLongClickUrl = { uiState.description.event.onLongClickUrl(it) },
+                    )
+                },
+                onClickChange = { uiState.event.onClickDescription() },
+            )
         }
     }
 }
 
-@OptIn(ExperimentalLayoutApi::class)
 @Composable
-private fun MoneyUsage(
+private fun MoneyUsageSection(
+    modifier: Modifier = Modifier,
+    multiline: Boolean = false,
+    title: String,
+    onClickChange: () -> Unit,
+    content: @Composable () -> Unit,
+) {
+    Row(
+        modifier = modifier.padding(vertical = 12.dp),
+        verticalAlignment = if (multiline) Alignment.Top else Alignment.CenterVertically,
+    ) {
+        Column(modifier = Modifier.weight(1f)) {
+            Text(
+                text = title,
+                style = MaterialTheme.typography.labelLarge,
+                color = MaterialTheme.colorScheme.primary,
+            )
+            Spacer(modifier = Modifier.height(4.dp))
+            ProvideTextStyle(MaterialTheme.typography.bodyLarge) {
+                content()
+            }
+        }
+        OutlinedButton(
+            onClick = onClickChange,
+            contentPadding = PaddingValues(horizontal = 12.dp, vertical = 0.dp),
+            modifier = Modifier.height(32.dp),
+        ) {
+            Text("変更", style = MaterialTheme.typography.labelMedium)
+        }
+    }
+}
+
+@Composable
+private fun ImagesCard(
     modifier: Modifier = Modifier,
     uiState: MoneyUsageScreenUiState.MoneyUsage,
 ) {
     var selectedImageUrl by remember { mutableStateOf<String?>(null) }
 
-    Column(modifier = modifier) {
-        MoneyUsageSection(
-            title = {
-                Text("タイトル")
-            },
-            content = {
-                Text(
-                    text = uiState.title,
-                )
-            },
-            onClickChange = {
-                uiState.event.onClickTitleChange()
-            },
-        )
-        MoneyUsageSection(
-            title = {
-                Text("日付")
-            },
-            content = {
-                Text(
-                    text = uiState.date,
-                )
-            },
-            onClickChange = {
-                uiState.event.onClickDateChange()
-            },
-        )
-        MoneyUsageSection(
-            title = {
-                Text("時間")
-            },
-            content = {
-                Text(
-                    text = uiState.time,
-                )
-            },
-            onClickChange = {
-                uiState.event.onClickTimeChange()
-            },
-        )
-        MoneyUsageSection(
-            title = {
-                Text("カテゴリ")
-            },
-            content = {
-                Text(
-                    text = uiState.category,
-                )
-            },
-            onClickChange = {
-                uiState.event.onClickCategoryChange()
-            },
-        )
-        MoneyUsageSection(
-            title = {
-                Text("金額")
-            },
-            content = {
-                Text(
-                    text = uiState.amount,
-                )
-            },
-            onClickChange = {
-                uiState.event.onClickAmountChange()
-            },
-        )
-        MoneyUsageSection(
-            multiline = true,
-            title = {
-                Text("説明")
-            },
-            content = {
-                UrlClickableText(
-                    text = uiState.description.text,
-                    onClickUrl = { uiState.description.event.onClickUrl(it) },
-                    onLongClickUrl = { uiState.description.event.onLongClickUrl(it) },
-                )
-            },
-            onClickChange = {
-                uiState.event.onClickDescription()
-            },
-        )
-        MoneyUsageSection(
-            multiline = true,
-            showChangeButton = false,
-            title = {
-                Text("画像")
-            },
-            content = {
-                Column {
-                    if (uiState.images.isEmpty() && uiState.uploadQueueItems.isEmpty()) {
-                        Text("未設定")
-                    } else {
-                        FlowRow(
-                            modifier = Modifier.fillMaxWidth(),
-                            horizontalArrangement = Arrangement.spacedBy(8.dp),
-                            verticalArrangement = Arrangement.spacedBy(8.dp),
-                        ) {
-                            uiState.images.forEach { imageItem ->
-                                var showDeleteDialog by remember { mutableStateOf(false) }
-                                var showPopupMenu by remember { mutableStateOf(false) }
-                                Box(modifier = Modifier.size(180.dp)) {
-                                    SubcomposeAsyncImage(
-                                        model = imageItem.url,
-                                        contentDescription = null,
-                                        contentScale = ContentScale.Crop,
-                                        modifier = Modifier
-                                            .fillMaxSize()
-                                            .clickable { selectedImageUrl = imageItem.url }
-                                            .pointerInput(Unit) {
-                                                detectTapGestures(
-                                                    onTap = { selectedImageUrl = imageItem.url },
-                                                    onLongPress = { showPopupMenu = true },
-                                                )
-                                            }
-                                            .pointerInput(Unit) {
-                                                awaitEachGesture {
-                                                    val pressEvent = awaitPointerEvent()
-                                                    if (pressEvent.type != PointerEventType.Press) return@awaitEachGesture
-                                                    if (pressEvent.buttons.isSecondaryPressed.not()) return@awaitEachGesture
+    Card(modifier = modifier.fillMaxWidth()) {
+        Column(modifier = Modifier.padding(16.dp)) {
+            Text(
+                text = "画像",
+                style = MaterialTheme.typography.labelLarge,
+                color = MaterialTheme.colorScheme.primary,
+            )
+            Spacer(modifier = Modifier.height(8.dp))
 
-                                                    while (true) {
-                                                        val releaseEvent = awaitPointerEvent()
-                                                        if (releaseEvent.type != PointerEventType.Release) continue
-                                                        if (pressEvent.buttons.isSecondaryPressed.not()) return@awaitEachGesture
-                                                        showPopupMenu = true
-                                                    }
-                                                }
-                                            },
-                                        loading = { ImageLoadingPlaceholder() },
-                                    )
-                                    DropdownMenu(
-                                        expanded = showPopupMenu,
-                                        onDismissRequest = { showPopupMenu = false },
+            val allItems = remember(uiState.images, uiState.uploadQueueItems) {
+                uiState.images.map { it to "image" } + uiState.uploadQueueItems.map { it to "queue" }
+            }
+
+            if (allItems.isNotEmpty()) {
+                BoxWithConstraints(modifier = Modifier.fillMaxWidth()) {
+                    val minItemWidth = 120.dp
+                    val columnCount = (maxWidth / minItemWidth).toInt().coerceAtLeast(2)
+                    val chunkedItems = allItems.chunked(columnCount)
+
+                    Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
+                        chunkedItems.forEach { rowItems ->
+                            Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+                                rowItems.forEach { itemPair ->
+                                    Box(
+                                        modifier = Modifier.weight(1f).aspectRatio(1f),
                                     ) {
-                                        DropdownMenuItem(
-                                            text = { Text("削除") },
-                                            onClick = {
-                                                showPopupMenu = false
-                                                showDeleteDialog = true
-                                            },
-                                        )
-                                    }
-                                    if (showDeleteDialog) {
-                                        AlertDialog(
-                                            title = { Text("画像を削除しますか？") },
-                                            description = { Text("この操作は取り消せません。") },
-                                            positiveButton = { Text("削除") },
-                                            negativeButton = { Text("キャンセル") },
-                                            onClickPositive = {
-                                                showDeleteDialog = false
-                                                imageItem.event.onClickDelete()
-                                            },
-                                            onClickNegative = { showDeleteDialog = false },
-                                            onDismissRequest = { showDeleteDialog = false },
-                                        )
+                                        val item = itemPair.first
+                                        if (itemPair.second == "image") {
+                                            val imageItem = item as MoneyUsageScreenUiState.ImageItem
+                                            ImageItemContent(
+                                                imageItem = imageItem,
+                                                onClick = { selectedImageUrl = imageItem.url },
+                                            )
+                                        } else {
+                                            val queueItem = item as MoneyUsageScreenUiState.UploadQueueItem
+                                            UploadQueueItemContent(queueItem = queueItem)
+                                        }
                                     }
                                 }
-                            }
-                            uiState.uploadQueueItems.forEach { queueItem ->
-                                Box(
-                                    modifier = Modifier
-                                        .size(180.dp)
-                                        .pointerInput(queueItem.id) {
-                                            detectTapGestures(
-                                                onLongPress = { queueItem.onLongPressCancel() },
-                                            )
-                                        },
-                                    contentAlignment = Alignment.Center,
-                                ) {
-                                    if (queueItem.previewBytes != null) {
-                                        AsyncImage(
-                                            model = queueItem.previewBytes,
-                                            contentDescription = null,
-                                            contentScale = ContentScale.Crop,
-                                            modifier = Modifier
-                                                .fillMaxSize()
-                                                .background(MaterialTheme.colorScheme.surfaceVariant),
-                                        )
-                                    }
-                                    if (queueItem.isLoading) {
-                                        Box(
-                                            modifier = Modifier
-                                                .fillMaxSize()
-                                                .background(Color.Black.copy(alpha = 0.4f)),
-                                            contentAlignment = Alignment.Center,
-                                        ) {
-                                            CircularProgressIndicator(color = Color.White)
-                                        }
-                                    } else if (queueItem.isFailed) {
-                                        Box(
-                                            modifier = Modifier
-                                                .fillMaxSize()
-                                                .background(Color.Black.copy(alpha = 0.6f)),
-                                            contentAlignment = Alignment.Center,
-                                        ) {
-                                            Column(horizontalAlignment = Alignment.CenterHorizontally) {
-                                                Text(
-                                                    text = "失敗",
-                                                    color = Color.White,
-                                                )
-                                                OutlinedButton(
-                                                    onClick = { queueItem.onClickRetry() },
-                                                ) {
-                                                    Text(
-                                                        text = "再試行",
-                                                        color = Color.White,
-                                                    )
-                                                }
-                                            }
-                                        }
-                                    } else {
-                                        CircularProgressIndicator()
-                                    }
+                                // 空のセルを埋める
+                                repeat(columnCount - rowItems.size) {
+                                    Box(modifier = Modifier.weight(1f))
                                 }
                             }
                         }
                     }
-                    Spacer(modifier = Modifier.height(8.dp))
-                    ImageUploadButton(
-                        onClick = { uiState.event.onClickUploadImage() },
-                    )
                 }
-            },
-            onClickChange = {},
-        )
+                Spacer(modifier = Modifier.height(16.dp))
+            }
+
+            ImageUploadButton(
+                onClick = { uiState.event.onClickUploadImage() },
+            )
+        }
     }
 
     selectedImageUrl?.let { imageUrl ->
@@ -790,50 +639,193 @@ private fun MoneyUsage(
 }
 
 @Composable
-private fun MoneyUsageSection(
-    modifier: Modifier = Modifier,
-    multiline: Boolean = false,
-    showChangeButton: Boolean = true,
-    title: @Composable () -> Unit,
-    onClickChange: () -> Unit,
-    content: @Composable () -> Unit,
+private fun ImageItemContent(
+    imageItem: MoneyUsageScreenUiState.ImageItem,
+    onClick: () -> Unit,
 ) {
-    Column(modifier = modifier) {
-        ProvideTextStyle(MaterialTheme.typography.titleMedium) {
-            Row(
-                modifier = Modifier.padding(horizontal = 8.dp),
-                verticalAlignment = Alignment.CenterVertically,
-            ) {
-                Box(modifier = Modifier.weight(1f)) {
-                    title()
+    var showDeleteDialog by remember { mutableStateOf(false) }
+    var showPopupMenu by remember { mutableStateOf(false) }
+
+    Box(modifier = Modifier.fillMaxSize()) {
+        SubcomposeAsyncImage(
+            model = imageItem.url,
+            contentDescription = null,
+            contentScale = ContentScale.Crop,
+            modifier = Modifier
+                .fillMaxSize()
+                .clickable { onClick() }
+                .pointerInput(Unit) {
+                    detectTapGestures(
+                        onTap = { onClick() },
+                        onLongPress = { showPopupMenu = true },
+                    )
                 }
-                if (showChangeButton) {
-                    TextButton(
-                        onClick = {
-                            onClickChange()
-                        },
+                .pointerInput(Unit) {
+                    awaitEachGesture {
+                        val pressEvent = awaitPointerEvent()
+                        if (pressEvent.type != PointerEventType.Press) return@awaitEachGesture
+                        if (pressEvent.buttons.isSecondaryPressed.not()) return@awaitEachGesture
+
+                        while (true) {
+                            val releaseEvent = awaitPointerEvent()
+                            if (releaseEvent.type != PointerEventType.Release) continue
+                            showPopupMenu = true
+                            break
+                        }
+                    }
+                },
+            loading = { ImageLoadingPlaceholder() },
+        )
+        DropdownMenu(
+            expanded = showPopupMenu,
+            onDismissRequest = { showPopupMenu = false },
+        ) {
+            DropdownMenuItem(
+                text = { Text("削除") },
+                onClick = {
+                    showPopupMenu = false
+                    showDeleteDialog = true
+                },
+            )
+        }
+        if (showDeleteDialog) {
+            AlertDialog(
+                title = { Text("画像を削除しますか？") },
+                description = { Text("この操作は取り消せません。") },
+                positiveButton = { Text("削除") },
+                negativeButton = { Text("キャンセル") },
+                onClickPositive = {
+                    showDeleteDialog = false
+                    imageItem.event.onClickDelete()
+                },
+                onClickNegative = { showDeleteDialog = false },
+                onDismissRequest = { showDeleteDialog = false },
+            )
+        }
+    }
+}
+
+@Composable
+private fun UploadQueueItemContent(
+    queueItem: MoneyUsageScreenUiState.UploadQueueItem,
+) {
+    Box(
+        modifier = Modifier
+            .fillMaxSize()
+            .pointerInput(queueItem.id) {
+                detectTapGestures(
+                    onLongPress = { queueItem.onLongPressCancel() },
+                )
+            },
+        contentAlignment = Alignment.Center,
+    ) {
+        if (queueItem.previewBytes != null) {
+            AsyncImage(
+                model = queueItem.previewBytes,
+                contentDescription = null,
+                contentScale = ContentScale.Crop,
+                modifier = Modifier
+                    .fillMaxSize()
+                    .background(MaterialTheme.colorScheme.surfaceVariant),
+            )
+        }
+        if (queueItem.isLoading) {
+            Box(
+                modifier = Modifier
+                    .fillMaxSize()
+                    .background(Color.Black.copy(alpha = 0.4f)),
+                contentAlignment = Alignment.Center,
+            ) {
+                CircularProgressIndicator(color = Color.White)
+            }
+        } else if (queueItem.isFailed) {
+            Box(
+                modifier = Modifier
+                    .fillMaxSize()
+                    .background(Color.Black.copy(alpha = 0.6f)),
+                contentAlignment = Alignment.Center,
+            ) {
+                Column(horizontalAlignment = Alignment.CenterHorizontally) {
+                    Text(
+                        text = "失敗",
+                        color = Color.White,
+                    )
+                    OutlinedButton(
+                        onClick = { queueItem.onClickRetry() },
+                        modifier = Modifier.height(32.dp),
+                        contentPadding = PaddingValues(horizontal = 8.dp, vertical = 0.dp),
                     ) {
-                        Text("変更")
+                        Text(
+                            text = "再試行",
+                            color = Color.White,
+                            style = MaterialTheme.typography.labelSmall,
+                        )
                     }
                 }
             }
+        } else {
+            CircularProgressIndicator()
         }
-        HorizontalDivider(modifier = Modifier.fillMaxWidth().height(1.dp))
-        Row(
-            modifier = Modifier.padding(12.dp),
-        ) {
-            Box(
-                Modifier.weight(1f)
-                    .align(
-                        if (multiline) {
-                            Alignment.Top
-                        } else {
-                            Alignment.CenterVertically
-                        },
-                    ),
-            ) {
-                ProvideTextStyle(MaterialTheme.typography.bodyMedium) {
-                    content()
+    }
+}
+
+@Composable
+private fun MailsSection(
+    modifier: Modifier = Modifier,
+    linkedMails: ImmutableList<MoneyUsageScreenUiState.MailItem>,
+) {
+    Column(modifier = modifier.fillMaxWidth()) {
+        Text(
+            text = "連携されたメール",
+            style = MaterialTheme.typography.titleSmall,
+            color = MaterialTheme.colorScheme.onSurfaceVariant,
+            modifier = Modifier.padding(horizontal = 8.dp, vertical = 8.dp),
+        )
+        if (linkedMails.isNotEmpty()) {
+            Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
+                linkedMails.forEach { mail ->
+                    Card(
+                        modifier = Modifier.fillMaxWidth(),
+                        onClick = { mail.event.onClick() },
+                    ) {
+                        Row(
+                            modifier = Modifier.padding(16.dp),
+                            verticalAlignment = Alignment.Top,
+                        ) {
+                            Icon(
+                                painter = painterResource(Res.drawable.ic_email),
+                                contentDescription = null,
+                                tint = MaterialTheme.colorScheme.primary,
+                            )
+                            Spacer(modifier = Modifier.width(12.dp))
+                            Column {
+                                Text(
+                                    text = mail.subject,
+                                    style = MaterialTheme.typography.bodyMedium,
+                                )
+                                Spacer(modifier = Modifier.height(4.dp))
+                                Text(
+                                    text = mail.from,
+                                    style = MaterialTheme.typography.bodySmall,
+                                    color = MaterialTheme.colorScheme.onSurfaceVariant,
+                                )
+                                Text(
+                                    text = mail.date,
+                                    style = MaterialTheme.typography.bodySmall,
+                                    color = MaterialTheme.colorScheme.onSurfaceVariant,
+                                )
+                            }
+                        }
+                    }
+                }
+            }
+        } else {
+            Card(modifier = Modifier.fillMaxWidth()) {
+                Box(
+                    modifier = Modifier.fillMaxWidth().height(100.dp),
+                    contentAlignment = Alignment.Center,
+                ) {
+                    Text("連携されたメールがありません")
                 }
             }
         }
