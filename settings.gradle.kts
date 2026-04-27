@@ -20,6 +20,7 @@ include(":backend:feature:session")
 
 include(":frontend:app")
 include(":frontend:feature-notification")
+include(":frontend:feature-admin")
 include(":frontend:android:feature-notification-usage")
 include(":frontend:common:ui")
 include(":frontend:common:root")

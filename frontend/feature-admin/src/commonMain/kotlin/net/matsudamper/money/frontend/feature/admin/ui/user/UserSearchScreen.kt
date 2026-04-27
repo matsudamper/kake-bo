@@ -1,4 +1,4 @@
-package net.matsudamper.money.frontend.common.ui.screen.admin.user
+package net.matsudamper.money.frontend.feature.admin.ui.user
 
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
@@ -47,7 +47,7 @@ import org.jetbrains.compose.resources.painterResource
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-public fun UserSearchScreen(
+internal fun UserSearchScreen(
     modifier: Modifier = Modifier,
     uiState: AdminUserSearchUiState,
     snackbarHostState: SnackbarHostState,

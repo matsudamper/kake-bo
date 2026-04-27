@@ -8,6 +8,7 @@ import androidx.compose.runtime.collectAsState
 import androidx.compose.ui.Modifier
 import net.matsudamper.money.frontend.common.base.lifecycle.LocalScopedObjectStore
 import net.matsudamper.money.frontend.common.base.nav.user.ScreenStructure
+import net.matsudamper.money.frontend.common.di.LocalKoin
 import net.matsudamper.money.frontend.common.ui.screen.importedmail.root.ImportedMailScreen
 import net.matsudamper.money.frontend.common.viewmodel.importedmail.root.ImportedMailScreenGraphqlApi
 import net.matsudamper.money.frontend.common.viewmodel.importedmail.root.ImportedMailScreenViewModel

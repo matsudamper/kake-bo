@@ -1,4 +1,4 @@
-package net.matsudamper.money.frontend.common.viewmodel.admin
+package net.matsudamper.money.frontend.feature.admin.viewmodel
 
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
@@ -10,8 +10,8 @@ import com.apollographql.apollo.api.ApolloResponse
 import net.matsudamper.money.element.ImageId
 import net.matsudamper.money.frontend.common.base.Logger
 import net.matsudamper.money.frontend.common.base.nav.ScopedObjectFeature
-import net.matsudamper.money.frontend.common.ui.screen.admin.AdminUnlinkedImagesScreenUiState
 import net.matsudamper.money.frontend.common.viewmodel.CommonViewModel
+import net.matsudamper.money.frontend.feature.admin.ui.AdminUnlinkedImagesScreenUiState
 import net.matsudamper.money.frontend.graphql.AdminUnlinkedImagesQuery
 import net.matsudamper.money.frontend.graphql.AdminUnlinkedImagesTotalCountQuery
 import net.matsudamper.money.frontend.graphql.GraphqlAdminQuery
@@ -20,7 +20,7 @@ import net.matsudamper.money.frontend.graphql.UpdateOperationResponseResult
 
 private const val TAG = "AdminUnlinkedImagesScreenViewModel"
 
-public class AdminUnlinkedImagesScreenViewModel(
+internal class AdminUnlinkedImagesScreenViewModel(
     scopedObjectFeature: ScopedObjectFeature,
     graphqlClient: GraphqlClient,
     private val adminQuery: GraphqlAdminQuery,

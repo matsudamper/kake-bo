@@ -1,4 +1,4 @@
-package net.matsudamper.money.frontend.common.viewmodel.admin
+package net.matsudamper.money.frontend.feature.admin.viewmodel
 
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.catch
@@ -17,7 +17,7 @@ import net.matsudamper.money.frontend.graphql.updateOperation
 
 private const val TAG = "AdminUnlinkedImagesPagingModel"
 
-public class AdminUnlinkedImagesPagingModel(
+internal class AdminUnlinkedImagesPagingModel(
     private val graphqlClient: GraphqlClient,
 ) {
     private val firstQuery = AdminUnlinkedImagesQuery(
@@ -25,7 +25,7 @@ public class AdminUnlinkedImagesPagingModel(
         cursor = Optional.present(null),
     )
 
-    internal fun getFlow(): Flow<ApolloResponse<AdminUnlinkedImagesQuery.Data>> {
+    fun getFlow(): Flow<ApolloResponse<AdminUnlinkedImagesQuery.Data>> {
         return graphqlClient.apolloClient.query(firstQuery)
             .fetchPolicy(FetchPolicy.CacheOnly)
             .watch()

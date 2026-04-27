@@ -6,7 +6,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.material3.AlertDialog as Material3AlertDialog
 
 @Composable
-internal fun AlertDialog(
+public fun AlertDialog(
     title: @Composable () -> Unit,
     description: (@Composable () -> Unit)? = null,
     positiveButton: (@Composable () -> Unit)? = null,

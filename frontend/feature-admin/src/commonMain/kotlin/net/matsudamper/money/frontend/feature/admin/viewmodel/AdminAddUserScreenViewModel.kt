@@ -1,4 +1,4 @@
-package net.matsudamper.money.frontend.common.viewmodel.admin
+package net.matsudamper.money.frontend.feature.admin.viewmodel
 
 import androidx.compose.ui.text.input.TextFieldValue
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -7,11 +7,11 @@ import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import net.matsudamper.money.frontend.common.base.nav.ScopedObjectFeature
-import net.matsudamper.money.frontend.common.ui.screen.admin.AdminAddUserUiState
 import net.matsudamper.money.frontend.common.viewmodel.CommonViewModel
+import net.matsudamper.money.frontend.feature.admin.ui.AdminAddUserUiState
 import net.matsudamper.money.frontend.graphql.GraphqlAdminQuery
 
-public class AdminAddUserScreenViewModel(
+internal class AdminAddUserScreenViewModel(
     scopedObjectFeature: ScopedObjectFeature,
     private val adminQuery: GraphqlAdminQuery,
 ) : CommonViewModel(scopedObjectFeature) {
