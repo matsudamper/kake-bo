@@ -1,8 +1,16 @@
+import org.jetbrains.compose.resources.ResourcesExtension
+
 plugins {
     alias(libs.plugins.kotlin.multiplatform)
     id("net.matsudamper.money.buildlogic.compose")
     id("net.matsudamper.money.buildlogic.androidLibrary")
     alias(libs.plugins.paparazzi)
+}
+
+compose.resources {
+    publicResClass = false
+    packageOfResClass = "net.matsudamper.money.frontend.common.ui.generated.resources"
+    generateResClass = ResourcesExtension.ResourceClassGeneration.Always
 }
 
 kotlin {
@@ -24,6 +32,7 @@ kotlin {
                 implementation(libs.composeFoundation)
                 implementation(libs.composeMaterial3)
                 implementation(libs.composeUiToolingPreview)
+                implementation(compose.components.resources)
             }
         }
         val jsMain by getting {
