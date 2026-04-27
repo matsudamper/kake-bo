@@ -49,8 +49,8 @@ import net.matsudamper.money.frontend.graphql.type.MoneyUsageCategoryId as Apoll
 import net.matsudamper.money.frontend.graphql.type.MoneyUsageId as ApolloMoneyUsageId
 import net.matsudamper.money.frontend.graphql.type.MoneyUsagePresetId as ApolloMoneyUsagePresetId
 import net.matsudamper.money.frontend.graphql.type.MoneyUsageSubCategoryId as ApolloMoneyUsageSubCategoryId
-import net.matsudamper.money.frontend.graphql.type.UserId as ApolloUserId
 import net.matsudamper.money.frontend.graphql.type.SessionRecordId as ApolloSessionRecordId
+import net.matsudamper.money.frontend.graphql.type.UserId as ApolloUserId
 
 public interface GraphqlClient {
     val apolloClient: ApolloClient
@@ -295,7 +295,7 @@ private object ApolloErrorLoggingInterceptor : ApolloInterceptor {
 
 private fun shouldIgnoreApolloException(throwable: Throwable): Boolean {
     return throwable is CacheMissException ||
-            (throwable is DefaultApolloException && throwable.message == WATCHER_STARTED_MESSAGE)
+        (throwable is DefaultApolloException && throwable.message == WATCHER_STARTED_MESSAGE)
 }
 
 private fun logApolloException(
