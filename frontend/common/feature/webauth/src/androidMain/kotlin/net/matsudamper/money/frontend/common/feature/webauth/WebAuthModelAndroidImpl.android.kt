@@ -18,7 +18,6 @@ public class WebAuthModelAndroidImpl(
     public override suspend fun create(
         id: String,
         name: String,
-        type: WebAuthModel.WebAuthModelType,
         challenge: String,
         domain: String,
         base64ExcludeCredentialIdList: List<String>,
@@ -26,7 +25,6 @@ public class WebAuthModelAndroidImpl(
         val requestJson = buildCreateCredentialRequestJson(
             id = id,
             name = name,
-            type = type,
             challenge = challenge,
             domain = domain,
             base64ExcludeCredentialIdList = base64ExcludeCredentialIdList,
@@ -86,17 +84,12 @@ public class WebAuthModelAndroidImpl(
     private fun buildCreateCredentialRequestJson(
         id: String,
         name: String,
-        type: WebAuthModel.WebAuthModelType,
         challenge: String,
         domain: String,
         base64ExcludeCredentialIdList: List<String>,
     ): String {
         val base64Challenge = Base64.getEncoder().encodeToString(challenge.toByteArray())
         val base64UserId = Base64.getEncoder().encodeToString(id.toByteArray())
-        val authenticatorAttachment = when (type) {
-            WebAuthModel.WebAuthModelType.PLATFORM -> "platform"
-            WebAuthModel.WebAuthModelType.CROSS_PLATFORM -> "cross-platform"
-        }
         val excludeCredentialsJson = base64ExcludeCredentialIdList.joinToString(",") { credentialId ->
             """{"type": "public-key", "id": "$credentialId"}"""
         }
@@ -118,7 +111,6 @@ public class WebAuthModelAndroidImpl(
                     {"type": "public-key", "alg": -8}
                 ],
                 "authenticatorSelection": {
-                    "authenticatorAttachment": "$authenticatorAttachment",
                     "userVerification": "required",
                     "residentKey": "required"
                 },

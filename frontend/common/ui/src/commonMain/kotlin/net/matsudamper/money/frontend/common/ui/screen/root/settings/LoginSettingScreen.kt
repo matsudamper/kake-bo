@@ -109,9 +109,7 @@ public data class LoginSettingScreenUiState(
     public interface Event {
         public fun onClickBack()
 
-        public fun onClickPlatform()
-
-        public fun onClickCrossPlatform()
+        public fun onClickAddFido()
 
         public fun onClickLogout()
     }
@@ -222,8 +220,7 @@ private fun LoadedContent(
                         modifier = Modifier.fillMaxWidth()
                             .height(280.dp),
                         fidoList = uiState.fidoList,
-                        onClickPlatform = { event.onClickPlatform() },
-                        onClickCrossPlatform = { event.onClickCrossPlatform() },
+                        onClickAddFido = { event.onClickAddFido() },
                     )
                 }
             }
@@ -268,8 +265,7 @@ private fun LoadedContent(
 @Composable
 private fun FidoSection(
     fidoList: ImmutableList<LoginSettingScreenUiState.Fido>,
-    onClickPlatform: () -> Unit,
-    onClickCrossPlatform: () -> Unit,
+    onClickAddFido: () -> Unit,
     modifier: Modifier = Modifier,
 ) {
     Column(modifier = modifier) {
@@ -283,20 +279,11 @@ private fun FidoSection(
             Spacer(modifier = Modifier.weight(1f))
             OutlinedButton(
                 contentPadding = buttonPadding,
-                onClick = { onClickPlatform() },
+                onClick = { onClickAddFido() },
             ) {
                 Icon(Icons.Default.Add, contentDescription = null)
                 Spacer(modifier = Modifier.width(4.dp))
-                Text(text = "PLATFORM")
-            }
-            Spacer(modifier = Modifier.width(16.dp))
-            OutlinedButton(
-                contentPadding = buttonPadding,
-                onClick = { onClickCrossPlatform() },
-            ) {
-                Icon(Icons.Default.Add, contentDescription = null)
-                Spacer(modifier = Modifier.width(4.dp))
-                Text("CROSS_PLATFORM")
+                Text(text = "追加")
             }
         }
         LazyColumn(
