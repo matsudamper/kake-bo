@@ -9,6 +9,9 @@ import androidx.credentials.GetPublicKeyCredentialOption
 import androidx.credentials.PublicKeyCredential
 import java.util.Base64
 import kotlinx.serialization.json.Json
+import net.matsudamper.money.frontend.common.base.Logger
+
+private const val TAG = "WebAuthModelAndroidImpl"
 
 public class WebAuthModelAndroidImpl(
     private val context: Context,
@@ -32,7 +35,11 @@ public class WebAuthModelAndroidImpl(
         val createRequest = CreatePublicKeyCredentialRequest(requestJson)
         val credentialManager = CredentialManager.create(context)
 
-        val result = credentialManager.createCredential(context, createRequest)
+        val result = runCatching {
+            credentialManager.createCredential(context, createRequest)
+        }.onFailure {
+            Logger.e(TAG, it)
+        }.getOrNull() ?: return null
 
         if (result !is CreatePublicKeyCredentialResponse) return null
 
@@ -54,7 +61,11 @@ public class WebAuthModelAndroidImpl(
             domain = domain,
         )
         val credentialManager = CredentialManager.create(context)
-        val credentialResult = credentialManager.getCredential(context, request)
+        val credentialResult = runCatching {
+            credentialManager.getCredential(context, request)
+        }.onFailure {
+            Logger.e(TAG, it)
+        }.getOrNull() ?: return null
 
         return if (credentialResult.credential is PublicKeyCredential) {
             val cred = credentialResult.credential as PublicKeyCredential
