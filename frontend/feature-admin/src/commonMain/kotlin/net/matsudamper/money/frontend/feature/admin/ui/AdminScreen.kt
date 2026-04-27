@@ -1,4 +1,4 @@
-package net.matsudamper.money.frontend.common.ui.screen.admin
+package net.matsudamper.money.frontend.feature.admin.ui
 
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.BoxWithConstraints
@@ -35,7 +35,7 @@ import org.jetbrains.compose.resources.painterResource
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-public fun AdminRootScreen(
+internal fun AdminRootScreen(
     modifier: Modifier = Modifier,
     uiState: AdminRootScreenUiState,
 ) {

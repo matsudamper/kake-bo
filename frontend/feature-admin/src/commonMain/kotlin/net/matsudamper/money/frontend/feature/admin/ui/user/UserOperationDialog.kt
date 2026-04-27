@@ -1,4 +1,4 @@
-package net.matsudamper.money.frontend.common.ui.screen.admin.user
+package net.matsudamper.money.frontend.feature.admin.ui.user
 
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
@@ -24,14 +24,14 @@ import net.matsudamper.money.frontend.common.ui.generated.resources.ic_close
 import net.matsudamper.money.frontend.common.ui.rememberCustomFontFamily
 import org.jetbrains.compose.resources.painterResource
 
-public class UserOperationDialogState(
+internal class UserOperationDialogState(
     public val userName: String,
     public val listener: Listener,
 ) {
     @Immutable
-    public interface Listener {
-        public fun onDismissUserMenu()
-        public fun onClickReplacePassword()
+    interface Listener {
+        fun onDismissUserMenu()
+        fun onClickReplacePassword()
     }
 }
 

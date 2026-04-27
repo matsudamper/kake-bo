@@ -1,4 +1,4 @@
-package net.matsudamper.money.ui.root
+package net.matsudamper.money.frontend.common.di
 
 import androidx.compose.runtime.ProvidableCompositionLocal
 import androidx.compose.runtime.compositionLocalOf

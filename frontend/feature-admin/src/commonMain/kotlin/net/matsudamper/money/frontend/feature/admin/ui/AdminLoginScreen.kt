@@ -1,4 +1,4 @@
-package net.matsudamper.money.frontend.common.ui.screen.admin
+package net.matsudamper.money.frontend.feature.admin.ui
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Box
@@ -24,7 +24,7 @@ import net.matsudamper.money.frontend.common.ui.layout.TextFieldType
 import net.matsudamper.money.frontend.common.ui.rememberCustomFontFamily
 
 @Composable
-public fun AdminLoginScreen(uiState: AdminLoginScreenUiState) {
+internal fun AdminLoginScreen(uiState: AdminLoginScreenUiState) {
     Box(
         modifier = Modifier.fillMaxSize()
             .background(MaterialTheme.colorScheme.background),

@@ -1,4 +1,4 @@
-package net.matsudamper.money.frontend.common.ui.screen.admin
+package net.matsudamper.money.frontend.feature.admin.ui
 
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
@@ -42,7 +42,7 @@ import org.jetbrains.compose.resources.painterResource
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-public fun AdminUnlinkedImagesScreen(
+internal fun AdminUnlinkedImagesScreen(
     modifier: Modifier = Modifier,
     uiState: AdminUnlinkedImagesScreenUiState,
     onClickBack: () -> Unit,

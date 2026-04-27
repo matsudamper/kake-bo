@@ -1,35 +1,35 @@
-package net.matsudamper.money.frontend.common.ui.screen.admin
+package net.matsudamper.money.frontend.feature.admin.ui
 
 import androidx.compose.runtime.Immutable
 import androidx.compose.ui.text.input.TextFieldValue
 
-public data class AdminLoginScreenUiState(
+internal data class AdminLoginScreenUiState(
     val password: TextFieldValue,
     val listener: Listener,
 ) {
     @Immutable
-    public interface Listener {
-        public fun onPasswordChanged(text: String)
+    interface Listener {
+        fun onPasswordChanged(text: String)
 
-        public fun onClickLogin()
+        fun onClickLogin()
     }
 }
 
-public data class AdminRootScreenUiState(
+internal data class AdminRootScreenUiState(
     val listener: Listener,
 ) {
-    public interface Listener {
-        public fun onClickAddUser()
+    interface Listener {
+        fun onClickAddUser()
 
-        public fun onClickUnlinkedImages()
+        fun onClickUnlinkedImages()
 
-        public fun onClickUserSearch()
+        fun onClickUserSearch()
 
-        public fun onClickLogout()
+        fun onClickLogout()
     }
 }
 
-public data class AdminUnlinkedImagesScreenUiState(
+internal data class AdminUnlinkedImagesScreenUiState(
     val loadingState: LoadingState,
     val deleteDialog: DeleteDialog?,
     val event: Event,
@@ -37,7 +37,7 @@ public data class AdminUnlinkedImagesScreenUiState(
     public sealed interface LoadingState {
         public data object Loading : LoadingState
         public data object Error : LoadingState
-        public data class Loaded(
+        data class Loaded(
             val items: List<Item>,
             val hasMore: Boolean,
             val isLoadingMore: Boolean,
@@ -49,7 +49,7 @@ public data class AdminUnlinkedImagesScreenUiState(
         ) : LoadingState
     }
 
-    public data class Item(
+    internal data class Item(
         val id: String,
         val imageUrl: String,
         val userId: String,
@@ -58,37 +58,37 @@ public data class AdminUnlinkedImagesScreenUiState(
         val event: Event,
     ) {
         @Immutable
-        public interface Event {
-            public fun onClickSelect()
+        interface Event {
+            fun onClickSelect()
         }
     }
 
-    public data class DeleteDialog(
+    internal data class DeleteDialog(
         val selectedCount: Int,
         val errorMessage: String?,
         val isLoading: Boolean,
         val event: Event,
     ) {
         @Immutable
-        public interface Event {
-            public fun onConfirm()
+        interface Event {
+            fun onConfirm()
 
-            public fun onCancel()
+            fun onCancel()
 
-            public fun onDismiss()
+            fun onDismiss()
         }
     }
 
     @Immutable
-    public interface Event {
-        public fun onResume()
+    interface Event {
+        fun onResume()
 
-        public fun onClickRetry()
+        fun onClickRetry()
 
-        public fun onClickLoadMore()
+        fun onClickLoadMore()
 
-        public fun onClickSelectAll()
+        fun onClickSelectAll()
 
-        public fun onClickDelete()
+        fun onClickDelete()
     }
 }

@@ -1,4 +1,4 @@
-package net.matsudamper.money.frontend.common.viewmodel.admin
+package net.matsudamper.money.frontend.feature.admin.viewmodel
 
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.catch
@@ -15,12 +15,12 @@ import net.matsudamper.money.frontend.graphql.UpdateOperationResponseResult
 
 private const val TAG = "AdminUnlinkedImagesTotalCountModel"
 
-public class AdminUnlinkedImagesTotalCountModel(
+internal class AdminUnlinkedImagesTotalCountModel(
     private val graphqlClient: GraphqlClient,
 ) {
     private val totalCountQuery = AdminUnlinkedImagesTotalCountQuery()
 
-    internal fun getFlow(): Flow<ApolloResponse<AdminUnlinkedImagesTotalCountQuery.Data>> {
+    fun getFlow(): Flow<ApolloResponse<AdminUnlinkedImagesTotalCountQuery.Data>> {
         return graphqlClient.apolloClient.query(totalCountQuery)
             .fetchPolicy(FetchPolicy.CacheOnly)
             .watch()

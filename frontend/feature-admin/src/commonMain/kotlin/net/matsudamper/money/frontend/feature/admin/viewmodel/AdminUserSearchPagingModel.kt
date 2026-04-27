@@ -1,4 +1,4 @@
-package net.matsudamper.money.frontend.common.viewmodel.admin
+package net.matsudamper.money.frontend.feature.admin.viewmodel
 
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.catch
@@ -15,10 +15,10 @@ import net.matsudamper.money.frontend.graphql.updateOperation
 
 private const val TAG = "AdminUserSearchPagingModel"
 
-public class AdminUserSearchPagingModel(
+internal class AdminUserSearchPagingModel(
     private val graphqlClient: GraphqlClient,
 ) {
-    public fun getFlow(firstQuery: AdminSearchUsersQuery): Flow<ApolloResponse<AdminSearchUsersQuery.Data>> {
+    fun getFlow(firstQuery: AdminSearchUsersQuery): Flow<ApolloResponse<AdminSearchUsersQuery.Data>> {
         return graphqlClient.apolloClient.query(firstQuery)
             .fetchPolicy(FetchPolicy.CacheOnly)
             .watch()

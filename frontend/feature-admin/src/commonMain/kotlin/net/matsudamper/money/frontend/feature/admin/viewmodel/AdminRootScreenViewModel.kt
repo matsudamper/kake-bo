@@ -1,4 +1,4 @@
-package net.matsudamper.money.frontend.common.viewmodel.admin
+package net.matsudamper.money.frontend.feature.admin.viewmodel
 
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
@@ -8,15 +8,15 @@ import net.matsudamper.money.frontend.common.base.Logger
 import net.matsudamper.money.frontend.common.base.nav.ScopedObjectFeature
 import net.matsudamper.money.frontend.common.base.nav.user.ScreenNavController
 import net.matsudamper.money.frontend.common.base.nav.user.ScreenStructure
-import net.matsudamper.money.frontend.common.ui.screen.admin.AdminRootScreenUiState
 import net.matsudamper.money.frontend.common.viewmodel.CommonViewModel
 import net.matsudamper.money.frontend.common.viewmodel.lib.EventSender
 import net.matsudamper.money.frontend.common.viewmodel.root.GlobalEvent
+import net.matsudamper.money.frontend.feature.admin.ui.AdminRootScreenUiState
 import net.matsudamper.money.frontend.graphql.GraphqlAdminQuery
 
 private const val TAG = "AdminRootScreenViewModel"
 
-public class AdminRootScreenViewModel(
+internal class AdminRootScreenViewModel(
     scopedObjectFeature: ScopedObjectFeature,
     private val adminQuery: GraphqlAdminQuery,
     private val navController: ScreenNavController,
