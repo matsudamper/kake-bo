@@ -8,10 +8,12 @@ query LoginSettingScreen {
             }
             sessionAttributes {
                 currentSession {
+                    id
                     name
                     lastAccess
                 }
                 sessions {
+                    id
                     name
                     lastAccess
                 }
@@ -50,20 +52,21 @@ mutation LoginSettingScreenLogout {
 }
 
 mutation LoginSettingScreenChangeSessionName(
+    $id: SessionRecordId!,
     $name: String!
 ) {
     userMutation {
-        changeSessionName(name: $name) {
+        changeSessionName(id: $id, name: $name) {
             isSuccess
         }
     }
 }
 
 mutation LoginSettingScreenDeleteSession(
-    $name: String!
+    $id: SessionRecordId!
 ) {
     userMutation {
-        deleteSession(name: $name) {
+        deleteSession(id: $id) {
             isSuccess
         }
     }

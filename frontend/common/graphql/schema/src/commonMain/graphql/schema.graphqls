@@ -92,6 +92,30 @@ type AdminMutation {
   addUser(name: String!, password: String!): AdminAddUserResult!
 
   deleteImages(imageIds: [ImageId!]!): Boolean!
+
+  replacePassword(userId: UserId!, password: String!): AdminReplacePasswordResult!
+}
+
+enum AdminReplacePasswordErrorType {
+  Unknown
+
+  UserNotFound
+
+  PasswordLength
+
+  PasswordInvalidChar
+}
+
+type AdminReplacePasswordResult {
+  isSuccess: Boolean!
+
+  errorType: AdminReplacePasswordErrorType
+}
+
+type AdminSearchedUser {
+  userId: UserId!
+
+  name: String!
 }
 
 type AdminUnlinkedImage {
@@ -124,6 +148,22 @@ input AdminUnlinkedImagesInput {
   size: Int!
 
   cursor: String
+}
+
+input AdminUserSearchInput {
+  query: String!
+
+  size: Int!
+
+  cursor: String
+}
+
+type AdminUserSearchUsersConnection {
+  nodes: [AdminSearchedUser!]!
+
+  cursor: String
+
+  hasMore: Boolean!
 }
 
 type ApiToken {
@@ -559,6 +599,8 @@ type Query {
 
   adminUnlinkedImagesByMonth(yearMonth: String!): [AdminUnlinkedImage!]!
 
+  adminSearchUsers(input: AdminUserSearchInput!): AdminUserSearchUsersConnection!
+
   user: User
 
   fidoLoginInfo: FidoLoginInfo!
@@ -593,6 +635,8 @@ type RegisteredFidoResult {
 }
 
 type Session {
+  id: SessionRecordId!
+
   name: String!
 
   lastAccess: OffsetDateTime!
@@ -603,6 +647,8 @@ type SessionAttributes {
 
   sessions: [Session!]!
 }
+
+scalar SessionRecordId
 
 type SettingsMutation {
   updateImapConfig(config: UpdateUserImapConfigInput!): UserImapConfig
@@ -842,9 +888,9 @@ type UserMutation {
 
   deleteFido(id: FidoId!): DeleteFidoResult!
 
-  deleteSession(name: String!): DeleteSessionResult!
+  deleteSession(id: SessionRecordId!): DeleteSessionResult!
 
-  changeSessionName(name: String!): ChangeSessionNameResult!
+  changeSessionName(id: SessionRecordId!, name: String!): ChangeSessionNameResult!
 
   registerApiToken(name: String!): RegisterApiTokenResult!
 

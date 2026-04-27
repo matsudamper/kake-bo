@@ -21,3 +21,20 @@ type AdminImageDirectoryMonth {
     yearMonth: String!
     count: Int!
 }
+
+input AdminUserSearchInput {
+    query: String!
+    size: Int!
+    cursor: String
+}
+
+type AdminUserSearchUsersConnection {
+    nodes: [AdminSearchedUser!]!
+    cursor: String
+    hasMore: Boolean!
+}
+
+type AdminSearchedUser {
+    userId: UserId!
+    name: String!
+}

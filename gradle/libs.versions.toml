@@ -99,6 +99,7 @@ composeFoundation = { module = "org.jetbrains.compose.foundation:foundation", ve
 composeMaterial3 = { module = "org.jetbrains.compose.material3:material3", version.require = "1.9.0" }
 composeAnimation = { module = "org.jetbrains.compose.animation:animation", version.ref = "compose" }
 composeHtmlCore = { module = "org.jetbrains.compose.html:html-core", version.ref = "compose" }
+composeComponentsResources = { module = "org.jetbrains.compose.components:components-resources", version.ref = "compose" }
 
 # WebAUth4J
 webauth4jCore = { module = "com.webauthn4j:webauthn4j-core", version.require = "0.31.3.RELEASE" }
@@ -144,6 +145,7 @@ jakarta-activation-api = { module = "jakarta.activation:jakarta.activation-api",
 
 # Koin
 koinCore = { module = "io.insert-koin:koin-core", version.require = "4.2.1" }
+koinCompose = { module = "io.insert-koin:koin-compose", version = "4.2.1" }
 
 # Coil
 coilRuntime = { module = "io.coil-kt.coil3:coil", version.ref = "coil3" }

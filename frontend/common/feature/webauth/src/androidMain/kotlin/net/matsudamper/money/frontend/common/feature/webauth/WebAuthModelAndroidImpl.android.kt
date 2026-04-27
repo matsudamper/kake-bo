@@ -9,6 +9,9 @@ import androidx.credentials.GetPublicKeyCredentialOption
 import androidx.credentials.PublicKeyCredential
 import java.util.Base64
 import kotlinx.serialization.json.Json
+import net.matsudamper.money.frontend.common.base.Logger
+
+private const val TAG = "WebAuthModelAndroidImpl"
 
 public class WebAuthModelAndroidImpl(
     private val context: Context,
@@ -18,7 +21,6 @@ public class WebAuthModelAndroidImpl(
     public override suspend fun create(
         id: String,
         name: String,
-        type: WebAuthModel.WebAuthModelType,
         challenge: String,
         domain: String,
         base64ExcludeCredentialIdList: List<String>,
@@ -26,7 +28,6 @@ public class WebAuthModelAndroidImpl(
         val requestJson = buildCreateCredentialRequestJson(
             id = id,
             name = name,
-            type = type,
             challenge = challenge,
             domain = domain,
             base64ExcludeCredentialIdList = base64ExcludeCredentialIdList,
@@ -34,7 +35,11 @@ public class WebAuthModelAndroidImpl(
         val createRequest = CreatePublicKeyCredentialRequest(requestJson)
         val credentialManager = CredentialManager.create(context)
 
-        val result = credentialManager.createCredential(context, createRequest)
+        val result = runCatching {
+            credentialManager.createCredential(context, createRequest)
+        }.onFailure {
+            Logger.e(TAG, it)
+        }.getOrNull() ?: return null
 
         if (result !is CreatePublicKeyCredentialResponse) return null
 
@@ -56,7 +61,11 @@ public class WebAuthModelAndroidImpl(
             domain = domain,
         )
         val credentialManager = CredentialManager.create(context)
-        val credentialResult = credentialManager.getCredential(context, request)
+        val credentialResult = runCatching {
+            credentialManager.getCredential(context, request)
+        }.onFailure {
+            Logger.e(TAG, it)
+        }.getOrNull() ?: return null
 
         return if (credentialResult.credential is PublicKeyCredential) {
             val cred = credentialResult.credential as PublicKeyCredential
@@ -86,17 +95,12 @@ public class WebAuthModelAndroidImpl(
     private fun buildCreateCredentialRequestJson(
         id: String,
         name: String,
-        type: WebAuthModel.WebAuthModelType,
         challenge: String,
         domain: String,
         base64ExcludeCredentialIdList: List<String>,
     ): String {
         val base64Challenge = Base64.getEncoder().encodeToString(challenge.toByteArray())
         val base64UserId = Base64.getEncoder().encodeToString(id.toByteArray())
-        val authenticatorAttachment = when (type) {
-            WebAuthModel.WebAuthModelType.PLATFORM -> "platform"
-            WebAuthModel.WebAuthModelType.CROSS_PLATFORM -> "cross-platform"
-        }
         val excludeCredentialsJson = base64ExcludeCredentialIdList.joinToString(",") { credentialId ->
             """{"type": "public-key", "id": "$credentialId"}"""
         }
@@ -118,7 +122,6 @@ public class WebAuthModelAndroidImpl(
                     {"type": "public-key", "alg": -8}
                 ],
                 "authenticatorSelection": {
-                    "authenticatorAttachment": "$authenticatorAttachment",
                     "userVerification": "required",
                     "residentKey": "required"
                 },

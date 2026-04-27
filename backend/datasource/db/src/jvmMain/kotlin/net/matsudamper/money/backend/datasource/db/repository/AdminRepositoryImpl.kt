@@ -5,6 +5,7 @@ import net.matsudamper.money.backend.datasource.db.DbConnectionImpl
 import net.matsudamper.money.db.schema.tables.JUserPasswordExtendData
 import net.matsudamper.money.db.schema.tables.JUserPasswords
 import net.matsudamper.money.db.schema.tables.JUsers
+import net.matsudamper.money.element.UserId
 import org.jooq.impl.DSL
 
 class AdminRepositoryImpl : AdminRepository {
@@ -72,5 +73,84 @@ class AdminRepositoryImpl : AdminRepository {
             }
 
         return AdminRepository.AddUserResult.Success
+    }
+
+    override fun searchUsers(query: String, size: Int, cursor: String?): AdminRepository.SearchUsersResult {
+        return DbConnectionImpl.use {
+            val fetchSize = size + 1
+            val condition = if (cursor != null) {
+                users.USER_NAME.contains(query).and(users.USER_NAME.gt(cursor))
+            } else {
+                users.USER_NAME.contains(query)
+            }
+            val records = DSL.using(it)
+                .select(users.USER_ID, users.USER_NAME)
+                .from(users)
+                .where(condition)
+                .orderBy(users.USER_NAME)
+                .limit(fetchSize)
+                .fetch()
+                .map { record ->
+                    AdminRepository.User(
+                        userId = net.matsudamper.money.element.UserId(record.value1()!!),
+                        name = record.value2()!!,
+                    )
+                }
+
+            val hasMore = records.size > size
+            val result = if (hasMore) records.dropLast(1) else records
+            AdminRepository.SearchUsersResult(
+                users = result,
+                cursor = result.lastOrNull()?.name,
+                hasMore = hasMore,
+            )
+        }
+    }
+
+    override fun replacePassword(
+        userId: UserId,
+        hashedPassword: String,
+        algorithmName: String,
+        salt: ByteArray,
+        iterationCount: Int,
+        keyLength: Int,
+    ): AdminRepository.ReplacePasswordResult {
+        return try {
+            DbConnectionImpl.use { connection ->
+                val userExists = DSL.using(connection)
+                    .selectOne()
+                    .from(users)
+                    .where(users.USER_ID.eq(userId.value))
+                    .fetchOne() != null
+
+                if (!userExists) {
+                    return@use AdminRepository.ReplacePasswordResult.UserNotFound
+                }
+
+                DSL.using(connection)
+                    .transaction { config ->
+                        config.dsl()
+                            .update(userPasswords)
+                            .set(userPasswords.PASSWORD_HASH, hashedPassword)
+                            .where(userPasswords.USER_ID.eq(userId.value))
+                            .execute()
+
+                        config.dsl()
+                            .update(userPasswordExtendData)
+                            .set(userPasswordExtendData.ALGORITHM, algorithmName)
+                            .set(userPasswordExtendData.SALT, salt)
+                            .set(userPasswordExtendData.ITERATION_COUNT, iterationCount)
+                            .set(userPasswordExtendData.KEY_LENGTH, keyLength)
+                            .where(userPasswordExtendData.USER_ID.eq(userId.value))
+                            .execute()
+                    }
+
+                AdminRepository.ReplacePasswordResult.Success
+            }
+        } catch (e: Exception) {
+            AdminRepository.ReplacePasswordResult.Failed(
+                AdminRepository.ReplacePasswordResult.ErrorType.InternalServerError(e),
+            )
+        }
     }
 }

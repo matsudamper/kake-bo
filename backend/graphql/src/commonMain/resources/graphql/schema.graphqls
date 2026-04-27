@@ -9,6 +9,7 @@ type Query {
     adminUnlinkedImages(input: AdminUnlinkedImagesInput!): AdminUnlinkedImagesConnection! @lazy
     adminImageDirectoryMonths: [AdminImageDirectoryMonth!]! @lazy
     adminUnlinkedImagesByMonth(yearMonth: String!): [AdminUnlinkedImage!]! @lazy
+    adminSearchUsers(input: AdminUserSearchInput!): AdminUserSearchUsersConnection! @lazy
     user: User
     fidoLoginInfo: FidoLoginInfo! @lazy
 }

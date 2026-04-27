@@ -19,8 +19,6 @@ import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.foundation.shape.CircleShape
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.Add
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.FloatingActionButton
@@ -41,7 +39,10 @@ import net.matsudamper.money.frontend.common.base.ImmutableList
 import net.matsudamper.money.frontend.common.ui.base.KakeBoTopAppBar
 import net.matsudamper.money.frontend.common.ui.base.KakeboScaffoldListener
 import net.matsudamper.money.frontend.common.ui.base.RootScreenScaffold
+import net.matsudamper.money.frontend.common.ui.generated.resources.Res
+import net.matsudamper.money.frontend.common.ui.generated.resources.ic_add
 import net.matsudamper.money.frontend.common.ui.layout.html.text.fullscreen.FullScreenTextInput
+import org.jetbrains.compose.resources.painterResource
 
 private val FabPadding = 16.dp
 
@@ -158,7 +159,7 @@ public fun MainContent(
                             ),
                         onClick = { uiState.event.onClickAddCategoryButton() },
                     ) {
-                        Icon(Icons.Default.Add, contentDescription = "カテゴリーを追加")
+                        Icon(painter = painterResource(Res.drawable.ic_add), contentDescription = "カテゴリーを追加")
                     }
                 }
             }

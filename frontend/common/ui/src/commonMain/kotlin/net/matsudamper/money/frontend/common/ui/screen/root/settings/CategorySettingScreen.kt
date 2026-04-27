@@ -23,14 +23,6 @@ import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.BasicTextField
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.automirrored.filled.ArrowBack
-import androidx.compose.material.icons.filled.Add
-import androidx.compose.material.icons.filled.Check
-import androidx.compose.material.icons.filled.ChevronRight
-import androidx.compose.material.icons.filled.Close
-import androidx.compose.material.icons.filled.Edit
-import androidx.compose.material.icons.filled.MoreVert
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
@@ -72,9 +64,18 @@ import net.matsudamper.money.frontend.common.base.ImmutableList
 import net.matsudamper.money.frontend.common.ui.AppRoot
 import net.matsudamper.money.frontend.common.ui.base.KakeboScaffoldListener
 import net.matsudamper.money.frontend.common.ui.base.ScreenBackHandler
+import net.matsudamper.money.frontend.common.ui.generated.resources.Res
+import net.matsudamper.money.frontend.common.ui.generated.resources.ic_add
+import net.matsudamper.money.frontend.common.ui.generated.resources.ic_arrow_back
+import net.matsudamper.money.frontend.common.ui.generated.resources.ic_check
+import net.matsudamper.money.frontend.common.ui.generated.resources.ic_chevron_right
+import net.matsudamper.money.frontend.common.ui.generated.resources.ic_close
+import net.matsudamper.money.frontend.common.ui.generated.resources.ic_edit
+import net.matsudamper.money.frontend.common.ui.generated.resources.ic_more_vert
 import net.matsudamper.money.frontend.common.ui.layout.AlertDialog
 import net.matsudamper.money.frontend.common.ui.layout.colorpicker.ColorPickerDialog
 import net.matsudamper.money.frontend.common.ui.lib.StatusBarAppearance
+import org.jetbrains.compose.resources.painterResource
 
 public data class SettingCategoryScreenUiState(
     val event: Event,
@@ -317,7 +318,7 @@ private fun LoadedContent(
                 onClick = { uiState.event.onClickAddSubCategory() },
                 icon = {
                     Icon(
-                        imageVector = Icons.Default.Add,
+                        painter = painterResource(Res.drawable.ic_add),
                         contentDescription = null,
                     )
                 },
@@ -407,7 +408,7 @@ private fun HeroTopBar(
             onClick = onClickBack,
         ) {
             Icon(
-                imageVector = if (shouldHandleBackAsEditCancel) Icons.Default.Close else Icons.AutoMirrored.Filled.ArrowBack,
+                painter = painterResource(if (shouldHandleBackAsEditCancel) Res.drawable.ic_close else Res.drawable.ic_arrow_back),
                 contentDescription = if (shouldHandleBackAsEditCancel) "キャンセル" else "戻る",
             )
         }
@@ -435,7 +436,7 @@ private fun HeroTopBar(
             Box {
                 IconButton(onClick = { showMoreMenu = true }) {
                     Icon(
-                        imageVector = Icons.Default.MoreVert,
+                        painter = painterResource(Res.drawable.ic_more_vert),
                         contentDescription = "メニュー",
                     )
                 }
@@ -526,7 +527,7 @@ private fun HeroBody(
                     onClick = onClickEditCategoryName,
                 ) {
                     Icon(
-                        imageVector = Icons.Default.Edit,
+                        painter = painterResource(Res.drawable.ic_edit),
                         contentDescription = "カテゴリ名を変更",
                         modifier = Modifier.size(20.dp),
                     )
@@ -575,7 +576,7 @@ private fun ColorBadge(
         )
         Spacer(Modifier.width(4.dp))
         Icon(
-            imageVector = Icons.Default.ChevronRight,
+            painter = painterResource(Res.drawable.ic_chevron_right),
             contentDescription = null,
             modifier = Modifier.size(18.dp),
         )
@@ -665,7 +666,7 @@ private fun SubCategoryAddRow(
                 contentAlignment = Alignment.Center,
             ) {
                 Icon(
-                    imageVector = Icons.Default.Check,
+                    painter = painterResource(Res.drawable.ic_check),
                     contentDescription = "追加",
                     modifier = Modifier.size(20.dp),
                 )
@@ -673,7 +674,7 @@ private fun SubCategoryAddRow(
             Spacer(Modifier.width(4.dp))
             IconButton(onClick = onDismiss) {
                 Icon(
-                    imageVector = Icons.Default.Close,
+                    painter = painterResource(Res.drawable.ic_close),
                     contentDescription = "キャンセル",
                     tint = MaterialTheme.colorScheme.onSurfaceVariant,
                     modifier = Modifier.size(20.dp),
@@ -746,7 +747,7 @@ private fun SubCategoryRow(
                 contentAlignment = Alignment.Center,
             ) {
                 Icon(
-                    imageVector = Icons.Default.Check,
+                    painter = painterResource(Res.drawable.ic_check),
                     contentDescription = "確定",
                     modifier = Modifier.size(20.dp),
                 )
@@ -754,7 +755,7 @@ private fun SubCategoryRow(
             Spacer(Modifier.width(4.dp))
             IconButton(onClick = { item.event.onEditDismiss() }) {
                 Icon(
-                    imageVector = Icons.Default.Close,
+                    painter = painterResource(Res.drawable.ic_close),
                     contentDescription = "キャンセル",
                     tint = MaterialTheme.colorScheme.onSurfaceVariant,
                     modifier = Modifier.size(18.dp),
@@ -795,7 +796,7 @@ private fun SubCategoryRow(
                 if (!isAddMode) {
                     IconButton(onClick = { item.event.onClickEdit() }) {
                         Icon(
-                            imageVector = Icons.Default.Edit,
+                            painter = painterResource(Res.drawable.ic_edit),
                             contentDescription = "名前を変更",
                             modifier = Modifier.size(18.dp),
                             tint = MaterialTheme.colorScheme.onSurfaceVariant,
@@ -805,7 +806,7 @@ private fun SubCategoryRow(
                 if (!isAddMode) {
                     IconButton(onClick = { item.event.onClickDelete() }) {
                         Icon(
-                            imageVector = Icons.Default.Close,
+                            painter = painterResource(Res.drawable.ic_close),
                             contentDescription = "削除",
                             modifier = Modifier.size(18.dp),
                             tint = MaterialTheme.colorScheme.onSurfaceVariant,

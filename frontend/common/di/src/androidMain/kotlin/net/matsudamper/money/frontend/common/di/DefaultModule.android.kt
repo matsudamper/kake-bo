@@ -15,6 +15,8 @@ import com.apollographql.apollo.network.http.HttpInfo
 import com.apollographql.apollo.network.http.LoggingInterceptor
 import net.matsudamper.money.frontend.common.base.AppSettingsRepository
 import net.matsudamper.money.frontend.common.base.AppSettingsRepositoryAndroidImpl
+import net.matsudamper.money.frontend.common.base.DeviceNameProvider
+import net.matsudamper.money.frontend.common.base.DeviceNameProviderAndroidImpl
 import net.matsudamper.money.frontend.common.base.ImageUploadClient
 import net.matsudamper.money.frontend.common.base.Logger
 import net.matsudamper.money.frontend.common.feature.localstore.DataStores
@@ -123,6 +125,10 @@ internal actual val factory: Factory = object : Factory() {
 
     override fun createAppSettingsRepository(scope: Scope): AppSettingsRepository {
         return AppSettingsRepositoryAndroidImpl(context = scope.get())
+    }
+
+    override fun createDeviceNameProvider(scope: Scope): DeviceNameProvider {
+        return DeviceNameProviderAndroidImpl()
     }
 
     override fun createImageUploadQueue(scope: Scope): ImageUploadQueue {

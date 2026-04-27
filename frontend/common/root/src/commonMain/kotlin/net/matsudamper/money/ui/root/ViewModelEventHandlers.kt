@@ -512,6 +512,10 @@ internal data class ViewModelEventHandlers(
                         navController.navigate(structure)
                     }
 
+                    override fun navigateToLogin() {
+                        navController.navigateToLogin()
+                    }
+
                     override fun showToast(text: String) {
                         platformToolsProvider().applicationNotificationManager.notify(text)
                     }
