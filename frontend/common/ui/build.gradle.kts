@@ -75,7 +75,7 @@ kotlin {
 val byteBuddyAgent: Configuration by configurations.creating
 
 dependencies {
-    byteBuddyAgent("net.bytebuddy:byte-buddy-agent:1.18.8-jdk5")
+    byteBuddyAgent("net.bytebuddy:byte-buddy-agent:1.18.8")
     debugImplementation(libs.composeUiTooling)
 }
 
