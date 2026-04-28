@@ -6,6 +6,7 @@ import androidx.compose.foundation.layout.BoxWithConstraints
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
@@ -222,6 +223,7 @@ private fun CalendarCell(
     val horizontalPadding = if (LocalIsLargeScreen.current) 2.dp else 1.dp
     Column(
         modifier = modifier
+            .fillMaxHeight()
             .clickable { uiState.event.onClick() }
             .padding(vertical = 2.dp),
     ) {
