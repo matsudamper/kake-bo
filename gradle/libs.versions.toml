@@ -102,7 +102,7 @@ composeHtmlCore = { module = "org.jetbrains.compose.html:html-core", version.ref
 composeComponentsResources = { module = "org.jetbrains.compose.components:components-resources", version.ref = "compose" }
 
 # WebAUth4J
-webauth4jCore = { module = "com.webauthn4j:webauthn4j-core", version.require = "0.31.3.RELEASE" }
+webauth4jCore = { module = "com.webauthn4j:webauthn4j-core", version.require = "0.31.5.RELEASE" }
 
 opentelemetryApi = { module = "io.opentelemetry:opentelemetry-api", version.ref = "opentelemetry" }
 opentelemetrySdk = { module = "io.opentelemetry:opentelemetry-sdk", version.ref = "opentelemetry" }
