@@ -1,5 +1,5 @@
 ---
-name: icon
+name: icon download
 description: 必要なアイコンの説明からGoogle Fontsで適切なアイコンを探し、Android Vector DrawableのXMLをres/drawableにダウンロードする
 argument-hint: <アイコンの説明>
 allowed-tools: Bash(curl *) Write WebFetch
