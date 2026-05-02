@@ -21,7 +21,7 @@ internal class SamsungPayNotificationUsageParser : NotificationUsageParser {
         val lines = record.text.lines()
         val secondLine = lines.getOrNull(1) ?: return null
         val amount = parseAmount(secondLine) ?: return null
-        val title = parseTitle(secondLine)
+        val title = parseTitle(secondLine).takeIf { it.isNotBlank() } ?: return null
 
         return NotificationUsageDraft(
             title = title,
