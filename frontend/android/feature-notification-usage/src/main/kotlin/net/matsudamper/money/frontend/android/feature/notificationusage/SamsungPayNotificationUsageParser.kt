@@ -25,7 +25,7 @@ internal class SamsungPayNotificationUsageParser : NotificationUsageParser {
 
         return NotificationUsageDraft(
             title = title,
-            description = record.text,
+            description = "${record.text}\nvia Samsung Pay",
             amount = amount,
             dateTime = Instant.fromEpochMilliseconds(record.postedAtEpochMillis)
                 .toLocalDateTime(TimeZone.currentSystemDefault()),
