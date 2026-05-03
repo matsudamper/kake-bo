@@ -41,6 +41,7 @@ internal class AdminUserSearchScreenViewModel(
             hasMore = false,
             userOperationDialogUiState = null,
             replacePasswordDialogState = null,
+            confirmDeletePasswordDialogState = null,
             listener = createListener(),
         ),
     ).also { uiStateFlow ->
@@ -58,6 +59,7 @@ internal class AdminUserSearchScreenViewModel(
                         hasMore = searchUsersConnection?.hasMore == true,
                         userOperationDialogUiState = viewModelState.userOperationDialogUiState,
                         replacePasswordDialogState = viewModelState.replacePasswordDialogState,
+                        confirmDeletePasswordDialogState = viewModelState.confirmDeletePasswordDialogState,
                     )
                 }
             }
@@ -176,6 +178,15 @@ internal class AdminUserSearchScreenViewModel(
                         )
                     }
                 }
+
+                override fun onClickDeletePassword() {
+                    viewModelStateFlow.update {
+                        it.copy(
+                            userOperationDialogUiState = null,
+                            confirmDeletePasswordDialogState = createConfirmDeletePasswordDialogState(user = user),
+                        )
+                    }
+                }
             },
         )
     }
@@ -200,6 +211,24 @@ internal class AdminUserSearchScreenViewModel(
                             replacePasswordDialogState = null,
                         )
                     }
+                }
+            },
+        )
+    }
+
+    private fun createConfirmDeletePasswordDialogState(
+        user: AdminSearchUsersQuery.Node,
+    ): AdminUserSearchUiState.ConfirmDeletePasswordDialogState {
+        return AdminUserSearchUiState.ConfirmDeletePasswordDialogState(
+            userName = user.name,
+            listener = object : AdminUserSearchUiState.ConfirmDeletePasswordDialogState.Listener {
+                override fun onConfirm() {
+                    viewModelStateFlow.update { it.copy(confirmDeletePasswordDialogState = null) }
+                    deletePassword(user = user)
+                }
+
+                override fun onDismiss() {
+                    viewModelStateFlow.update { it.copy(confirmDeletePasswordDialogState = null) }
                 }
             },
         )
@@ -256,12 +285,36 @@ internal class AdminUserSearchScreenViewModel(
         }
     }
 
+    private fun deletePassword(user: AdminSearchUsersQuery.Node) {
+        viewModelScope.launch {
+            val result = runCatching {
+                adminQuery.replacePassword(
+                    userId = user.userId,
+                    password = null,
+                )
+            }.fold(
+                onSuccess = { it },
+                onFailure = {
+                    Logger.e(TAG, it)
+                    eventSender.send { event -> event.showSnackBar("エラーが発生しました") }
+                    return@launch
+                },
+            )
+            if (result.data?.adminMutation?.replacePassword?.isSuccess == true) {
+                eventSender.send { event -> event.showSnackBar("パスワードを削除しました") }
+            } else {
+                eventSender.send { event -> event.showSnackBar("パスワード削除に失敗しました") }
+            }
+        }
+    }
+
     private data class ViewModelState(
         val searchQuery: String = "",
         val committedQuery: AdminSearchUsersQuery? = null,
         val apolloResponse: ApolloResponse<AdminSearchUsersQuery.Data>? = null,
         val isLoadingMore: Boolean = false,
         val replacePasswordDialogState: ReplacePasswordDialogState? = null,
+        val confirmDeletePasswordDialogState: AdminUserSearchUiState.ConfirmDeletePasswordDialogState? = null,
         val userOperationDialogUiState: UserOperationDialogState? = null,
     )
 

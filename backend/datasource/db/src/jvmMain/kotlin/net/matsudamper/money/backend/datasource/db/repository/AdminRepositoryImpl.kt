@@ -129,20 +129,58 @@ class AdminRepositoryImpl : AdminRepository {
 
                 DSL.using(connection)
                     .transaction { config ->
-                        config.dsl()
-                            .update(userPasswords)
-                            .set(userPasswords.PASSWORD_HASH, hashedPassword)
+                        val passwordRecordExists = config.dsl()
+                            .selectOne()
+                            .from(userPasswords)
                             .where(userPasswords.USER_ID.eq(userId.value))
-                            .execute()
+                            .fetchOne() != null
 
-                        config.dsl()
-                            .update(userPasswordExtendData)
-                            .set(userPasswordExtendData.ALGORITHM, algorithmName)
-                            .set(userPasswordExtendData.SALT, salt)
-                            .set(userPasswordExtendData.ITERATION_COUNT, iterationCount)
-                            .set(userPasswordExtendData.KEY_LENGTH, keyLength)
-                            .where(userPasswordExtendData.USER_ID.eq(userId.value))
-                            .execute()
+                        if (passwordRecordExists) {
+                            config.dsl()
+                                .update(userPasswords)
+                                .set(userPasswords.PASSWORD_HASH, hashedPassword)
+                                .where(userPasswords.USER_ID.eq(userId.value))
+                                .execute()
+
+                            config.dsl()
+                                .update(userPasswordExtendData)
+                                .set(userPasswordExtendData.ALGORITHM, algorithmName)
+                                .set(userPasswordExtendData.SALT, salt)
+                                .set(userPasswordExtendData.ITERATION_COUNT, iterationCount)
+                                .set(userPasswordExtendData.KEY_LENGTH, keyLength)
+                                .where(userPasswordExtendData.USER_ID.eq(userId.value))
+                                .execute()
+                        } else {
+                            config.dsl()
+                                .insertInto(
+                                    userPasswordExtendData,
+                                    userPasswordExtendData.USER_ID,
+                                    userPasswordExtendData.ALGORITHM,
+                                    userPasswordExtendData.SALT,
+                                    userPasswordExtendData.ITERATION_COUNT,
+                                    userPasswordExtendData.KEY_LENGTH,
+                                )
+                                .values(
+                                    userId.value,
+                                    algorithmName,
+                                    salt,
+                                    iterationCount,
+                                    keyLength,
+                                )
+                                .execute()
+
+                            config.dsl()
+                                .insertInto(
+                                    userPasswords,
+                                    userPasswords.USER_ID,
+                                    userPasswords.PASSWORD_HASH,
+                                )
+                                .values(
+                                    userId.value,
+                                    hashedPassword,
+                                )
+                                .execute()
+                        }
                     }
 
                 AdminRepository.ReplacePasswordResult.Success
@@ -150,6 +188,44 @@ class AdminRepositoryImpl : AdminRepository {
         } catch (e: Exception) {
             AdminRepository.ReplacePasswordResult.Failed(
                 AdminRepository.ReplacePasswordResult.ErrorType.InternalServerError(e),
+            )
+        }
+    }
+
+    override fun deletePassword(userId: UserId): AdminRepository.DeletePasswordResult {
+        return try {
+            DbConnectionImpl.use { connection ->
+                var result: AdminRepository.DeletePasswordResult = AdminRepository.DeletePasswordResult.Success
+
+                DSL.using(connection)
+                    .transaction { config ->
+                        val userExists = config.dsl()
+                            .selectOne()
+                            .from(users)
+                            .where(users.USER_ID.eq(userId.value))
+                            .fetchOne() != null
+
+                        if (!userExists) {
+                            result = AdminRepository.DeletePasswordResult.UserNotFound
+                            return@transaction
+                        }
+
+                        config.dsl()
+                            .deleteFrom(userPasswords)
+                            .where(userPasswords.USER_ID.eq(userId.value))
+                            .execute()
+
+                        config.dsl()
+                            .deleteFrom(userPasswordExtendData)
+                            .where(userPasswordExtendData.USER_ID.eq(userId.value))
+                            .execute()
+                    }
+
+                result
+            }
+        } catch (e: Exception) {
+            AdminRepository.DeletePasswordResult.Failed(
+                AdminRepository.DeletePasswordResult.ErrorType.InternalServerError(e),
             )
         }
     }
