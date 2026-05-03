@@ -158,6 +158,45 @@ internal fun UserSearchScreen(
         )
     }
 
+    val confirmDeleteDialogState = uiState.confirmDeletePasswordDialogState
+    if (confirmDeleteDialogState != null) {
+        AlertDialog(
+            onDismissRequest = { confirmDeleteDialogState.listener.onDismiss() },
+            title = {
+                Text(
+                    text = "パスワード削除の確認",
+                    fontFamily = rememberCustomFontFamily(),
+                )
+            },
+            text = {
+                Text(
+                    text = "${confirmDeleteDialogState.userName} のパスワードを削除します。この操作は取り消せません。",
+                    fontFamily = rememberCustomFontFamily(),
+                )
+            },
+            confirmButton = {
+                Button(
+                    onClick = { confirmDeleteDialogState.listener.onConfirm() },
+                ) {
+                    Text(
+                        text = "削除",
+                        fontFamily = rememberCustomFontFamily(),
+                    )
+                }
+            },
+            dismissButton = {
+                TextButton(
+                    onClick = { confirmDeleteDialogState.listener.onDismiss() },
+                ) {
+                    Text(
+                        text = "キャンセル",
+                        fontFamily = rememberCustomFontFamily(),
+                    )
+                }
+            },
+        )
+    }
+
     val dialogState = uiState.replacePasswordDialogState
     if (dialogState != null) {
         var password by remember { mutableStateOf("") }

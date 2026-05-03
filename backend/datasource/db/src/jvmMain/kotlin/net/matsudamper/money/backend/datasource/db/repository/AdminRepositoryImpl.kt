@@ -195,18 +195,21 @@ class AdminRepositoryImpl : AdminRepository {
     override fun deletePassword(userId: UserId): AdminRepository.DeletePasswordResult {
         return try {
             DbConnectionImpl.use { connection ->
-                val userExists = DSL.using(connection)
-                    .selectOne()
-                    .from(users)
-                    .where(users.USER_ID.eq(userId.value))
-                    .fetchOne() != null
-
-                if (!userExists) {
-                    return@use AdminRepository.DeletePasswordResult.UserNotFound
-                }
+                var result: AdminRepository.DeletePasswordResult = AdminRepository.DeletePasswordResult.Success
 
                 DSL.using(connection)
                     .transaction { config ->
+                        val userExists = config.dsl()
+                            .selectOne()
+                            .from(users)
+                            .where(users.USER_ID.eq(userId.value))
+                            .fetchOne() != null
+
+                        if (!userExists) {
+                            result = AdminRepository.DeletePasswordResult.UserNotFound
+                            return@transaction
+                        }
+
                         config.dsl()
                             .deleteFrom(userPasswords)
                             .where(userPasswords.USER_ID.eq(userId.value))
@@ -218,7 +221,7 @@ class AdminRepositoryImpl : AdminRepository {
                             .execute()
                     }
 
-                AdminRepository.DeletePasswordResult.Success
+                result
             }
         } catch (e: Exception) {
             AdminRepository.DeletePasswordResult.Failed(
