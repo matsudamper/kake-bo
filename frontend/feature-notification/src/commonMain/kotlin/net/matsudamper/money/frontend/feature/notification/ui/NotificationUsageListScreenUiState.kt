@@ -6,14 +6,22 @@ import net.matsudamper.money.frontend.common.ui.base.KakeboScaffoldListener
 
 public data class NotificationUsageListScreenUiState(
     val title: String,
-    val items: ImmutableList<Item>,
+    val itemsState: ItemsState,
     val filters: ImmutableList<Filter>,
     val searchListener: SearchListener?,
-    val emptyText: String,
     val accessSection: AccessSection?,
     val topBarActions: ImmutableList<TopBarAction>,
     val kakeboScaffoldListener: KakeboScaffoldListener,
 ) {
+    public sealed interface ItemsState {
+        public data object Loading : ItemsState
+
+        public data class Loaded(
+            val items: ImmutableList<Item>,
+            val emptyText: String,
+        ) : ItemsState
+    }
+
     @Immutable
     public interface SearchListener {
         public fun onSearchQueryChange(query: String)
