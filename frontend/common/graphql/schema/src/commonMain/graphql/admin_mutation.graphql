@@ -26,7 +26,7 @@ mutation AdminDeleteImages($imageIds: [ImageId!]!) {
     }
 }
 
-mutation AdminReplacePassword($userId: UserId!, $password: String!) {
+mutation AdminReplacePassword($userId: UserId!, $password: String) {
     adminMutation {
         replacePassword(userId: $userId, password: $password) {
             isSuccess
