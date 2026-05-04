@@ -1,9 +1,8 @@
 package net.matsudamper.money.backend.datasource.db.repository
 
-import java.io.File
 import java.io.IOException
 import net.matsudamper.money.backend.app.interfaces.AdminImageRepository
-import net.matsudamper.money.backend.base.ServerEnv
+import net.matsudamper.money.backend.app.interfaces.ImageStorageGateway
 import net.matsudamper.money.backend.base.TraceLogger
 import net.matsudamper.money.backend.datasource.db.DbConnectionImpl
 import net.matsudamper.money.backend.datasource.db.element.DbStorageType
@@ -14,7 +13,10 @@ import net.matsudamper.money.element.ImageId
 import net.matsudamper.money.element.UserId
 import org.jooq.impl.DSL
 
-class DbAdminImageRepository : AdminImageRepository {
+class DbAdminImageRepository(
+    private val localImageStorageGateway: ImageStorageGateway,
+    private val s3ImageStorageGateway: ImageStorageGateway?,
+) : AdminImageRepository {
     private val userImages = JUserImages.USER_IMAGES
     private val users = JUsers.USERS
     private val usageImagesRelation = JMoneyUsageImagesRelation.MONEY_USAGE_IMAGES_RELATION
@@ -86,6 +88,7 @@ class DbAdminImageRepository : AdminImageRepository {
                         .select(
                             userImages.IMAGE_PATH,
                             userImages.STORAGE_TYPE,
+                            userImages.USER_ID,
                         )
                         .from(userImages)
                         .where(
@@ -97,13 +100,34 @@ class DbAdminImageRepository : AdminImageRepository {
                         val storageType = record.get(userImages.STORAGE_TYPE)
                         val relativePath = record.get(userImages.IMAGE_PATH)
                             ?: throw IllegalStateException("画像パスが見つかりませんでした")
-                        // ローカルストレージのみファイルを削除する。S3はDBレコードのみ削除。
-                        if (storageType == DbStorageType.LOCAL.dbValue) {
-                            val imageFile = File(ServerEnv.imageStoragePath, relativePath)
-                            if (imageFile.exists().not()) continue
-                            if (imageFile.delete().not()) {
-                                throw IOException("ファイルの削除に失敗しました: $imageFile")
+                        val userId = UserId(record.get(userImages.USER_ID)!!)
+
+                        when (storageType) {
+                            DbStorageType.LOCAL.dbValue -> {
+                                val deleteRequest = ImageStorageGateway.DeleteRequest(
+                                    userId = userId,
+                                    relativePath = relativePath,
+                                )
+                                val result = localImageStorageGateway.delete(deleteRequest)
+                                if (result is ImageStorageGateway.DeleteResult.Failure) {
+                                    throw IOException("ファイルの削除に失敗しました: ${result.cause.message}", result.cause)
+                                }
                             }
+
+                            DbStorageType.S3.dbValue -> {
+                                val gateway = s3ImageStorageGateway
+                                    ?: throw IllegalStateException("S3ストレージゲートウェイが設定されていません")
+                                val deleteRequest = ImageStorageGateway.DeleteRequest(
+                                    userId = userId,
+                                    relativePath = relativePath,
+                                )
+                                val result = gateway.delete(deleteRequest)
+                                if (result is ImageStorageGateway.DeleteResult.Failure) {
+                                    throw IOException("S3オブジェクトの削除に失敗しました: ${result.cause.message}", result.cause)
+                                }
+                            }
+
+                            else -> throw IllegalStateException("Unknown storage_type: $storageType")
                         }
                     }
 

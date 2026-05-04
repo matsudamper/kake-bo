@@ -59,6 +59,20 @@ public class LocalImageStorageGateway(
         return ImageStorageGateway.PutResult.Success(relativePath = request.relativePath)
     }
 
+    override fun delete(request: ImageStorageGateway.DeleteRequest): ImageStorageGateway.DeleteResult {
+        val path = resolveSecurePath(request.relativePath)
+            ?: return ImageStorageGateway.DeleteResult.Failure(
+                SecurityException("Path traversal detected: ${request.relativePath}"),
+            )
+        val file = path.toFile()
+        if (!file.exists()) return ImageStorageGateway.DeleteResult.Success
+        return if (file.delete()) {
+            ImageStorageGateway.DeleteResult.Success
+        } else {
+            ImageStorageGateway.DeleteResult.Failure(IllegalStateException("ファイルの削除に失敗しました: $path"))
+        }
+    }
+
     override fun buildDisplayUrl(request: ImageStorageGateway.BuildUrlRequest): String {
         return when (request.purpose) {
             ImageStorageGateway.Purpose.USER -> "https://${request.domain}/api/image/v1/${request.displayId}"

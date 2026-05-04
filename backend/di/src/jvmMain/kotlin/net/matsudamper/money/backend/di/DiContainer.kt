@@ -113,7 +113,12 @@ class MainDiContainer : DiContainer {
         return EnvAdminLoginRepository()
     }
 
-    private val adminImageRepository = DbAdminImageRepository()
+    private val adminImageRepository by lazy {
+        DbAdminImageRepository(
+            localImageStorageGateway = localImageStorageGateway,
+            s3ImageStorageGateway = s3ImageStorageGateway,
+        )
+    }
 
     override fun createAdminImageRepository(): AdminImageRepository {
         return adminImageRepository

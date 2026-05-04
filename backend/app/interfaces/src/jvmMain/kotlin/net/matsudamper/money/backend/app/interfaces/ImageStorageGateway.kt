@@ -9,6 +9,8 @@ public interface ImageStorageGateway {
 
     public fun put(request: PutRequest): PutResult
 
+    public fun delete(request: DeleteRequest): DeleteResult
+
     public fun buildDisplayUrl(request: BuildUrlRequest): String
 
     public data class PutRequest(
@@ -25,6 +27,16 @@ public interface ImageStorageGateway {
         public data object PayloadTooLarge : PutResult
         public data object Empty : PutResult
         public data class Failure(val cause: Throwable) : PutResult
+    }
+
+    public data class DeleteRequest(
+        val userId: UserId,
+        val relativePath: String,
+    )
+
+    public sealed interface DeleteResult {
+        public data object Success : DeleteResult
+        public data class Failure(val cause: Throwable) : DeleteResult
     }
 
     public data class BuildUrlRequest(

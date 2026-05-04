@@ -8,6 +8,7 @@ import software.amazon.awssdk.core.sync.RequestBody
 import software.amazon.awssdk.regions.Region
 import software.amazon.awssdk.services.s3.S3Client
 import software.amazon.awssdk.services.s3.S3Configuration
+import software.amazon.awssdk.services.s3.model.DeleteObjectRequest
 import software.amazon.awssdk.services.s3.model.GetObjectRequest
 import software.amazon.awssdk.services.s3.model.PutObjectRequest
 import software.amazon.awssdk.services.s3.presigner.S3Presigner
@@ -70,6 +71,35 @@ public class S3ImageStorageGateway(
         }
 
         return ImageStorageGateway.PutResult.Success(relativePath = request.relativePath)
+    }
+
+    override fun delete(request: ImageStorageGateway.DeleteRequest): ImageStorageGateway.DeleteResult {
+        val credentials = stsCredentialProvider.assumeWithWebIdentity(userId = request.userId)
+        val key = buildKey(request.userId.value.toString(), request.relativePath)
+
+        return runCatching {
+            S3Client.builder().apply {
+                if (config.endpoint.isNotBlank()) {
+                    endpointOverride(URI(config.endpoint))
+                }
+                region(Region.of(config.region))
+                credentialsProvider(StaticCredentialsProvider.create(credentials))
+                serviceConfiguration(
+                    S3Configuration.builder()
+                        .pathStyleAccessEnabled(config.pathStyleAccess)
+                        .build(),
+                )
+            }.build().use { s3Client ->
+                val deleteObjectRequest = DeleteObjectRequest.builder()
+                    .bucket(config.bucket)
+                    .key(key)
+                    .build()
+                s3Client.deleteObject(deleteObjectRequest)
+            }
+        }.fold(
+            onSuccess = { ImageStorageGateway.DeleteResult.Success },
+            onFailure = { ImageStorageGateway.DeleteResult.Failure(it) },
+        )
     }
 
     override fun buildDisplayUrl(request: ImageStorageGateway.BuildUrlRequest): String {
