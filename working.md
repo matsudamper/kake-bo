@@ -29,4 +29,4 @@
   - [x] `PostImageRouting.kt`, `GetImageRouting.kt` 更新
   - [x] `Main.kt` ルーティング更新
   - [x] `ImageResolverImpl.kt`, `QueryResolverImpl.kt` 更新
-- [ ] 最終動作確認 (ビルド, ktlintFormat)
+- [x] 最終動作確認 (ビルド, ktlintFormat)
