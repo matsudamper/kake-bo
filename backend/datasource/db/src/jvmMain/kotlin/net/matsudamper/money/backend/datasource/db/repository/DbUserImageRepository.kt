@@ -87,10 +87,11 @@ class DbUserImageRepository : UserImageRepository {
                 .limit(1)
                 .fetchOne()
                 ?.let { record ->
-                    val storageType = when (record.get(jUserImages.STORAGE_TYPE)) {
+                    val storageTypeValue = record.get(jUserImages.STORAGE_TYPE)
+                    val storageType = when (storageTypeValue) {
                         "LOCAL" -> UserImageRepository.StorageType.LOCAL
                         "S3" -> UserImageRepository.StorageType.S3
-                        else -> UserImageRepository.StorageType.LOCAL
+                        else -> throw IllegalStateException("Unknown storage_type: $storageTypeValue")
                     }
                     UserImageRepository.ImageData(
                         relativePath = record.get(jUserImages.IMAGE_PATH)!!,
