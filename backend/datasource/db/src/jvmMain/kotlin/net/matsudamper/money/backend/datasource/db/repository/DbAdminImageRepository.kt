@@ -6,6 +6,7 @@ import net.matsudamper.money.backend.app.interfaces.AdminImageRepository
 import net.matsudamper.money.backend.base.ServerEnv
 import net.matsudamper.money.backend.base.TraceLogger
 import net.matsudamper.money.backend.datasource.db.DbConnectionImpl
+import net.matsudamper.money.backend.datasource.db.element.DbStorageType
 import net.matsudamper.money.db.schema.tables.JMoneyUsageImagesRelation
 import net.matsudamper.money.db.schema.tables.JUserImages
 import net.matsudamper.money.db.schema.tables.JUsers
@@ -97,7 +98,7 @@ class DbAdminImageRepository : AdminImageRepository {
                         val relativePath = record.get(userImages.IMAGE_PATH)
                             ?: throw IllegalStateException("画像パスが見つかりませんでした")
                         // ローカルストレージのみファイルを削除する。S3はDBレコードのみ削除。
-                        if (storageType == "LOCAL") {
+                        if (storageType == DbStorageType.LOCAL.dbValue) {
                             val imageFile = File(ServerEnv.imageStoragePath, relativePath)
                             if (imageFile.exists().not()) continue
                             if (imageFile.delete().not()) {
@@ -163,8 +164,8 @@ class DbAdminImageRepository : AdminImageRepository {
                 ?.let { record ->
                     val storageTypeValue = record.get(userImages.STORAGE_TYPE)
                     val storageType = when (storageTypeValue) {
-                        "LOCAL" -> net.matsudamper.money.backend.app.interfaces.UserImageRepository.StorageType.LOCAL
-                        "S3" -> net.matsudamper.money.backend.app.interfaces.UserImageRepository.StorageType.S3
+                        DbStorageType.LOCAL.dbValue -> net.matsudamper.money.backend.app.interfaces.UserImageRepository.StorageType.LOCAL
+                        DbStorageType.S3.dbValue -> net.matsudamper.money.backend.app.interfaces.UserImageRepository.StorageType.S3
                         else -> throw IllegalStateException("Unknown storage_type: $storageTypeValue")
                     }
                     AdminImageRepository.ImageData(
