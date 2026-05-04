@@ -14,11 +14,11 @@
 - [x] モジュール `backend/feature/image-storage-local` の実装
   - [x] `build.gradle.kts` 作成
   - [x] `LocalImageStorageGateway.kt` 実装
-- [ ] モジュール `backend/feature/object-storage` の実装
-  - [ ] `build.gradle.kts` 作成
-  - [ ] `ObjectStorageConfig.kt` 実装
-  - [ ] `StsCredentialProvider.kt` 実装
-  - [ ] `S3ImageStorageGateway.kt` 実装
+- [x] モジュール `backend/feature/object-storage` の実装
+  - [x] `build.gradle.kts` 作成
+  - [x] `ObjectStorageConfig.kt` 実装
+  - [x] `StsCredentialProvider.kt` 実装
+  - [x] `S3ImageStorageGateway.kt` 実装
 - [ ] 既存コードへの統合
   - [ ] `UserImageRepository` (`backend/app/interfaces`) 更新
   - [ ] jOOQコード再生成
