@@ -87,6 +87,7 @@ class DbAdminImageRepository(
                     val records = context
                         .select(
                             userImages.IMAGE_PATH,
+                            userImages.STORAGE_TYPE,
                             userImages.USER_ID,
                             userImages.USER_IMAGE_ID,
                         )
@@ -97,18 +98,22 @@ class DbAdminImageRepository(
                         .fetch()
 
                     for (record in records) {
+                        val storageType = record.get(userImages.STORAGE_TYPE)
                         val relativePath = record.get(userImages.IMAGE_PATH)
                             ?: throw IllegalStateException("画像パスが見つかりませんでした: ${userImages.USER_IMAGE_ID.name}=${record.get(userImages.USER_IMAGE_ID)}")
                         val userId = UserId(record.get(userImages.USER_ID)!!)
 
-                        val result = imageStorageGateway.delete(
-                            ImageStorageGateway.DeleteRequest(
-                                userId = userId,
-                                relativePath = relativePath,
-                            ),
-                        )
-                        if (result is ImageStorageGateway.DeleteResult.Failure) {
-                            throw IOException("ファイルの削除に失敗しました: ${result.cause.message}", result.cause)
+                        // ローカルストレージのみファイルを削除する。S3はDBレコードのみ削除。
+                        if (storageType == DbStorageType.LOCAL.dbValue) {
+                            val result = imageStorageGateway.delete(
+                                ImageStorageGateway.DeleteRequest(
+                                    userId = userId,
+                                    relativePath = relativePath,
+                                ),
+                            )
+                            if (result is ImageStorageGateway.DeleteResult.Failure) {
+                                throw IOException("ファイルの削除に失敗しました: ${result.cause.message}", result.cause)
+                            }
                         }
                     }
 
