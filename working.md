@@ -19,14 +19,14 @@
   - [x] `ObjectStorageConfig.kt` 実装
   - [x] `StsCredentialProvider.kt` 実装
   - [x] `S3ImageStorageGateway.kt` 実装
-- [ ] 既存コードへの統合
-  - [ ] `UserImageRepository` (`backend/app/interfaces`) 更新
-  - [ ] jOOQコード再生成
-  - [ ] `UserImageRepositoryImpl` (`backend/datasource/db`) 更新
-  - [ ] `ImageUploadHandler` (`backend/feature/image`) 更新
-  - [ ] 各モジュールの `build.gradle.kts` 依存関係更新
-  - [ ] `DiContainer` (`backend/di`) 更新
-  - [ ] `PostImageRouting.kt`, `GetImageRouting.kt` 更新
-  - [ ] `Main.kt` ルーティング更新
-  - [ ] `ImageResolverImpl.kt`, `QueryResolverImpl.kt` 更新
+- [x] 既存コードへの統合
+  - [x] `UserImageRepository` (`backend/app/interfaces`) 更新
+  - [x] jOOQコード再生成
+  - [x] `UserImageRepositoryImpl` (`backend/datasource/db`) 更新
+  - [x] `ImageUploadHandler` (`backend/feature/image`) 更新
+  - [x] 各モジュールの `build.gradle.kts` 依存関係更新
+  - [x] `DiContainer` (`backend/di`) 更新
+  - [x] `PostImageRouting.kt`, `GetImageRouting.kt` 更新
+  - [x] `Main.kt` ルーティング更新
+  - [x] `ImageResolverImpl.kt`, `QueryResolverImpl.kt` 更新
 - [ ] 最終動作確認 (ビルド, ktlintFormat)

@@ -97,6 +97,11 @@ interface DiContainer {
     fun createApiTokenRepository(): ApiTokenRepository
     fun traceLogger(): TraceLogger
     fun clock(): Clock
+
+    fun createOidcKeyManager(): net.matsudamper.money.backend.feature.oidc.OidcKeyManager?
+    fun createJwtIssuer(): net.matsudamper.money.backend.feature.oidc.JwtIssuer?
+    fun createWriteImageStorageGateway(): net.matsudamper.money.backend.app.interfaces.ImageStorageGateway
+    fun createReadImageStorageGateway(storageType: net.matsudamper.money.backend.app.interfaces.UserImageRepository.StorageType): net.matsudamper.money.backend.app.interfaces.ImageStorageGateway
 }
 
 class MainDiContainer : DiContainer {
@@ -258,5 +263,97 @@ class MainDiContainer : DiContainer {
 
     override fun clock(): Clock {
         return Clock.systemUTC()
+    }
+
+    private val oidcKeyManager by lazy {
+        val jwkPrivate = ServerEnv.oidcJwkPrivate
+        if (ServerEnv.enableS3 && jwkPrivate != null) {
+            net.matsudamper.money.backend.feature.oidc.OidcKeyManager(jwkPrivate)
+        } else {
+            null
+        }
+    }
+
+    override fun createOidcKeyManager(): net.matsudamper.money.backend.feature.oidc.OidcKeyManager? {
+        return oidcKeyManager
+    }
+
+    private val jwtIssuer by lazy {
+        val keyManager = createOidcKeyManager()
+        val issuer = ServerEnv.oidcIssuer
+        if (keyManager != null && issuer != null) {
+            net.matsudamper.money.backend.feature.oidc.JwtIssuer(keyManager, issuer)
+        } else {
+            null
+        }
+    }
+
+    override fun createJwtIssuer(): net.matsudamper.money.backend.feature.oidc.JwtIssuer? {
+        return jwtIssuer
+    }
+
+    private val stsCredentialProvider by lazy {
+        val issuer = createJwtIssuer()
+        if (issuer != null) {
+            net.matsudamper.money.backend.feature.objectstorage.StsCredentialProvider(
+                jwtIssuer = issuer,
+                config = net.matsudamper.money.backend.feature.objectstorage.ObjectStorageConfig(
+                    endpoint = ServerEnv.s3Endpoint.orEmpty(),
+                    region = ServerEnv.s3Region.orEmpty(),
+                    bucket = ServerEnv.s3Bucket.orEmpty(),
+                    roleArn = ServerEnv.s3RoleArn.orEmpty(),
+                    roleSessionName = ServerEnv.s3RoleSessionName,
+                    audience = ServerEnv.s3Audience.orEmpty(),
+                    pathStyleAccess = ServerEnv.s3PathStyleAccess,
+                ),
+            )
+        } else {
+            null
+        }
+    }
+
+    private val s3ImageStorageGateway by lazy {
+        val provider = stsCredentialProvider
+        if (provider != null) {
+            net.matsudamper.money.backend.feature.objectstorage.S3ImageStorageGateway(
+                stsCredentialProvider = provider,
+                config = net.matsudamper.money.backend.feature.objectstorage.ObjectStorageConfig(
+                    endpoint = ServerEnv.s3Endpoint.orEmpty(),
+                    region = ServerEnv.s3Region.orEmpty(),
+                    bucket = ServerEnv.s3Bucket.orEmpty(),
+                    roleArn = ServerEnv.s3RoleArn.orEmpty(),
+                    roleSessionName = ServerEnv.s3RoleSessionName,
+                    audience = ServerEnv.s3Audience.orEmpty(),
+                    pathStyleAccess = ServerEnv.s3PathStyleAccess,
+                ),
+            )
+        } else {
+            null
+        }
+    }
+
+    private val localImageStorageGateway by lazy {
+        net.matsudamper.money.backend.feature.imagestoragelocal.LocalImageStorageGateway(
+            storageDirectory = java.io.File(ServerEnv.imageStoragePath),
+        )
+    }
+
+    override fun createWriteImageStorageGateway(): net.matsudamper.money.backend.app.interfaces.ImageStorageGateway {
+        return if (ServerEnv.enableS3) {
+            s3ImageStorageGateway ?: throw IllegalStateException("S3 is enabled but credentials/config are missing.")
+        } else {
+            localImageStorageGateway
+        }
+    }
+
+    override fun createReadImageStorageGateway(
+        storageType: net.matsudamper.money.backend.app.interfaces.UserImageRepository.StorageType,
+    ): net.matsudamper.money.backend.app.interfaces.ImageStorageGateway {
+        return when (storageType) {
+            net.matsudamper.money.backend.app.interfaces.UserImageRepository.StorageType.LOCAL -> localImageStorageGateway
+            net.matsudamper.money.backend.app.interfaces.UserImageRepository.StorageType.S3 ->
+                s3ImageStorageGateway
+                    ?: throw IllegalStateException("Cannot read S3 image without S3 config.")
+        }
     }
 }

@@ -13,7 +13,6 @@ import io.ktor.utils.io.jvm.javaio.toInputStream
 import net.matsudamper.money.backend.base.ServerEnv
 import net.matsudamper.money.backend.base.TraceLogger
 import net.matsudamper.money.backend.di.DiContainer
-import net.matsudamper.money.backend.feature.image.ImageApiPath
 import net.matsudamper.money.backend.feature.image.ImageUploadHandler
 import net.matsudamper.money.backend.feature.session.KtorCookieManager
 import net.matsudamper.money.backend.feature.session.UserSessionManagerImpl
@@ -42,6 +41,7 @@ internal fun Route.postImage(
         val multipart = call.receiveMultipart()
 
         var result: ImageUploadHandler.Result? = null
+        val imageStorageGateway = diContainer.createWriteImageStorageGateway()
         while (true) {
             val part = multipart.readPart() ?: break
             if (part !is PartData.FileItem) {
@@ -60,12 +60,14 @@ internal fun Route.postImage(
                 return@post
             }
             result = part.provider().toInputStream().use { inputStream ->
+                val contentLength = part.headers["Content-Length"]?.toLongOrNull()
                 imageUploadHandler.handle(
                     request = ImageUploadHandler.Request(
                         userId = userId,
                         userImageRepository = diContainer.createUserImageRepository(),
-                        storageDirectory = config.storageDirectory,
+                        imageStorageGateway = imageStorageGateway,
                         maxUploadBytes = config.maxUploadBytes,
+                        contentLength = contentLength,
                         contentType = part.contentType?.withoutParameters()?.toString(),
                         inputStream = inputStream,
                     ),
@@ -114,6 +116,17 @@ internal fun Route.postImage(
             is ImageUploadHandler.Result.Success -> {
                 val domain = ServerEnv.domain
                     ?: throw IllegalStateException("DOMAIN is not configured")
+
+                val displayUrl = imageStorageGateway.buildDisplayUrl(
+                    net.matsudamper.money.backend.app.interfaces.ImageStorageGateway.BuildUrlRequest(
+                        domain = domain,
+                        displayId = uploadResult.displayId,
+                        userId = userId,
+                        relativePath = uploadResult.relativePath,
+                        purpose = net.matsudamper.money.backend.app.interfaces.ImageStorageGateway.Purpose.USER,
+                    ),
+                )
+
                 call.respondText(
                     status = HttpStatusCode.Created,
                     contentType = ContentType.Application.Json,
@@ -121,10 +134,7 @@ internal fun Route.postImage(
                         ImageUploadImageResponse(
                             success = Success(
                                 imageId = uploadResult.imageId,
-                                url = ImageApiPath.imageV1AbsoluteByDisplayId(
-                                    domain = domain,
-                                    displayId = uploadResult.displayId,
-                                ),
+                                url = displayUrl,
                             ),
                         ),
                     ),
