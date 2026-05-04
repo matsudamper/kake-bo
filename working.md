@@ -1,0 +1,32 @@
+# OIDC + STS + S3 ストリーム中継アップロード実装タスクリスト
+
+- [x] `gradle/libs.versions.toml` の更新
+- [x] `settings.gradle.kts` に新規モジュール追加
+- [x] DBマイグレーションファイル作成 ( `user_image` に `storage_type` 追加)
+- [x] 新規インターフェース `ImageStorageGateway` 作成 (`backend/app/interfaces`)
+- [x] `backend/base/.../ServerEnv.kt` 更新
+- [x] モジュール `backend/feature/oidc` の実装
+  - [x] `build.gradle.kts` 作成
+  - [x] `OidcKeyManager.kt` 実装
+  - [x] `JwtIssuer.kt` 実装
+  - [x] `OidcDiscoveryRouting.kt` 実装
+  - [x] `JwksRouting.kt` 実装
+- [ ] モジュール `backend/feature/image-storage-local` の実装
+  - [ ] `build.gradle.kts` 作成
+  - [ ] `LocalImageStorageGateway.kt` 実装
+- [ ] モジュール `backend/feature/object-storage` の実装
+  - [ ] `build.gradle.kts` 作成
+  - [ ] `ObjectStorageConfig.kt` 実装
+  - [ ] `StsCredentialProvider.kt` 実装
+  - [ ] `S3ImageStorageGateway.kt` 実装
+- [ ] 既存コードへの統合
+  - [ ] `UserImageRepository` (`backend/app/interfaces`) 更新
+  - [ ] jOOQコード再生成
+  - [ ] `UserImageRepositoryImpl` (`backend/datasource/db`) 更新
+  - [ ] `ImageUploadHandler` (`backend/feature/image`) 更新
+  - [ ] 各モジュールの `build.gradle.kts` 依存関係更新
+  - [ ] `DiContainer` (`backend/di`) 更新
+  - [ ] `PostImageRouting.kt`, `GetImageRouting.kt` 更新
+  - [ ] `Main.kt` ルーティング更新
+  - [ ] `ImageResolverImpl.kt`, `QueryResolverImpl.kt` 更新
+- [ ] 最終動作確認 (ビルド, ktlintFormat)
