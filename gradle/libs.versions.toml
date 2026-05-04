@@ -46,6 +46,9 @@ graalvmNative = { id = "org.graalvm.buildtools.native", version.ref = "graalvmNa
 ksp = { id = "com.google.devtools.ksp", version.ref = "ksp" }
 
 [libraries]
+awsS3 = { module = "software.amazon.awssdk:s3", version.ref = "awsSdk" }
+awsSts = { module = "software.amazon.awssdk:sts", version.ref = "awsSdk" }
+nimbusJoseJwt = { module = "com.nimbusds:nimbus-jose-jwt", version.ref = "nimbusJoseJwt" }
 kotlinRefrect = { module = "org.jetbrains.kotlin:kotlin-reflect", version.ref = "kotlin" }
 kotlin-coroutines-core = { module = "org.jetbrains.kotlinx:kotlinx-coroutines-core", version.require = "1.10.2" }
 kotlin-datetime = { module = "org.jetbrains.kotlinx:kotlinx-datetime", version.require = "0.7.1-0.6.x-compat" }
