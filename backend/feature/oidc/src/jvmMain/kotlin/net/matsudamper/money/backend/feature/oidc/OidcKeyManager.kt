@@ -1,8 +1,8 @@
 package net.matsudamper.money.backend.feature.oidc
 
+import java.security.PrivateKey
 import com.nimbusds.jose.jwk.JWKSet
 import com.nimbusds.jose.jwk.RSAKey
-import java.security.PrivateKey
 
 public class OidcKeyManager(jwkJson: String) {
     private val rsaKey: RSAKey = RSAKey.parse(jwkJson)

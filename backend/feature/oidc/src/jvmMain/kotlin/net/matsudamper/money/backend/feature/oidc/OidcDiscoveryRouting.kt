@@ -14,7 +14,7 @@ public fun Route.oidcDiscovery(issuer: String) {
                 "response_types_supported" to listOf("id_token"),
                 "subject_types_supported" to listOf("public"),
                 "id_token_signing_alg_values_supported" to listOf("RS256"),
-            )
+            ),
         )
     }
 }

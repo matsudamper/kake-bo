@@ -10,7 +10,7 @@ public fun Route.jwks(keyManager: OidcKeyManager) {
     get("/jwks") {
         call.respondText(
             text = keyManager.publicJwkSet(),
-            contentType = ContentType.Application.Json
+            contentType = ContentType.Application.Json,
         )
     }
 }

@@ -21,15 +21,16 @@ public class S3ImageStorageGateway(
     override val storageType: ImageStorageGateway.StorageType = ImageStorageGateway.StorageType.S3
 
     override fun put(request: ImageStorageGateway.PutRequest): ImageStorageGateway.PutResult {
-        if (request.contentLength == null) {
+        val contentLength = request.contentLength
+        if (contentLength == null) {
             return ImageStorageGateway.PutResult.Failure(IllegalArgumentException("contentLength is required for S3 upload"))
         }
 
-        if (request.contentLength == 0L) {
+        if (contentLength == 0L) {
             return ImageStorageGateway.PutResult.Empty
         }
 
-        if (request.contentLength > request.maxBytes) {
+        if (contentLength > request.maxBytes) {
             return ImageStorageGateway.PutResult.PayloadTooLarge
         }
 
@@ -47,19 +48,19 @@ public class S3ImageStorageGateway(
                 serviceConfiguration(
                     S3Configuration.builder()
                         .pathStyleAccessEnabled(config.pathStyleAccess)
-                        .build()
+                        .build(),
                 )
             }.build().use { s3Client ->
                 val putObjectRequest = PutObjectRequest.builder()
                     .bucket(config.bucket)
                     .key(key)
                     .contentType(request.contentType)
-                    .contentLength(request.contentLength)
+                    .contentLength(contentLength)
                     .build()
 
                 s3Client.putObject(
                     putObjectRequest,
-                    RequestBody.fromInputStream(request.inputStream, request.contentLength)
+                    RequestBody.fromInputStream(request.inputStream, contentLength),
                 )
             }
         }
@@ -84,7 +85,7 @@ public class S3ImageStorageGateway(
             serviceConfiguration(
                 S3Configuration.builder()
                     .pathStyleAccessEnabled(config.pathStyleAccess)
-                    .build()
+                    .build(),
             )
         }.build().use { presigner ->
             val getObjectRequest = GetObjectRequest.builder()

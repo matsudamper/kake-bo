@@ -3,7 +3,6 @@ package net.matsudamper.money.backend.feature.imagestoragelocal
 import java.io.File
 import java.io.InputStream
 import net.matsudamper.money.backend.app.interfaces.ImageStorageGateway
-import net.matsudamper.money.backend.feature.image.ImageApiPath
 
 public class LocalImageStorageGateway(
     private val storageDirectory: File,
@@ -58,14 +57,8 @@ public class LocalImageStorageGateway(
 
     override fun buildDisplayUrl(request: ImageStorageGateway.BuildUrlRequest): String {
         return when (request.purpose) {
-            ImageStorageGateway.Purpose.USER -> ImageApiPath.imageV1AbsoluteByDisplayId(
-                domain = request.domain,
-                displayId = request.displayId,
-            )
-            ImageStorageGateway.Purpose.ADMIN -> ImageApiPath.adminImageV1AbsoluteByDisplayId(
-                domain = request.domain,
-                displayId = request.displayId,
-            )
+            ImageStorageGateway.Purpose.USER -> "https://${request.domain}/api/image/v1/${request.displayId}"
+            ImageStorageGateway.Purpose.ADMIN -> "https://${request.domain}/api/admin/image/v1/${request.displayId}"
         }
     }
 

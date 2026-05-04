@@ -145,8 +145,3 @@ class DbUserImageRepository : UserImageRepository {
         }
     }
 }
-get(jUserImages.USER_IMAGE_ID)!!) to record.get(jUserImages.DISPLAY_ID)!!
-                }
-        }
-    }
-}

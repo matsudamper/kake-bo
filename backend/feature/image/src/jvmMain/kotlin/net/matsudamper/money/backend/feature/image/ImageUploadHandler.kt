@@ -46,7 +46,7 @@ class ImageUploadHandler {
                 contentLength = request.contentLength,
                 maxBytes = request.maxUploadBytes,
                 inputStream = request.inputStream,
-            )
+            ),
         )
 
         return when (writeResult) {
