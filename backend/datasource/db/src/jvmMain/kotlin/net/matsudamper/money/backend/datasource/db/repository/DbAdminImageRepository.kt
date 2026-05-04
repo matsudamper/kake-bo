@@ -3,7 +3,6 @@ package net.matsudamper.money.backend.datasource.db.repository
 import java.io.IOException
 import net.matsudamper.money.backend.app.interfaces.AdminImageRepository
 import net.matsudamper.money.backend.app.interfaces.ImageStorageGateway
-import net.matsudamper.money.backend.app.interfaces.UserImageRepository
 import net.matsudamper.money.backend.base.TraceLogger
 import net.matsudamper.money.backend.datasource.db.DbConnectionImpl
 import net.matsudamper.money.backend.datasource.db.element.DbStorageType
@@ -15,7 +14,8 @@ import net.matsudamper.money.element.UserId
 import org.jooq.impl.DSL
 
 class DbAdminImageRepository(
-    private val imageStorageGateway: ImageStorageGateway,
+    private val localImageStorageGateway: ImageStorageGateway,
+    private val s3ImageStorageGateway: ImageStorageGateway?,
 ) : AdminImageRepository {
     private val userImages = JUserImages.USER_IMAGES
     private val users = JUsers.USERS
@@ -103,17 +103,34 @@ class DbAdminImageRepository(
                             ?: throw IllegalStateException("画像パスが見つかりませんでした: ${userImages.USER_IMAGE_ID.name}=${record.get(userImages.USER_IMAGE_ID)}")
                         val userId = UserId(record.get(userImages.USER_ID)!!)
 
-                        // ローカルストレージのみファイルを削除する。S3はDBレコードのみ削除。
-                        if (storageType == DbStorageType.LOCAL.dbValue) {
-                            val result = imageStorageGateway.delete(
-                                ImageStorageGateway.DeleteRequest(
-                                    userId = userId,
-                                    relativePath = relativePath,
-                                ),
-                            )
-                            if (result is ImageStorageGateway.DeleteResult.Failure) {
-                                throw IOException("ファイルの削除に失敗しました: ${result.cause.message}", result.cause)
+                        when (storageType) {
+                            DbStorageType.LOCAL.dbValue -> {
+                                val result = localImageStorageGateway.delete(
+                                    ImageStorageGateway.DeleteRequest(
+                                        userId = userId,
+                                        relativePath = relativePath,
+                                    ),
+                                )
+                                if (result is ImageStorageGateway.DeleteResult.Failure) {
+                                    throw IOException("ファイルの削除に失敗しました: ${result.cause.message}", result.cause)
+                                }
                             }
+
+                            DbStorageType.S3.dbValue -> {
+                                val gateway = s3ImageStorageGateway
+                                    ?: throw IllegalStateException("S3ストレージゲートウェイが設定されていません")
+                                val result = gateway.delete(
+                                    ImageStorageGateway.DeleteRequest(
+                                        userId = userId,
+                                        relativePath = relativePath,
+                                    ),
+                                )
+                                if (result is ImageStorageGateway.DeleteResult.Failure) {
+                                    throw IOException("S3オブジェクトの削除に失敗しました: ${result.cause.message}", result.cause)
+                                }
+                            }
+
+                            else -> throw IllegalStateException("Unknown storage_type: $storageType")
                         }
                     }
 

@@ -122,7 +122,8 @@ class MainDiContainer : DiContainer {
 
     private val adminImageRepository by lazy {
         DbAdminImageRepository(
-            imageStorageGateway = localImageStorageGateway,
+            localImageStorageGateway = localImageStorageGateway,
+            s3ImageStorageGateway = s3ImageStorageGateway,
         )
     }
 
