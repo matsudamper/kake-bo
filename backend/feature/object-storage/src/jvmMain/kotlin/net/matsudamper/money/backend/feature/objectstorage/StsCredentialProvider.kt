@@ -28,8 +28,8 @@ public class StsCredentialProvider(
         )
 
         StsClient.builder().apply {
-            if (config.endpoint.isNotBlank()) {
-                endpointOverride(URI(config.endpoint))
+            if (config.stsEndpoint.isNotBlank()) {
+                endpointOverride(URI(config.stsEndpoint))
             }
             region(Region.of(config.region))
             credentialsProvider(AnonymousCredentialsProvider.create())
