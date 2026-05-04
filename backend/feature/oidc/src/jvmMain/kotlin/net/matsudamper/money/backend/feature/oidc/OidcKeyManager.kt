@@ -7,6 +7,10 @@ import com.nimbusds.jose.jwk.RSAKey
 public class OidcKeyManager(jwkJson: String) {
     private val rsaKey: RSAKey = RSAKey.parse(jwkJson)
 
+    init {
+        require(rsaKey.isPrivate) { "JWK には秘密鍵が含まれている必要があります" }
+    }
+
     public fun publicJwkSet(): String {
         return JWKSet(rsaKey.toPublicJWK()).toString()
     }
