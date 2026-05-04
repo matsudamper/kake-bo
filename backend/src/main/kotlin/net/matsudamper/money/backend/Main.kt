@@ -40,6 +40,8 @@ import net.matsudamper.money.backend.base.ServerEnv
 import net.matsudamper.money.backend.base.TraceLogger
 import net.matsudamper.money.backend.datasource.db.DbConnectionImpl
 import net.matsudamper.money.backend.di.MainDiContainer
+import net.matsudamper.money.backend.feature.oidc.jwks
+import net.matsudamper.money.backend.feature.oidc.oidcDiscovery
 import net.matsudamper.money.backend.feature.session.KtorCookieManager
 import net.matsudamper.money.backend.graphql.MoneyGraphQlSchema
 import net.matsudamper.money.backend.image.ImageUploadConfig

@@ -22,7 +22,7 @@ public class StsCredentialProvider(
             subject = userId.value.toString(),
             name = userId.value.toString(),
             audience = config.audience,
-            ttl = Duration.ofMinutes(5)
+            ttl = Duration.ofMinutes(5),
         )
 
         StsClient.builder().apply {
@@ -45,7 +45,7 @@ public class StsCredentialProvider(
             return AwsSessionCredentials.create(
                 credentials.accessKeyId(),
                 credentials.secretAccessKey(),
-                credentials.sessionToken()
+                credentials.sessionToken(),
             )
         }
     }
