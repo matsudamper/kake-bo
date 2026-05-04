@@ -11,9 +11,9 @@
   - [x] `JwtIssuer.kt` 実装
   - [x] `OidcDiscoveryRouting.kt` 実装
   - [x] `JwksRouting.kt` 実装
-- [ ] モジュール `backend/feature/image-storage-local` の実装
-  - [ ] `build.gradle.kts` 作成
-  - [ ] `LocalImageStorageGateway.kt` 実装
+- [x] モジュール `backend/feature/image-storage-local` の実装
+  - [x] `build.gradle.kts` 作成
+  - [x] `LocalImageStorageGateway.kt` 実装
 - [ ] モジュール `backend/feature/object-storage` の実装
   - [ ] `build.gradle.kts` 作成
   - [ ] `ObjectStorageConfig.kt` 実装
