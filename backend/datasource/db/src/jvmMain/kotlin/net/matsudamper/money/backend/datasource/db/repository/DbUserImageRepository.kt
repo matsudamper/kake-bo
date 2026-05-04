@@ -17,7 +17,13 @@ class DbUserImageRepository : UserImageRepository {
         displayId: String,
         relativePath: String,
         contentType: String,
+        storageType: UserImageRepository.StorageType,
     ): ImageId? {
+        val storageTypeString = when (storageType) {
+            UserImageRepository.StorageType.LOCAL -> "LOCAL"
+            UserImageRepository.StorageType.S3 -> "S3"
+        }
+
         return runCatching<ImageId?> {
             DbConnectionImpl.use { connection ->
                 val context = DSL.using(connection)
@@ -27,6 +33,7 @@ class DbUserImageRepository : UserImageRepository {
                     .set(jUserImages.DISPLAY_ID, displayId)
                     .set(jUserImages.IMAGE_PATH, relativePath)
                     .set(jUserImages.CONTENT_TYPE, contentType)
+                    .set(jUserImages.STORAGE_TYPE, storageTypeString)
                     .set(jUserImages.UPLOADED, false)
                     .returningResult(jUserImages.USER_IMAGE_ID)
                     .fetchOne()
@@ -70,6 +77,7 @@ class DbUserImageRepository : UserImageRepository {
                 .select(
                     jUserImages.IMAGE_PATH,
                     jUserImages.CONTENT_TYPE,
+                    jUserImages.STORAGE_TYPE,
                 )
                 .from(jUserImages)
                 .where(
@@ -79,9 +87,15 @@ class DbUserImageRepository : UserImageRepository {
                 .limit(1)
                 .fetchOne()
                 ?.let { record ->
+                    val storageType = when (record.get(jUserImages.STORAGE_TYPE)) {
+                        "LOCAL" -> UserImageRepository.StorageType.LOCAL
+                        "S3" -> UserImageRepository.StorageType.S3
+                        else -> UserImageRepository.StorageType.LOCAL
+                    }
                     UserImageRepository.ImageData(
                         relativePath = record.get(jUserImages.IMAGE_PATH)!!,
                         contentType = record.get(jUserImages.CONTENT_TYPE)!!,
+                        storageType = storageType,
                     )
                 }
         }
@@ -127,6 +141,11 @@ class DbUserImageRepository : UserImageRepository {
                 .fetch()
                 .associate { record ->
                     ImageId(record.get(jUserImages.USER_IMAGE_ID)!!) to record.get(jUserImages.DISPLAY_ID)!!
+                }
+        }
+    }
+}
+get(jUserImages.USER_IMAGE_ID)!!) to record.get(jUserImages.DISPLAY_ID)!!
                 }
         }
     }
