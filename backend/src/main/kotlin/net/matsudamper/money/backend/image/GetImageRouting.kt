@@ -10,6 +10,7 @@ import io.ktor.server.response.respondRedirect
 import io.ktor.server.response.respondText
 import io.ktor.server.routing.Route
 import io.ktor.server.routing.get
+import net.matsudamper.money.backend.app.interfaces.AdminImageRepository
 import net.matsudamper.money.backend.app.interfaces.ImageStorageGateway
 import net.matsudamper.money.backend.app.interfaces.UserImageRepository
 import net.matsudamper.money.backend.base.ServerEnv
@@ -42,13 +43,13 @@ internal fun Route.getImage(
         val isAuthorized = call.requireAdminAuthorization(diContainer = diContainer)
         if (!isAuthorized) return@get
 
-        // TODO: Admin image retrieval with proper UserId mapping.
-        // The previous implementation used an AdminImageRepository which might need
-        // to be adapted if AdminImageRepository.ImageData also stores StorageType.
-        // For now, assuming admin viewing is less critical or requires similar mapping.
-        call.respondApiError(
-            status = HttpStatusCode.NotImplemented,
-            message = "Admin image retrieval needs update",
+        call.respondImageByDisplayId(
+            diContainer = diContainer,
+            getImageData = { displayId ->
+                diContainer.createAdminImageRepository().getImageDataByDisplayId(displayId)
+                    ?.toRoutingImageData()
+            },
+            purpose = ImageStorageGateway.Purpose.ADMIN,
         )
     }
 }
@@ -165,6 +166,13 @@ private suspend fun ApplicationCall.respondImageByDisplayId(
 }
 
 private fun UserImageRepository.ImageData.toRoutingImageData(userId: net.matsudamper.money.element.UserId) = RoutingImageData(
+    relativePath = relativePath,
+    contentType = contentType,
+    storageType = storageType,
+    userId = userId,
+)
+
+private fun AdminImageRepository.ImageData.toRoutingImageData() = RoutingImageData(
     relativePath = relativePath,
     contentType = contentType,
     storageType = storageType,

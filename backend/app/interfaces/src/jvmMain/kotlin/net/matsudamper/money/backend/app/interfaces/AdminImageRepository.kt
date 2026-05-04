@@ -7,6 +7,8 @@ interface AdminImageRepository {
     data class ImageData(
         val relativePath: String,
         val contentType: String,
+        val userId: UserId,
+        val storageType: UserImageRepository.StorageType,
     )
 
     fun getUnlinkedImages(

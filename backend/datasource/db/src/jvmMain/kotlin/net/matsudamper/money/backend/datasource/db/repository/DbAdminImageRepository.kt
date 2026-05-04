@@ -148,15 +148,25 @@ class DbAdminImageRepository : AdminImageRepository {
                 .select(
                     userImages.IMAGE_PATH,
                     userImages.CONTENT_TYPE,
+                    userImages.USER_ID,
+                    userImages.STORAGE_TYPE,
                 )
                 .from(userImages)
                 .where(userImages.DISPLAY_ID.eq(displayId))
                 .limit(1)
                 .fetchOne()
                 ?.let { record ->
+                    val storageTypeValue = record.get(userImages.STORAGE_TYPE)
+                    val storageType = when (storageTypeValue) {
+                        "LOCAL" -> net.matsudamper.money.backend.app.interfaces.UserImageRepository.StorageType.LOCAL
+                        "S3" -> net.matsudamper.money.backend.app.interfaces.UserImageRepository.StorageType.S3
+                        else -> throw IllegalStateException("Unknown storage_type: $storageTypeValue")
+                    }
                     AdminImageRepository.ImageData(
                         relativePath = record.get(userImages.IMAGE_PATH)!!,
                         contentType = record.get(userImages.CONTENT_TYPE)!!,
+                        userId = UserId(record.get(userImages.USER_ID)!!),
+                        storageType = storageType,
                     )
                 }
         }
