@@ -296,6 +296,7 @@ class MainDiContainer : DiContainer {
         if (ServerEnv.enableS3) {
             net.matsudamper.money.backend.feature.objectstorage.ObjectStorageConfig(
                 endpoint = ServerEnv.s3Endpoint.orEmpty(),
+                stsEndpoint = ServerEnv.stsEndpoint.orEmpty(),
                 region = requireNotNull(ServerEnv.s3Region) { "S3_REGION が未設定です" },
                 bucket = requireNotNull(ServerEnv.s3Bucket) { "S3_BUCKET が未設定です" },
                 roleArn = requireNotNull(ServerEnv.s3RoleArn) { "S3_ROLE_ARN が未設定です" },
