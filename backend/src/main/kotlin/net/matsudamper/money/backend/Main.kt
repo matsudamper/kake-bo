@@ -202,6 +202,14 @@ fun Application.myApplicationModule() {
             diContainer = MainDiContainer(),
         )
 
+        val diContainer = MainDiContainer()
+        val oidcKeyManager = diContainer.createOidcKeyManager()
+        val oidcIssuer = ServerEnv.oidcIssuer
+        if (ServerEnv.enableS3 && oidcKeyManager != null && oidcIssuer != null) {
+            oidcDiscovery(issuer = oidcIssuer)
+            jwks(keyManager = oidcKeyManager)
+        }
+
         get("/.well-known/assetlinks.json") {
             call.respondText(
                 contentType = ContentType.Application.Json,
