@@ -49,6 +49,11 @@ import net.matsudamper.money.backend.datasource.db.repository.EnvAdminLoginRepos
 import net.matsudamper.money.backend.datasource.session.AdminSessionRepositoryProvider
 import net.matsudamper.money.backend.datasource.session.UserSessionRepositoryProvider
 import net.matsudamper.money.backend.feature.imagestoragelocal.LocalImageStorageGateway
+import net.matsudamper.money.backend.feature.objectstorage.ObjectStorageConfig
+import net.matsudamper.money.backend.feature.objectstorage.S3ImageStorageGateway
+import net.matsudamper.money.backend.feature.objectstorage.StsCredentialProvider
+import net.matsudamper.money.backend.feature.oidc.JwtIssuer
+import net.matsudamper.money.backend.feature.oidc.OidcKeyManager
 import net.matsudamper.money.backend.mail.MailRepositoryImpl
 
 interface DiContainer {
@@ -100,6 +105,8 @@ interface DiContainer {
     fun traceLogger(): TraceLogger
     fun clock(): Clock
 
+    fun createOidcKeyManager(): OidcKeyManager?
+    fun createJwtIssuer(): JwtIssuer?
     fun createWriteImageStorageGateway(): ImageStorageGateway
     fun createReadImageStorageGateway(storageType: UserImageRepository.StorageType): ImageStorageGateway
 }
@@ -269,6 +276,73 @@ class MainDiContainer : DiContainer {
         return Clock.systemUTC()
     }
 
+    private val oidcKeyManager by lazy {
+        val jwkPrivate = ServerEnv.oidcJwkPrivate
+        if (ServerEnv.enableS3 && jwkPrivate != null) {
+            OidcKeyManager(jwkPrivate)
+        } else {
+            null
+        }
+    }
+
+    override fun createOidcKeyManager(): OidcKeyManager? {
+        return oidcKeyManager
+    }
+
+    private val jwtIssuer by lazy {
+        val keyManager = createOidcKeyManager()
+        val issuer = ServerEnv.oidcIssuer
+        if (keyManager != null && issuer != null) {
+            JwtIssuer(keyManager, issuer)
+        } else {
+            null
+        }
+    }
+
+    override fun createJwtIssuer(): JwtIssuer? {
+        return jwtIssuer
+    }
+
+    private val stsCredentialProvider by lazy {
+        val issuer = createJwtIssuer()
+        if (issuer != null) {
+            StsCredentialProvider(
+                jwtIssuer = issuer,
+                config = ObjectStorageConfig(
+                    endpoint = ServerEnv.s3Endpoint.orEmpty(),
+                    region = ServerEnv.s3Region.orEmpty(),
+                    bucket = ServerEnv.s3Bucket.orEmpty(),
+                    roleArn = ServerEnv.s3RoleArn.orEmpty(),
+                    roleSessionName = ServerEnv.s3RoleSessionName,
+                    audience = ServerEnv.s3Audience.orEmpty(),
+                    pathStyleAccess = ServerEnv.s3PathStyleAccess,
+                ),
+            )
+        } else {
+            null
+        }
+    }
+
+    private val s3ImageStorageGateway by lazy {
+        val provider = stsCredentialProvider
+        if (provider != null) {
+            S3ImageStorageGateway(
+                stsCredentialProvider = provider,
+                config = ObjectStorageConfig(
+                    endpoint = ServerEnv.s3Endpoint.orEmpty(),
+                    region = ServerEnv.s3Region.orEmpty(),
+                    bucket = ServerEnv.s3Bucket.orEmpty(),
+                    roleArn = ServerEnv.s3RoleArn.orEmpty(),
+                    roleSessionName = ServerEnv.s3RoleSessionName,
+                    audience = ServerEnv.s3Audience.orEmpty(),
+                    pathStyleAccess = ServerEnv.s3PathStyleAccess,
+                ),
+            )
+        } else {
+            null
+        }
+    }
+
     private val localImageStorageGateway by lazy {
         LocalImageStorageGateway(
             storageDirectory = java.io.File(ServerEnv.imageStoragePath),
@@ -276,7 +350,11 @@ class MainDiContainer : DiContainer {
     }
 
     override fun createWriteImageStorageGateway(): ImageStorageGateway {
-        return localImageStorageGateway
+        return if (ServerEnv.enableS3) {
+            s3ImageStorageGateway ?: throw IllegalStateException("S3 is enabled but credentials/config are missing.")
+        } else {
+            localImageStorageGateway
+        }
     }
 
     override fun createReadImageStorageGateway(
@@ -284,7 +362,9 @@ class MainDiContainer : DiContainer {
     ): ImageStorageGateway {
         return when (storageType) {
             UserImageRepository.StorageType.LOCAL -> localImageStorageGateway
-            UserImageRepository.StorageType.S3 -> throw IllegalStateException("S3 is not supported")
+            UserImageRepository.StorageType.S3 ->
+                s3ImageStorageGateway
+                    ?: throw IllegalStateException("Cannot read S3 image without S3 config.")
         }
     }
 }

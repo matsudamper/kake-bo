@@ -71,14 +71,36 @@ class QueryResolverImpl : QueryResolver {
                         AdminImageRepository.Cursor(imageId = it.imageId)
                     },
                 )
+
+                // TODO: N+1 S3 URL Generation. Consider bulk presigning if applicable.
                 QlAdminUnlinkedImagesConnection(
                     nodes = result.items.map { item ->
-                        QlAdminUnlinkedImage(
-                            id = item.imageId,
-                            url = ImageApiPath.adminImageV1AbsoluteByDisplayId(
+                        val imageData = context.diContainer.createUserImageRepository().getImageDataByDisplayId(
+                            userId = item.userId,
+                            displayId = item.displayId,
+                        )
+                        val url = if (imageData != null) {
+                            val gateway = context.diContainer.createReadImageStorageGateway(imageData.storageType)
+                            gateway.buildDisplayUrl(
+                                net.matsudamper.money.backend.app.interfaces.ImageStorageGateway.BuildUrlRequest(
+                                    domain = domain,
+                                    displayId = item.displayId,
+                                    userId = item.userId,
+                                    relativePath = imageData.relativePath,
+                                    purpose = net.matsudamper.money.backend.app.interfaces.ImageStorageGateway.Purpose.ADMIN,
+                                ),
+                            )
+                        } else {
+                            // Fallback if image data is missing
+                            ImageApiPath.adminImageV1AbsoluteByDisplayId(
                                 domain = domain,
                                 displayId = item.displayId,
-                            ),
+                            )
+                        }
+
+                        QlAdminUnlinkedImage(
+                            id = item.imageId,
+                            url = url,
                             userId = item.userId,
                             userName = item.userName,
                         )
