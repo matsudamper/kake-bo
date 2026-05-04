@@ -292,20 +292,29 @@ class MainDiContainer : DiContainer {
         return jwtIssuer
     }
 
+    private val objectStorageConfig by lazy {
+        if (ServerEnv.enableS3) {
+            net.matsudamper.money.backend.feature.objectstorage.ObjectStorageConfig(
+                endpoint = ServerEnv.s3Endpoint.orEmpty(),
+                region = requireNotNull(ServerEnv.s3Region) { "S3_REGION が未設定です" },
+                bucket = requireNotNull(ServerEnv.s3Bucket) { "S3_BUCKET が未設定です" },
+                roleArn = requireNotNull(ServerEnv.s3RoleArn) { "S3_ROLE_ARN が未設定です" },
+                roleSessionName = ServerEnv.s3RoleSessionName,
+                audience = requireNotNull(ServerEnv.s3Audience) { "S3_AUDIENCE が未設定です" },
+                pathStyleAccess = ServerEnv.s3PathStyleAccess,
+            )
+        } else {
+            null
+        }
+    }
+
     private val stsCredentialProvider by lazy {
         val issuer = createJwtIssuer()
-        if (issuer != null) {
+        val config = objectStorageConfig
+        if (issuer != null && config != null) {
             net.matsudamper.money.backend.feature.objectstorage.StsCredentialProvider(
                 jwtIssuer = issuer,
-                config = net.matsudamper.money.backend.feature.objectstorage.ObjectStorageConfig(
-                    endpoint = ServerEnv.s3Endpoint.orEmpty(),
-                    region = ServerEnv.s3Region.orEmpty(),
-                    bucket = ServerEnv.s3Bucket.orEmpty(),
-                    roleArn = ServerEnv.s3RoleArn.orEmpty(),
-                    roleSessionName = ServerEnv.s3RoleSessionName,
-                    audience = ServerEnv.s3Audience.orEmpty(),
-                    pathStyleAccess = ServerEnv.s3PathStyleAccess,
-                ),
+                config = config,
             )
         } else {
             null
@@ -314,18 +323,11 @@ class MainDiContainer : DiContainer {
 
     private val s3ImageStorageGateway by lazy {
         val provider = stsCredentialProvider
-        if (provider != null) {
+        val config = objectStorageConfig
+        if (provider != null && config != null) {
             net.matsudamper.money.backend.feature.objectstorage.S3ImageStorageGateway(
                 stsCredentialProvider = provider,
-                config = net.matsudamper.money.backend.feature.objectstorage.ObjectStorageConfig(
-                    endpoint = ServerEnv.s3Endpoint.orEmpty(),
-                    region = ServerEnv.s3Region.orEmpty(),
-                    bucket = ServerEnv.s3Bucket.orEmpty(),
-                    roleArn = ServerEnv.s3RoleArn.orEmpty(),
-                    roleSessionName = ServerEnv.s3RoleSessionName,
-                    audience = ServerEnv.s3Audience.orEmpty(),
-                    pathStyleAccess = ServerEnv.s3PathStyleAccess,
-                ),
+                config = config,
             )
         } else {
             null
