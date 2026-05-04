@@ -84,6 +84,7 @@ class DbAdminImageRepository : AdminImageRepository {
                     val records = context
                         .select(
                             userImages.IMAGE_PATH,
+                            userImages.STORAGE_TYPE,
                         )
                         .from(userImages)
                         .where(
@@ -92,12 +93,16 @@ class DbAdminImageRepository : AdminImageRepository {
                         .fetch()
 
                     for (record in records) {
+                        val storageType = record.get(userImages.STORAGE_TYPE)
                         val relativePath = record.get(userImages.IMAGE_PATH)
-                            ?: throw IllegalStateException("画像パスが見つかりませんでした: ${userImages.USER_IMAGE_ID.name}=${record.get(userImages.USER_IMAGE_ID)}")
-                        val imageFile = File(ServerEnv.imageStoragePath, relativePath)
-                        if (imageFile.exists().not()) continue
-                        if (imageFile.delete().not()) {
-                            throw IOException("ファイルの削除に失敗しました: $imageFile")
+                            ?: throw IllegalStateException("画像パスが見つかりませんでした")
+                        // ローカルストレージのみファイルを削除する。S3はDBレコードのみ削除。
+                        if (storageType == "LOCAL") {
+                            val imageFile = File(ServerEnv.imageStoragePath, relativePath)
+                            if (imageFile.exists().not()) continue
+                            if (imageFile.delete().not()) {
+                                throw IOException("ファイルの削除に失敗しました: $imageFile")
+                            }
                         }
                     }
 
