@@ -32,4 +32,16 @@ public object ServerEnv {
     public val enableRedis: Boolean get() = System.getenv("ENABLE_REDIS")?.toBooleanStrictOrNull() ?: false
     public val redisHost: String? get() = System.getenv("REDIS_HOST")?.takeIf { it.isNotBlank() }
     public val redisPort: Int? get() = System.getenv("REDIS_PORT")?.toInt()
+
+    public val enableS3: Boolean get() = System.getenv("ENABLE_S3")?.toBooleanStrictOrNull() ?: false
+    public val oidcIssuer: String? get() = System.getenv("OIDC_ISSUER")
+    public val oidcJwkPrivate: String? get() = System.getenv("OIDC_JWK_PRIVATE")
+    public val s3Endpoint: String? get() = System.getenv("S3_ENDPOINT")
+    public val s3Region: String? get() = System.getenv("S3_REGION")
+    public val s3Bucket: String? get() = System.getenv("S3_BUCKET")
+    public val s3RoleArn: String? get() = System.getenv("S3_ROLE_ARN")
+    public val s3RoleSessionName: String get() = System.getenv("S3_ROLE_SESSION_NAME") ?: "kake-bo-image-upload"
+    public val s3Audience: String? get() = System.getenv("S3_AUDIENCE")
+    public val s3PathStyleAccess: Boolean get() = System.getenv("S3_PATH_STYLE_ACCESS")?.toBooleanStrictOrNull() ?: true
+    public val stsEndpoint: String? get() = System.getenv("STS_ENDPOINT")
 }
