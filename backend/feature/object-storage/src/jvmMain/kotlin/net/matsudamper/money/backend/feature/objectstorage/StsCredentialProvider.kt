@@ -18,6 +18,8 @@ public class StsCredentialProvider(
         userId: UserId,
         durationSeconds: Int = 7200,
     ): AwsSessionCredentials {
+        // STSのAssumeRoleWithWebIdentityはdurationSecondsが900〜43200の範囲外はエラーになる
+        val clampedDuration = durationSeconds.coerceIn(900, 43200)
         val jwt = jwtIssuer.issueWebIdentityToken(
             subject = userId.value.toString(),
             name = userId.value.toString(),
@@ -36,7 +38,7 @@ public class StsCredentialProvider(
                 .roleArn(config.roleArn)
                 .roleSessionName(config.roleSessionName)
                 .webIdentityToken(jwt)
-                .durationSeconds(durationSeconds)
+                .durationSeconds(clampedDuration)
                 .build()
 
             val response = stsClient.assumeRoleWithWebIdentity(request)
