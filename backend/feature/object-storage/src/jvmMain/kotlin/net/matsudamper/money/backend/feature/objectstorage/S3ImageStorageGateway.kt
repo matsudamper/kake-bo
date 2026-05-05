@@ -67,10 +67,10 @@ public class S3ImageStorageGateway(
         request: ImageStorageGateway.PutRequest,
         contentLength: Long,
     ): ImageStorageGateway.PutResult {
-        val credentials = stsCredentialProvider.assumeWithWebIdentity(userId = request.userId)
         val key = buildKey(request.userId.value.toString(), request.relativePath)
 
         val result = runCatching {
+            val credentials = stsCredentialProvider.assumeWithWebIdentity(userId = request.userId)
             buildS3Client(credentials).use { s3Client ->
                 val putObjectRequest = PutObjectRequest.builder()
                     .bucket(config.bucket)
@@ -103,9 +103,13 @@ public class S3ImageStorageGateway(
      * ローカル一時ファイルは使用しない。
      */
     private fun putWithMultipart(request: ImageStorageGateway.PutRequest): ImageStorageGateway.PutResult {
-        val credentials = stsCredentialProvider.assumeWithWebIdentity(userId = request.userId)
         val key = buildKey(request.userId.value.toString(), request.relativePath)
-        val s3Client = buildS3Client(credentials)
+        val s3Client = runCatching {
+            val credentials = stsCredentialProvider.assumeWithWebIdentity(userId = request.userId)
+            buildS3Client(credentials)
+        }.getOrElse { e ->
+            return ImageStorageGateway.PutResult.Failure(e)
+        }
 
         val uploadId = runCatching {
             s3Client.createMultipartUpload(
