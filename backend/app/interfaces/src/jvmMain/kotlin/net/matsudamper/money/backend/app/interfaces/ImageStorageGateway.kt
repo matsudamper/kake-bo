@@ -12,6 +12,12 @@ public interface ImageStorageGateway {
 
     public fun buildDisplayUrl(request: BuildUrlRequest): String
 
+    public fun read(relativePath: String): ReadResult?
+
+    public sealed interface ReadResult {
+        public data class Stream(val inputStream: InputStream) : ReadResult
+    }
+
     public data class PutRequest(
         val userId: UserId,
         val relativePath: String,

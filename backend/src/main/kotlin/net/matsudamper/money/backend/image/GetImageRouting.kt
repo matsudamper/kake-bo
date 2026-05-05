@@ -10,10 +10,10 @@ import io.ktor.server.response.respondText
 import io.ktor.server.routing.Route
 import io.ktor.server.routing.get
 import net.matsudamper.money.backend.app.interfaces.AdminImageRepository
+import net.matsudamper.money.backend.app.interfaces.ImageStorageGateway
 import net.matsudamper.money.backend.app.interfaces.UserImageRepository
 import net.matsudamper.money.backend.di.DiContainer
 import net.matsudamper.money.backend.feature.image.ImageApiPath
-import net.matsudamper.money.backend.feature.imagestoragelocal.LocalImageStorageGateway
 import net.matsudamper.money.backend.feature.session.KtorCookieManager
 import net.matsudamper.money.backend.feature.session.UserSessionManagerImpl
 import net.matsudamper.money.element.UserId
@@ -134,30 +134,22 @@ private suspend fun ApplicationCall.respondImageByDisplayId(
     imageData: RoutingImageData,
 ) {
     val gateway = diContainer.createReadImageStorageGateway(imageData.storageType)
-    val localGateway = gateway as? LocalImageStorageGateway
-    if (localGateway == null) {
-        respondApiError(
-            status = HttpStatusCode.InternalServerError,
-            message = "Invalid gateway type",
-        )
-        return
-    }
+    when (val result = gateway.read(imageData.relativePath)) {
+        null -> {
+            respondApiError(
+                status = HttpStatusCode.NotFound,
+                message = "NotFound",
+            )
+        }
+        is ImageStorageGateway.ReadResult.Stream -> {
+            val responseContentType = runCatching {
+                ContentType.parse(imageData.contentType)
+            }.getOrDefault(ContentType.Application.OctetStream)
 
-    val inputStream: InputStream? = localGateway.openInputStream(imageData.relativePath)
-    if (inputStream == null) {
-        respondApiError(
-            status = HttpStatusCode.NotFound,
-            message = "NotFound",
-        )
-        return
-    }
-
-    val responseContentType = runCatching {
-        ContentType.parse(imageData.contentType)
-    }.getOrDefault(ContentType.Application.OctetStream)
-
-    respondOutputStream(contentType = responseContentType) {
-        inputStream.use { it.copyTo(this) }
+            respondOutputStream(contentType = responseContentType) {
+                result.inputStream.use { it.copyTo(this) }
+            }
+        }
     }
 }
 

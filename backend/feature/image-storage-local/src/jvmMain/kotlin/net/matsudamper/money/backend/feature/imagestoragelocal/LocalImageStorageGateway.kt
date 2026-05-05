@@ -79,6 +79,11 @@ class LocalImageStorageGateway(
         return file.toFile().takeIf { it.exists() }?.inputStream()
     }
 
+    override fun read(relativePath: String): ImageStorageGateway.ReadResult? {
+        val inputStream = openInputStream(relativePath) ?: return null
+        return ImageStorageGateway.ReadResult.Stream(inputStream)
+    }
+
     /**
      * パストラバーサル検証: relativePath を root 配下に解決し、root 外なら null を返す
      */
