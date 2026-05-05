@@ -16,8 +16,8 @@ import net.matsudamper.money.backend.feature.image.ImageApiPath
 import net.matsudamper.money.backend.feature.imagestoragelocal.LocalImageStorageGateway
 import net.matsudamper.money.backend.feature.session.KtorCookieManager
 import net.matsudamper.money.backend.feature.session.UserSessionManagerImpl
-import net.matsudamper.money.image.ImageUploadImageResponse
 import net.matsudamper.money.element.UserId
+import net.matsudamper.money.image.ImageUploadImageResponse
 
 internal fun Route.getImage(
     diContainer: DiContainer,
