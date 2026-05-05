@@ -3,8 +3,8 @@ package net.matsudamper.money.backend.graphql.resolver
 import java.util.concurrent.CompletionStage
 import graphql.execution.DataFetcherResult
 import graphql.schema.DataFetchingEnvironment
-import net.matsudamper.money.backend.app.interfaces.ImageStorageGateway
 import net.matsudamper.money.backend.base.ServerEnv
+import net.matsudamper.money.backend.feature.image.LocalImageApiPath
 import net.matsudamper.money.backend.graphql.GraphQlContext
 import net.matsudamper.money.backend.graphql.otelSupplyAsync
 import net.matsudamper.money.backend.graphql.toDataFetcher
@@ -30,20 +30,9 @@ class ImageResolverImpl : ImageResolver {
             val displayId = displayIdMap[image.id]
                 ?: throw IllegalStateException("displayId is not found: imageId=${image.id.value}")
 
-            val imageData = userImageRepository.getImageDataByDisplayId(
-                userId = userId,
+            LocalImageApiPath.imageV1AbsoluteByDisplayId(
+                domain = domain,
                 displayId = displayId,
-            ) ?: throw IllegalStateException("ImageData is not found: displayId=$displayId")
-
-            val gateway = context.diContainer.createReadImageStorageGateway(imageData.storageType)
-            gateway.buildDisplayUrl(
-                ImageStorageGateway.BuildUrlRequest(
-                    domain = domain,
-                    displayId = displayId,
-                    userId = userId,
-                    relativePath = imageData.relativePath,
-                    purpose = ImageStorageGateway.Purpose.USER,
-                ),
             )
         }.toDataFetcher()
     }
