@@ -101,11 +101,12 @@ class DbAdminImageRepository(
                             ?: throw IllegalStateException("画像パスが見つかりませんでした: ${userImages.USER_IMAGE_ID.name}=${record.get(userImages.USER_IMAGE_ID)}")
                         val userId = UserId(record.get(userImages.USER_ID)!!)
 
-                        val deleteRequest = ImageStorageGateway.DeleteRequest(
-                            userId = userId,
-                            relativePath = relativePath,
+                        val result = imageStorageGateway.delete(
+                            ImageStorageGateway.DeleteRequest(
+                                userId = userId,
+                                relativePath = relativePath,
+                            ),
                         )
-                        val result = imageStorageGateway.delete(deleteRequest)
                         if (result is ImageStorageGateway.DeleteResult.Failure) {
                             throw IOException("ファイルの削除に失敗しました: ${result.cause.message}", result.cause)
                         }

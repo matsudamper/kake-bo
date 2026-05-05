@@ -24,28 +24,65 @@ internal fun Route.getImage(
 ) {
     get(ImageApiPath.imageV1ByDisplayId("{displayId}")) {
         val userId = call.requireUserId(diContainer = diContainer) ?: return@get
+        val displayId = run {
+            val displayId = call.parameters["displayId"]
+            if (displayId == null) {
+                call.respondApiError(
+                    status = HttpStatusCode.BadRequest,
+                    message = "InvalidImageId",
+                )
+                return@get
+            }
+            displayId
+        }
+
+        val imageData = diContainer.createUserImageRepository().getImageDataByDisplayId(
+            userId = userId,
+            displayId = displayId,
+        )?.toRoutingImageData(userId)
+
+        if (imageData == null) {
+            call.respondApiError(
+                status = HttpStatusCode.NotFound,
+                message = "NotFound",
+            )
+            return@get
+        }
 
         call.respondImageByDisplayId(
             diContainer = diContainer,
-            getImageData = { displayId ->
-                diContainer.createUserImageRepository().getImageDataByDisplayId(
-                    userId = userId,
-                    displayId = displayId,
-                )?.toRoutingImageData(userId)
-            },
+            imageData = imageData,
         )
     }
 
     get(ImageApiPath.adminImageV1ByDisplayId("{displayId}")) {
         val isAuthorized = call.requireAdminAuthorization(diContainer = diContainer)
         if (!isAuthorized) return@get
+        val displayId = run {
+            val displayId = call.parameters["displayId"]
+            if (displayId == null) {
+                call.respondApiError(
+                    status = HttpStatusCode.BadRequest,
+                    message = "InvalidImageId",
+                )
+                return@get
+            }
+            displayId
+        }
+        val imageData = diContainer.createAdminImageRepository().getImageDataByDisplayId(displayId)
+            ?.toRoutingImageData()
+
+        if (imageData == null) {
+            call.respondApiError(
+                status = HttpStatusCode.NotFound,
+                message = "NotFound",
+            )
+            return@get
+        }
 
         call.respondImageByDisplayId(
             diContainer = diContainer,
-            getImageData = { displayId ->
-                diContainer.createAdminImageRepository().getImageDataByDisplayId(displayId)
-                    ?.toRoutingImageData()
-            },
+            imageData = imageData,
         )
     }
 }
@@ -94,26 +131,8 @@ private suspend fun ApplicationCall.requireAdminAuthorization(
 
 private suspend fun ApplicationCall.respondImageByDisplayId(
     diContainer: DiContainer,
-    getImageData: (displayId: String) -> RoutingImageData?,
+    imageData: RoutingImageData,
 ) {
-    val displayId = parameters["displayId"]
-    if (displayId == null) {
-        respondApiError(
-            status = HttpStatusCode.BadRequest,
-            message = "InvalidImageId",
-        )
-        return
-    }
-
-    val imageData = getImageData(displayId)
-    if (imageData == null) {
-        respondApiError(
-            status = HttpStatusCode.NotFound,
-            message = "NotFound",
-        )
-        return
-    }
-
     val gateway = diContainer.createReadImageStorageGateway(imageData.storageType)
     val localGateway = gateway as? LocalImageStorageGateway
     if (localGateway == null) {
