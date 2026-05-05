@@ -12,9 +12,6 @@ public class LocalImageStorageGateway(
 
     override fun put(request: ImageStorageGateway.PutRequest): ImageStorageGateway.PutResult {
         val destination = resolveSecurePath(request.relativePath)
-            ?: return ImageStorageGateway.PutResult.Failure(
-                SecurityException("Path traversal detected: ${request.relativePath}"),
-            )
 
         val parent = destination.toFile().parentFile
         if (parent != null && !parent.exists() && !parent.mkdirs()) {
@@ -61,9 +58,6 @@ public class LocalImageStorageGateway(
 
     override fun delete(request: ImageStorageGateway.DeleteRequest): ImageStorageGateway.DeleteResult {
         val path = resolveSecurePath(request.relativePath)
-            ?: return ImageStorageGateway.DeleteResult.Failure(
-                SecurityException("Path traversal detected: ${request.relativePath}"),
-            )
         val file = path.toFile()
         if (!file.exists()) return ImageStorageGateway.DeleteResult.Success
         return if (file.delete()) {
@@ -81,16 +75,20 @@ public class LocalImageStorageGateway(
     }
 
     public fun openInputStream(relativePath: String): InputStream? {
-        val file = resolveSecurePath(relativePath) ?: return null
+        val file = resolveSecurePath(relativePath)
         return file.toFile().takeIf { it.exists() }?.inputStream()
     }
 
     /**
      * パストラバーサル検証: relativePath を root 配下に解決し、root 外なら null を返す
      */
-    private fun resolveSecurePath(relativePath: String): Path? {
+    private fun resolveSecurePath(relativePath: String): Path {
         val root = storageDirectory.toPath().toAbsolutePath().normalize()
         val resolved = root.resolve(relativePath).normalize()
-        return if (resolved.startsWith(root)) resolved else null
+        return if (resolved.startsWith(root)) {
+            resolved
+        } else {
+            throw SecurityException("Path traversal detected: $relativePath")
+        }
     }
 }
