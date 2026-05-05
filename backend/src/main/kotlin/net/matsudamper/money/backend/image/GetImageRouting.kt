@@ -15,7 +15,7 @@ import net.matsudamper.money.backend.app.interfaces.ImageStorageGateway
 import net.matsudamper.money.backend.app.interfaces.UserImageRepository
 import net.matsudamper.money.backend.base.ServerEnv
 import net.matsudamper.money.backend.di.DiContainer
-import net.matsudamper.money.backend.feature.image.ImageApiPath
+import net.matsudamper.money.backend.feature.image.LocalImageApiPath
 import net.matsudamper.money.backend.feature.imagestoragelocal.LocalImageStorageGateway
 import net.matsudamper.money.backend.feature.session.KtorCookieManager
 import net.matsudamper.money.backend.feature.session.UserSessionManagerImpl
@@ -24,7 +24,7 @@ import net.matsudamper.money.image.ImageUploadImageResponse
 internal fun Route.getImage(
     diContainer: DiContainer,
 ) {
-    get(ImageApiPath.imageV1ByDisplayId("{displayId}")) {
+    get(LocalImageApiPath.imageV1ByDisplayId("{displayId}")) {
         val userId = call.requireUserId(diContainer = diContainer) ?: return@get
 
         call.respondImageByDisplayId(
@@ -39,7 +39,7 @@ internal fun Route.getImage(
         )
     }
 
-    get(ImageApiPath.adminImageV1ByDisplayId("{displayId}")) {
+    get(LocalImageApiPath.adminImageV1ByDisplayId("{displayId}")) {
         val isAuthorized = call.requireAdminAuthorization(diContainer = diContainer)
         if (!isAuthorized) return@get
 
