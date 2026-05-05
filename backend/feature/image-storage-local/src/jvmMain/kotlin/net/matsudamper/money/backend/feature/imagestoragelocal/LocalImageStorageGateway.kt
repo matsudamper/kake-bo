@@ -5,7 +5,7 @@ import java.io.InputStream
 import java.nio.file.Path
 import net.matsudamper.money.backend.app.interfaces.ImageStorageGateway
 
-public class LocalImageStorageGateway(
+class LocalImageStorageGateway(
     private val storageDirectory: File,
 ) : ImageStorageGateway {
     override val storageType: ImageStorageGateway.StorageType = ImageStorageGateway.StorageType.LOCAL
@@ -74,7 +74,7 @@ public class LocalImageStorageGateway(
         }
     }
 
-    public fun openInputStream(relativePath: String): InputStream? {
+    fun openInputStream(relativePath: String): InputStream? {
         val file = resolveSecurePath(relativePath)
         return file.toFile().takeIf { it.exists() }?.inputStream()
     }
