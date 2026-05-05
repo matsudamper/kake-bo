@@ -197,7 +197,6 @@ fun Application.myApplicationModule() {
         postImage(
             diContainer = MainDiContainer(),
             config = ImageUploadConfig(
-                storageDirectory = File(ServerEnv.imageStoragePath),
                 maxUploadBytes = ServerEnv.imageUploadMaxBytes,
             ),
         )
