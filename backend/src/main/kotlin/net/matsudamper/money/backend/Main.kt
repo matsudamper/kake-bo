@@ -195,16 +195,11 @@ fun Application.myApplicationModule() {
         postImage(
             diContainer = MainDiContainer(),
             config = ImageUploadConfig(
-                storageDirectory = File(ServerEnv.imageStoragePath),
                 maxUploadBytes = ServerEnv.imageUploadMaxBytes,
             ),
         )
         getImage(
             diContainer = MainDiContainer(),
-            imageUploadConfig = ImageUploadConfig(
-                storageDirectory = File(ServerEnv.imageStoragePath),
-                maxUploadBytes = ServerEnv.imageUploadMaxBytes,
-            ),
         )
 
         get("/.well-known/assetlinks.json") {

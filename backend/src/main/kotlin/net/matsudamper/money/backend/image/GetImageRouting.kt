@@ -1,11 +1,11 @@
 package net.matsudamper.money.backend.image
 
+import java.io.InputStream
 import kotlinx.serialization.json.Json
-import io.ktor.client.content.LocalFileContent
 import io.ktor.http.ContentType
 import io.ktor.http.HttpStatusCode
 import io.ktor.server.application.ApplicationCall
-import io.ktor.server.response.respond
+import io.ktor.server.response.respondOutputStream
 import io.ktor.server.response.respondText
 import io.ktor.server.routing.Route
 import io.ktor.server.routing.get
@@ -13,28 +13,26 @@ import net.matsudamper.money.backend.app.interfaces.AdminImageRepository
 import net.matsudamper.money.backend.app.interfaces.UserImageRepository
 import net.matsudamper.money.backend.di.DiContainer
 import net.matsudamper.money.backend.feature.image.ImageApiPath
-import net.matsudamper.money.backend.feature.image.ImageReadHandler
+import net.matsudamper.money.backend.feature.imagestoragelocal.LocalImageStorageGateway
 import net.matsudamper.money.backend.feature.session.KtorCookieManager
 import net.matsudamper.money.backend.feature.session.UserSessionManagerImpl
 import net.matsudamper.money.image.ImageUploadImageResponse
 
 internal fun Route.getImage(
     diContainer: DiContainer,
-    imageUploadConfig: ImageUploadConfig,
-    imageReadHandler: ImageReadHandler = ImageReadHandler(),
 ) {
     get(ImageApiPath.imageV1ByDisplayId("{displayId}")) {
         val userId = call.requireUserId(diContainer = diContainer) ?: return@get
 
         call.respondImageByDisplayId(
-            imageUploadConfig = imageUploadConfig,
-            imageReadHandler = imageReadHandler,
-        ) { displayId ->
-            diContainer.createUserImageRepository().getImageDataByDisplayId(
-                userId = userId,
-                displayId = displayId,
-            )?.toRoutingImageData()
-        }
+            diContainer = diContainer,
+            getImageData = { displayId ->
+                diContainer.createUserImageRepository().getImageDataByDisplayId(
+                    userId = userId,
+                    displayId = displayId,
+                )?.toRoutingImageData(userId)
+            },
+        )
     }
 
     get(ImageApiPath.adminImageV1ByDisplayId("{displayId}")) {
@@ -42,13 +40,12 @@ internal fun Route.getImage(
         if (!isAuthorized) return@get
 
         call.respondImageByDisplayId(
-            imageUploadConfig = imageUploadConfig,
-            imageReadHandler = imageReadHandler,
-        ) { displayId ->
-            diContainer.createAdminImageRepository().getImageDataByDisplayId(
-                displayId = displayId,
-            )?.toRoutingImageData()
-        }
+            diContainer = diContainer,
+            getImageData = { displayId ->
+                diContainer.createAdminImageRepository().getImageDataByDisplayId(displayId)
+                    ?.toRoutingImageData()
+            },
+        )
     }
 }
 
@@ -95,8 +92,7 @@ private suspend fun ApplicationCall.requireAdminAuthorization(
 }
 
 private suspend fun ApplicationCall.respondImageByDisplayId(
-    imageUploadConfig: ImageUploadConfig,
-    imageReadHandler: ImageReadHandler,
+    diContainer: DiContainer,
     getImageData: (displayId: String) -> RoutingImageData?,
 ) {
     val displayId = parameters["displayId"]
@@ -117,57 +113,53 @@ private suspend fun ApplicationCall.respondImageByDisplayId(
         return
     }
 
-    when (
-        val result = imageReadHandler.handle(
-            request = ImageReadHandler.Request(
-                displayId = displayId,
-                relativePath = imageData.relativePath,
-                storageDirectory = imageUploadConfig.storageDirectory,
-            ),
+    val gateway = diContainer.createReadImageStorageGateway(imageData.storageType)
+    val localGateway = gateway as? LocalImageStorageGateway
+    if (localGateway == null) {
+        respondApiError(
+            status = HttpStatusCode.InternalServerError,
+            message = "Invalid gateway type",
         )
-    ) {
-        is ImageReadHandler.Result.BadRequest -> {
-            respondApiError(
-                status = HttpStatusCode.BadRequest,
-                message = result.message,
-            )
-        }
+        return
+    }
 
-        ImageReadHandler.Result.NotFound -> {
-            respondApiError(
-                status = HttpStatusCode.NotFound,
-                message = "NotFound",
-            )
-        }
+    val inputStream: InputStream? = localGateway.openInputStream(imageData.relativePath)
+    if (inputStream == null) {
+        respondApiError(
+            status = HttpStatusCode.NotFound,
+            message = "NotFound",
+        )
+        return
+    }
 
-        is ImageReadHandler.Result.Success -> {
-            val responseContentType = runCatching {
-                ContentType.parse(imageData.contentType)
-            }.getOrDefault(ContentType.Application.OctetStream)
+    val responseContentType = runCatching {
+        ContentType.parse(imageData.contentType)
+    }.getOrDefault(ContentType.Application.OctetStream)
 
-            respond(
-                LocalFileContent(
-                    file = result.file,
-                    contentType = responseContentType,
-                ),
-            )
-        }
+    respondOutputStream(contentType = responseContentType) {
+        inputStream.use { it.copyTo(this) }
     }
 }
 
-private fun UserImageRepository.ImageData.toRoutingImageData() = RoutingImageData(
+private fun UserImageRepository.ImageData.toRoutingImageData(userId: net.matsudamper.money.element.UserId) = RoutingImageData(
     relativePath = relativePath,
     contentType = contentType,
+    storageType = storageType,
+    userId = userId,
 )
 
 private fun AdminImageRepository.ImageData.toRoutingImageData() = RoutingImageData(
     relativePath = relativePath,
     contentType = contentType,
+    storageType = storageType,
+    userId = userId,
 )
 
 private data class RoutingImageData(
     val relativePath: String,
     val contentType: String,
+    val storageType: UserImageRepository.StorageType,
+    val userId: net.matsudamper.money.element.UserId,
 )
 
 private suspend fun ApplicationCall.respondApiError(

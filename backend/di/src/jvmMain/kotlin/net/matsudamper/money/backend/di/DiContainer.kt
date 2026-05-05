@@ -9,6 +9,7 @@ import net.matsudamper.money.backend.app.interfaces.ApiTokenRepository
 import net.matsudamper.money.backend.app.interfaces.ChallengeRepository
 import net.matsudamper.money.backend.app.interfaces.DeleteUsageImageRelationDao
 import net.matsudamper.money.backend.app.interfaces.FidoRepository
+import net.matsudamper.money.backend.app.interfaces.ImageStorageGateway
 import net.matsudamper.money.backend.app.interfaces.ImportedMailRepository
 import net.matsudamper.money.backend.app.interfaces.MailFilterRepository
 import net.matsudamper.money.backend.app.interfaces.MailRepository
@@ -47,6 +48,7 @@ import net.matsudamper.money.backend.datasource.db.repository.DeleteUsageImageRe
 import net.matsudamper.money.backend.datasource.db.repository.EnvAdminLoginRepository
 import net.matsudamper.money.backend.datasource.session.AdminSessionRepositoryProvider
 import net.matsudamper.money.backend.datasource.session.UserSessionRepositoryProvider
+import net.matsudamper.money.backend.feature.imagestoragelocal.LocalImageStorageGateway
 import net.matsudamper.money.backend.mail.MailRepositoryImpl
 
 interface DiContainer {
@@ -97,6 +99,9 @@ interface DiContainer {
     fun createApiTokenRepository(): ApiTokenRepository
     fun traceLogger(): TraceLogger
     fun clock(): Clock
+
+    fun createWriteImageStorageGateway(): ImageStorageGateway
+    fun createReadImageStorageGateway(storageType: UserImageRepository.StorageType): ImageStorageGateway
 }
 
 class MainDiContainer : DiContainer {
@@ -108,7 +113,11 @@ class MainDiContainer : DiContainer {
         return EnvAdminLoginRepository()
     }
 
-    private val adminImageRepository = DbAdminImageRepository()
+    private val adminImageRepository by lazy {
+        DbAdminImageRepository(
+            imageStorageGateway = localImageStorageGateway,
+        )
+    }
 
     override fun createAdminImageRepository(): AdminImageRepository {
         return adminImageRepository
@@ -258,5 +267,24 @@ class MainDiContainer : DiContainer {
 
     override fun clock(): Clock {
         return Clock.systemUTC()
+    }
+
+    private val localImageStorageGateway by lazy {
+        LocalImageStorageGateway(
+            storageDirectory = java.io.File(ServerEnv.imageStoragePath),
+        )
+    }
+
+    override fun createWriteImageStorageGateway(): ImageStorageGateway {
+        return localImageStorageGateway
+    }
+
+    override fun createReadImageStorageGateway(
+        storageType: UserImageRepository.StorageType,
+    ): ImageStorageGateway {
+        return when (storageType) {
+            UserImageRepository.StorageType.LOCAL -> localImageStorageGateway
+            UserImageRepository.StorageType.S3 -> throw IllegalStateException("S3 is not supported")
+        }
     }
 }
