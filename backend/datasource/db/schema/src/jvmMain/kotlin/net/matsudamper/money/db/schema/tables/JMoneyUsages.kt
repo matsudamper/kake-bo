@@ -27,13 +27,14 @@ import org.jooq.QueryPart
 import org.jooq.Record
 import org.jooq.SQL
 import org.jooq.Schema
-import org.jooq.Select
 import org.jooq.Stringly
 import org.jooq.Table
 import org.jooq.TableField
+import org.jooq.TableLike
 import org.jooq.TableOptions
 import org.jooq.UniqueKey
 import org.jooq.impl.DSL
+import org.jooq.impl.Internal
 import org.jooq.impl.SQLDataType
 import org.jooq.impl.TableImpl
 
@@ -78,7 +79,7 @@ open class JMoneyUsages(
     /**
      * The column <code>money.money_usages.money_usage_id</code>.
      */
-    val MONEY_USAGE_ID: TableField<JMoneyUsagesRecord, Int?> = createField(DSL.name("money_usage_id"), SQLDataType.INTEGER.nullable(false).identity(true), this, "")
+    val MONEY_USAGE_ID: TableField<JMoneyUsagesRecord, Int?> = createField(DSL.name("money_usage_id"), SQLDataType.INTEGER.nullable(false).generatedByDefaultAsIdentity(), this, "")
 
     /**
      * The column <code>money.money_usages.user_id</code>.
@@ -164,7 +165,7 @@ open class JMoneyUsages(
     /**
      * Create an inline derived table from this table
      */
-    override fun where(condition: Condition?): JMoneyUsages = JMoneyUsages(qualifiedName, if (aliased()) this else null, condition)
+    override fun where(condition: Condition?): JMoneyUsages = JMoneyUsages(qualifiedName, if (aliased()) this else null, Internal.condition(this, condition))
 
     /**
      * Create an inline derived table from this table
@@ -204,10 +205,10 @@ open class JMoneyUsages(
     /**
      * Create an inline derived table from this table
      */
-    override fun whereExists(select: Select<*>): JMoneyUsages = where(DSL.exists(select))
+    override fun whereExists(select: TableLike<*>): JMoneyUsages = where(DSL.exists(select))
 
     /**
      * Create an inline derived table from this table
      */
-    override fun whereNotExists(select: Select<*>): JMoneyUsages = where(DSL.notExists(select))
+    override fun whereNotExists(select: TableLike<*>): JMoneyUsages = where(DSL.notExists(select))
 }
