@@ -1,6 +1,5 @@
 package net.matsudamper.money.backend.image
 
-import java.io.InputStream
 import kotlinx.serialization.json.Json
 import io.ktor.http.ContentType
 import io.ktor.http.HttpStatusCode
