@@ -17,6 +17,7 @@ import net.matsudamper.money.backend.feature.imagestoragelocal.LocalImageStorage
 import net.matsudamper.money.backend.feature.session.KtorCookieManager
 import net.matsudamper.money.backend.feature.session.UserSessionManagerImpl
 import net.matsudamper.money.image.ImageUploadImageResponse
+import net.matsudamper.money.element.UserId
 
 internal fun Route.getImage(
     diContainer: DiContainer,
@@ -141,7 +142,7 @@ private suspend fun ApplicationCall.respondImageByDisplayId(
     }
 }
 
-private fun UserImageRepository.ImageData.toRoutingImageData(userId: net.matsudamper.money.element.UserId) = RoutingImageData(
+private fun UserImageRepository.ImageData.toRoutingImageData(userId: UserId) = RoutingImageData(
     relativePath = relativePath,
     contentType = contentType,
     storageType = storageType,
@@ -159,7 +160,7 @@ private data class RoutingImageData(
     val relativePath: String,
     val contentType: String,
     val storageType: UserImageRepository.StorageType,
-    val userId: net.matsudamper.money.element.UserId,
+    val userId: UserId,
 )
 
 private suspend fun ApplicationCall.respondApiError(

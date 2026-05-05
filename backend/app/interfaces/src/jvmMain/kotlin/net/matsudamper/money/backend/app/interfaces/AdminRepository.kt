@@ -1,5 +1,7 @@
 package net.matsudamper.money.backend.app.interfaces
 
+import net.matsudamper.money.element.UserId
+
 interface AdminRepository {
     fun addUser(
         userName: String,
@@ -19,12 +21,12 @@ interface AdminRepository {
     )
 
     data class User(
-        val userId: net.matsudamper.money.element.UserId,
+        val userId: UserId,
         val name: String,
     )
 
     fun replacePassword(
-        userId: net.matsudamper.money.element.UserId,
+        userId: UserId,
         hashedPassword: String,
         algorithmName: String,
         salt: ByteArray,
