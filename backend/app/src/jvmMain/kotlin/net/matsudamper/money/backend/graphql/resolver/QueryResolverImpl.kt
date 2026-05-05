@@ -7,7 +7,7 @@ import graphql.schema.DataFetchingEnvironment
 import net.matsudamper.money.backend.app.interfaces.AdminImageRepository
 import net.matsudamper.money.backend.app.interfaces.UserSessionRepository
 import net.matsudamper.money.backend.base.ServerEnv
-import net.matsudamper.money.backend.feature.image.LocalImageApiPath
+import net.matsudamper.money.backend.feature.image.ImageApiPath
 import net.matsudamper.money.backend.graphql.GraphQlContext
 import net.matsudamper.money.backend.graphql.GraphqlMoneyException
 import net.matsudamper.money.backend.graphql.otelSupplyAsync
@@ -76,7 +76,7 @@ class QueryResolverImpl : QueryResolver {
                     nodes = result.items.map { item ->
                         QlAdminUnlinkedImage(
                             id = item.imageId,
-                            url = LocalImageApiPath.adminImageV1AbsoluteByDisplayId(
+                            url = ImageApiPath.adminImageV1AbsoluteByDisplayId(
                                 domain = domain,
                                 displayId = item.displayId,
                             ),

@@ -4,7 +4,7 @@ import java.util.concurrent.CompletionStage
 import graphql.execution.DataFetcherResult
 import graphql.schema.DataFetchingEnvironment
 import net.matsudamper.money.backend.base.ServerEnv
-import net.matsudamper.money.backend.feature.image.LocalImageApiPath
+import net.matsudamper.money.backend.feature.image.ImageApiPath
 import net.matsudamper.money.backend.graphql.GraphQlContext
 import net.matsudamper.money.backend.graphql.otelSupplyAsync
 import net.matsudamper.money.backend.graphql.toDataFetcher
@@ -30,7 +30,7 @@ class ImageResolverImpl : ImageResolver {
             val displayId = displayIdMap[image.id]
                 ?: throw IllegalStateException("displayId is not found: imageId=${image.id.value}")
 
-            LocalImageApiPath.imageV1AbsoluteByDisplayId(
+            ImageApiPath.imageV1AbsoluteByDisplayId(
                 domain = domain,
                 displayId = displayId,
             )

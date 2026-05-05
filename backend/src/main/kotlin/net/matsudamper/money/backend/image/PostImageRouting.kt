@@ -14,7 +14,7 @@ import net.matsudamper.money.backend.base.ServerEnv
 import net.matsudamper.money.backend.base.TraceLogger
 import net.matsudamper.money.backend.di.DiContainer
 import net.matsudamper.money.backend.feature.image.ImageUploadHandler
-import net.matsudamper.money.backend.feature.image.LocalImageApiPath
+import net.matsudamper.money.backend.feature.image.ImageApiPath
 import net.matsudamper.money.backend.feature.session.KtorCookieManager
 import net.matsudamper.money.backend.feature.session.UserSessionManagerImpl
 import net.matsudamper.money.image.ImageUploadApiPath
@@ -118,7 +118,7 @@ internal fun Route.postImage(
                 val domain = ServerEnv.domain
                     ?: throw IllegalStateException("DOMAIN is not configured")
 
-                val displayUrl = LocalImageApiPath.imageV1AbsoluteByDisplayId(
+                val displayUrl = ImageApiPath.imageV1AbsoluteByDisplayId(
                     domain = domain,
                     displayId = uploadResult.displayId,
                 )

@@ -1,6 +1,6 @@
 package net.matsudamper.money.backend.feature.image
 
-object LocalImageApiPath {
+object ImageApiPath {
     fun imageV1ByDisplayId(displayId: String): String {
         return "/api/image/v1/$displayId"
     }
