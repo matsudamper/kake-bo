@@ -4,7 +4,6 @@ import java.io.InputStream
 import net.matsudamper.money.element.UserId
 
 public interface ImageStorageGateway {
-    public enum class StorageType { LOCAL, S3 }
     public val storageType: StorageType
 
     public fun put(request: PutRequest): PutResult
@@ -47,4 +46,5 @@ public interface ImageStorageGateway {
     )
 
     public enum class Purpose { USER, ADMIN }
+    public enum class StorageType { LOCAL, S3 }
 }
