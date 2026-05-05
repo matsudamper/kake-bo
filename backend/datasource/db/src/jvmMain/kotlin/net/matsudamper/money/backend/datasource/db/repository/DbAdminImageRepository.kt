@@ -88,6 +88,7 @@ class DbAdminImageRepository(
                         .select(
                             userImages.IMAGE_PATH,
                             userImages.USER_ID,
+                            userImages.USER_IMAGE_ID,
                         )
                         .from(userImages)
                         .where(
@@ -97,7 +98,7 @@ class DbAdminImageRepository(
 
                     for (record in records) {
                         val relativePath = record.get(userImages.IMAGE_PATH)
-                            ?: throw IllegalStateException("画像パスが見つかりませんでした")
+                            ?: throw IllegalStateException("画像パスが見つかりませんでした: ${userImages.USER_IMAGE_ID.name}=${record.get(userImages.USER_IMAGE_ID)}")
                         val userId = UserId(record.get(userImages.USER_ID)!!)
 
                         val deleteRequest = ImageStorageGateway.DeleteRequest(
