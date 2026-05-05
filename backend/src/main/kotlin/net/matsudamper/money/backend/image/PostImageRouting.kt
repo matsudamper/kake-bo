@@ -42,6 +42,7 @@ internal fun Route.postImage(
         val multipart = call.receiveMultipart()
 
         var result: ImageUploadHandler.Result? = null
+        val imageStorageGateway = diContainer.createWriteImageStorageGateway()
         while (true) {
             val part = multipart.readPart() ?: break
             if (part !is PartData.FileItem) {
@@ -64,7 +65,7 @@ internal fun Route.postImage(
                     request = ImageUploadHandler.Request(
                         userId = userId,
                         userImageRepository = diContainer.createUserImageRepository(),
-                        storageDirectory = config.storageDirectory,
+                        imageStorageGateway = imageStorageGateway,
                         maxUploadBytes = config.maxUploadBytes,
                         contentType = part.contentType?.withoutParameters()?.toString(),
                         inputStream = inputStream,

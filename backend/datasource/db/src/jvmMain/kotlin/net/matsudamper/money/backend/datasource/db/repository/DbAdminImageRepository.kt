@@ -1,11 +1,12 @@
 package net.matsudamper.money.backend.datasource.db.repository
 
-import java.io.File
 import java.io.IOException
 import net.matsudamper.money.backend.app.interfaces.AdminImageRepository
-import net.matsudamper.money.backend.base.ServerEnv
+import net.matsudamper.money.backend.app.interfaces.ImageStorageGateway
+import net.matsudamper.money.backend.app.interfaces.UserImageRepository
 import net.matsudamper.money.backend.base.TraceLogger
 import net.matsudamper.money.backend.datasource.db.DbConnectionImpl
+import net.matsudamper.money.backend.datasource.db.element.DbStorageType
 import net.matsudamper.money.db.schema.tables.JMoneyUsageImagesRelation
 import net.matsudamper.money.db.schema.tables.JUserImages
 import net.matsudamper.money.db.schema.tables.JUsers
@@ -13,7 +14,9 @@ import net.matsudamper.money.element.ImageId
 import net.matsudamper.money.element.UserId
 import org.jooq.impl.DSL
 
-class DbAdminImageRepository : AdminImageRepository {
+class DbAdminImageRepository(
+    private val imageStorageGateway: ImageStorageGateway,
+) : AdminImageRepository {
     private val userImages = JUserImages.USER_IMAGES
     private val users = JUsers.USERS
     private val usageImagesRelation = JMoneyUsageImagesRelation.MONEY_USAGE_IMAGES_RELATION
@@ -84,6 +87,8 @@ class DbAdminImageRepository : AdminImageRepository {
                     val records = context
                         .select(
                             userImages.IMAGE_PATH,
+                            userImages.USER_ID,
+                            userImages.USER_IMAGE_ID,
                         )
                         .from(userImages)
                         .where(
@@ -94,10 +99,16 @@ class DbAdminImageRepository : AdminImageRepository {
                     for (record in records) {
                         val relativePath = record.get(userImages.IMAGE_PATH)
                             ?: throw IllegalStateException("画像パスが見つかりませんでした: ${userImages.USER_IMAGE_ID.name}=${record.get(userImages.USER_IMAGE_ID)}")
-                        val imageFile = File(ServerEnv.imageStoragePath, relativePath)
-                        if (imageFile.exists().not()) continue
-                        if (imageFile.delete().not()) {
-                            throw IOException("ファイルの削除に失敗しました: $imageFile")
+                        val userId = UserId(record.get(userImages.USER_ID)!!)
+
+                        val result = imageStorageGateway.delete(
+                            ImageStorageGateway.DeleteRequest(
+                                userId = userId,
+                                relativePath = relativePath,
+                            ),
+                        )
+                        if (result is ImageStorageGateway.DeleteResult.Failure) {
+                            throw IOException("ファイルの削除に失敗しました: ${result.cause.message}", result.cause)
                         }
                     }
 
@@ -148,15 +159,25 @@ class DbAdminImageRepository : AdminImageRepository {
                 .select(
                     userImages.IMAGE_PATH,
                     userImages.CONTENT_TYPE,
+                    userImages.USER_ID,
+                    userImages.STORAGE_TYPE,
                 )
                 .from(userImages)
                 .where(userImages.DISPLAY_ID.eq(displayId))
                 .limit(1)
                 .fetchOne()
                 ?.let { record ->
+                    val storageTypeValue = record.get(userImages.STORAGE_TYPE)
+                    val storageType = when (storageTypeValue) {
+                        DbStorageType.LOCAL.dbValue -> UserImageRepository.StorageType.LOCAL
+                        DbStorageType.S3.dbValue -> UserImageRepository.StorageType.S3
+                        else -> throw IllegalStateException("Unknown storage_type: $storageTypeValue")
+                    }
                     AdminImageRepository.ImageData(
                         relativePath = record.get(userImages.IMAGE_PATH)!!,
                         contentType = record.get(userImages.CONTENT_TYPE)!!,
+                        userId = UserId(record.get(userImages.USER_ID)!!),
+                        storageType = storageType,
                     )
                 }
         }
