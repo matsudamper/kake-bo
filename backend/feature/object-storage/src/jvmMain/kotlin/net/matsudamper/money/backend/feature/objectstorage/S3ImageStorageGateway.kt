@@ -206,10 +206,10 @@ public class S3ImageStorageGateway(
     }
 
     override fun delete(request: ImageStorageGateway.DeleteRequest): ImageStorageGateway.DeleteResult {
-        val credentials = stsCredentialProvider.assumeWithWebIdentity(userId = request.userId)
         val key = buildKey(request.userId.value.toString(), request.relativePath)
 
         return runCatching {
+            val credentials = stsCredentialProvider.assumeWithWebIdentity(userId = request.userId)
             buildS3Client(credentials).use { s3Client ->
                 val deleteObjectRequest = DeleteObjectRequest.builder()
                     .bucket(config.bucket)
