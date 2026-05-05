@@ -89,10 +89,10 @@ class LocalImageStorageGateway(
      * @throws SecurityException
      */
     private fun resolveSecurePath(relativePath: String): Path {
-        val root = storageDirectory.toPath().toAbsolutePath().normalize()
-        val resolved = root.resolve(relativePath).normalize()
-        return if (resolved.startsWith(root)) {
-            resolved
+        val root = storageDirectory.canonicalFile
+        val resolved = root.resolve(relativePath).normalize().canonicalFile
+        return if (resolved.toPath().startsWith(root.toPath())) {
+            resolved.toPath()
         } else {
             throw SecurityException("Path traversal detected: $relativePath")
         }
