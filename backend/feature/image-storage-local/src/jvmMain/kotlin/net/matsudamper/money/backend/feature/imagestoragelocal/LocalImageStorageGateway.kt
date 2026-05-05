@@ -85,7 +85,8 @@ class LocalImageStorageGateway(
     }
 
     /**
-     * パストラバーサル検証: relativePath を root 配下に解決し、root 外なら null を返す
+     * パストラバーサル検証
+     * @throws SecurityException
      */
     private fun resolveSecurePath(relativePath: String): Path {
         val root = storageDirectory.toPath().toAbsolutePath().normalize()
