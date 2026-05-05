@@ -278,8 +278,9 @@ class MainDiContainer : DiContainer {
     }
 
     private val oidcKeyManager by lazy {
-        val jwkPrivate = ServerEnv.oidcJwkPrivate
-        if (ServerEnv.enableS3 && jwkPrivate != null) {
+        if (ServerEnv.enableS3) {
+            val jwkPrivate = ServerEnv.oidcJwkPrivate
+            require(!jwkPrivate.isNullOrBlank()) { "OIDC_JWK_PRIVATE が未設定です" }
             OidcKeyManager(jwkPrivate)
         } else {
             null
@@ -292,8 +293,9 @@ class MainDiContainer : DiContainer {
 
     private val jwtIssuer by lazy {
         val keyManager = createOidcKeyManager()
-        val issuer = ServerEnv.oidcIssuer
-        if (keyManager != null && issuer != null) {
+        if (keyManager != null) {
+            val issuer = ServerEnv.oidcIssuer
+            require(!issuer.isNullOrBlank()) { "OIDC_ISSUER が未設定です" }
             JwtIssuer(keyManager, issuer)
         } else {
             null
@@ -306,14 +308,22 @@ class MainDiContainer : DiContainer {
 
     private val objectStorageConfig by lazy {
         if (ServerEnv.enableS3) {
+            val region = ServerEnv.s3Region
+            val bucket = ServerEnv.s3Bucket
+            val roleArn = ServerEnv.s3RoleArn
+            val audience = ServerEnv.s3Audience
+            require(!region.isNullOrBlank()) { "S3_REGION が未設定です" }
+            require(!bucket.isNullOrBlank()) { "S3_BUCKET が未設定です" }
+            require(!roleArn.isNullOrBlank()) { "S3_ROLE_ARN が未設定です" }
+            require(!audience.isNullOrBlank()) { "S3_AUDIENCE が未設定です" }
             ObjectStorageConfig(
                 endpoint = ServerEnv.s3Endpoint.orEmpty(),
                 stsEndpoint = ServerEnv.stsEndpoint.orEmpty(),
-                region = requireNotNull(ServerEnv.s3Region) { "S3_REGION が未設定です" },
-                bucket = requireNotNull(ServerEnv.s3Bucket) { "S3_BUCKET が未設定です" },
-                roleArn = requireNotNull(ServerEnv.s3RoleArn) { "S3_ROLE_ARN が未設定です" },
+                region = region,
+                bucket = bucket,
+                roleArn = roleArn,
                 roleSessionName = ServerEnv.s3RoleSessionName,
-                audience = requireNotNull(ServerEnv.s3Audience) { "S3_AUDIENCE が未設定です" },
+                audience = audience,
                 pathStyleAccess = ServerEnv.s3PathStyleAccess,
             )
         } else {
@@ -369,6 +379,18 @@ class MainDiContainer : DiContainer {
             UserImageRepository.StorageType.S3 ->
                 s3ImageStorageGateway
                     ?: throw IllegalStateException("Cannot read S3 image without S3 config.")
+        }
+    }
+
+    init {
+        // S3 関連の必須設定を起動時に検証して fail-fast にする。
+        // 各 lazy が non-blank/non-null を require しているため、ここで強制評価する。
+        if (ServerEnv.enableS3) {
+            objectStorageConfig
+            oidcKeyManager
+            jwtIssuer
+            stsCredentialProvider
+            s3ImageStorageGateway
         }
     }
 }
