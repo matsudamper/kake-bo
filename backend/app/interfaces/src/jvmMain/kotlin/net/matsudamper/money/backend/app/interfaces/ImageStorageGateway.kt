@@ -17,7 +17,6 @@ public interface ImageStorageGateway {
         val userId: UserId,
         val relativePath: String,
         val contentType: String,
-        val contentLength: Long?,
         val maxBytes: Long,
         val inputStream: InputStream,
     )

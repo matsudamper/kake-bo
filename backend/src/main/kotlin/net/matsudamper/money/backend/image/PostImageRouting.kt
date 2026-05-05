@@ -61,14 +61,12 @@ internal fun Route.postImage(
                 return@post
             }
             result = part.provider().toInputStream().use { inputStream ->
-                val contentLength = part.headers["Content-Length"]?.toLongOrNull()
                 imageUploadHandler.handle(
                     request = ImageUploadHandler.Request(
                         userId = userId,
                         userImageRepository = diContainer.createUserImageRepository(),
                         imageStorageGateway = imageStorageGateway,
                         maxUploadBytes = config.maxUploadBytes,
-                        contentLength = contentLength,
                         contentType = part.contentType?.withoutParameters()?.toString(),
                         inputStream = inputStream,
                     ),

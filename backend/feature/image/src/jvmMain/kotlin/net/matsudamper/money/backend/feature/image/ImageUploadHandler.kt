@@ -43,7 +43,6 @@ class ImageUploadHandler {
                 userId = userId,
                 relativePath = relativePath,
                 contentType = contentType,
-                contentLength = request.contentLength,
                 maxBytes = request.maxUploadBytes,
                 inputStream = request.inputStream,
             ),
@@ -103,7 +102,6 @@ class ImageUploadHandler {
         val userImageRepository: UserImageRepository,
         val imageStorageGateway: ImageStorageGateway,
         val maxUploadBytes: Long,
-        val contentLength: Long?,
         val contentType: String?,
         val inputStream: InputStream,
     )
