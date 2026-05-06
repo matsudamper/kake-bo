@@ -145,7 +145,7 @@ private suspend fun ApplicationCall.respondImageByDisplayId(
         relativePath = imageData.relativePath,
         displayId = displayId,
         userId = imageData.userId,
-        domain = ServerEnv.domain!!,
+        domain = requireNotNull(ServerEnv.domain) { "DOMAIN が未設定です" },
         purpose = purpose,
     )
     when (val result = gateway.read(readRequest)) {
