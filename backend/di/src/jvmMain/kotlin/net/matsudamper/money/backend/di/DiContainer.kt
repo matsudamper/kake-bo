@@ -279,7 +279,8 @@ class MainDiContainer : DiContainer {
 
     private val oidcKeyManager by lazy {
         if (ServerEnv.enableS3) {
-            val jwkPrivate = ServerEnv.oidcJwkPrivate
+            val s3 = ServerEnv.S3!!
+            val jwkPrivate = s3.oidcJwkPrivate
             require(!jwkPrivate.isNullOrBlank()) { "OIDC_JWK_PRIVATE が未設定です" }
             OidcKeyManager(jwkPrivate)
         } else {
@@ -294,7 +295,7 @@ class MainDiContainer : DiContainer {
     private val jwtIssuer by lazy {
         val keyManager = createOidcKeyManager()
         if (keyManager != null) {
-            val issuer = ServerEnv.oidcIssuer
+            val issuer = ServerEnv.S3!!.oidcIssuer
             require(!issuer.isNullOrBlank()) { "OIDC_ISSUER が未設定です" }
             JwtIssuer(keyManager, issuer)
         } else {
@@ -308,23 +309,24 @@ class MainDiContainer : DiContainer {
 
     private val objectStorageConfig by lazy {
         if (ServerEnv.enableS3) {
-            val region = ServerEnv.s3Region
-            val bucket = ServerEnv.s3Bucket
-            val roleArn = ServerEnv.s3RoleArn
-            val audience = ServerEnv.s3Audience
+            val s3 = ServerEnv.S3!!
+            val region = s3.s3Region
+            val bucket = s3.s3Bucket
+            val roleArn = s3.s3RoleArn
+            val audience = s3.s3Audience
             require(!region.isNullOrBlank()) { "S3_REGION が未設定です" }
             require(!bucket.isNullOrBlank()) { "S3_BUCKET が未設定です" }
             require(!roleArn.isNullOrBlank()) { "S3_ROLE_ARN が未設定です" }
             require(!audience.isNullOrBlank()) { "S3_AUDIENCE が未設定です" }
             ObjectStorageConfig(
-                endpoint = ServerEnv.s3Endpoint.orEmpty(),
-                stsEndpoint = ServerEnv.stsEndpoint.orEmpty(),
+                endpoint = s3.s3Endpoint.orEmpty(),
+                stsEndpoint = s3.stsEndpoint.orEmpty(),
                 region = region,
                 bucket = bucket,
                 roleArn = roleArn,
-                roleSessionName = ServerEnv.s3RoleSessionName,
+                roleSessionName = s3.s3RoleSessionName,
                 audience = audience,
-                pathStyleAccess = ServerEnv.s3PathStyleAccess,
+                pathStyleAccess = s3.s3PathStyleAccess,
             )
         } else {
             null

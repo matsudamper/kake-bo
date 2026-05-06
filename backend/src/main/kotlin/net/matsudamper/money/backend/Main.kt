@@ -206,7 +206,7 @@ fun Application.myApplicationModule() {
 
         val diContainer = MainDiContainer()
         val oidcKeyManager = diContainer.createOidcKeyManager()
-        val oidcIssuer = ServerEnv.oidcIssuer
+        val oidcIssuer = ServerEnv.S3?.oidcIssuer
         if (ServerEnv.enableS3 && oidcKeyManager != null && oidcIssuer != null) {
             oidcDiscovery(issuer = oidcIssuer)
             jwks(keyManager = oidcKeyManager)
