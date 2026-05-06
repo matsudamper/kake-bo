@@ -33,11 +33,11 @@ public class JwtIssuer(
             .issueTime(Date.from(now))
             .expirationTime(Date.from(now.plus(ttl)))
             .jwtID(UUID.randomUUID().toString())
-            .claim("name", name)
 
         customClaims.forEach { (k, v) ->
             claimsBuilder.claim(k, v)
         }
+        claimsBuilder.claim("name", name)
 
         val signedJWT = SignedJWT(header, claimsBuilder.build())
         signedJWT.sign(RSASSASigner(keyManager.getPrivateKey()))
