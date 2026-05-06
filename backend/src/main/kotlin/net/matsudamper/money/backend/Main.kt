@@ -194,18 +194,18 @@ fun Application.myApplicationModule() {
                 }
             }
         }
+        val routingDiContainer = MainDiContainer()
         postImage(
-            diContainer = MainDiContainer(),
+            diContainer = routingDiContainer,
             config = ImageUploadConfig(
                 maxUploadBytes = ServerEnv.imageUploadMaxBytes,
             ),
         )
         getImage(
-            diContainer = MainDiContainer(),
+            diContainer = routingDiContainer,
         )
 
-        val diContainer = MainDiContainer()
-        val oidcKeyManager = diContainer.createOidcKeyManager()
+        val oidcKeyManager = routingDiContainer.createOidcKeyManager()
         val s3 = ServerEnv.S3
         if (s3 != null && oidcKeyManager != null) {
             oidcDiscovery(issuer = s3.oidcIssuer)
