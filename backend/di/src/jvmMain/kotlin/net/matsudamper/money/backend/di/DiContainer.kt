@@ -376,14 +376,18 @@ class MainDiContainer : DiContainer {
     }
 
     init {
-        // S3 関連の必須設定を起動時に検証して fail-fast にする。
-        // 各 lazy が non-blank/non-null を require しているため、ここで強制評価する。
         if (ServerEnv.enableS3) {
-            objectStorageConfig
-            oidcKeyManager
-            jwtIssuer
-            stsCredentialProvider
-            s3ImageStorageGateway
+            validateS3Config()
         }
+    }
+
+    // S3 関連の必須設定を起動時に検証して fail-fast にする。
+    // 各 lazy が non-blank/non-null を require しているため、ここで強制評価する。
+    private fun validateS3Config() {
+        objectStorageConfig
+        oidcKeyManager
+        jwtIssuer
+        stsCredentialProvider
+        s3ImageStorageGateway
     }
 }
