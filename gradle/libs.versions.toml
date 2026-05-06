@@ -1,6 +1,6 @@
 [versions]
 awsSdk = "2.30.20"
-nimbusJoseJwt = "10.0.2"
+nimbusJoseJwt = "10.9"
 java = "24"
 javaToolchain = "24"
 kotlin = "2.3.21"
