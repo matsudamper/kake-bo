@@ -278,11 +278,9 @@ class MainDiContainer : DiContainer {
     }
 
     private val oidcKeyManager by lazy {
-        if (ServerEnv.enableS3) {
-            val s3 = ServerEnv.S3!!
-            val jwkPrivate = s3.oidcJwkPrivate
-            require(!jwkPrivate.isNullOrBlank()) { "OIDC_JWK_PRIVATE が未設定です" }
-            OidcKeyManager(jwkPrivate)
+        val s3 = ServerEnv.S3
+        if (s3 != null) {
+            OidcKeyManager(s3.oidcJwkPrivate)
         } else {
             null
         }
@@ -294,10 +292,9 @@ class MainDiContainer : DiContainer {
 
     private val jwtIssuer by lazy {
         val keyManager = createOidcKeyManager()
-        if (keyManager != null) {
-            val issuer = ServerEnv.S3!!.oidcIssuer
-            require(!issuer.isNullOrBlank()) { "OIDC_ISSUER が未設定です" }
-            JwtIssuer(keyManager, issuer)
+        val s3 = ServerEnv.S3
+        if (keyManager != null && s3 != null) {
+            JwtIssuer(keyManager, s3.oidcIssuer)
         } else {
             null
         }
@@ -308,24 +305,18 @@ class MainDiContainer : DiContainer {
     }
 
     private val objectStorageConfig by lazy {
-        if (ServerEnv.enableS3) {
-            val s3 = ServerEnv.S3!!
+        val s3 = ServerEnv.S3
+        if (s3 != null) {
             val region = s3.s3Region
-            val bucket = s3.s3Bucket
-            val roleArn = s3.s3RoleArn
-            val audience = s3.s3Audience
             require(!region.isNullOrBlank()) { "S3_REGION が未設定です" }
-            require(!bucket.isNullOrBlank()) { "S3_BUCKET が未設定です" }
-            require(!roleArn.isNullOrBlank()) { "S3_ROLE_ARN が未設定です" }
-            require(!audience.isNullOrBlank()) { "S3_AUDIENCE が未設定です" }
             ObjectStorageConfig(
-                endpoint = s3.s3Endpoint.orEmpty(),
-                stsEndpoint = s3.stsEndpoint.orEmpty(),
+                endpoint = s3.s3Endpoint,
+                stsEndpoint = s3.stsEndpoint,
                 region = region,
-                bucket = bucket,
-                roleArn = roleArn,
+                bucket = s3.s3Bucket,
+                roleArn = s3.s3RoleArn,
                 roleSessionName = s3.s3RoleSessionName,
-                audience = audience,
+                audience = s3.s3Audience,
                 pathStyleAccess = s3.s3PathStyleAccess,
             )
         } else {

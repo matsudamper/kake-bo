@@ -37,15 +37,15 @@ public object ServerEnv {
     public val S3: S3Env? by lazy { if (enableS3) S3Env() else null }
 
     public class S3Env {
-        public val oidcIssuer: String? get() = System.getenv("OIDC_ISSUER")
-        public val oidcJwkPrivate: String? get() = System.getenv("OIDC_JWK_PRIVATE")
-        public val s3Endpoint: String? get() = System.getenv("S3_ENDPOINT")
+        public val oidcIssuer: String get() = System.getenv("OIDC_ISSUER")!!
+        public val oidcJwkPrivate: String get() = System.getenv("OIDC_JWK_PRIVATE")!!
+        public val s3Endpoint: String get() = System.getenv("S3_ENDPOINT")!!
         public val s3Region: String? get() = System.getenv("S3_REGION")
-        public val s3Bucket: String? get() = System.getenv("S3_BUCKET")
-        public val s3RoleArn: String? get() = System.getenv("S3_ROLE_ARN")
+        public val s3Bucket: String get() = System.getenv("S3_BUCKET")!!
+        public val s3RoleArn: String get() = System.getenv("S3_ROLE_ARN")!!
         public val s3RoleSessionName: String get() = System.getenv("S3_ROLE_SESSION_NAME") ?: "kake-bo-image-upload"
-        public val s3Audience: String? get() = System.getenv("S3_AUDIENCE")
+        public val s3Audience: String get() = System.getenv("S3_AUDIENCE")!!
         public val s3PathStyleAccess: Boolean get() = System.getenv("S3_PATH_STYLE_ACCESS")?.toBooleanStrictOrNull() ?: true
-        public val stsEndpoint: String? get() = System.getenv("STS_ENDPOINT")
+        public val stsEndpoint: String get() = System.getenv("STS_ENDPOINT")!!
     }
 }
