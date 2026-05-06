@@ -12,8 +12,9 @@ import com.nimbusds.jwt.SignedJWT
 
 public class JwtIssuer(
     private val keyManager: OidcKeyManager,
-    private val issuer: String,
+    issuer: String,
 ) {
+    private val issuer = issuer.removeSuffix("/")
     public fun issueWebIdentityToken(
         subject: String,
         name: String,
