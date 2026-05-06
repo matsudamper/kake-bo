@@ -16,12 +16,11 @@ import software.amazon.awssdk.services.s3.model.CompletedPart
 import software.amazon.awssdk.services.s3.model.CreateMultipartUploadRequest
 import software.amazon.awssdk.services.s3.model.DeleteObjectRequest
 import software.amazon.awssdk.services.s3.model.GetObjectRequest
-import software.amazon.awssdk.services.s3.model.PutObjectRequest
 import software.amazon.awssdk.services.s3.model.UploadPartRequest
 import software.amazon.awssdk.services.s3.presigner.S3Presigner
 import software.amazon.awssdk.services.s3.presigner.model.GetObjectPresignRequest
 
-public class S3ImageStorageGateway(
+class S3ImageStorageGateway(
     private val stsCredentialProvider: StsCredentialProvider,
     private val config: ObjectStorageConfig,
 ) : ImageStorageGateway {
@@ -34,18 +33,20 @@ public class S3ImageStorageGateway(
     override val storageType: ImageStorageGateway.StorageType = ImageStorageGateway.StorageType.S3
 
     override fun put(request: ImageStorageGateway.PutRequest): ImageStorageGateway.PutResult {
-        val contentLength = request.contentLength
-        return if (contentLength != null) {
-            when {
-                contentLength == 0L -> ImageStorageGateway.PutResult.Empty
-                contentLength > request.maxBytes -> ImageStorageGateway.PutResult.PayloadTooLarge
-                else -> putWithKnownLength(request, contentLength)
-            }
-        } else {
-            // ブラウザの multipart/form-data は per-part Content-Length を送信しないため、
-            // S3 Multipart Upload API でチャンク単位にストリーミングしてサイズ制限を適用する
-            putWithMultipart(request)
-        }
+        return putWithMultipart(request)
+    }
+
+    override fun read(request: ImageStorageGateway.ReadRequest): ImageStorageGateway.ReadResult {
+        val url = buildDisplayUrl(
+            ImageStorageGateway.BuildUrlRequest(
+                domain = request.domain,
+                displayId = request.displayId,
+                userId = request.userId,
+                relativePath = request.relativePath,
+                purpose = request.purpose,
+            ),
+        )
+        return ImageStorageGateway.ReadResult.RedirectUrl(url)
     }
 
     private fun buildS3Client(credentials: AwsSessionCredentials): S3Client {
@@ -61,38 +62,6 @@ public class S3ImageStorageGateway(
                     .build(),
             )
         }.build()
-    }
-
-    private fun putWithKnownLength(
-        request: ImageStorageGateway.PutRequest,
-        contentLength: Long,
-    ): ImageStorageGateway.PutResult {
-        val key = buildKey(request.userId.value.toString(), request.relativePath)
-
-        val result = runCatching {
-            val credentials = stsCredentialProvider.assumeWithWebIdentity(userId = request.userId)
-            buildS3Client(credentials).use { s3Client ->
-                val putObjectRequest = PutObjectRequest.builder()
-                    .bucket(config.bucket)
-                    .key(key)
-                    .contentType(request.contentType)
-                    .contentLength(contentLength)
-                    .build()
-
-                s3Client.putObject(
-                    putObjectRequest,
-                    RequestBody.fromInputStream(request.inputStream, contentLength),
-                )
-            }
-        }
-
-        return if (result.isFailure) {
-            ImageStorageGateway.PutResult.Failure(
-                result.exceptionOrNull() ?: IllegalStateException("Unknown failure during S3 put"),
-            )
-        } else {
-            ImageStorageGateway.PutResult.Success(relativePath = request.relativePath)
-        }
     }
 
     /**

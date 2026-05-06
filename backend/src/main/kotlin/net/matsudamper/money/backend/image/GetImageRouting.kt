@@ -53,6 +53,7 @@ internal fun Route.getImage(
         call.respondImageByDisplayId(
             diContainer = diContainer,
             imageData = imageData,
+            displayId = displayId,
             purpose = ImageStorageGateway.Purpose.USER,
         )
     }
@@ -85,6 +86,7 @@ internal fun Route.getImage(
         call.respondImageByDisplayId(
             diContainer = diContainer,
             imageData = imageData,
+            displayId = displayId,
             purpose = ImageStorageGateway.Purpose.ADMIN,
         )
     }
@@ -135,48 +137,35 @@ private suspend fun ApplicationCall.requireAdminAuthorization(
 private suspend fun ApplicationCall.respondImageByDisplayId(
     diContainer: DiContainer,
     imageData: RoutingImageData,
+    displayId: String,
     purpose: ImageStorageGateway.Purpose,
 ) {
     val gateway = diContainer.createReadImageStorageGateway(imageData.storageType)
-    when (gateway.storageType) {
-        ImageStorageGateway.StorageType.LOCAL -> {
-            when (val result = gateway.read(imageData.relativePath)) {
-                null -> {
-                    respondApiError(
-                        status = HttpStatusCode.NotFound,
-                        message = "NotFound",
-                    )
-                }
-                is ImageStorageGateway.ReadResult.Stream -> {
-                    val responseContentType = runCatching {
-                        ContentType.parse(imageData.contentType)
-                    }.getOrDefault(ContentType.Application.OctetStream)
+    val readRequest = ImageStorageGateway.ReadRequest(
+        relativePath = imageData.relativePath,
+        displayId = displayId,
+        userId = imageData.userId,
+        domain = ServerEnv.domain ?: "",
+        purpose = purpose,
+    )
+    when (val result = gateway.read(readRequest)) {
+        null -> {
+            respondApiError(
+                status = HttpStatusCode.NotFound,
+                message = "NotFound",
+            )
+        }
+        is ImageStorageGateway.ReadResult.Stream -> {
+            val responseContentType = runCatching {
+                ContentType.parse(imageData.contentType)
+            }.getOrDefault(ContentType.Application.OctetStream)
 
-                    respondOutputStream(contentType = responseContentType) {
-                        result.inputStream.use { it.copyTo(this) }
-                    }
-                }
+            respondOutputStream(contentType = responseContentType) {
+                result.inputStream.use { it.copyTo(this) }
             }
         }
-        ImageStorageGateway.StorageType.S3 -> {
-            val displayId = parameters["displayId"]
-            if (displayId == null) {
-                respondApiError(
-                    status = HttpStatusCode.BadRequest,
-                    message = "InvalidImageId",
-                )
-                return
-            }
-            val url = gateway.buildDisplayUrl(
-                ImageStorageGateway.BuildUrlRequest(
-                    domain = ServerEnv.domain ?: "",
-                    displayId = displayId,
-                    userId = imageData.userId,
-                    relativePath = imageData.relativePath,
-                    purpose = purpose,
-                ),
-            )
-            respondRedirect(url = url, permanent = false)
+        is ImageStorageGateway.ReadResult.RedirectUrl -> {
+            respondRedirect(url = result.url, permanent = false)
         }
     }
 }
