@@ -3,6 +3,7 @@ package net.matsudamper.money.backend.datasource.db.repository
 import java.io.IOException
 import net.matsudamper.money.backend.app.interfaces.AdminImageRepository
 import net.matsudamper.money.backend.app.interfaces.ImageStorageGateway
+import net.matsudamper.money.backend.app.interfaces.UserImageRepository
 import net.matsudamper.money.backend.base.TraceLogger
 import net.matsudamper.money.backend.datasource.db.DbConnectionImpl
 import net.matsudamper.money.backend.datasource.db.element.DbStorageType
