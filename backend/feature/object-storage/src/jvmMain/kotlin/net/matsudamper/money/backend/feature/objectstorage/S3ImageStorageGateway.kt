@@ -192,8 +192,18 @@ class S3ImageStorageGateway(
         )
     }
 
+    /**
+     * 画像取得時にS3のpresigned URLを直接返している。
+     * 呼び出しのたびにSTS APIとS3Presignerを構築するため、画像が多いと
+     * STS APIのレート制限やレイテンシが問題になる可能性がある。
+     * 改善策1: StsCredentialProviderでuserId単位にcredentialをキャッシュする
+     * 改善策2: GraphQLがpresigned URLを直接返すよう変更し、DataLoaderで
+     *          同一GraphQLリクエスト内の複数画像をuserId単位にまとめてSTS呼び出しを削減する
+     *          （現状はGraphQLが /api/image/v1/{displayId} を返しブラウザが個別にHTTPリクエストするため
+     *           DataLoaderは適用できない）
+     */
     override fun buildDisplayUrl(request: ImageStorageGateway.BuildUrlRequest): String {
-        val credentials = stsCredentialProvider.assumeWithWebIdentity(userId = request.userId, durationSeconds = 7200)
+        val credentials = stsCredentialProvider.assumeWithWebIdentity(userId = request.userId)
         val key = buildKey(request.userId.value.toString(), request.relativePath)
 
         S3Presigner.builder().apply {

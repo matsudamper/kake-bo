@@ -16,7 +16,7 @@ public class StsCredentialProvider(
 ) {
     public fun assumeWithWebIdentity(
         userId: UserId,
-        durationSeconds: Int = 7200,
+        durationSeconds: Int = 3600,
     ): AwsSessionCredentials {
         // STSのAssumeRoleWithWebIdentityはdurationSecondsが900〜43200の範囲外はエラーになる
         val clampedDuration = durationSeconds.coerceIn(900, 43200)
