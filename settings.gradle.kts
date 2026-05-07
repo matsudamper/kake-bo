@@ -17,6 +17,8 @@ include(":backend:feature:service_mail_parser")
 include(":backend:feature:fido")
 include(":backend:feature:image")
 include(":backend:feature:session")
+include(":backend:feature:oidc")
+include(":backend:feature:object-storage")
 include(":backend:feature:image-storage-local")
 
 include(":frontend:app")

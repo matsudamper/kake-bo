@@ -16,6 +16,8 @@ kotlin {
                 implementation(projects.backend.datasource.db)
                 implementation(projects.backend.datasource.mail)
                 implementation(projects.backend.datasource.inmemory)
+                implementation(projects.backend.feature.oidc)
+                implementation(projects.backend.feature.objectStorage)
                 implementation(projects.backend.feature.imageStorageLocal)
             }
         }

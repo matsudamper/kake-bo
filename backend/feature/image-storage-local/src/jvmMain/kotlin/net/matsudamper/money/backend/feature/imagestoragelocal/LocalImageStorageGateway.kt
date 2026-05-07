@@ -79,8 +79,8 @@ class LocalImageStorageGateway(
         return file.toFile().takeIf { it.exists() }?.inputStream()
     }
 
-    override fun read(relativePath: String): ImageStorageGateway.ReadResult? {
-        val inputStream = openInputStream(relativePath) ?: return null
+    override fun read(request: ImageStorageGateway.ReadRequest): ImageStorageGateway.ReadResult? {
+        val inputStream = openInputStream(request.relativePath) ?: return null
         return ImageStorageGateway.ReadResult.Stream(inputStream)
     }
 

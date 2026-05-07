@@ -5,12 +5,14 @@ import io.ktor.http.ContentType
 import io.ktor.http.HttpStatusCode
 import io.ktor.server.application.ApplicationCall
 import io.ktor.server.response.respondOutputStream
+import io.ktor.server.response.respondRedirect
 import io.ktor.server.response.respondText
 import io.ktor.server.routing.Route
 import io.ktor.server.routing.get
 import net.matsudamper.money.backend.app.interfaces.AdminImageRepository
 import net.matsudamper.money.backend.app.interfaces.ImageStorageGateway
 import net.matsudamper.money.backend.app.interfaces.UserImageRepository
+import net.matsudamper.money.backend.base.ServerEnv
 import net.matsudamper.money.backend.di.DiContainer
 import net.matsudamper.money.backend.feature.image.ImageApiPath
 import net.matsudamper.money.backend.feature.session.KtorCookieManager
@@ -51,6 +53,8 @@ internal fun Route.getImage(
         call.respondImageByDisplayId(
             diContainer = diContainer,
             imageData = imageData,
+            displayId = displayId,
+            purpose = ImageStorageGateway.Purpose.USER,
         )
     }
 
@@ -82,6 +86,8 @@ internal fun Route.getImage(
         call.respondImageByDisplayId(
             diContainer = diContainer,
             imageData = imageData,
+            displayId = displayId,
+            purpose = ImageStorageGateway.Purpose.ADMIN,
         )
     }
 }
@@ -131,9 +137,18 @@ private suspend fun ApplicationCall.requireAdminAuthorization(
 private suspend fun ApplicationCall.respondImageByDisplayId(
     diContainer: DiContainer,
     imageData: RoutingImageData,
+    displayId: String,
+    purpose: ImageStorageGateway.Purpose,
 ) {
     val gateway = diContainer.createReadImageStorageGateway(imageData.storageType)
-    when (val result = gateway.read(imageData.relativePath)) {
+    val readRequest = ImageStorageGateway.ReadRequest(
+        relativePath = imageData.relativePath,
+        displayId = displayId,
+        userId = imageData.userId,
+        domain = requireNotNull(ServerEnv.domain) { "DOMAIN が未設定です" },
+        purpose = purpose,
+    )
+    when (val result = gateway.read(readRequest)) {
         null -> {
             respondApiError(
                 status = HttpStatusCode.NotFound,
@@ -148,6 +163,9 @@ private suspend fun ApplicationCall.respondImageByDisplayId(
             respondOutputStream(contentType = responseContentType) {
                 result.inputStream.use { it.copyTo(this) }
             }
+        }
+        is ImageStorageGateway.ReadResult.RedirectUrl -> {
+            respondRedirect(url = result.url, permanent = false)
         }
     }
 }
