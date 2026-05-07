@@ -60,18 +60,17 @@ internal fun Route.postImage(
                 )
                 return@post
             }
-            result = part.provider().toInputStream().use { inputStream ->
-                imageUploadHandler.handle(
-                    request = ImageUploadHandler.Request(
-                        userId = userId,
-                        userImageRepository = diContainer.createUserImageRepository(),
-                        imageStorageGateway = imageStorageGateway,
-                        maxUploadBytes = config.maxUploadBytes,
-                        contentType = part.contentType?.withoutParameters()?.toString(),
-                        inputStream = inputStream,
-                    ),
-                )
-            }
+            val byteReadChannel = part.provider().toInputStream()
+            result = imageUploadHandler.handle(
+                request = ImageUploadHandler.Request(
+                    userId = userId,
+                    userImageRepository = diContainer.createUserImageRepository(),
+                    imageStorageGateway = imageStorageGateway,
+                    maxUploadBytes = config.maxUploadBytes,
+                    contentType = part.contentType?.withoutParameters()?.toString(),
+                    inputStream = byteReadChannel,
+                ),
+            )
         }
 
         when (val uploadResult = result) {
