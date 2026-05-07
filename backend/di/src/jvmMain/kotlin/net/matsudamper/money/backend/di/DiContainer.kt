@@ -220,7 +220,12 @@ class MainDiContainer : DiContainer {
         return userImageRepository
     }
 
-    private val deleteUsageImageRelationDao = DeleteUsageImageRelationDaoImpl()
+    private val deleteUsageImageRelationDao by lazy {
+        DeleteUsageImageRelationDaoImpl(
+            localImageStorageGateway = localImageStorageGateway,
+            s3ImageStorageGateway = s3ImageStorageGateway,
+        )
+    }
 
     override fun createDeleteUsageImageRelationDao(): DeleteUsageImageRelationDao {
         return deleteUsageImageRelationDao
