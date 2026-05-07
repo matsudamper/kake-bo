@@ -13,7 +13,7 @@ kotlin {
                 implementation(projects.backend.base)
                 implementation(libs.ktorServerCore)
                 implementation(libs.kotlin.serialization.json)
-                api(libs.nimbusJoseJwt)
+                implementation(libs.nimbusJoseJwt)
             }
         }
     }
