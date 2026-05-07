@@ -72,7 +72,6 @@ internal fun Route.postImage(
                     ),
                 )
             }
-            part.dispose()
         }
 
         when (val uploadResult = result) {
