@@ -30,7 +30,7 @@ public fun Route.oidcDiscovery(issuer: String) {
 
 @Serializable
 private data class OidcDiscoveryDocument(
-    val issuer: String,
+    @SerialName("issuer") val issuer: String,
     @SerialName("jwks_uri") val jwksUri: String,
     @SerialName("response_types_supported") val responseTypesSupported: List<String>,
     @SerialName("subject_types_supported") val subjectTypesSupported: List<String>,
