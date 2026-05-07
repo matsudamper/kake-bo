@@ -72,7 +72,7 @@ class S3ImageStorageGateway(
      * ローカル一時ファイルは使用しない。
      */
     private fun putWithMultipart(request: ImageStorageGateway.PutRequest): ImageStorageGateway.PutResult {
-        val key = buildKey(request.userId.value.toString(), request.relativePath)
+        val key = buildKey(request.relativePath)
         val s3Client = runCatching {
             val credentials = stsCredentialProvider.assumeWithWebIdentity(userId = request.userId)
             buildS3Client(credentials)
@@ -175,7 +175,7 @@ class S3ImageStorageGateway(
     }
 
     override fun delete(request: ImageStorageGateway.DeleteRequest): ImageStorageGateway.DeleteResult {
-        val key = buildKey(request.userId.value.toString(), request.relativePath)
+        val key = buildKey(request.relativePath)
 
         return runCatching {
             val credentials = stsCredentialProvider.assumeWithWebIdentity(userId = request.userId)
@@ -204,7 +204,7 @@ class S3ImageStorageGateway(
      */
     override fun buildDisplayUrl(request: ImageStorageGateway.BuildUrlRequest): String {
         val credentials = stsCredentialProvider.assumeWithWebIdentity(userId = request.userId)
-        val key = buildKey(request.userId.value.toString(), request.relativePath)
+        val key = buildKey(request.relativePath)
 
         S3Presigner.builder().apply {
             if (config.endpoint.isNotBlank()) {
@@ -233,7 +233,7 @@ class S3ImageStorageGateway(
         }
     }
 
-    private fun buildKey(userIdStr: String, relativePath: String): String {
-        return "img/$userIdStr/$relativePath"
+    private fun buildKey(relativePath: String): String {
+        return "img/$relativePath"
     }
 }
