@@ -243,6 +243,7 @@ public class MoneyUsageScreenViewModel(
                     eventSender.send { event ->
                         event.navigate(
                             ScreenStructure.AddMoneyUsage(
+                                importedMailId = moneyUsage.linkedMail?.firstOrNull()?.id,
                                 title = moneyUsage.title,
                                 price = moneyUsage.amount.toFloat(),
                                 date = moneyUsage.date,
