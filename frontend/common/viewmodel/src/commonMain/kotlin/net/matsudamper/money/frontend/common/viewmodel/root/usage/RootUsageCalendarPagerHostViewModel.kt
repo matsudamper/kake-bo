@@ -1,5 +1,6 @@
 package net.matsudamper.money.frontend.common.viewmodel.root.usage
 
+import androidx.compose.runtime.snapshotFlow
 import kotlin.time.Clock
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
@@ -43,6 +44,14 @@ public class RootUsageCalendarPagerHostViewModel(
     public val viewModelEventHandler: EventHandler<Event> = viewModelEventSender.asHandler()
 
     init {
+        viewModelScope.launch {
+            snapshotFlow { navController.currentBackstackEntry }
+                .collect { entry ->
+                    viewModelStateFlow.update {
+                        it.copy(isUserScrollEnabled = entry is ScreenStructure.Root)
+                    }
+                }
+        }
         rootUsageHostViewModel.updateEventListener(
             object : RootUsageHostScreenUiState.HeaderCalendarEvent {
                 override fun onClickPrevMonth() {
@@ -64,6 +73,7 @@ public class RootUsageCalendarPagerHostViewModel(
         RootUsageCalendarPagerHostScreenUiState(
             pages = immutableListOf(),
             currentPage = null,
+            userScrollEnabled = true,
             hostScreenUiState = rootUsageHostViewModel.uiStateFlow.value,
             event = object : RootUsageCalendarPagerHostScreenUiState.Event {
                 override fun onPageChanged(page: RootUsageCalendarPagerHostScreenUiState.Page) {
@@ -105,6 +115,7 @@ public class RootUsageCalendarPagerHostViewModel(
                         currentPage = viewModelState.pages.indexOf(viewModelState.currentYearMonth)
                             .takeIf { it >= 0 }
                             ?: TODO("無限スクロールをどうするか考える"),
+                        userScrollEnabled = viewModelState.isUserScrollEnabled,
                         pages = viewModelState.pages.map { page ->
                             RootUsageCalendarPagerHostScreenUiState.Page(
                                 navigation = ScreenStructure.Root.Usage.Calendar(
@@ -191,6 +202,7 @@ public class RootUsageCalendarPagerHostViewModel(
 
     public data class ViewModelState(
         val currentYearMonth: YearMonth,
+        val isUserScrollEnabled: Boolean = true,
         val pages: List<YearMonth> = buildList {
             val betweenPageCount = 100
 

@@ -24,6 +24,7 @@ public data class RootUsageCalendarPagerHostScreenUiState(
     val pages: ImmutableList<Page>,
     val hostScreenUiState: RootUsageHostScreenUiState,
     val currentPage: Int?,
+    val userScrollEnabled: Boolean,
     val event: Event,
 ) {
     public data class Page(
@@ -74,6 +75,7 @@ public fun RootUsageCalendarPagerHostScreen(
         HorizontalPager(
             state = state,
             modifier = modifier,
+            userScrollEnabled = uiState.userScrollEnabled,
         ) { index ->
             val item = uiState.pages[index]
             RootUsageCalendarScreen(
