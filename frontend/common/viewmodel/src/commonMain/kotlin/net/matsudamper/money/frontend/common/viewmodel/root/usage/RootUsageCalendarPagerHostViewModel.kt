@@ -37,6 +37,7 @@ public class RootUsageCalendarPagerHostViewModel(
     private val viewModelStateFlow: MutableStateFlow<ViewModelState> = MutableStateFlow(
         ViewModelState(
             currentYearMonth = getDisplayYearMonth(initial),
+            isUserScrollEnabled = navController.currentBackstackEntry is ScreenStructure.Root,
         ),
     )
 
