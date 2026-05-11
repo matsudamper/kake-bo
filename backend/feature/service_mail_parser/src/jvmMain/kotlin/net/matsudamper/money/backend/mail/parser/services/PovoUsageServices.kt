@@ -31,7 +31,7 @@ internal object PovoUsageServices : MoneyUsageServices {
             ?.groups?.get(1)
             ?.value
             ?: return listOf()
-        val month = """(\d+月)""".toRegex()
+        val month = """(\d+月ご利用分)""".toRegex()
             .find(actualSubject)
             ?.groups?.get(1)
             ?.value
@@ -52,6 +52,7 @@ internal object PovoUsageServices : MoneyUsageServices {
     }
 
     private fun canHandledWithSubject(subject: String): Boolean {
-        return subject.contains("povo")
+        return subject.contains("povo") &&
+            subject.contains("月ご利用分のご請求のお支払いが完了しました")
     }
 }
