@@ -24,7 +24,7 @@ internal object PovoUsageServices : MoneyUsageServices {
             yield(canHandledWithFrom(actualFrom))
             yield(canHandledWithSubject(actualSubject))
         }
-        if (canHandle.any { it }.not()) return listOf()
+        if (canHandle.all { it }.not()) return listOf()
 
         val price = "から(.+?)円のお支払いが完了しました".toRegex()
             .find(ParseUtil.removeHtmlTag(html))
