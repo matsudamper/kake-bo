@@ -6,6 +6,11 @@ import net.matsudamper.money.backend.mail.parser.MoneyUsage
 import net.matsudamper.money.backend.mail.parser.MoneyUsageServices
 import net.matsudamper.money.backend.mail.parser.lib.ParseUtil
 
+/*
+ * 対象メール形式（ダミーデータ）:
+ * From: info@povo.jp
+ * Subject: 【povo】2月ご利用分のご請求のお支払いが完了しました
+ */
 internal object PovoUsageServices : MoneyUsageServices {
     override val displayName: String = MoneyUsageServiceType.Povo.displayName
     override fun parse(
