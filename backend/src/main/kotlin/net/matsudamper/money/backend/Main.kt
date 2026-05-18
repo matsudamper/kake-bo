@@ -53,17 +53,33 @@ class Main {
     companion object {
         @JvmStatic
         fun main(args: Array<String>) {
+            val startEpoch = System.currentTimeMillis()
+            fun elapsed(): Long = System.currentTimeMillis() - startEpoch
+
+            println("[startup] main() 開始")
             System.setProperty("logback.configurationFile", "logback.xml")
 
+            println("[startup] OpenTelemetry 初期化開始 (${elapsed()}ms)")
             OpenTelemetryInitializer.initialize()
+            println("[startup] OpenTelemetry 初期化完了 (${elapsed()}ms)")
 
-            // Initialize
+            println("[startup] GraphQL スキーマ初期化開始 (${elapsed()}ms)")
             MoneyGraphQlSchema.graphql
+            println("[startup] GraphQL スキーマ初期化完了 (${elapsed()}ms)")
+
             if (System.getenv("CI")?.toBooleanStrictOrNull() != true) {
+                println("[startup] DB warmup 開始 (${elapsed()}ms)")
                 runCatching { DbConnectionImpl.warmup() }
-                    .onFailure { TraceLogger.impl().noticeThrowable(it, isError = true) }
+                    .onSuccess { println("[startup] DB warmup 成功 (${elapsed()}ms)") }
+                    .onFailure {
+                        println("[startup] DB warmup 失敗 (${elapsed()}ms): ${it.javaClass.name}: ${it.message}")
+                        TraceLogger.impl().noticeThrowable(it, isError = true)
+                    }
+            } else {
+                println("[startup] DB warmup スキップ (CI=true, ${elapsed()}ms)")
             }
 
+            println("[startup] embeddedServer 作成 port=${ServerEnv.port} (${elapsed()}ms)")
             val engine = embeddedServer(
                 CIO,
                 port = ServerEnv.port,
@@ -74,6 +90,7 @@ class Main {
                     engine.stop(1000, 1000)
                 },
             )
+            println("[startup] engine.start() 呼び出し (${elapsed()}ms)")
             engine.start(wait = true)
         }
     }
