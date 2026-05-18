@@ -53,8 +53,8 @@ class Main {
     companion object {
         @JvmStatic
         fun main(args: Array<String>) {
-            val startEpoch = System.currentTimeMillis()
-            fun elapsed(): Long = System.currentTimeMillis() - startEpoch
+            val startNano = System.nanoTime()
+            fun elapsed(): Long = (System.nanoTime() - startNano) / 1_000_000
 
             println("[startup] main() 開始")
             System.setProperty("logback.configurationFile", "logback.xml")
