@@ -47,6 +47,20 @@ class GraphqlAdminQuery(
             .data?.adminMutation?.adminLogout == true
     }
 
+    suspend fun getImageDirectoryMonths(): ApolloResponse<AdminImageDirectoryMonthsQuery.Data> {
+        return graphqlClient.apolloClient
+            .query(AdminImageDirectoryMonthsQuery())
+            .fetchPolicy(FetchPolicy.NetworkOnly)
+            .execute()
+    }
+
+    suspend fun getUnlinkedImagesByMonth(yearMonth: String): ApolloResponse<AdminUnlinkedImagesByMonthQuery.Data> {
+        return graphqlClient.apolloClient
+            .query(AdminUnlinkedImagesByMonthQuery(yearMonth = yearMonth))
+            .fetchPolicy(FetchPolicy.NetworkOnly)
+            .execute()
+    }
+
     suspend fun addUser(
         userName: String,
         password: String,
