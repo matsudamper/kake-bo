@@ -56,6 +56,7 @@ public class AddMoneyUsageViewModel(
                 viewModelStateFlow.update {
                     it.copy(
                         usageCategorySet = result,
+                        hasInputChanges = true,
                     )
                 }
                 viewModel.dismissDialog()
@@ -73,6 +74,26 @@ public class AddMoneyUsageViewModel(
     )
 
     private val uiEvent = object : AddMoneyUsageScreenUiState.Event {
+        override fun onBack() {
+            if (viewModelStateFlow.value.hasInputChanges) {
+                viewModelStateFlow.update { state ->
+                    state.copy(
+                        discardConfirmDialog = AddMoneyUsageScreenUiState.DiscardConfirmDialog(
+                            onClickDiscard = {
+                                viewModelStateFlow.update { it.copy(discardConfirmDialog = null) }
+                                viewModelScope.launch { eventSender.send { it.back() } }
+                            },
+                            onClickCancel = {
+                                viewModelStateFlow.update { it.copy(discardConfirmDialog = null) }
+                            },
+                        ),
+                    )
+                }
+            } else {
+                viewModelScope.launch { eventSender.send { it.back() } }
+            }
+        }
+
         override fun onClickAdd() {
             addMoneyUsage()
         }
@@ -90,6 +111,7 @@ public class AddMoneyUsageViewModel(
                 viewModelState.copy(
                     usageDate = date,
                     showCalendarDialog = false,
+                    hasInputChanges = true,
                 )
             }
         }
@@ -115,6 +137,7 @@ public class AddMoneyUsageViewModel(
                 viewModelState.copy(
                     usageTime = time,
                     showTimePickerDialog = false,
+                    hasInputChanges = true,
                 )
             }
         }
@@ -137,6 +160,7 @@ public class AddMoneyUsageViewModel(
                             viewModelStateFlow.update { viewModelState ->
                                 viewModelState.copy(
                                     usageDescription = text,
+                                    hasInputChanges = true,
                                 )
                             }
                             dismissTextInputDialog()
@@ -169,6 +193,7 @@ public class AddMoneyUsageViewModel(
                 viewModelStateFlow.update { viewModelState ->
                     viewModelState.copy(
                         usageAmount = amount,
+                        hasInputChanges = true,
                         numberInputDialog = viewModelState.numberInputDialog?.copy(
                             value = amount,
                         ),
@@ -196,6 +221,7 @@ public class AddMoneyUsageViewModel(
                             viewModelStateFlow.update { viewModelState ->
                                 viewModelState.copy(
                                     usageTitle = text,
+                                    hasInputChanges = true,
                                 )
                             }
                             dismissTextInputDialog()
@@ -235,6 +261,7 @@ public class AddMoneyUsageViewModel(
                                             url = uploadResult.url,
                                         )
                                         ).distinctBy { it.imageId.value },
+                                    hasInputChanges = true,
                                 )
                             }
                         }
@@ -335,6 +362,8 @@ public class AddMoneyUsageViewModel(
         viewModelStateFlow.update { state ->
             state.copy(
                 notificationUsageKey = current.notificationUsageKey,
+                hasInputChanges = false,
+                discardConfirmDialog = null,
             )
         }
 
@@ -457,6 +486,7 @@ public class AddMoneyUsageViewModel(
             addButtonEnabled = true,
             fullScreenTextInputDialog = null,
             categorySelectDialog = null,
+            discardConfirmDialog = null,
             numberInputDialog = null,
             category = "",
             event = uiEvent,
@@ -496,6 +526,7 @@ public class AddMoneyUsageViewModel(
                         }.toImmutableList(),
                         addButtonEnabled = viewModelState.uploadingImageCount == 0,
                         categorySelectDialog = viewModelState.categorySelectDialog,
+                        discardConfirmDialog = viewModelState.discardConfirmDialog,
                     )
                 }
             }
@@ -524,6 +555,8 @@ public class AddMoneyUsageViewModel(
         val textInputDialog: AddMoneyUsageScreenUiState.FullScreenTextInputDialog? = null,
         val categorySelectDialog: CategorySelectDialogUiState? = null,
         val usageCategorySet: CategorySelectDialogViewModel.SelectedResult? = null,
+        val hasInputChanges: Boolean = false,
+        val discardConfirmDialog: AddMoneyUsageScreenUiState.DiscardConfirmDialog? = null,
     ) {
         data class UploadedImage(val imageId: ImageId, val url: String)
     }
