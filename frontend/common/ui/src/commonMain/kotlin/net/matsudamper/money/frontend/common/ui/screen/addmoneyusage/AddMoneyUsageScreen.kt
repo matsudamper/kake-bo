@@ -33,6 +33,7 @@ import androidx.compose.material3.SnackbarResult
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.Immutable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -94,9 +95,14 @@ public data class AddMoneyUsageScreenUiState(
     val snackbarEventState: SnackbarEventState,
 ) {
     public data class DiscardConfirmDialog(
-        val onClickDiscard: () -> Unit,
-        val onClickCancel: () -> Unit,
-    )
+        val listener: Listener,
+    ) {
+        @Immutable
+        public interface Listener {
+            public fun onClickDiscard()
+            public fun onClickCancel()
+        }
+    }
 
     public data class NumberInputDialog(
         val value: NumberInputValue,
@@ -120,6 +126,7 @@ public data class AddMoneyUsageScreenUiState(
         val selectedTime: LocalTime,
     )
 
+    @Immutable
     public interface Event {
         public fun onBack()
 
@@ -430,9 +437,9 @@ public fun AddMoneyUsageScreen(
             title = { Text("入力内容を破棄しますか？") },
             positiveButton = { Text("破棄") },
             negativeButton = { Text("キャンセル") },
-            onClickPositive = { uiState.discardConfirmDialog.onClickDiscard() },
-            onClickNegative = { uiState.discardConfirmDialog.onClickCancel() },
-            onDismissRequest = { uiState.discardConfirmDialog.onClickCancel() },
+            onClickPositive = { uiState.discardConfirmDialog.listener.onClickDiscard() },
+            onClickNegative = { uiState.discardConfirmDialog.listener.onClickCancel() },
+            onDismissRequest = { uiState.discardConfirmDialog.listener.onClickCancel() },
         )
     }
 

@@ -79,12 +79,15 @@ public class AddMoneyUsageViewModel(
                 viewModelStateFlow.update { state ->
                     state.copy(
                         discardConfirmDialog = AddMoneyUsageScreenUiState.DiscardConfirmDialog(
-                            onClickDiscard = {
-                                viewModelStateFlow.update { it.copy(discardConfirmDialog = null) }
-                                viewModelScope.launch { eventSender.send { it.back() } }
-                            },
-                            onClickCancel = {
-                                viewModelStateFlow.update { it.copy(discardConfirmDialog = null) }
+                            listener = object : AddMoneyUsageScreenUiState.DiscardConfirmDialog.Listener {
+                                override fun onClickDiscard() {
+                                    viewModelStateFlow.update { it.copy(discardConfirmDialog = null) }
+                                    viewModelScope.launch { eventSender.send { it.back() } }
+                                }
+
+                                override fun onClickCancel() {
+                                    viewModelStateFlow.update { it.copy(discardConfirmDialog = null) }
+                                }
                             },
                         ),
                     )
