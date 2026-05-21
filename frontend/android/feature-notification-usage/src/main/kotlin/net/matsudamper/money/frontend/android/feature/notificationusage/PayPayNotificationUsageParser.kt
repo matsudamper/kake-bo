@@ -34,13 +34,11 @@ internal class PayPayNotificationUsageParser : NotificationUsageParser {
     }
 
     private fun parseAmount(text: String): Int? {
-        // "金額：XXX円" のような利用金額を抽出する
         val match = Regex("""金額：([0-9,]+)円""").find(text) ?: return null
         return match.groupValues[1].replace(",", "").toIntOrNull()
     }
 
     private fun parseStoreName(text: String): String? {
-        // "店舗名：XXX" のような店舗名を抽出する
         val match = Regex("""店舗名：(.+)""").find(text) ?: return null
         return match.groupValues[1].trim()
     }
