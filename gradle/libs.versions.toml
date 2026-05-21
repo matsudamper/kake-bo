@@ -10,25 +10,25 @@ activity = "1.13.0"
 appcompat = "1.7.1"
 agp = "8.13.2"
 jackson = "2.21.2"
-compose = "1.10.3"
+compose = "1.11.0"
 protoBuf = "4.34.1"
 lifecycle = "2.10.0"
 jooq = "3.21.2"
-nav3 = "1.1.1"
+nav3 = "1.1.2"
 jetbrainsNav3 = "1.1.1"
 coil3 = "3.4.0"
 zoomable = "2.11.1"
 okhttp = "5.3.2"
 graalvmNative = "0.10.6"
-opentelemetry = "1.61.0"
-paparazzi = "2.0.0-alpha04"
+opentelemetry = "1.62.0"
+paparazzi = "2.0.0-alpha05"
 composablePreviewScanner = "0.9.0"
 room = "2.8.4"
 room3 = "3.0.0-alpha03"
 sqlite = "2.7.0-alpha03"
 workmanager = "2.11.2"
 timber = "5.0.1"
-ksp = "2.3.7"
+ksp = "2.3.8"
 
 [plugins]
 apollo = { id = "com.apollographql.apollo", version.ref = "apollo" }
@@ -52,7 +52,7 @@ awsS3 = { module = "software.amazon.awssdk:s3", version.ref = "awsSdk" }
 awsSts = { module = "software.amazon.awssdk:sts", version.ref = "awsSdk" }
 nimbusJoseJwt = { module = "com.nimbusds:nimbus-jose-jwt", version.ref = "nimbusJoseJwt" }
 kotlinRefrect = { module = "org.jetbrains.kotlin:kotlin-reflect", version.ref = "kotlin" }
-kotlin-coroutines-core = { module = "org.jetbrains.kotlinx:kotlinx-coroutines-core", version.require = "1.10.2" }
+kotlin-coroutines-core = { module = "org.jetbrains.kotlinx:kotlinx-coroutines-core", version.require = "1.11.0" }
 kotlin-datetime = { module = "org.jetbrains.kotlinx:kotlinx-datetime", version.require = "0.7.1-0.6.x-compat" }
 kotlin-serialization-json = { module = "org.jetbrains.kotlinx:kotlinx-serialization-json", version.require = "1.11.0" }
 
@@ -131,8 +131,8 @@ androidxLifecycleRuntimeCompose = { module = "androidx.lifecycle:lifecycle-runti
 androidxNavigation3Runtime = { module = "androidx.navigation3:navigation3-runtime", version.ref = "nav3" }
 androidxNavigation3Ui = { module = "androidx.navigation3:navigation3-ui", version.ref = "nav3" }
 jetbrainsNavigation3Ui = { module = "org.jetbrains.androidx.navigation3:navigation3-ui", version.ref = "jetbrainsNav3" }
-androidxComposeSaveable = { module = "androidx.compose.runtime:runtime-saveable", version = "1.11.1" }
-composeUiToolingPreview = { module = "org.jetbrains.compose.ui:ui-tooling-preview", version = "1.10.3" }
+androidxComposeSaveable = { module = "androidx.compose.runtime:runtime-saveable", version = "1.11.2" }
+composeUiToolingPreview = { module = "org.jetbrains.compose.ui:ui-tooling-preview", version = "1.11.0" }
 composeUiTooling = { module = "org.jetbrains.compose.ui:ui-tooling", version.ref = "compose" }
 
 # Test
