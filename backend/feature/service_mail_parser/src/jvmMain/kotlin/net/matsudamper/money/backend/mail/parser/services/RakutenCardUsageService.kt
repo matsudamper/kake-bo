@@ -24,10 +24,10 @@ internal object RakutenCardUsageService : MoneyUsageServices {
         }
         if (canHandle.any { it }.not()) return listOf()
 
-        return if (plain.contains("カード利用お知らせメール(確定版)")) {
-            parseConfirmedInfo(plain)
-        } else {
-            parseFastInfo(plain, subject)
+        return when {
+            plain.contains("カード利用お知らせメール(確定版)") -> parseConfirmedInfo(plain)
+            plain.contains("■利用日:") -> parseMultipleUsages(plain, date)
+            else -> parseFastInfo(plain, subject)
         }
     }
 
@@ -60,6 +60,56 @@ internal object RakutenCardUsageService : MoneyUsageServices {
                 )
             }
         }
+    }
+
+    private fun parseMultipleUsages(plain: String, fallbackDate: LocalDateTime): List<MoneyUsage> {
+        val lines = ParseUtil.splitByNewLine(plain)
+        val result = mutableListOf<MoneyUsage>()
+
+        var currentDate: LocalDateTime? = null
+        var currentTitle: String? = null
+        var currentPrice: Int? = null
+
+        fun flush() {
+            val title = currentTitle ?: return
+            result.add(
+                MoneyUsage(
+                    title = title,
+                    price = currentPrice,
+                    description = "",
+                    service = MoneyUsageServiceType.RakutenCard,
+                    dateTime = currentDate ?: fallbackDate,
+                ),
+            )
+        }
+
+        for (line in lines) {
+            when {
+                line.startsWith("■利用日:") -> {
+                    flush()
+                    currentDate = parseUsageDate(line.removePrefix("■利用日:").trim()) ?: fallbackDate
+                    currentTitle = null
+                    currentPrice = null
+                }
+                line.startsWith("■利用先:") -> {
+                    currentTitle = line.removePrefix("■利用先:").trim()
+                }
+                line.startsWith("■利用金額:") -> {
+                    currentPrice = ParseUtil.getInt(line.removePrefix("■利用金額:").trim())
+                }
+            }
+        }
+        flush()
+
+        return result
+    }
+
+    private fun parseUsageDate(dateStr: String): LocalDateTime? {
+        val parts = dateStr.split("/")
+        val year = parts.getOrNull(0)?.toIntOrNull() ?: return null
+        val month = parts.getOrNull(1)?.toIntOrNull() ?: return null
+        val day = parts.getOrNull(2)?.toIntOrNull() ?: return null
+        return LocalDateTime.of(LocalDate.of(year, month, day), LocalTime.of(0, 0))
     }
 
     private fun parseFastInfo(plain: String, subject: String): List<MoneyUsage> {
