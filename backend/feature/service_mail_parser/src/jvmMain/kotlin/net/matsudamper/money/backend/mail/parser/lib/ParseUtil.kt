@@ -1,9 +1,9 @@
 package net.matsudamper.money.backend.mail.parser.lib
 
+import java.text.Normalizer
 import java.time.LocalDate
 import java.time.LocalDateTime
 import java.time.LocalTime
-import java.text.Normalizer
 import java.time.format.DateTimeFormatterBuilder
 import java.time.format.SignStyle
 import java.time.temporal.ChronoField
