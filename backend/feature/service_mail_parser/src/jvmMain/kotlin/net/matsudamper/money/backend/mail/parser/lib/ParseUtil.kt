@@ -3,6 +3,7 @@ package net.matsudamper.money.backend.mail.parser.lib
 import java.time.LocalDate
 import java.time.LocalDateTime
 import java.time.LocalTime
+import java.text.Normalizer
 import java.time.format.DateTimeFormatterBuilder
 import java.time.format.SignStyle
 import java.time.temporal.ChronoField
@@ -14,6 +15,26 @@ internal object ParseUtil {
             .mapNotNull { it.toString().toIntOrNull() }
             .joinToString("")
             .toIntOrNull()
+    }
+
+    fun normalizeHalfWidthKatakana(value: String): String {
+        val builder = StringBuilder()
+        var index = 0
+        while (index < value.length) {
+            val start = index
+            while (index < value.length && value[index].code in 0xFF61..0xFF9F) {
+                index++
+            }
+            if (index > start) {
+                builder.append(
+                    Normalizer.normalize(value.substring(start, index), Normalizer.Form.NFKC),
+                )
+            } else {
+                builder.append(value[index])
+                index++
+            }
+        }
+        return builder.toString()
     }
 
     fun removeHtmlTag(value: String): String {

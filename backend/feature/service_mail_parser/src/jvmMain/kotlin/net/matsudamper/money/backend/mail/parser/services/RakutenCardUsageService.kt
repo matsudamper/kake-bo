@@ -62,7 +62,7 @@ internal object RakutenCardUsageService : MoneyUsageServices {
                     currentPrice = null
                 }
                 line.startsWith("■利用先:") -> {
-                    currentTitle = line.removePrefix("■利用先:").trim()
+                    currentTitle = ParseUtil.normalizeHalfWidthKatakana(line.removePrefix("■利用先:").trim())
                 }
                 line.startsWith("■利用金額:") -> {
                     currentPrice = ParseUtil.getInt(line.removePrefix("■利用金額:").trim())
