@@ -121,6 +121,44 @@ class DbUserImageRepository : UserImageRepository {
         }
     }
 
+    override fun getImageInfoByImageIds(
+        userId: UserId,
+        imageIds: List<ImageId>,
+    ): Map<ImageId, UserImageRepository.ImageInfo> {
+        if (imageIds.isEmpty()) {
+            return mapOf()
+        }
+        val uniqueImageIds = imageIds.map { it.value }.distinct()
+        return DbConnectionImpl.use { connection ->
+            DSL.using(connection)
+                .select(
+                    jUserImages.USER_IMAGE_ID,
+                    jUserImages.DISPLAY_ID,
+                    jUserImages.IMAGE_PATH,
+                    jUserImages.STORAGE_TYPE,
+                )
+                .from(jUserImages)
+                .where(
+                    jUserImages.USER_ID.eq(userId.value)
+                        .and(jUserImages.USER_IMAGE_ID.`in`(uniqueImageIds)),
+                )
+                .fetch()
+                .associate { record ->
+                    val storageTypeValue = record.get(jUserImages.STORAGE_TYPE)
+                    val storageType = when (storageTypeValue) {
+                        DbStorageType.LOCAL.dbValue -> UserImageRepository.StorageType.LOCAL
+                        DbStorageType.S3.dbValue -> UserImageRepository.StorageType.S3
+                        else -> throw IllegalStateException("Unknown storage_type: $storageTypeValue")
+                    }
+                    ImageId(record.get(jUserImages.USER_IMAGE_ID)!!) to UserImageRepository.ImageInfo(
+                        displayId = record.get(jUserImages.DISPLAY_ID)!!,
+                        relativePath = record.get(jUserImages.IMAGE_PATH)!!,
+                        storageType = storageType,
+                    )
+                }
+        }
+    }
+
     override fun getDisplayIdsByImageIds(
         userId: UserId,
         imageIds: List<ImageId>,

@@ -12,6 +12,12 @@ interface UserImageRepository {
         val storageType: StorageType,
     )
 
+    data class ImageInfo(
+        val displayId: String,
+        val relativePath: String,
+        val storageType: StorageType,
+    )
+
     fun saveImage(
         userId: UserId,
         displayId: String,
@@ -44,4 +50,9 @@ interface UserImageRepository {
         userId: UserId,
         imageIds: List<ImageId>,
     ): Map<ImageId, String>
+
+    fun getImageInfoByImageIds(
+        userId: UserId,
+        imageIds: List<ImageId>,
+    ): Map<ImageId, ImageInfo>
 }

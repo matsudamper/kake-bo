@@ -36,5 +36,7 @@ interface AdminImageRepository {
         val displayId: String,
         val userId: UserId,
         val userName: String,
+        val relativePath: String,
+        val storageType: UserImageRepository.StorageType,
     )
 }

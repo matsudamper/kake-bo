@@ -12,6 +12,14 @@ public interface ImageStorageGateway {
 
     public fun buildDisplayUrl(request: BuildUrlRequest): String
 
+    /**
+     * 複数の画像URLをまとめて生成する。
+     * S3実装ではuserId単位にSTS資格情報の取得を1回に集約することでAPIコール数を削減する。
+     */
+    public fun buildDisplayUrls(requests: List<BuildUrlRequest>): Map<String, String> {
+        return requests.associate { it.displayId to buildDisplayUrl(it) }
+    }
+
     public fun read(request: ReadRequest): ReadResult?
 
     public data class ReadRequest(

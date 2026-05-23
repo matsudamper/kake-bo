@@ -192,45 +192,45 @@ class S3ImageStorageGateway(
         )
     }
 
-    /**
-     * 画像取得時にS3のpresigned URLを直接返している。
-     * 呼び出しのたびにSTS APIとS3Presignerを構築するため、画像が多いと
-     * STS APIのレート制限やレイテンシが問題になる可能性がある。
-     * 改善策1: StsCredentialProviderでuserId単位にcredentialをキャッシュする
-     * 改善策2: GraphQLがpresigned URLを直接返すよう変更し、DataLoaderで
-     *          同一GraphQLリクエスト内の複数画像をuserId単位にまとめてSTS呼び出しを削減する
-     *          （現状はGraphQLが /api/image/v1/{displayId} を返しブラウザが個別にHTTPリクエストするため
-     *           DataLoaderは適用できない）
-     */
     override fun buildDisplayUrl(request: ImageStorageGateway.BuildUrlRequest): String {
-        val credentials = stsCredentialProvider.assumeWithWebIdentity(userId = request.userId)
-        val key = buildKey(request.relativePath)
+        return buildDisplayUrls(listOf(request)).getValue(request.displayId)
+    }
 
-        S3Presigner.builder().apply {
-            if (config.endpoint.isNotBlank()) {
-                endpointOverride(URI(config.endpoint))
+    /**
+     * userId単位にSTS資格情報の取得と[S3Presigner]の構築を1回に集約してpresigned URLを生成する。
+     * 同一GraphQLリクエストで複数画像のURLが要求された際にSTS APIの呼び出し回数を削減する目的。
+     */
+    override fun buildDisplayUrls(requests: List<ImageStorageGateway.BuildUrlRequest>): Map<String, String> {
+        if (requests.isEmpty()) return mapOf()
+        val result = mutableMapOf<String, String>()
+        for ((_, group) in requests.groupBy { it.userId }) {
+            val credentials = stsCredentialProvider.assumeWithWebIdentity(userId = group.first().userId)
+            S3Presigner.builder().apply {
+                if (config.endpoint.isNotBlank()) {
+                    endpointOverride(URI(config.endpoint))
+                }
+                region(Region.of(config.region))
+                credentialsProvider(StaticCredentialsProvider.create(credentials))
+                serviceConfiguration(
+                    S3Configuration.builder()
+                        .pathStyleAccessEnabled(config.pathStyleAccess)
+                        .build(),
+                )
+            }.build().use { presigner ->
+                for (request in group) {
+                    val getObjectRequest = GetObjectRequest.builder()
+                        .bucket(config.bucket)
+                        .key(buildKey(request.relativePath))
+                        .build()
+                    val presignRequest = GetObjectPresignRequest.builder()
+                        .signatureDuration(Duration.ofHours(1))
+                        .getObjectRequest(getObjectRequest)
+                        .build()
+                    result[request.displayId] = presigner.presignGetObject(presignRequest).url().toString()
+                }
             }
-            region(Region.of(config.region))
-            credentialsProvider(StaticCredentialsProvider.create(credentials))
-            serviceConfiguration(
-                S3Configuration.builder()
-                    .pathStyleAccessEnabled(config.pathStyleAccess)
-                    .build(),
-            )
-        }.build().use { presigner ->
-            val getObjectRequest = GetObjectRequest.builder()
-                .bucket(config.bucket)
-                .key(key)
-                .build()
-
-            val presignRequest = GetObjectPresignRequest.builder()
-                .signatureDuration(Duration.ofHours(1))
-                .getObjectRequest(getObjectRequest)
-                .build()
-
-            val presignedGetObjectResponse = presigner.presignGetObject(presignRequest)
-            return presignedGetObjectResponse.url().toString()
         }
+        return result
     }
 
     private fun buildKey(relativePath: String): String {

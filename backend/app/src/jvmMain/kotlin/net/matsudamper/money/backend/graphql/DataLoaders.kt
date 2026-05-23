@@ -17,6 +17,7 @@ import net.matsudamper.money.backend.dataloader.MoneyUsageCategoryDataLoaderDefi
 import net.matsudamper.money.backend.dataloader.MoneyUsageDataLoaderDefine
 import net.matsudamper.money.backend.dataloader.MoneyUsageSubCategoryDataLoaderDefine
 import net.matsudamper.money.backend.dataloader.OtelBatchLoaderScheduler
+import net.matsudamper.money.backend.dataloader.UserImageUrlDataLoaderDefine
 import net.matsudamper.money.backend.dataloader.UserNameDataLoaderDefine
 import net.matsudamper.money.backend.di.DiContainer
 import net.matsudamper.money.backend.feature.session.UserSessionManagerImpl
@@ -74,6 +75,10 @@ internal class DataLoaders(
 
     val userNameDataLoader by register {
         UserNameDataLoaderDefine(diContainer.createUserNameRepository())
+    }
+
+    val userImageUrlDataLoader by register {
+        UserImageUrlDataLoaderDefine(diContainer, userSessionManager)
     }
 
     private fun <K : Any, V : Any> register(initializer: () -> DataLoaderDefine<K, V>): DataLoaderRegister<K, V> {

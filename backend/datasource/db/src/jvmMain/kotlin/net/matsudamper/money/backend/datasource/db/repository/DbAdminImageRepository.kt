@@ -43,6 +43,8 @@ class DbAdminImageRepository(
                     userImages.USER_IMAGE_ID,
                     userImages.DISPLAY_ID,
                     userImages.USER_ID,
+                    userImages.IMAGE_PATH,
+                    userImages.STORAGE_TYPE,
                     users.USER_NAME,
                 )
                 .from(userImages)
@@ -59,11 +61,19 @@ class DbAdminImageRepository(
                 .fetch()
 
             val items = records.take(size).map { record ->
+                val storageTypeValue = record.get(userImages.STORAGE_TYPE)
+                val storageType = when (storageTypeValue) {
+                    DbStorageType.LOCAL.dbValue -> UserImageRepository.StorageType.LOCAL
+                    DbStorageType.S3.dbValue -> UserImageRepository.StorageType.S3
+                    else -> throw IllegalStateException("Unknown storage_type: $storageTypeValue")
+                }
                 AdminImageRepository.Item(
                     imageId = ImageId(record.get(userImages.USER_IMAGE_ID)!!),
                     displayId = record.get(userImages.DISPLAY_ID)!!,
                     userId = UserId(record.get(userImages.USER_ID)!!),
                     userName = record.get(users.USER_NAME)!!,
+                    relativePath = record.get(userImages.IMAGE_PATH)!!,
+                    storageType = storageType,
                 )
             }
             AdminImageRepository.Result(

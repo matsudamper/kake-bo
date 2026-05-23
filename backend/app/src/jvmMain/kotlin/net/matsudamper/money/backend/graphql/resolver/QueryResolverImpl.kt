@@ -5,9 +5,9 @@ import java.util.concurrent.CompletionStage
 import graphql.execution.DataFetcherResult
 import graphql.schema.DataFetchingEnvironment
 import net.matsudamper.money.backend.app.interfaces.AdminImageRepository
+import net.matsudamper.money.backend.app.interfaces.ImageStorageGateway
 import net.matsudamper.money.backend.app.interfaces.UserSessionRepository
 import net.matsudamper.money.backend.base.ServerEnv
-import net.matsudamper.money.backend.feature.image.ImageApiPath
 import net.matsudamper.money.backend.graphql.GraphQlContext
 import net.matsudamper.money.backend.graphql.GraphqlMoneyException
 import net.matsudamper.money.backend.graphql.otelSupplyAsync
@@ -72,14 +72,26 @@ class QueryResolverImpl : QueryResolver {
                     },
                 )
 
+                val urlByDisplayId = result.items.groupBy { it.storageType }.flatMap { (storageType, items) ->
+                    val gateway = context.diContainer.createReadImageStorageGateway(storageType)
+                    val requests = items.map { item ->
+                        ImageStorageGateway.BuildUrlRequest(
+                            domain = domain,
+                            displayId = item.displayId,
+                            userId = item.userId,
+                            relativePath = item.relativePath,
+                            purpose = ImageStorageGateway.Purpose.ADMIN,
+                        )
+                    }
+                    gateway.buildDisplayUrls(requests).entries.map { it.key to it.value }
+                }.toMap()
+
                 QlAdminUnlinkedImagesConnection(
                     nodes = result.items.map { item ->
                         QlAdminUnlinkedImage(
                             id = item.imageId,
-                            url = ImageApiPath.adminImageV1AbsoluteByDisplayId(
-                                domain = domain,
-                                displayId = item.displayId,
-                            ),
+                            url = urlByDisplayId[item.displayId]
+                                ?: throw IllegalStateException("url is not found: displayId=${item.displayId}"),
                             userId = item.userId,
                             userName = item.userName,
                         )
