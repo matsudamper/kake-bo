@@ -42,7 +42,6 @@ jobs:
         env:
           CI: true
           DEBUG_KEYSTORE_PATH: ${{ runner.temp }}/debug.keystore
-          CI_ABI_FILTER: arm64-v8a
         run: ./gradlew :frontend:app:assembleDebug
       - name: Rename APK with branch and short hash
         env:
