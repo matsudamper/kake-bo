@@ -28,7 +28,7 @@ room3 = "3.0.0-alpha05"
 sqlite = "2.7.0-alpha05"
 workmanager = "2.11.2"
 timber = "5.0.1"
-ksp = "2.3.8"
+ksp = "2.3.9"
 
 [plugins]
 apollo = { id = "com.apollographql.apollo", version.ref = "apollo" }
