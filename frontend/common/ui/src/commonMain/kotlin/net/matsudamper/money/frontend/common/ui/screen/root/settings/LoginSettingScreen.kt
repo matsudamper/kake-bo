@@ -125,6 +125,8 @@ public data class LoginSettingScreenUiState(
     ) {
         @Immutable
         public interface Event {
+            public fun onClickAddPassword()
+
             public fun onClickChangePassword()
 
             public fun onClickDeletePassword()
@@ -713,19 +715,28 @@ private fun PasswordCardContent(
             }
         }
         HorizontalDivider(color = MaterialTheme.colorScheme.outlineVariant)
-        PasswordActionRow(
-            iconRes = Res.drawable.ic_edit,
-            text = "パスワードを変更",
-            color = MaterialTheme.colorScheme.primary,
-            onClick = { password.event.onClickChangePassword() },
-        )
-        HorizontalDivider(color = MaterialTheme.colorScheme.outlineVariant)
-        PasswordActionRow(
-            iconRes = Res.drawable.ic_delete,
-            text = "パスワードを削除",
-            color = MaterialTheme.colorScheme.error,
-            onClick = { password.event.onClickDeletePassword() },
-        )
+        if (password.isRegistered) {
+            PasswordActionRow(
+                iconRes = Res.drawable.ic_edit,
+                text = "パスワードを変更",
+                color = MaterialTheme.colorScheme.primary,
+                onClick = { password.event.onClickChangePassword() },
+            )
+            HorizontalDivider(color = MaterialTheme.colorScheme.outlineVariant)
+            PasswordActionRow(
+                iconRes = Res.drawable.ic_delete,
+                text = "パスワードを削除",
+                color = MaterialTheme.colorScheme.error,
+                onClick = { password.event.onClickDeletePassword() },
+            )
+        } else {
+            PasswordActionRow(
+                iconRes = Res.drawable.ic_add,
+                text = "パスワードを追加",
+                color = MaterialTheme.colorScheme.primary,
+                onClick = { password.event.onClickAddPassword() },
+            )
+        }
     }
 }
 

@@ -106,11 +106,15 @@ public class LoginSettingViewModel(
                                 }.toImmutableList()
                             }
                         },
-                        password = LoginSettingScreenUiState.Password(
-                            isRegistered = true,
-                            maskedDisplay = "••••••••",
-                            event = PasswordEventImpl(),
-                        ),
+                        password = run password@{
+                            val hasPassword = viewModelState.apolloScreenResponse
+                                ?.data?.user?.settings?.hasPassword ?: false
+                            LoginSettingScreenUiState.Password(
+                                isRegistered = hasPassword,
+                                maskedDisplay = "••••••••",
+                                event = PasswordEventImpl(),
+                            )
+                        },
                         sessionList = run sessionList@{
                             val sessionList = viewModelState.apolloScreenResponse
                                 ?.data?.user?.settings?.sessionAttributes?.sessions
@@ -348,6 +352,10 @@ public class LoginSettingViewModel(
     private inner class PasswordEventImpl :
         LoginSettingScreenUiState.Password.Event,
         EqualsImpl() {
+        override fun onClickAddPassword() {
+            // TODO: パスワード追加機能は未実装
+        }
+
         override fun onClickChangePassword() {
             // TODO: パスワード変更機能は未実装
         }

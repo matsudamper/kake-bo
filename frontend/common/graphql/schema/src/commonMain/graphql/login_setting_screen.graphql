@@ -1,6 +1,7 @@
 query LoginSettingScreen {
     user {
         settings {
+            hasPassword
             registeredFidoList {
                 id
                 name
