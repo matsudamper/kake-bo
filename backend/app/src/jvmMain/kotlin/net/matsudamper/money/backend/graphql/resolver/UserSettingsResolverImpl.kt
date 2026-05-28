@@ -19,6 +19,18 @@ import net.matsudamper.money.graphql.model.QlUserSettings
 import net.matsudamper.money.graphql.model.UserSettingsResolver
 
 class UserSettingsResolverImpl : UserSettingsResolver {
+    override fun hasPassword(
+        userSettings: QlUserSettings,
+        env: DataFetchingEnvironment,
+    ): CompletionStage<DataFetcherResult<Boolean>> {
+        val context = env.graphQlContext.get<GraphQlContext>(GraphQlContext::class.java.name)
+        val userId = context.verifyUserSessionAndGetUserId()
+
+        return otelSupplyAsync {
+            context.diContainer.userLoginRepository().hasPassword(userId)
+        }.toDataFetcher()
+    }
+
     override fun imapConfig(
         userSettings: QlUserSettings,
         env: DataFetchingEnvironment,

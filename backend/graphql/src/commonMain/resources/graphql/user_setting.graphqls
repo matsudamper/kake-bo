@@ -4,6 +4,7 @@ type UserSettings {
     registeredFidoList: [RegisteredFidoInfo!]! @lazy
     sessionAttributes: SessionAttributes!
     apiTokenAttributes: ApiTokenAttributes!
+    hasPassword: Boolean! @lazy
 }
 
 type ApiTokenAttributes {
