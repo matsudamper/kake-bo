@@ -353,15 +353,73 @@ public class LoginSettingViewModel(
         LoginSettingScreenUiState.Password.Event,
         EqualsImpl() {
         override fun onClickAddPassword() {
-            // TODO: パスワード追加機能は未実装
+            showPasswordInputDialog(title = "パスワードを入力してください")
         }
 
         override fun onClickChangePassword() {
-            // TODO: パスワード変更機能は未実装
+            showPasswordInputDialog(title = "新しいパスワードを入力してください")
         }
 
         override fun onClickDeletePassword() {
-            // TODO: パスワード削除機能は未実装
+            showConfirmDialog(
+                title = "パスワードを削除",
+                description = "パスワードを削除しますか？",
+                onConfirm = { changePassword(null) },
+            )
+        }
+
+        private fun showPasswordInputDialog(title: String) {
+            val dialogState = LoginSettingScreenUiState.TextInputDialogState(
+                title = title,
+                text = "",
+                onConfirm = { password ->
+                    closeTextInputDialog()
+                    if (password.isBlank()) {
+                        showToast("入力してください")
+                    } else {
+                        changePassword(password)
+                    }
+                },
+                onCancel = {
+                    closeTextInputDialog()
+                },
+                type = TextFieldType.Password,
+            )
+            viewModelStateFlow.update {
+                it.copy(
+                    textInputDialogState = dialogState,
+                )
+            }
+        }
+
+        private fun changePassword(password: String?) {
+            viewModelScope.launch {
+                val result = api.changePassword(password)
+                when (result) {
+                    LoginSettingScreenApi.ChangePasswordResult.Success -> {
+                        showToast(if (password == null) "削除しました" else "保存しました")
+                        api.getScreen().first()
+                    }
+
+                    LoginSettingScreenApi.ChangePasswordResult.PasswordLength -> {
+                        showToast("パスワードの長さが不正です")
+                    }
+
+                    LoginSettingScreenApi.ChangePasswordResult.PasswordInvalidChar -> {
+                        showToast("使用できない文字が含まれています")
+                    }
+
+                    LoginSettingScreenApi.ChangePasswordResult.Failed -> {
+                        showToast("失敗しました")
+                    }
+                }
+            }
+        }
+
+        private fun showToast(text: String) {
+            viewModelScope.launch {
+                eventSender.send { it.showToast(text) }
+            }
         }
     }
 

@@ -642,6 +642,19 @@ scalar SessionRecordId
 
 type SettingsMutation {
   updateImapConfig(config: UpdateUserImapConfigInput!): UserImapConfig
+  changePassword(password: String): ChangePasswordResult!
+}
+
+type ChangePasswordResult {
+  isSuccess: Boolean!
+  errorType: ChangePasswordErrorType
+}
+
+enum ChangePasswordErrorType {
+  Unknown
+  UserNotFound
+  PasswordLength
+  PasswordInvalidChar
 }
 
 """
