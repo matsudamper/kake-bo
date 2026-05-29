@@ -31,8 +31,13 @@ public object ServerEnv {
         get() = System.getenv("ADMIN_USER_IDS")
             .orEmpty()
             .split(",")
-            .mapNotNull { it.trim().toIntOrNull() }
-            .map { UserId(it) }
+            .map { it.trim() }
+            .filter { it.isNotEmpty() }
+            .map { token ->
+                val value = token.toIntOrNull()
+                    ?: throw IllegalStateException("ADMIN_USER_IDSに不正な値が含まれています: $token")
+                UserId(value)
+            }
 
     public val adminPasswordAlgorithm: String get() = "PBKDF2WithHmacSHA512"
     public val adminPasswordIterationCount: Int get() = 100000
