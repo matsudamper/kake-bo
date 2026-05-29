@@ -12,6 +12,8 @@ internal data class AdminLoginScreenUiState(
         fun onPasswordChanged(text: String)
 
         fun onClickLogin()
+
+        fun onClickPromoteToAdmin()
     }
 }
 
