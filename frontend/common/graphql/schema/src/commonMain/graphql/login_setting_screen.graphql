@@ -73,6 +73,19 @@ mutation LoginSettingScreenDeleteSession(
     }
 }
 
+mutation LoginSettingScreenChangePassword(
+    $password: String
+) {
+    userMutation {
+        settingsMutation {
+            changePassword(password: $password) {
+                isSuccess
+                errorType
+            }
+        }
+    }
+}
+
 query LoginSettingScreenGetFidoInfo {
     user {
         settings {

@@ -192,53 +192,29 @@ public class LoginSettingViewModel(
                 showAddFidoFailToast()
                 return@launch
             }
-            val onConfirm: (String) -> Unit = { name ->
-                viewModelScope.launch onConfirm@{
-                    if (name.isBlank()) {
-                        eventSender.send { it.showToast("入力してください") }
-                        return@onConfirm
-                    }
-                    val result = withContext(Dispatchers.Default) {
-                        api.addFido(
-                            displayName = name,
-                            base64AttestationObject = createResult.attestationObjectBase64,
-                            base64ClientDataJson = createResult.clientDataJSONBase64,
-                            challenge = fidoInfo.challenge,
-                        )
-                    }
-
-                    val registerFidoResult = result?.data?.userMutation?.registerFido
-                    if (registerFidoResult?.fidoInfo == null) {
-                        showAddFidoFailToast()
-                    } else {
-                        eventSender.send { it.showToast("追加しました") }
-                        api.getScreen().first()
-                    }
-                    viewModelStateFlow.update { viewModelState ->
-                        viewModelState.copy(
-                            textInputDialogState = null,
-                        )
-                    }
-                }
-            }
-            val onCancel: () -> Unit = {
-                viewModelStateFlow.update { viewModelState ->
-                    viewModelState.copy(
-                        textInputDialogState = null,
-                    )
-                }
-            }
             viewModelStateFlow.update { viewModelState ->
                 viewModelState.copy(
                     textInputDialogState = LoginSettingScreenUiState.TextInputDialogState(
                         title = "キーの名前を入力してください",
                         text = "",
-                        onConfirm = onConfirm,
-                        onCancel = onCancel,
+                        event = FidoNameInputDialogEventImpl(
+                            base64AttestationObject = createResult.attestationObjectBase64,
+                            base64ClientDataJson = createResult.clientDataJSONBase64,
+                            challenge = fidoInfo.challenge,
+                        ),
                         type = TextFieldType.Text,
                     ),
                 )
             }
+        }
+    }
+
+    private suspend fun refreshScreen() {
+        val response = api.getScreen().first()
+        viewModelStateFlow.update { viewModelState ->
+            viewModelState.copy(
+                apolloScreenResponse = response,
+            )
         }
     }
 
@@ -310,7 +286,7 @@ public class LoginSettingViewModel(
                 val result = api.deleteSession(id)
                 if (result) {
                     eventSender.send { it.showToast("削除しました") }
-                    api.getScreen().first()
+                    refreshScreen()
                 } else {
                     eventSender.send { it.showToast("削除に失敗しました") }
                 }
@@ -318,21 +294,14 @@ public class LoginSettingViewModel(
         }
 
         override fun onClickNameChange() {
-            val dialogState = LoginSettingScreenUiState.TextInputDialogState(
-                title = "名前を入力してください",
-                text = name,
-                onConfirm = {
-                    changeName(it)
-                    closeTextInputDialog()
-                },
-                onCancel = {
-                    closeTextInputDialog()
-                },
-                type = TextFieldType.Text,
-            )
             viewModelStateFlow.update {
                 it.copy(
-                    textInputDialogState = dialogState,
+                    textInputDialogState = LoginSettingScreenUiState.TextInputDialogState(
+                        title = "名前を入力してください",
+                        text = name,
+                        event = NameInputDialogEventImpl(),
+                        type = TextFieldType.Text,
+                    ),
                 )
             }
         }
@@ -341,10 +310,23 @@ public class LoginSettingViewModel(
             viewModelScope.launch {
                 val result = api.changeSessionName(id = id, name = newName)
                 if (result) {
-                    api.getScreen().first()
+                    refreshScreen()
                 } else {
                     eventSender.send { it.showToast("変更に失敗しました") }
                 }
+            }
+        }
+
+        private inner class NameInputDialogEventImpl :
+            LoginSettingScreenUiState.TextInputDialogState.Event,
+            EqualsImpl(id) {
+            override fun onConfirm(text: String) {
+                changeName(text)
+                closeTextInputDialog()
+            }
+
+            override fun onCancel() {
+                closeTextInputDialog()
             }
         }
     }
@@ -353,15 +335,115 @@ public class LoginSettingViewModel(
         LoginSettingScreenUiState.Password.Event,
         EqualsImpl() {
         override fun onClickAddPassword() {
-            // TODO: パスワード追加機能は未実装
+            showPasswordInputDialog(title = "パスワードを入力してください")
         }
 
         override fun onClickChangePassword() {
-            // TODO: パスワード変更機能は未実装
+            showPasswordInputDialog(title = "新しいパスワードを入力してください")
         }
 
         override fun onClickDeletePassword() {
-            // TODO: パスワード削除機能は未実装
+            showConfirmDialog(
+                title = "パスワードを削除",
+                description = "パスワードを削除しますか？",
+                onConfirm = { changePassword(null) },
+            )
+        }
+
+        private fun showPasswordInputDialog(title: String) {
+            viewModelStateFlow.update {
+                it.copy(
+                    textInputDialogState = LoginSettingScreenUiState.TextInputDialogState(
+                        title = title,
+                        text = "",
+                        event = PasswordInputDialogEventImpl(),
+                        type = TextFieldType.Password,
+                    ),
+                )
+            }
+        }
+
+        private fun changePassword(password: String?) {
+            viewModelScope.launch {
+                val result = api.changePassword(password)
+                when (result) {
+                    LoginSettingScreenApi.ChangePasswordResult.Success -> {
+                        showToast(if (password == null) "削除しました" else "保存しました")
+                        refreshScreen()
+                    }
+
+                    LoginSettingScreenApi.ChangePasswordResult.PasswordLength -> {
+                        showToast("パスワードの長さが不正です")
+                    }
+
+                    LoginSettingScreenApi.ChangePasswordResult.PasswordInvalidChar -> {
+                        showToast("使用できない文字が含まれています")
+                    }
+
+                    LoginSettingScreenApi.ChangePasswordResult.Failed -> {
+                        showToast("失敗しました")
+                    }
+                }
+            }
+        }
+
+        private fun showToast(text: String) {
+            viewModelScope.launch {
+                eventSender.send { it.showToast(text) }
+            }
+        }
+
+        private inner class PasswordInputDialogEventImpl :
+            LoginSettingScreenUiState.TextInputDialogState.Event,
+            EqualsImpl() {
+            override fun onConfirm(text: String) {
+                closeTextInputDialog()
+                if (text.isBlank()) {
+                    showToast("入力してください")
+                } else {
+                    changePassword(text)
+                }
+            }
+
+            override fun onCancel() {
+                closeTextInputDialog()
+            }
+        }
+    }
+
+    private inner class FidoNameInputDialogEventImpl(
+        private val base64AttestationObject: String,
+        private val base64ClientDataJson: String,
+        private val challenge: String,
+    ) : LoginSettingScreenUiState.TextInputDialogState.Event, EqualsImpl(challenge) {
+        override fun onConfirm(text: String) {
+            viewModelScope.launch onConfirm@{
+                if (text.isBlank()) {
+                    eventSender.send { it.showToast("入力してください") }
+                    return@onConfirm
+                }
+                val result = withContext(Dispatchers.Default) {
+                    api.addFido(
+                        displayName = text,
+                        base64AttestationObject = base64AttestationObject,
+                        base64ClientDataJson = base64ClientDataJson,
+                        challenge = challenge,
+                    )
+                }
+
+                val registerFidoResult = result?.data?.userMutation?.registerFido
+                if (registerFidoResult?.fidoInfo == null) {
+                    showAddFidoFailToast()
+                } else {
+                    eventSender.send { it.showToast("追加しました") }
+                    refreshScreen()
+                }
+                closeTextInputDialog()
+            }
+        }
+
+        override fun onCancel() {
+            closeTextInputDialog()
         }
     }
 
