@@ -137,9 +137,15 @@ public data class LoginSettingScreenUiState(
         val title: String,
         val text: String,
         val type: TextFieldType,
-        val onConfirm: (String) -> Unit,
-        val onCancel: () -> Unit,
-    )
+        val event: Event,
+    ) {
+        @Immutable
+        public interface Event {
+            public fun onConfirm(text: String)
+
+            public fun onCancel()
+        }
+    }
 
     public data class Fido(
         val name: String,
@@ -172,8 +178,8 @@ public fun LoginSettingScreen(
             title = uiState.textInputDialogState.title,
             default = uiState.textInputDialogState.text,
             inputType = uiState.textInputDialogState.type,
-            onComplete = { uiState.textInputDialogState.onConfirm(it) },
-            canceled = { uiState.textInputDialogState.onCancel() },
+            onComplete = { uiState.textInputDialogState.event.onConfirm(it) },
+            canceled = { uiState.textInputDialogState.event.onCancel() },
         )
     }
     uiState.confirmDialog?.also { dialog ->
