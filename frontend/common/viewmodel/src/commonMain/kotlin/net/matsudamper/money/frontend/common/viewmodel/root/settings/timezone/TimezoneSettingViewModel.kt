@@ -85,7 +85,7 @@ public class TimezoneSettingViewModel(
                 graphqlApi.getTimezoneOffset()
             }.getOrNull()
 
-            val offsetMinutes = result?.data?.user?.settings?.timezoneOffset
+            val offsetMinutes = result?.data?.user?.settings?.timezoneOffsetMinutes
             if (offsetMinutes == null) {
                 viewModelStateFlow.update { state ->
                     if (state.timezoneOffsetMinutes == null) {

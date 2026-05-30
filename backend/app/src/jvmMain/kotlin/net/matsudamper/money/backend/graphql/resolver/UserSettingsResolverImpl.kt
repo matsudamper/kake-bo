@@ -31,7 +31,7 @@ class UserSettingsResolverImpl : UserSettingsResolver {
         }.toDataFetcher()
     }
 
-    override fun timezoneOffset(
+    override fun timezoneOffsetMinutes(
         userSettings: QlUserSettings,
         env: DataFetchingEnvironment,
     ): CompletionStage<DataFetcherResult<Int>> {

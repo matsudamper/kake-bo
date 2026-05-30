@@ -5,7 +5,7 @@ type UserSettings {
     sessionAttributes: SessionAttributes!
     apiTokenAttributes: ApiTokenAttributes!
     hasPassword: Boolean! @lazy
-    timezoneOffset: Int! @lazy
+    timezoneOffsetMinutes: Int! @lazy
 }
 
 type ApiTokenAttributes {

@@ -82,9 +82,9 @@ class SettingsMutationResolverResolverImpl : SettingsMutationResolver {
         val userId = context.verifyUserSessionAndGetUserId()
         return otelSupplyAsync {
             val offset = runCatching {
-                ZoneOffset.ofTotalSeconds(offsetMinutes * 60)
+                ZoneOffset.ofTotalSeconds(Math.multiplyExact(offsetMinutes, 60))
             }.getOrElse {
-                if (it is DateTimeException) {
+                if (it is DateTimeException || it is ArithmeticException) {
                     return@otelSupplyAsync nullableIntResultBuilder()
                         .error(
                             GraphqlErrorBuilder.newError(env)
@@ -99,6 +99,11 @@ class SettingsMutationResolverResolverImpl : SettingsMutationResolver {
             if (isSuccess.not()) {
                 return@otelSupplyAsync nullableIntResultBuilder()
                     .data(null)
+                    .error(
+                        GraphqlErrorBuilder.newError(env)
+                            .message("タイムゾーンオフセットの更新に失敗しました")
+                            .build(),
+                    )
                     .build()
             }
             nullableIntResultBuilder()
