@@ -1,5 +1,7 @@
 package net.matsudamper.money.backend.base
 
+import net.matsudamper.money.element.UserId
+
 public object ServerEnv {
     public val isSecure: Boolean get() = System.getenv()["IS_SECURE"].toBoolean()
     public val domain: String? get() = System.getenv()["DOMAIN"]
@@ -24,6 +26,18 @@ public object ServerEnv {
 
     public val adminPasswordHash: String? get() = System.getenv("ADMIN_PASSWORD_HASH")
     public val adminPasswordSalt: String? get() = System.getenv("ADMIN_PASSWORD_SALT")
+
+    public val adminUserIds: List<UserId>
+        get() = System.getenv("ADMIN_USER_IDS")
+            .orEmpty()
+            .split(",")
+            .map { it.trim() }
+            .filter { it.isNotEmpty() }
+            .map { token ->
+                val value = token.toIntOrNull()
+                    ?: throw IllegalStateException("ADMIN_USER_IDSに不正な値が含まれています: $token")
+                UserId(value)
+            }
 
     public val adminPasswordAlgorithm: String get() = "PBKDF2WithHmacSHA512"
     public val adminPasswordIterationCount: Int get() = 100000
