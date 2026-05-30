@@ -64,7 +64,13 @@ public class TimezoneSettingViewModel(
     }.asStateFlow()
 
     private fun formatOffsetText(offsetMinutes: Int): String {
-        return Companion.formatOffsetText(offsetMinutes)
+        val sign = if (offsetMinutes >= 0) "+" else "-"
+        val absMinutes = kotlin.math.abs(offsetMinutes)
+        val hours = absMinutes / 60
+        val minutes = absMinutes % 60
+        val hoursStr = hours.toString().padStart(2, '0')
+        val minutesStr = minutes.toString().padStart(2, '0')
+        return "UTC${sign}$hoursStr:$minutesStr（${offsetMinutes}分）"
     }
 
     private fun load() {
@@ -195,17 +201,7 @@ public class TimezoneSettingViewModel(
         }
     }
 
-    internal companion object {
+    private companion object {
         val validTimezoneOffsetRange: IntRange = -720..840
-
-        fun formatOffsetText(offsetMinutes: Int): String {
-            val sign = if (offsetMinutes >= 0) "+" else "-"
-            val absMinutes = kotlin.math.abs(offsetMinutes)
-            val hours = absMinutes / 60
-            val minutes = absMinutes % 60
-            val hoursStr = hours.toString().padStart(2, '0')
-            val minutesStr = minutes.toString().padStart(2, '0')
-            return "UTC${sign}$hoursStr:$minutesStr（${offsetMinutes}分）"
-        }
     }
 }
