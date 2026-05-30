@@ -1,12 +1,10 @@
 package net.matsudamper.money.frontend.common.viewmodel.root.settings.timezone
 
-import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
-import kotlinx.coroutines.withContext
 import net.matsudamper.money.frontend.common.base.nav.ScopedObjectFeature
 import net.matsudamper.money.frontend.common.base.nav.user.ScreenNavController
 import net.matsudamper.money.frontend.common.ui.base.KakeboScaffoldListener
@@ -19,7 +17,6 @@ public class TimezoneSettingViewModel(
     scopedObjectFeature: ScopedObjectFeature,
     private val graphqlApi: TimezoneSettingGraphqlApi,
     private val globalEventSender: EventSender<GlobalEvent>,
-    private val ioDispatchers: CoroutineDispatcher,
     navController: ScreenNavController,
 ) : CommonViewModel(scopedObjectFeature) {
     private val viewModelStateFlow = MutableStateFlow(ViewModelState())
@@ -85,9 +82,7 @@ public class TimezoneSettingViewModel(
             }
 
             val result = runCatching {
-                withContext(ioDispatchers) {
-                    graphqlApi.getTimezoneOffset()
-                }
+                graphqlApi.getTimezoneOffset()
             }.getOrNull()
 
             val offsetMinutes = result?.data?.user?.settings?.timezoneOffset
@@ -128,9 +123,7 @@ public class TimezoneSettingViewModel(
             }
             viewModelScope.launch {
                 val result = runCatching {
-                    withContext(ioDispatchers) {
-                        graphqlApi.setTimezoneOffset(offsetMinutes)
-                    }
+                    graphqlApi.setTimezoneOffset(offsetMinutes)
                 }.onFailure {
                     showNativeNotification("更新に失敗しました")
                     return@launch

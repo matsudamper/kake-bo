@@ -249,7 +249,6 @@ internal fun SettingNavContent(
                             apolloClient = koin.get<GraphqlClient>().apolloClient,
                         ),
                         globalEventSender = globalEventSender,
-                        ioDispatchers = Dispatchers.IO,
                         navController = navController,
                     )
                 }
