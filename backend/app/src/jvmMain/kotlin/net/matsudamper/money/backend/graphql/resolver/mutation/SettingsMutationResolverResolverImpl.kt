@@ -81,9 +81,7 @@ class SettingsMutationResolverResolverImpl : SettingsMutationResolver {
         val userConfigRepository = context.diContainer.createUserConfigRepository()
         val userId = context.verifyUserSessionAndGetUserId()
         return otelSupplyAsync {
-            val offset = runCatching {
-                ZoneOffset.ofTotalSeconds(Math.multiplyExact(offsetMinutes, 60))
-            }.getOrElse {
+            val offset = parseTimezoneOffset(offsetMinutes).getOrElse {
                 if (it is DateTimeException || it is ArithmeticException) {
                     return@otelSupplyAsync nullableIntResultBuilder()
                         .error(
@@ -146,5 +144,11 @@ class SettingsMutationResolverResolverImpl : SettingsMutationResolver {
     @Suppress("UNCHECKED_CAST")
     private fun nullableIntResultBuilder(): DataFetcherResult.Builder<Int?> {
         return DataFetcherResult.newResult<Any>() as DataFetcherResult.Builder<Int?>
+    }
+
+    internal companion object {
+        fun parseTimezoneOffset(offsetMinutes: Int): Result<ZoneOffset> = runCatching {
+            ZoneOffset.ofTotalSeconds(Math.multiplyExact(offsetMinutes, 60))
+        }
     }
 }
