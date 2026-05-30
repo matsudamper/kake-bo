@@ -39,7 +39,11 @@ class UserSettingsResolverImpl : UserSettingsResolver {
         val userId = context.verifyUserSessionAndGetUserId()
 
         return otelSupplyAsync {
-            context.diContainer.createUserConfigRepository().getTimezoneOffset(userId)
+            context.diContainer.createUserConfigRepository()
+                .getTimezoneOffset(userId)
+                ?.totalSeconds
+                ?.div(60)
+                ?: 0
         }.toDataFetcher()
     }
 

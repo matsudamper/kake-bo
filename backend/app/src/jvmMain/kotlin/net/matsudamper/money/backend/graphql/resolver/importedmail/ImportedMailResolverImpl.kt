@@ -163,9 +163,13 @@ class ImportedMailResolverImpl : ImportedMailResolver {
                     .build()
             }
 
-            val timezoneOffsetMinutes = context.diContainer.createUserConfigRepository()
+            val timezoneOffset = context.diContainer.createUserConfigRepository()
                 .getTimezoneOffset(userId)
-            val adjustedDate = targetMail.dateTime.plusMinutes(timezoneOffsetMinutes.toLong())
+            val adjustedDate = if (timezoneOffset != null) {
+                targetMail.dateTime.plusSeconds(timezoneOffset.totalSeconds.toLong())
+            } else {
+                targetMail.dateTime
+            }
 
             val results = MailParser.parseUsage(
                 subject = targetMail.subject,

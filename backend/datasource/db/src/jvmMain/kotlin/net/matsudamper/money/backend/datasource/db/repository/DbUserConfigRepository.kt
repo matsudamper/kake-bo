@@ -1,7 +1,7 @@
 package net.matsudamper.money.backend.datasource.db.repository
 
+import java.time.ZoneOffset
 import net.matsudamper.money.backend.app.interfaces.UserConfigRepository
-import net.matsudamper.money.backend.app.interfaces.UserConfigRepository.Companion.TIMEZONE_OFFSET_RANGE
 import net.matsudamper.money.backend.app.interfaces.element.ImapConfig
 import net.matsudamper.money.backend.datasource.db.DbConnectionImpl
 import net.matsudamper.money.db.schema.tables.JUserImapSettings
@@ -62,7 +62,7 @@ class DbUserConfigRepository : UserConfigRepository {
         )
     }
 
-    override fun getTimezoneOffset(userId: UserId): Int {
+    override fun getTimezoneOffset(userId: UserId): ZoneOffset? {
         return runCatching {
             val userSetting = JUserSetting.USER_SETTING
             DbConnectionImpl.use {
@@ -73,15 +73,16 @@ class DbUserConfigRepository : UserConfigRepository {
                     .fetchOne()
             }
         }.fold(
-            onSuccess = { record -> record?.value1() ?: 0 },
+            onSuccess = { record ->
+                val minutes = record?.value1() ?: return null
+                ZoneOffset.ofTotalSeconds(minutes * 60)
+            },
             onFailure = { throw it },
         )
     }
 
-    override fun updateTimezoneOffset(userId: UserId, offsetMinutes: Int): Boolean {
-        if (offsetMinutes !in TIMEZONE_OFFSET_RANGE) {
-            return false
-        }
+    override fun updateTimezoneOffset(userId: UserId, offset: ZoneOffset): Boolean {
+        val offsetMinutes = offset.totalSeconds / 60
         return runCatching {
             val userSetting = JUserSetting.USER_SETTING
             DbConnectionImpl.use {

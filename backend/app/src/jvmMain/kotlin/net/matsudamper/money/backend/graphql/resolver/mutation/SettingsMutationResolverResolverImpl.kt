@@ -1,10 +1,11 @@
 package net.matsudamper.money.backend.graphql.resolver.mutation
 
+import java.time.DateTimeException
+import java.time.ZoneOffset
 import java.util.concurrent.CompletionStage
 import graphql.GraphqlErrorBuilder
 import graphql.execution.DataFetcherResult
 import graphql.schema.DataFetchingEnvironment
-import net.matsudamper.money.backend.app.interfaces.UserConfigRepository.Companion.TIMEZONE_OFFSET_RANGE
 import net.matsudamper.money.backend.graphql.GraphQlContext
 import net.matsudamper.money.backend.graphql.otelSupplyAsync
 import net.matsudamper.money.backend.graphql.otelThenApplyAsync
@@ -80,18 +81,21 @@ class SettingsMutationResolverResolverImpl : SettingsMutationResolver {
         val userConfigRepository = context.diContainer.createUserConfigRepository()
         val userId = context.verifyUserSessionAndGetUserId()
         return otelSupplyAsync {
-            if (offsetMinutes !in TIMEZONE_OFFSET_RANGE) {
-                return@otelSupplyAsync nullableIntResultBuilder()
-                    .error(
-                        GraphqlErrorBuilder.newError(env)
-                            .message(
-                                "offsetMinutes は ${TIMEZONE_OFFSET_RANGE.first} から ${TIMEZONE_OFFSET_RANGE.last} の範囲で指定してください",
-                            )
-                            .build(),
-                    )
-                    .build()
+            val offset = runCatching {
+                ZoneOffset.ofTotalSeconds(offsetMinutes * 60)
+            }.getOrElse {
+                if (it is DateTimeException) {
+                    return@otelSupplyAsync nullableIntResultBuilder()
+                        .error(
+                            GraphqlErrorBuilder.newError(env)
+                                .message("無効なタイムゾーンオフセットです: $offsetMinutes 分")
+                                .build(),
+                        )
+                        .build()
+                }
+                throw it
             }
-            val isSuccess = userConfigRepository.updateTimezoneOffset(userId, offsetMinutes)
+            val isSuccess = userConfigRepository.updateTimezoneOffset(userId, offset)
             if (isSuccess.not()) {
                 return@otelSupplyAsync nullableIntResultBuilder()
                     .data(null)
