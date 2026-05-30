@@ -5,7 +5,7 @@ import net.matsudamper.money.backend.app.interfaces.UserConfigRepository
 import net.matsudamper.money.backend.app.interfaces.element.ImapConfig
 import net.matsudamper.money.backend.datasource.db.DbConnectionImpl
 import net.matsudamper.money.db.schema.tables.JUserImapSettings
-import net.matsudamper.money.db.schema.tables.JUserSetting
+import net.matsudamper.money.db.schema.tables.JUserTimezoneSetting
 import net.matsudamper.money.element.UserId
 import org.jooq.impl.DSL
 
@@ -64,7 +64,7 @@ class DbUserConfigRepository : UserConfigRepository {
 
     override fun getTimezoneOffset(userId: UserId): ZoneOffset? {
         return runCatching {
-            val userSetting = JUserSetting.USER_SETTING
+            val userSetting = JUserTimezoneSetting.USER_TIMEZONE_SETTING
             DbConnectionImpl.use {
                 DSL.using(it)
                     .select(userSetting.TIMEZONE_OFFSET_MINUTES)
@@ -84,7 +84,7 @@ class DbUserConfigRepository : UserConfigRepository {
     override fun updateTimezoneOffset(userId: UserId, offset: ZoneOffset): Boolean {
         val offsetMinutes = offset.totalSeconds / 60
         return runCatching {
-            val userSetting = JUserSetting.USER_SETTING
+            val userSetting = JUserTimezoneSetting.USER_TIMEZONE_SETTING
             DbConnectionImpl.use {
                 DSL.using(it)
                     .insertInto(userSetting)

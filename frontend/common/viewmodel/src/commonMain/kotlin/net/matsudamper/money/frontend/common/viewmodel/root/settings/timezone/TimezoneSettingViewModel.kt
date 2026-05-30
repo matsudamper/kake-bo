@@ -55,7 +55,7 @@ public class TimezoneSettingViewModel(
             viewModelStateFlow.collect { state ->
                 uiStateFlow.update {
                     it.copy(
-                        loadingState = state.toLoadingState(),
+                        loadingState = toLoadingState(state),
                         textInputEvent = state.textInputEvent,
                     )
                 }
@@ -108,6 +108,7 @@ public class TimezoneSettingViewModel(
 
     private val timezoneTextInputEvent = object : TimezoneSettingScreenUiState.TextInputUiState.Event {
         override fun complete(text: String) {
+            val validOffsetRange = -720..840
             val offsetMinutes = text.toIntOrNull()
             if (offsetMinutes == null) {
                 viewModelScope.launch {
@@ -115,7 +116,7 @@ public class TimezoneSettingViewModel(
                 }
                 return
             }
-            if (offsetMinutes !in validTimezoneOffsetRange) {
+            if (offsetMinutes !in validOffsetRange) {
                 viewModelScope.launch {
                     showNativeNotification("UTC-12:00〜UTC+14:00 の範囲で入力してください")
                 }
@@ -155,12 +156,12 @@ public class TimezoneSettingViewModel(
         }
     }
 
-    private fun ViewModelState.toLoadingState(): TimezoneSettingScreenUiState.LoadingState {
-        return when (loadingState) {
+    private fun toLoadingState(state: ViewModelState): TimezoneSettingScreenUiState.LoadingState {
+        return when (state.loadingState) {
             ViewModelState.LoadingState.Error -> TimezoneSettingScreenUiState.LoadingState.Error
             ViewModelState.LoadingState.Loading -> TimezoneSettingScreenUiState.LoadingState.Loading
             ViewModelState.LoadingState.Loaded -> {
-                val timezoneOffsetMinutes = timezoneOffsetMinutes
+                val timezoneOffsetMinutes = state.timezoneOffsetMinutes
                     ?: return TimezoneSettingScreenUiState.LoadingState.Error
                 TimezoneSettingScreenUiState.LoadingState.Loaded(
                     timezoneOffsetMinutes = timezoneOffsetMinutes,
@@ -199,9 +200,5 @@ public class TimezoneSettingViewModel(
             Loaded,
             Error,
         }
-    }
-
-    private companion object {
-        val validTimezoneOffsetRange: IntRange = -720..840
     }
 }

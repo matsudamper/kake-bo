@@ -144,6 +144,6 @@ class SettingsMutationResolverResolverImpl : SettingsMutationResolver {
     }
 
     private fun nullableIntResultBuilder(): DataFetcherResult.Builder<Int?> {
-        return DataFetcherResult.newResult()
+        return DataFetcherResult.newResult<Int?>()
     }
 }
