@@ -180,7 +180,7 @@ private fun LoadedContent(
         )
         Spacer(modifier = Modifier.height(8.dp))
         Text(
-            text = "メールの時刻が含まれていない場合、このオフセットをメール受信時刻に適用します。",
+            text = "メールノン分に時刻が含まれていない場合、メール受信時刻に適用します。",
             style = MaterialTheme.typography.bodySmall,
         )
         Spacer(modifier = Modifier.height(16.dp))
