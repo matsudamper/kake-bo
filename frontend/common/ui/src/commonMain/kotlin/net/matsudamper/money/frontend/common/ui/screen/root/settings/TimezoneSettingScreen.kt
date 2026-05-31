@@ -13,6 +13,8 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.width
 import androidx.compose.material3.CircularProgressIndicator
+import androidx.compose.material3.DropdownMenu
+import androidx.compose.material3.DropdownMenuItem
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
@@ -21,23 +23,24 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.Immutable
 import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
-import androidx.compose.ui.window.Dialog
+import net.matsudamper.money.frontend.common.ui.base.DropDownMenuButton
 import net.matsudamper.money.frontend.common.ui.base.KakeBoTopAppBar
 import net.matsudamper.money.frontend.common.ui.base.KakeboScaffoldListener
 import net.matsudamper.money.frontend.common.ui.base.LoadingErrorContent
 import net.matsudamper.money.frontend.common.ui.base.RootScreenScaffold
 import net.matsudamper.money.frontend.common.ui.generated.resources.Res
 import net.matsudamper.money.frontend.common.ui.generated.resources.ic_arrow_back
-import net.matsudamper.money.frontend.common.ui.layout.html.text.fullscreen.FullScreenTextInput
 import org.jetbrains.compose.resources.painterResource
 
 public data class TimezoneSettingScreenUiState(
     val loadingState: LoadingState,
-    val textInputEvent: TextInputUiState?,
     val kakeboScaffoldListener: KakeboScaffoldListener,
     val event: Event,
 ) {
@@ -46,15 +49,19 @@ public data class TimezoneSettingScreenUiState(
         public data object Error : LoadingState
         public data object Loading : LoadingState
         public data class Loaded(
-            val timezoneOffsetMinutes: Int,
             val timezoneOffsetText: String,
+            val selectedHours: Int,
+            val selectedMinutes: Int,
             val event: LoadedEvent,
         ) : LoadingState
     }
 
     @Immutable
     public interface LoadedEvent {
-        public fun onClickChange()
+        public fun onSelectHours(hours: Int)
+        public fun onSelectMinutes(minutes: Int)
+        public fun onClickApply()
+        public fun onClickSetDeviceTimezone()
     }
 
     @Immutable
@@ -62,19 +69,6 @@ public data class TimezoneSettingScreenUiState(
         public fun onClickBack()
         public fun onResume()
         public fun onClickRetry()
-        public fun consumeTextInputEvent()
-    }
-
-    public data class TextInputUiState(
-        val title: String,
-        val default: String,
-        val event: Event,
-    ) {
-        @Immutable
-        public interface Event {
-            public fun complete(text: String)
-            public fun cancel()
-        }
     }
 }
 
@@ -86,22 +80,6 @@ public fun TimezoneSettingScreen(
 ) {
     LaunchedEffect(Unit) {
         uiState.event.onResume()
-    }
-
-    if (uiState.textInputEvent != null) {
-        Dialog(
-            onDismissRequest = {
-                uiState.textInputEvent.event.cancel()
-                uiState.event.consumeTextInputEvent()
-            },
-        ) {
-            FullScreenTextInput(
-                title = uiState.textInputEvent.title,
-                onComplete = { uiState.textInputEvent.event.complete(it) },
-                canceled = { uiState.textInputEvent.event.cancel() },
-                default = uiState.textInputEvent.default,
-            )
-        }
     }
 
     RootScreenScaffold(
@@ -180,22 +158,73 @@ private fun LoadedContent(
         )
         Spacer(modifier = Modifier.height(8.dp))
         Text(
-            text = "メールノン分に時刻が含まれていない場合、メール受信時刻に適用します。",
+            text = "メールに時刻が含まれていない場合、メール受信時刻に適用します。",
             style = MaterialTheme.typography.bodySmall,
         )
+        Spacer(modifier = Modifier.height(16.dp))
+        Text(text = "現在の設定: ${uiState.timezoneOffsetText}")
         Spacer(modifier = Modifier.height(16.dp))
         Row(
             modifier = Modifier.fillMaxWidth(),
             verticalAlignment = Alignment.CenterVertically,
         ) {
-            Text(
-                modifier = Modifier.weight(1f),
-                text = "現在の設定: ${uiState.timezoneOffsetText}",
-            )
+            Box {
+                var expanded by remember { mutableStateOf(false) }
+                DropDownMenuButton(onClick = { expanded = true }) {
+                    Text(hourLabel(uiState.selectedHours))
+                }
+                DropdownMenu(
+                    expanded = expanded,
+                    onDismissRequest = { expanded = false },
+                ) {
+                    (-12..14).forEach { hour ->
+                        DropdownMenuItem(
+                            text = { Text(hourLabel(hour)) },
+                            onClick = {
+                                uiState.event.onSelectHours(hour)
+                                expanded = false
+                            },
+                        )
+                    }
+                }
+            }
             Spacer(modifier = Modifier.width(8.dp))
-            OutlinedButton(onClick = { uiState.event.onClickChange() }) {
-                Text("変更")
+            Box {
+                var expanded by remember { mutableStateOf(false) }
+                DropDownMenuButton(onClick = { expanded = true }) {
+                    Text(minuteLabel(uiState.selectedMinutes))
+                }
+                DropdownMenu(
+                    expanded = expanded,
+                    onDismissRequest = { expanded = false },
+                ) {
+                    listOf(0, 15, 30, 45).forEach { minute ->
+                        DropdownMenuItem(
+                            text = { Text(minuteLabel(minute)) },
+                            onClick = {
+                                uiState.event.onSelectMinutes(minute)
+                                expanded = false
+                            },
+                        )
+                    }
+                }
+            }
+            Spacer(modifier = Modifier.width(8.dp))
+            OutlinedButton(onClick = { uiState.event.onClickApply() }) {
+                Text("適用")
             }
         }
+        Spacer(modifier = Modifier.height(8.dp))
+        OutlinedButton(onClick = { uiState.event.onClickSetDeviceTimezone() }) {
+            Text("端末のタイムゾーンをセット")
+        }
     }
+}
+
+private fun hourLabel(hours: Int): String {
+    return if (hours >= 0) "+${hours}時間" else "${hours}時間"
+}
+
+private fun minuteLabel(minutes: Int): String {
+    return minutes.toString().padStart(2, '0') + "分"
 }
