@@ -37,6 +37,7 @@ import net.matsudamper.money.frontend.common.ui.base.LoadingErrorContent
 import net.matsudamper.money.frontend.common.ui.base.RootScreenScaffold
 import net.matsudamper.money.frontend.common.ui.generated.resources.Res
 import net.matsudamper.money.frontend.common.ui.generated.resources.ic_arrow_back
+import net.matsudamper.money.frontend.common.ui.layout.TextField
 import org.jetbrains.compose.resources.painterResource
 
 public data class TimezoneSettingScreenUiState(
@@ -44,22 +45,35 @@ public data class TimezoneSettingScreenUiState(
     val kakeboScaffoldListener: KakeboScaffoldListener,
     val event: Event,
 ) {
+    public enum class OffsetUnit {
+        Hour,
+        Minute,
+        ;
+
+        public fun displayText(): String {
+            return when (this) {
+                Hour -> "時間"
+                Minute -> "分"
+            }
+        }
+    }
+
     @Immutable
     public sealed interface LoadingState {
         public data object Error : LoadingState
         public data object Loading : LoadingState
         public data class Loaded(
             val timezoneOffsetText: String,
-            val selectedHours: Int,
-            val selectedMinutes: Int,
+            val inputValue: String,
+            val unit: OffsetUnit,
             val event: LoadedEvent,
         ) : LoadingState
     }
 
     @Immutable
     public interface LoadedEvent {
-        public fun onSelectHours(hours: Int)
-        public fun onSelectMinutes(minutes: Int)
+        public fun onChangeValue(value: String)
+        public fun onSelectUnit(unit: OffsetUnit)
         public fun onClickApply()
         public fun onClickSetDeviceTimezone()
     }
@@ -168,41 +182,27 @@ private fun LoadedContent(
             modifier = Modifier.fillMaxWidth(),
             verticalAlignment = Alignment.CenterVertically,
         ) {
-            Box {
-                var expanded by remember { mutableStateOf(false) }
-                DropDownMenuButton(onClick = { expanded = true }) {
-                    Text(hourLabel(uiState.selectedHours))
-                }
-                DropdownMenu(
-                    expanded = expanded,
-                    onDismissRequest = { expanded = false },
-                ) {
-                    (-12..14).forEach { hour ->
-                        DropdownMenuItem(
-                            text = { Text(hourLabel(hour)) },
-                            onClick = {
-                                uiState.event.onSelectHours(hour)
-                                expanded = false
-                            },
-                        )
-                    }
-                }
-            }
+            TextField(
+                modifier = Modifier.width(120.dp),
+                text = uiState.inputValue,
+                onValueChange = { uiState.event.onChangeValue(it) },
+                singleLine = true,
+            )
             Spacer(modifier = Modifier.width(8.dp))
             Box {
                 var expanded by remember { mutableStateOf(false) }
                 DropDownMenuButton(onClick = { expanded = true }) {
-                    Text(minuteLabel(uiState.selectedMinutes))
+                    Text(uiState.unit.displayText())
                 }
                 DropdownMenu(
                     expanded = expanded,
                     onDismissRequest = { expanded = false },
                 ) {
-                    listOf(0, 15, 30, 45).forEach { minute ->
+                    TimezoneSettingScreenUiState.OffsetUnit.entries.forEach { unit ->
                         DropdownMenuItem(
-                            text = { Text(minuteLabel(minute)) },
+                            text = { Text(unit.displayText()) },
                             onClick = {
-                                uiState.event.onSelectMinutes(minute)
+                                uiState.event.onSelectUnit(unit)
                                 expanded = false
                             },
                         )
@@ -219,12 +219,4 @@ private fun LoadedContent(
             Text("端末のタイムゾーンをセット")
         }
     }
-}
-
-private fun hourLabel(hours: Int): String {
-    return if (hours >= 0) "+${hours}時間" else "${hours}時間"
-}
-
-private fun minuteLabel(minutes: Int): String {
-    return minutes.toString().padStart(2, '0') + "分"
 }

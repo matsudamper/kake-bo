@@ -96,19 +96,40 @@ public class TimezoneSettingViewModel(
                 return@launch
             }
 
-            val (hours, minutes) = splitOffset(offsetMinutes)
-            viewModelStateFlow.update {
-                it.copy(
-                    timezoneOffsetMinutes = offsetMinutes,
-                    selectedHours = hours,
-                    selectedMinutes = minutes,
-                    loadingState = ViewModelState.LoadingState.Loaded,
-                )
-            }
+            applyLoadedOffset(offsetMinutes)
+        }
+    }
+
+    private fun applyLoadedOffset(offsetMinutes: Int) {
+        val isHourUnit = offsetMinutes % 60 == 0
+        val unit = if (isHourUnit) {
+            TimezoneSettingScreenUiState.OffsetUnit.Hour
+        } else {
+            TimezoneSettingScreenUiState.OffsetUnit.Minute
+        }
+        val inputValue = if (isHourUnit) {
+            (offsetMinutes / 60).toString()
+        } else {
+            offsetMinutes.toString()
+        }
+        viewModelStateFlow.update {
+            it.copy(
+                timezoneOffsetMinutes = offsetMinutes,
+                inputValue = inputValue,
+                unit = unit,
+                loadingState = ViewModelState.LoadingState.Loaded,
+            )
         }
     }
 
     private fun applyTimezoneOffset(offsetMinutes: Int) {
+        val validOffsetRange = -720..840
+        if (offsetMinutes !in validOffsetRange) {
+            viewModelScope.launch {
+                showNativeNotification("UTC-12:00〜UTC+14:00 の範囲で入力してください")
+            }
+            return
+        }
         viewModelScope.launch {
             val result = runCatching {
                 graphqlApi.setTimezoneOffset(offsetMinutes)
@@ -126,28 +147,8 @@ public class TimezoneSettingViewModel(
                 return@launch
             }
 
-            val (hours, minutes) = splitOffset(updatedOffset)
-            viewModelStateFlow.update {
-                it.copy(
-                    timezoneOffsetMinutes = updatedOffset,
-                    selectedHours = hours,
-                    selectedMinutes = minutes,
-                    loadingState = ViewModelState.LoadingState.Loaded,
-                )
-            }
+            applyLoadedOffset(updatedOffset)
         }
-    }
-
-    private fun splitOffset(offsetMinutes: Int): Pair<Int, Int> {
-        val absMinutes = kotlin.math.abs(offsetMinutes)
-        val hoursPart = absMinutes / 60
-        val minutesPart = absMinutes % 60
-        val roundedMinutes = listOf(0, 15, 30, 45).minByOrNull { kotlin.math.abs(it - minutesPart) } ?: 0
-        return if (offsetMinutes >= 0) Pair(hoursPart, roundedMinutes) else Pair(-hoursPart, roundedMinutes)
-    }
-
-    private fun combineOffset(hours: Int, minutes: Int): Int {
-        return if (hours >= 0) hours * 60 + minutes else hours * 60 - minutes
     }
 
     private fun getDeviceTimezoneOffsetMinutes(): Int {
@@ -165,23 +166,34 @@ public class TimezoneSettingViewModel(
                     ?: return TimezoneSettingScreenUiState.LoadingState.Error
                 TimezoneSettingScreenUiState.LoadingState.Loaded(
                     timezoneOffsetText = formatOffsetText(timezoneOffsetMinutes),
-                    selectedHours = state.selectedHours,
-                    selectedMinutes = state.selectedMinutes,
+                    inputValue = state.inputValue,
+                    unit = state.unit,
                     event = object : TimezoneSettingScreenUiState.LoadedEvent {
-                        override fun onSelectHours(hours: Int) {
+                        override fun onChangeValue(value: String) {
                             viewModelStateFlow.update {
-                                it.copy(selectedHours = hours)
+                                it.copy(inputValue = value)
                             }
                         }
 
-                        override fun onSelectMinutes(minutes: Int) {
+                        override fun onSelectUnit(unit: TimezoneSettingScreenUiState.OffsetUnit) {
                             viewModelStateFlow.update {
-                                it.copy(selectedMinutes = minutes)
+                                it.copy(unit = unit)
                             }
                         }
 
                         override fun onClickApply() {
-                            applyTimezoneOffset(combineOffset(state.selectedHours, state.selectedMinutes))
+                            val value = state.inputValue.toIntOrNull()
+                            if (value == null) {
+                                viewModelScope.launch {
+                                    showNativeNotification("数値を入力してください")
+                                }
+                                return
+                            }
+                            val offsetMinutes = when (state.unit) {
+                                TimezoneSettingScreenUiState.OffsetUnit.Hour -> value * 60
+                                TimezoneSettingScreenUiState.OffsetUnit.Minute -> value
+                            }
+                            applyTimezoneOffset(offsetMinutes)
                         }
 
                         override fun onClickSetDeviceTimezone() {
@@ -201,8 +213,8 @@ public class TimezoneSettingViewModel(
 
     private data class ViewModelState(
         val timezoneOffsetMinutes: Int? = null,
-        val selectedHours: Int = 0,
-        val selectedMinutes: Int = 0,
+        val inputValue: String = "",
+        val unit: TimezoneSettingScreenUiState.OffsetUnit = TimezoneSettingScreenUiState.OffsetUnit.Hour,
         val loadingState: LoadingState = LoadingState.Loading,
     ) {
         enum class LoadingState {
