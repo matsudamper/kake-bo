@@ -144,6 +144,7 @@ class SettingsMutationResolverResolverImpl : SettingsMutationResolver {
     }
 
     private fun nullableIntResultBuilder(): DataFetcherResult.Builder<Int?> {
-        return DataFetcherResult.newResult()
+        @Suppress("UNCHECKED_CAST")
+        return DataFetcherResult.newResult<Any>() as DataFetcherResult.Builder<Int?>
     }
 }
