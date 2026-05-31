@@ -183,7 +183,7 @@ private fun LoadedContent(
             verticalAlignment = Alignment.CenterVertically,
         ) {
             TextField(
-                modifier = Modifier.width(120.dp),
+                modifier = Modifier.weight(1f),
                 text = uiState.inputValue,
                 onValueChange = { uiState.event.onChangeValue(it) },
                 singleLine = true,
@@ -209,13 +209,19 @@ private fun LoadedContent(
                     }
                 }
             }
-            Spacer(modifier = Modifier.width(8.dp))
-            OutlinedButton(onClick = { uiState.event.onClickApply() }) {
-                Text("適用")
-            }
         }
         Spacer(modifier = Modifier.height(8.dp))
-        OutlinedButton(onClick = { uiState.event.onClickSetDeviceTimezone() }) {
+        OutlinedButton(
+            modifier = Modifier.fillMaxWidth(),
+            onClick = { uiState.event.onClickApply() },
+        ) {
+            Text("適用")
+        }
+        Spacer(modifier = Modifier.height(8.dp))
+        OutlinedButton(
+            modifier = Modifier.fillMaxWidth(),
+            onClick = { uiState.event.onClickSetDeviceTimezone() },
+        ) {
             Text("端末のタイムゾーンをセット")
         }
     }
