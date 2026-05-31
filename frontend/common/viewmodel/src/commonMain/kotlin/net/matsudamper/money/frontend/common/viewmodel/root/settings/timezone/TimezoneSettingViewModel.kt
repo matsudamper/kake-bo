@@ -151,6 +151,21 @@ public class TimezoneSettingViewModel(
         }
     }
 
+    private fun convertValue(
+        value: String,
+        from: TimezoneSettingScreenUiState.OffsetUnit,
+        to: TimezoneSettingScreenUiState.OffsetUnit,
+    ): String {
+        val intValue = value.toIntOrNull() ?: return value
+        return when {
+            from == to -> value
+            // 時間 -> 分
+            to == TimezoneSettingScreenUiState.OffsetUnit.Minute -> (intValue * 60).toString()
+            // 分 -> 時間（切り捨て）
+            else -> (intValue / 60).toString()
+        }
+    }
+
     private fun getDeviceTimezoneOffsetMinutes(): Int {
         val tz = TimeZone.currentSystemDefault()
         val offset = tz.offsetAt(Clock.System.now())
@@ -176,8 +191,15 @@ public class TimezoneSettingViewModel(
                         }
 
                         override fun onSelectUnit(unit: TimezoneSettingScreenUiState.OffsetUnit) {
+                            if (unit == state.unit) {
+                                return
+                            }
+                            val convertedValue = convertValue(state.inputValue, state.unit, unit)
                             viewModelStateFlow.update {
-                                it.copy(unit = unit)
+                                it.copy(
+                                    inputValue = convertedValue,
+                                    unit = unit,
+                                )
                             }
                         }
 
