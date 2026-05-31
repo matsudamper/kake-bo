@@ -21,10 +21,10 @@ import net.matsudamper.money.db.schema.tables.JMoneyUsagesMailsRelation
 import net.matsudamper.money.db.schema.tables.JUserImages
 import net.matsudamper.money.db.schema.tables.JUserImapSettings
 import net.matsudamper.money.db.schema.tables.JUserMails
-import net.matsudamper.money.db.schema.tables.JUserTimezoneSetting
 import net.matsudamper.money.db.schema.tables.JUserPasswordExtendData
 import net.matsudamper.money.db.schema.tables.JUserPasswords
 import net.matsudamper.money.db.schema.tables.JUserSessions
+import net.matsudamper.money.db.schema.tables.JUserTimezoneSetting
 import net.matsudamper.money.db.schema.tables.JUsers
 import net.matsudamper.money.db.schema.tables.JWebAuthAuthenticator
 
@@ -111,11 +111,6 @@ val USER_IMAP_SETTINGS: JUserImapSettings = JUserImapSettings.USER_IMAP_SETTINGS
 val USER_MAILS: JUserMails = JUserMails.USER_MAILS
 
 /**
- * The table <code>money.user_timezone_setting</code>.
- */
-val USER_TIMEZONE_SETTING: JUserTimezoneSetting = JUserTimezoneSetting.USER_TIMEZONE_SETTING
-
-/**
  * The table <code>money.user_password_extend_data</code>.
  */
 val USER_PASSWORD_EXTEND_DATA: JUserPasswordExtendData = JUserPasswordExtendData.USER_PASSWORD_EXTEND_DATA
@@ -129,6 +124,11 @@ val USER_PASSWORDS: JUserPasswords = JUserPasswords.USER_PASSWORDS
  * The table <code>money.user_sessions</code>.
  */
 val USER_SESSIONS: JUserSessions = JUserSessions.USER_SESSIONS
+
+/**
+ * The table <code>money.user_timezone_setting</code>.
+ */
+val USER_TIMEZONE_SETTING: JUserTimezoneSetting = JUserTimezoneSetting.USER_TIMEZONE_SETTING
 
 /**
  * The table <code>money.users</code>.

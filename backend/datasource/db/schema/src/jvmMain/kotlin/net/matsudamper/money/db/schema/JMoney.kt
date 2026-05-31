@@ -22,10 +22,10 @@ import net.matsudamper.money.db.schema.tables.JMoneyUsagesMailsRelation
 import net.matsudamper.money.db.schema.tables.JUserImages
 import net.matsudamper.money.db.schema.tables.JUserImapSettings
 import net.matsudamper.money.db.schema.tables.JUserMails
-import net.matsudamper.money.db.schema.tables.JUserTimezoneSetting
 import net.matsudamper.money.db.schema.tables.JUserPasswordExtendData
 import net.matsudamper.money.db.schema.tables.JUserPasswords
 import net.matsudamper.money.db.schema.tables.JUserSessions
+import net.matsudamper.money.db.schema.tables.JUserTimezoneSetting
 import net.matsudamper.money.db.schema.tables.JUsers
 import net.matsudamper.money.db.schema.tables.JWebAuthAuthenticator
 
@@ -130,11 +130,6 @@ open class JMoney : SchemaImpl(DSL.name("money"), DefaultCatalog.DEFAULT_CATALOG
     val USER_MAILS: JUserMails get() = JUserMails.USER_MAILS
 
     /**
-     * The table <code>money.user_timezone_setting</code>.
-     */
-    val USER_TIMEZONE_SETTING: JUserTimezoneSetting get() = JUserTimezoneSetting.USER_TIMEZONE_SETTING
-
-    /**
      * The table <code>money.user_password_extend_data</code>.
      */
     val USER_PASSWORD_EXTEND_DATA: JUserPasswordExtendData get() = JUserPasswordExtendData.USER_PASSWORD_EXTEND_DATA
@@ -148,6 +143,11 @@ open class JMoney : SchemaImpl(DSL.name("money"), DefaultCatalog.DEFAULT_CATALOG
      * The table <code>money.user_sessions</code>.
      */
     val USER_SESSIONS: JUserSessions get() = JUserSessions.USER_SESSIONS
+
+    /**
+     * The table <code>money.user_timezone_setting</code>.
+     */
+    val USER_TIMEZONE_SETTING: JUserTimezoneSetting get() = JUserTimezoneSetting.USER_TIMEZONE_SETTING
 
     /**
      * The table <code>money.users</code>.
@@ -178,10 +178,10 @@ open class JMoney : SchemaImpl(DSL.name("money"), DefaultCatalog.DEFAULT_CATALOG
         JUserImages.USER_IMAGES,
         JUserImapSettings.USER_IMAP_SETTINGS,
         JUserMails.USER_MAILS,
-        JUserTimezoneSetting.USER_TIMEZONE_SETTING,
         JUserPasswordExtendData.USER_PASSWORD_EXTEND_DATA,
         JUserPasswords.USER_PASSWORDS,
         JUserSessions.USER_SESSIONS,
+        JUserTimezoneSetting.USER_TIMEZONE_SETTING,
         JUsers.USERS,
         JWebAuthAuthenticator.WEB_AUTH_AUTHENTICATOR
     )

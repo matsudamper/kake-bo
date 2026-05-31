@@ -20,13 +20,14 @@ import org.jooq.QueryPart
 import org.jooq.Record
 import org.jooq.SQL
 import org.jooq.Schema
-import org.jooq.Select
 import org.jooq.Stringly
 import org.jooq.Table
 import org.jooq.TableField
+import org.jooq.TableLike
 import org.jooq.TableOptions
 import org.jooq.UniqueKey
 import org.jooq.impl.DSL
+import org.jooq.impl.Internal
 import org.jooq.impl.SQLDataType
 import org.jooq.impl.TableImpl
 
@@ -74,7 +75,8 @@ open class JUserTimezoneSetting(
     val USER_ID: TableField<JUserTimezoneSettingRecord, Int?> = createField(DSL.name("user_id"), SQLDataType.INTEGER.nullable(false), this, "")
 
     /**
-     * The column <code>money.user_timezone_setting.timezone_offset_minutes</code>.
+     * The column
+     * <code>money.user_timezone_setting.timezone_offset_minutes</code>.
      */
     val TIMEZONE_OFFSET_MINUTES: TableField<JUserTimezoneSettingRecord, Int?> = createField(DSL.name("timezone_offset_minutes"), SQLDataType.INTEGER.nullable(false).defaultValue(DSL.field(DSL.raw("0"), SQLDataType.INTEGER)), this, "")
 
@@ -83,12 +85,14 @@ open class JUserTimezoneSetting(
     private constructor(alias: Name, aliased: Table<JUserTimezoneSettingRecord>?, where: Condition?): this(alias, null, null, null, aliased, null, where)
 
     /**
-     * Create an aliased <code>money.user_timezone_setting</code> table reference
+     * Create an aliased <code>money.user_timezone_setting</code> table
+     * reference
      */
     constructor(alias: String): this(DSL.name(alias))
 
     /**
-     * Create an aliased <code>money.user_timezone_setting</code> table reference
+     * Create an aliased <code>money.user_timezone_setting</code> table
+     * reference
      */
     constructor(alias: Name): this(alias, null)
 
@@ -120,7 +124,7 @@ open class JUserTimezoneSetting(
     /**
      * Create an inline derived table from this table
      */
-    override fun where(condition: Condition?): JUserTimezoneSetting = JUserTimezoneSetting(qualifiedName, if (aliased()) this else null, condition)
+    override fun where(condition: Condition?): JUserTimezoneSetting = JUserTimezoneSetting(qualifiedName, if (aliased()) this else null, Internal.condition(this, condition))
 
     /**
      * Create an inline derived table from this table
@@ -160,10 +164,10 @@ open class JUserTimezoneSetting(
     /**
      * Create an inline derived table from this table
      */
-    override fun whereExists(select: Select<*>): JUserTimezoneSetting = where(DSL.exists(select))
+    override fun whereExists(select: TableLike<*>): JUserTimezoneSetting = where(DSL.exists(select))
 
     /**
      * Create an inline derived table from this table
      */
-    override fun whereNotExists(select: Select<*>): JUserTimezoneSetting = where(DSL.notExists(select))
+    override fun whereNotExists(select: TableLike<*>): JUserTimezoneSetting = where(DSL.notExists(select))
 }
