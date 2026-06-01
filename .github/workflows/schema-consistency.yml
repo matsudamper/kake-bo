@@ -25,6 +25,8 @@ jobs:
         options: --health-cmd=true --health-interval=5s --health-timeout=1s --health-retries=1
     env:
       GRADLE_OPTS: -Dkotlin.compiler.execution.strategy=in-process -Dorg.gradle.workers.max=2 -Dorg.gradle.daemon=false -Dorg.gradle.jvmargs="-Xmx4500m"
+      GITHUB_ACTOR: ${{ github.actor }}
+      GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
     steps:
       - uses: actions/checkout@v6
         with:
@@ -48,9 +50,11 @@ jobs:
           exit 1
       - name: SQLファイルを適用
         run: |
+          set -e
           SQL_DIR="backend/datasource/db/src/jvmMain/resources/sql"
           mysql -h 127.0.0.1 -u test -ptest money < "$SQL_DIR/master.sql"
-          for f in $(ls "$SQL_DIR"/*.sql | grep -v "master.sql" | sort); do
+          for f in "$SQL_DIR"/*.sql; do
+            [[ "$(basename "$f")" == "master.sql" ]] && continue
             echo "適用中: $f"
             mysql -h 127.0.0.1 -u test -ptest money < "$f"
           done
