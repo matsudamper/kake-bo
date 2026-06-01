@@ -29,22 +29,5 @@ kotlin {
                 implementation(libs.opentelemetryHikariCp3)
             }
         }
-        val jvmTest by getting {
-            dependencies {
-                implementation(kotlin("test"))
-                implementation(libs.kotestRunnerJunit5)
-                implementation(libs.kotestAssertionsCore)
-                implementation(libs.testcontainersCore)
-                implementation(libs.testcontainersMariadb)
-                implementation(libs.testcontainersJunit5)
-                implementation(libs.mariadbClient)
-                implementation(libs.jooq)
-                implementation(projects.backend.datasource.db.schema)
-            }
-        }
     }
-}
-
-tasks.named<Test>("jvmTest") {
-    useJUnitPlatform()
 }
