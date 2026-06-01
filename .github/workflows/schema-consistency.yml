@@ -22,28 +22,28 @@ jobs:
           MYSQL_PASSWORD: test
         ports:
           - 3306:3306
-        options: >-
-          --health-cmd="mysqladmin ping -h localhost -u test -ptest"
-          --health-interval=10s
-          --health-timeout=5s
-          --health-retries=5
+        options: --health-cmd="healthcheck.sh --connect --innodb_initialized" --health-interval=10s --health-timeout=5s --health-retries=10
     env:
       GRADLE_OPTS: -Dkotlin.compiler.execution.strategy=in-process -Dorg.gradle.workers.max=2 -Dorg.gradle.daemon=false -Dorg.gradle.jvmargs="-Xmx4500m"
     steps:
       - uses: actions/checkout@v6
+        with:
+          persist-credentials: false
       - uses: actions/setup-java@v5
         with:
           distribution: 'temurin'
           java-version: '25'
       - name: Setup Gradle
         uses: gradle/actions/setup-gradle@v6
+      - name: mariadb-clientのインストール
+        run: sudo apt-get install -y mariadb-client
       - name: SQLファイルを適用
         run: |
           SQL_DIR="backend/datasource/db/src/jvmMain/resources/sql"
-          mysql -h 127.0.0.1 -u test -ptest money < "$SQL_DIR/master.sql"
+          mariadb -h 127.0.0.1 -u test -ptest money < "$SQL_DIR/master.sql"
           for f in $(ls "$SQL_DIR"/*.sql | grep -v "master.sql" | sort); do
             echo "適用中: $f"
-            mysql -h 127.0.0.1 -u test -ptest money < "$f"
+            mariadb -h 127.0.0.1 -u test -ptest money < "$f"
           done
       - name: jOOQコードを生成
         env:
