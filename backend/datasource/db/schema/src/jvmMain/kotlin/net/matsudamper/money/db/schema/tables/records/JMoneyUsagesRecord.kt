@@ -34,25 +34,25 @@ open class JMoneyUsagesRecord() : UpdatableRecordImpl<JMoneyUsagesRecord>(JMoney
         set(value): Unit = set(3, value)
         get(): String? = get(3) as String?
 
-    open var moneyUsageSubCategoryId: Int?
+    open var amount: Int?
         set(value): Unit = set(4, value)
         get(): Int? = get(4) as Int?
 
-    open var datetime: LocalDateTime?
+    open var moneyUsageSubCategoryId: Int?
         set(value): Unit = set(5, value)
-        get(): LocalDateTime? = get(5) as LocalDateTime?
+        get(): Int? = get(5) as Int?
 
-    open var createdDatetime: LocalDateTime?
+    open var datetime: LocalDateTime?
         set(value): Unit = set(6, value)
         get(): LocalDateTime? = get(6) as LocalDateTime?
 
-    open var updateDatetime: LocalDateTime?
+    open var createdDatetime: LocalDateTime?
         set(value): Unit = set(7, value)
         get(): LocalDateTime? = get(7) as LocalDateTime?
 
-    open var amount: Int?
+    open var updateDatetime: LocalDateTime?
         set(value): Unit = set(8, value)
-        get(): Int? = get(8) as Int?
+        get(): LocalDateTime? = get(8) as LocalDateTime?
 
     // -------------------------------------------------------------------------
     // Primary key information
@@ -63,16 +63,16 @@ open class JMoneyUsagesRecord() : UpdatableRecordImpl<JMoneyUsagesRecord>(JMoney
     /**
      * Create a detached, initialised JMoneyUsagesRecord
      */
-    constructor(moneyUsageId: Int? = null, userId: Int? = null, title: String? = null, description: String? = null, moneyUsageSubCategoryId: Int? = null, datetime: LocalDateTime? = null, createdDatetime: LocalDateTime? = null, updateDatetime: LocalDateTime? = null, amount: Int? = null): this() {
+    constructor(moneyUsageId: Int? = null, userId: Int? = null, title: String? = null, description: String? = null, amount: Int? = null, moneyUsageSubCategoryId: Int? = null, datetime: LocalDateTime? = null, createdDatetime: LocalDateTime? = null, updateDatetime: LocalDateTime? = null): this() {
         this.moneyUsageId = moneyUsageId
         this.userId = userId
         this.title = title
         this.description = description
+        this.amount = amount
         this.moneyUsageSubCategoryId = moneyUsageSubCategoryId
         this.datetime = datetime
         this.createdDatetime = createdDatetime
         this.updateDatetime = updateDatetime
-        this.amount = amount
         resetTouchedOnNotNull()
     }
 }

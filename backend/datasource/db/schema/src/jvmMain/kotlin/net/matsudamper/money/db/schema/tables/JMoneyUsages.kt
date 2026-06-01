@@ -97,6 +97,11 @@ open class JMoneyUsages(
     val DESCRIPTION: TableField<JMoneyUsagesRecord, String?> = createField(DSL.name("description"), SQLDataType.VARCHAR(1000).nullable(false), this, "")
 
     /**
+     * The column <code>money.money_usages.amount</code>.
+     */
+    val AMOUNT: TableField<JMoneyUsagesRecord, Int?> = createField(DSL.name("amount"), SQLDataType.INTEGER.nullable(false), this, "")
+
+    /**
      * The column <code>money.money_usages.money_usage_sub_category_id</code>.
      */
     val MONEY_USAGE_SUB_CATEGORY_ID: TableField<JMoneyUsagesRecord, Int?> = createField(DSL.name("money_usage_sub_category_id"), SQLDataType.INTEGER.defaultValue(DSL.field(DSL.raw("NULL"), SQLDataType.INTEGER)), this, "")
@@ -115,11 +120,6 @@ open class JMoneyUsages(
      * The column <code>money.money_usages.update_datetime</code>.
      */
     val UPDATE_DATETIME: TableField<JMoneyUsagesRecord, LocalDateTime?> = createField(DSL.name("update_datetime"), SQLDataType.LOCALDATETIME(0).nullable(false).defaultValue(DSL.field(DSL.raw("current_timestamp()"), SQLDataType.LOCALDATETIME)), this, "")
-
-    /**
-     * The column <code>money.money_usages.amount</code>.
-     */
-    val AMOUNT: TableField<JMoneyUsagesRecord, Int?> = createField(DSL.name("amount"), SQLDataType.INTEGER.nullable(false), this, "")
 
     private constructor(alias: Name, aliased: Table<JMoneyUsagesRecord>?): this(alias, null, null, null, aliased, null, null)
     private constructor(alias: Name, aliased: Table<JMoneyUsagesRecord>?, parameters: Array<Field<*>?>?): this(alias, null, null, null, aliased, parameters, null)

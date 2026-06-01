@@ -97,16 +97,6 @@ open class JUserMails(
     val HTML: TableField<JUserMailsRecord, String?> = createField(DSL.name("html"), SQLDataType.CLOB.defaultValue(DSL.field(DSL.raw("NULL"), SQLDataType.CLOB)), this, "")
 
     /**
-     * The column <code>money.user_mails.datetime</code>.
-     */
-    val DATETIME: TableField<JUserMailsRecord, LocalDateTime?> = createField(DSL.name("datetime"), SQLDataType.LOCALDATETIME(0).nullable(false), this, "")
-
-    /**
-     * The column <code>money.user_mails.created_datetime</code>.
-     */
-    val CREATED_DATETIME: TableField<JUserMailsRecord, LocalDateTime?> = createField(DSL.name("created_datetime"), SQLDataType.LOCALDATETIME(0).nullable(false).defaultValue(DSL.field(DSL.raw("current_timestamp()"), SQLDataType.LOCALDATETIME)), this, "")
-
-    /**
      * The column <code>money.user_mails.from_mail</code>.
      */
     val FROM_MAIL: TableField<JUserMailsRecord, String?> = createField(DSL.name("from_mail"), SQLDataType.VARCHAR(500).nullable(false), this, "")
@@ -115,6 +105,16 @@ open class JUserMails(
      * The column <code>money.user_mails.subject</code>.
      */
     val SUBJECT: TableField<JUserMailsRecord, String?> = createField(DSL.name("subject"), SQLDataType.VARCHAR(500).nullable(false), this, "")
+
+    /**
+     * The column <code>money.user_mails.datetime</code>.
+     */
+    val DATETIME: TableField<JUserMailsRecord, LocalDateTime?> = createField(DSL.name("datetime"), SQLDataType.LOCALDATETIME(0).nullable(false), this, "")
+
+    /**
+     * The column <code>money.user_mails.created_datetime</code>.
+     */
+    val CREATED_DATETIME: TableField<JUserMailsRecord, LocalDateTime?> = createField(DSL.name("created_datetime"), SQLDataType.LOCALDATETIME(0).nullable(false).defaultValue(DSL.field(DSL.raw("current_timestamp()"), SQLDataType.LOCALDATETIME)), this, "")
 
     private constructor(alias: Name, aliased: Table<JUserMailsRecord>?): this(alias, null, null, null, aliased, null, null)
     private constructor(alias: Name, aliased: Table<JUserMailsRecord>?, parameters: Array<Field<*>?>?): this(alias, null, null, null, aliased, parameters, null)
