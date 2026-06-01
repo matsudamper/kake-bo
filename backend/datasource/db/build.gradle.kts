@@ -39,6 +39,8 @@ kotlin {
                 implementation(libs.testcontainersJunit5)
                 implementation(libs.mariadbClient)
                 implementation(libs.jooq)
+                implementation(libs.jooqCodegen)
+                implementation(libs.jooqMeta)
                 implementation(projects.backend.datasource.db.schema)
             }
         }
