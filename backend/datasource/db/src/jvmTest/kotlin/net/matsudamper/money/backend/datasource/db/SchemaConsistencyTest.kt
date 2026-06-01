@@ -108,19 +108,25 @@ class SchemaConsistencyTest {
     }
 
     private fun jooqDataTypeToMariadb(dataType: DataType<*>): String {
-        return when (dataType.sqlType) {
-            Types.INTEGER, Types.SMALLINT -> "int"
-            Types.BIGINT -> "bigint"
-            Types.VARCHAR -> "varchar"
-            Types.CHAR -> "char"
-            Types.BINARY, Types.VARBINARY -> "binary"
-            Types.TIMESTAMP, Types.TIMESTAMP_WITH_TIMEZONE -> "datetime"
-            Types.BOOLEAN, Types.BIT, Types.TINYINT -> "tinyint"
-            Types.CLOB, Types.LONGVARCHAR -> {
-                val length = dataType.length()
-                if (length > 0 && length <= 65535) "text" else "longtext"
+        val length = dataType.length()
+        // jOOQ 3.21では CHAR(n)/CLOB(n) の sqlType が Types.VARCHAR になるため、
+        // typeName から判定する（"char(l)" → "char", "clob" → text/longtext）
+        val typeName = dataType.typeName.lowercase().substringBefore("(").trim()
+        return when (typeName) {
+            "char", "nchar" -> "char"
+            "clob", "longvarchar", "nclob", "longnvarchar" ->
+                if (length in 1..65535) "text" else "longtext"
+            else -> when (dataType.sqlType) {
+                Types.INTEGER, Types.SMALLINT -> "int"
+                Types.BIGINT -> "bigint"
+                Types.VARCHAR -> "varchar"
+                Types.CHAR -> "char"
+                Types.BINARY, Types.VARBINARY -> "binary"
+                Types.TIMESTAMP, Types.TIMESTAMP_WITH_TIMEZONE -> "datetime"
+                Types.BOOLEAN, Types.BIT, Types.TINYINT -> "tinyint"
+                Types.CLOB, Types.LONGVARCHAR -> if (length in 1..65535) "text" else "longtext"
+                else -> typeName
             }
-            else -> dataType.typeName.lowercase()
         }
     }
 
