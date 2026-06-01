@@ -12,16 +12,11 @@ import org.junit.jupiter.api.AfterAll
 import org.junit.jupiter.api.BeforeAll
 import org.junit.jupiter.api.Test
 import org.testcontainers.containers.MariaDBContainer
-import org.testcontainers.junit.jupiter.Container
-import org.testcontainers.junit.jupiter.Testcontainers
 
-@Testcontainers
 class SchemaConsistencyTest {
 
     companion object {
-        @Container
-        @JvmStatic
-        val mariadb: MariaDBContainer<*> = MariaDBContainer("mariadb:10.11")
+        private val mariadb: MariaDBContainer<*> = MariaDBContainer("mariadb:10.11")
             .withDatabaseName("money")
             .withUsername("test")
             .withPassword("test")
@@ -45,6 +40,7 @@ class SchemaConsistencyTest {
         @BeforeAll
         @JvmStatic
         fun setup() {
+            mariadb.start()
             connection = DriverManager.getConnection(mariadb.jdbcUrl, "test", "test")
             applySqlFiles()
         }
@@ -53,6 +49,7 @@ class SchemaConsistencyTest {
         @JvmStatic
         fun teardown() {
             connection.close()
+            mariadb.stop()
         }
 
         private fun applySqlFiles() {
