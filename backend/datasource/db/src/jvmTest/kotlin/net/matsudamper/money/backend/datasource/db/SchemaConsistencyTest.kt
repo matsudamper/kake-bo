@@ -202,9 +202,12 @@ class SchemaConsistencyTest {
         val actualColumns = fetchActualColumns()
         val jooqTableNames = JMoney.MONEY.tables.map { it.name }.toSet()
 
-        val extraTables = actualColumns.keys.filter { it !in jooqTableNames }
+        // 主キーなしのためjOOQがコード生成しないテーブルは除外する
+        val knownNonJooqTables = setOf("user_received_mails")
 
-        withClue("jOOQコードに存在しないDBテーブル (情報): $extraTables") {
+        val extraTables = actualColumns.keys.filter { it !in jooqTableNames && it !in knownNonJooqTables }
+
+        withClue("jOOQコードに存在しないDBテーブル: $extraTables") {
             extraTables.isEmpty() shouldBe true
         }
     }
