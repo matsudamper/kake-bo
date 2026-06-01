@@ -38,6 +38,10 @@ public enum class Screens : Direction {
         override val title: String = "IMAP設定"
         override val placeholderUrl: String = "/settings/imap"
     },
+    SettingsTimezone {
+        override val title: String = "タイムゾーン設定"
+        override val placeholderUrl: String = "/settings/timezone"
+    },
     SettingsCategory {
         override val title: String = "カテゴリ設定"
         override val placeholderUrl: String = "/settings/category"
