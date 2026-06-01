@@ -22,7 +22,7 @@ jobs:
           MYSQL_PASSWORD: test
         ports:
           - 3306:3306
-        options: --no-healthcheck
+        options: --health-cmd="healthcheck.sh --connect" --health-interval=5s --health-timeout=5s --health-retries=30 --health-start-period=20s
     env:
       GRADLE_OPTS: -Dkotlin.compiler.execution.strategy=in-process -Dorg.gradle.workers.max=2 -Dorg.gradle.daemon=false -Dorg.gradle.jvmargs="-Xmx4500m"
     steps:
