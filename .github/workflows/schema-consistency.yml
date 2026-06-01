@@ -35,12 +35,12 @@ jobs:
           java-version: '25'
       - name: Setup Gradle
         uses: gradle/actions/setup-gradle@v6
-      - name: mariadb-clientのインストール
-        run: sudo apt-get update -y && sudo apt-get install -y mariadb-client
+      - name: mysql-clientのインストール
+        run: sudo apt-get update -y && sudo apt-get install -y default-mysql-client
       - name: MariaDBの起動を待機
         run: |
           for i in $(seq 1 50); do
-            mariadb -h 127.0.0.1 -u test -ptest -e "SELECT 1" money 2>/dev/null && echo "MariaDB ready" && exit 0
+            mysql -h 127.0.0.1 -u test -ptest -e "SELECT 1" money 2>/dev/null && echo "MariaDB ready" && exit 0
             echo "Waiting for MariaDB... ($i/50)"
             sleep 3
           done
@@ -49,10 +49,10 @@ jobs:
       - name: SQLファイルを適用
         run: |
           SQL_DIR="backend/datasource/db/src/jvmMain/resources/sql"
-          mariadb -h 127.0.0.1 -u test -ptest money < "$SQL_DIR/master.sql"
+          mysql -h 127.0.0.1 -u test -ptest money < "$SQL_DIR/master.sql"
           for f in $(ls "$SQL_DIR"/*.sql | grep -v "master.sql" | sort); do
             echo "適用中: $f"
-            mariadb -h 127.0.0.1 -u test -ptest money < "$f"
+            mysql -h 127.0.0.1 -u test -ptest money < "$f"
           done
       - name: jOOQコードを生成
         env:
