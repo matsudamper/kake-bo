@@ -4,6 +4,7 @@ import java.io.File
 import java.sql.Connection
 import java.sql.DriverManager
 import java.sql.Types
+
 import io.kotest.assertions.withClue
 import io.kotest.matchers.shouldBe
 import net.matsudamper.money.db.schema.JMoney
