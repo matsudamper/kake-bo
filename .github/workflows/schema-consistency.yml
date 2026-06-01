@@ -22,7 +22,6 @@ jobs:
           MYSQL_PASSWORD: test
         ports:
           - 3306:3306
-        options: --health-cmd="healthcheck.sh --connect --innodb_initialized" --health-interval=10s --health-timeout=5s --health-retries=10
     env:
       GRADLE_OPTS: -Dkotlin.compiler.execution.strategy=in-process -Dorg.gradle.workers.max=2 -Dorg.gradle.daemon=false -Dorg.gradle.jvmargs="-Xmx4500m"
     steps:
@@ -37,6 +36,13 @@ jobs:
         uses: gradle/actions/setup-gradle@v6
       - name: mariadb-clientのインストール
         run: sudo apt-get install -y mariadb-client
+      - name: MariaDBの起動を待機
+        run: |
+          for i in $(seq 1 30); do
+            mariadb -h 127.0.0.1 -u test -ptest -e "SELECT 1" money 2>/dev/null && echo "MariaDB ready" && break
+            echo "Waiting for MariaDB... ($i/30)"
+            sleep 3
+          done
       - name: SQLファイルを適用
         run: |
           SQL_DIR="backend/datasource/db/src/jvmMain/resources/sql"

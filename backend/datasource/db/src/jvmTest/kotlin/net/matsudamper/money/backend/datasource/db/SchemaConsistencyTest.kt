@@ -3,7 +3,6 @@ package net.matsudamper.money.backend.datasource.db
 import java.io.File
 import java.sql.Connection
 import java.sql.DriverManager
-
 import io.kotest.assertions.withClue
 import io.kotest.matchers.shouldBe
 import org.junit.jupiter.api.AfterAll
