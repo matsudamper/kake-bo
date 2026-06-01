@@ -170,7 +170,10 @@ class SchemaConsistencyTest {
             }
 
             val actualColMap = actualCols.associateBy { it.columnName }
+            val expectedColNames = mutableSetOf<String>()
+
             expectedColumnsFromJooq(table).forEach { expected ->
+                expectedColNames.add(expected.columnName)
                 val actual = actualColMap[expected.columnName]
                 if (actual == null) {
                     differences.add("${table.name}.${expected.columnName}: DBにカラムが存在しない (期待型: ${expected.dataType})")
@@ -187,6 +190,12 @@ class SchemaConsistencyTest {
                     }
                 }
             }
+
+            actualColMap.keys
+                .filter { it !in expectedColNames }
+                .forEach { extraCol ->
+                    differences.add("${table.name}.$extraCol: DBに存在するがjOOQコードに存在しないカラム")
+                }
         }
 
         withClue("スキーマの差異:\n" + differences.joinToString("\n") { "  $it" }) {
