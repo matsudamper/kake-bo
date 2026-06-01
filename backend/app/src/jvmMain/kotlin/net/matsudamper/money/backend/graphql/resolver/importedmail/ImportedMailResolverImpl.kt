@@ -133,14 +133,16 @@ class ImportedMailResolverImpl : ImportedMailResolver {
         val context = env.typedContext
         val userId = context.verifyUserSessionAndGetUserId()
 
-        return context.dataLoaders.importedMailDataLoader.get(env)
-            .load(
-                ImportedMailDataLoaderDefine.Key(
-                    userId = userId,
-                    importedMailId = importedMail.id,
-                ),
-            ).otelThenApplyAsync { importedMailFuture ->
-                importedMailFuture.dateTime
+        val mailFuture = context.dataLoaders.importedMailDataLoader.get(env)
+            .load(ImportedMailDataLoaderDefine.Key(userId = userId, importedMailId = importedMail.id))
+        val timezoneFuture = context.dataLoaders.userTimezoneDataLoader.get(env)
+            .load(userId)
+
+        return CompletableFuture.allOf(mailFuture, timezoneFuture)
+            .otelThenApplyAsync {
+                val mail = mailFuture.join()
+                val timezone = timezoneFuture.join()
+                mail.dateTime.plusSeconds(timezone.totalSeconds.toLong())
             }.toDataFetcher()
     }
 
@@ -151,25 +153,23 @@ class ImportedMailResolverImpl : ImportedMailResolver {
         val context = env.typedContext
         val userId = context.verifyUserSessionAndGetUserId()
 
-        return context.dataLoaders.importedMailDataLoader.get(env).load(
+        val mailFuture = context.dataLoaders.importedMailDataLoader.get(env).load(
             ImportedMailDataLoaderDefine.Key(
                 userId = userId,
                 importedMailId = importedMail.id,
             ),
-        ).otelThenApplyAsync { mailLoader ->
-            val targetMail = mailLoader ?: return@otelThenApplyAsync run {
+        )
+        val timezoneFuture = context.dataLoaders.userTimezoneDataLoader.get(env).load(userId)
+
+        return CompletableFuture.allOf(mailFuture, timezoneFuture).otelThenApplyAsync {
+            val targetMail = mailFuture.join() ?: return@otelThenApplyAsync run {
                 DataFetcherResult.newResult<List<QlMoneyUsageSuggest>>()
                     .data(listOf())
                     .build()
             }
 
-            val timezoneOffset = context.diContainer.createUserConfigRepository()
-                .getTimezoneOffset(userId)
-            val adjustedDate = if (timezoneOffset != null) {
-                targetMail.dateTime.plusSeconds(timezoneOffset.totalSeconds.toLong())
-            } else {
-                targetMail.dateTime
-            }
+            val timezoneOffset = timezoneFuture.join()
+            val adjustedDate = targetMail.dateTime.plusSeconds(timezoneOffset.totalSeconds.toLong())
 
             val results = MailParser.parseUsage(
                 subject = targetMail.subject,
