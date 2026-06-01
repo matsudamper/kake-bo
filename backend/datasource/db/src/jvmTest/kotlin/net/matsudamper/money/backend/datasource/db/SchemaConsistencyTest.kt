@@ -80,6 +80,7 @@ class SchemaConsistencyTest {
         val columnName: String,
         val dataType: String,
         val isNullable: Boolean,
+        val characterMaxLength: Int?,
     )
 
     private fun fetchActualColumns(): Map<String, List<ColumnInfo>> {
@@ -87,7 +88,7 @@ class SchemaConsistencyTest {
         connection.createStatement().use { stmt ->
             stmt.executeQuery(
                 """
-                SELECT TABLE_NAME, COLUMN_NAME, DATA_TYPE, IS_NULLABLE
+                SELECT TABLE_NAME, COLUMN_NAME, DATA_TYPE, IS_NULLABLE, CHARACTER_MAXIMUM_LENGTH
                 FROM information_schema.COLUMNS
                 WHERE TABLE_SCHEMA = 'money'
                 ORDER BY TABLE_NAME, ORDINAL_POSITION
@@ -99,6 +100,7 @@ class SchemaConsistencyTest {
                         columnName = rs.getString("COLUMN_NAME"),
                         dataType = rs.getString("DATA_TYPE"),
                         isNullable = rs.getString("IS_NULLABLE") == "YES",
+                        characterMaxLength = rs.getInt("CHARACTER_MAXIMUM_LENGTH").takeIf { !rs.wasNull() },
                     )
                     result.getOrPut(tableName) { mutableListOf() }.add(col)
                 }
@@ -132,10 +134,15 @@ class SchemaConsistencyTest {
 
     private fun expectedColumnsFromJooq(table: Table<*>): List<ColumnInfo> {
         return table.fields().map { field ->
+            val mariadbType = jooqDataTypeToMariadb(field.dataType)
             ColumnInfo(
                 columnName = field.name,
-                dataType = jooqDataTypeToMariadb(field.dataType),
+                dataType = mariadbType,
                 isNullable = field.dataType.nullable(),
+                characterMaxLength = when (mariadbType) {
+                    "varchar", "char" -> field.dataType.length().takeIf { it > 0 }
+                    else -> null
+                },
             )
         }
     }
@@ -192,6 +199,13 @@ class SchemaConsistencyTest {
                     if (actual.isNullable != expected.isNullable) {
                         differences.add(
                             "${table.name}.${expected.columnName}: nullable不一致 (DB=${actual.isNullable}, jOOQ=${expected.isNullable})",
+                        )
+                    }
+                    if (actual.characterMaxLength != null && expected.characterMaxLength != null &&
+                        actual.characterMaxLength != expected.characterMaxLength
+                    ) {
+                        differences.add(
+                            "${table.name}.${expected.columnName}: 長さ不一致 (DB=${actual.characterMaxLength}, jOOQ=${expected.characterMaxLength})",
                         )
                     }
                 }
