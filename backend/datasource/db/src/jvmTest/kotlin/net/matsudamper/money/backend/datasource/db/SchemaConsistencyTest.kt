@@ -1,5 +1,6 @@
 package net.matsudamper.money.backend.datasource.db
 
+import java.io.File
 import java.sql.Connection
 import java.sql.DriverManager
 import java.sql.Types
@@ -23,17 +24,16 @@ class SchemaConsistencyTest {
 
         private lateinit var connection: Connection
 
-        private val sqlFilesInOrder = listOf(
-            "master.sql",
-            "2023-08-11.sql",
-            "2023-12-31.sql",
-            "2024-03-04.sql",
-            "2026-02-10.sql",
-            "2026-02-14.sql",
-            "2026-02-19.sql",
-            "2026-02-24.sql",
-            "2026-05-05.sql",
-        )
+        private val sqlFilesInOrder: List<String> by lazy {
+            val sqlDirUrl = SchemaConsistencyTest::class.java.getResource("/sql/")
+                ?: error("SQL ディレクトリが見つかりません")
+            val sqlDir = File(sqlDirUrl.toURI())
+            val migrations = (sqlDir.listFiles() ?: error("SQL ファイルを列挙できません"))
+                .filter { it.extension == "sql" && it.name != "master.sql" }
+                .map { it.name }
+                .sorted()
+            listOf("master.sql") + migrations
+        }
 
         val sqlApplyErrors: MutableList<Pair<String, String>> = mutableListOf()
 
