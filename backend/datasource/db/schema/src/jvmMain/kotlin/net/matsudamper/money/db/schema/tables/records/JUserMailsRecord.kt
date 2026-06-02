@@ -34,21 +34,21 @@ open class JUserMailsRecord() : UpdatableRecordImpl<JUserMailsRecord>(JUserMails
         set(value): Unit = set(3, value)
         get(): String? = get(3) as String?
 
-    open var fromMail: String?
-        set(value): Unit = set(4, value)
-        get(): String? = get(4) as String?
-
-    open var subject: String?
-        set(value): Unit = set(5, value)
-        get(): String? = get(5) as String?
-
     open var datetime: LocalDateTime?
-        set(value): Unit = set(6, value)
-        get(): LocalDateTime? = get(6) as LocalDateTime?
+        set(value): Unit = set(4, value)
+        get(): LocalDateTime? = get(4) as LocalDateTime?
 
     open var createdDatetime: LocalDateTime?
+        set(value): Unit = set(5, value)
+        get(): LocalDateTime? = get(5) as LocalDateTime?
+
+    open var fromMail: String?
+        set(value): Unit = set(6, value)
+        get(): String? = get(6) as String?
+
+    open var subject: String?
         set(value): Unit = set(7, value)
-        get(): LocalDateTime? = get(7) as LocalDateTime?
+        get(): String? = get(7) as String?
 
     // -------------------------------------------------------------------------
     // Primary key information
@@ -59,15 +59,15 @@ open class JUserMailsRecord() : UpdatableRecordImpl<JUserMailsRecord>(JUserMails
     /**
      * Create a detached, initialised JUserMailsRecord
      */
-    constructor(userMailId: Int? = null, userId: Int? = null, plain: String? = null, html: String? = null, fromMail: String? = null, subject: String? = null, datetime: LocalDateTime? = null, createdDatetime: LocalDateTime? = null): this() {
+    constructor(userMailId: Int? = null, userId: Int? = null, plain: String? = null, html: String? = null, datetime: LocalDateTime? = null, createdDatetime: LocalDateTime? = null, fromMail: String? = null, subject: String? = null): this() {
         this.userMailId = userMailId
         this.userId = userId
         this.plain = plain
         this.html = html
-        this.fromMail = fromMail
-        this.subject = subject
         this.datetime = datetime
         this.createdDatetime = createdDatetime
+        this.fromMail = fromMail
+        this.subject = subject
         resetTouchedOnNotNull()
     }
 }
