@@ -196,4 +196,8 @@ public enum class MoneyUsageServiceType(
         id = 49,
         displayName = "ビューカード",
     ),
+    HighwayBus(
+        id = 50,
+        displayName = "ハイウェイバスドットコム",
+    ),
 }
