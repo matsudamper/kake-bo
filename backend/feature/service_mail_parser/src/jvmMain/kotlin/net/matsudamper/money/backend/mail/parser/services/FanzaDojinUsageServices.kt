@@ -16,10 +16,11 @@ internal object FanzaDojinUsageServices : MoneyUsageServices {
         plain: String,
         date: LocalDateTime,
     ): List<MoneyUsage> {
+        val forwardedInfo = ParseUtil.parseForwarded(plain)
         return parsePlain(
             // plainが無く、htmlにplainが含まれている場合がある
             plain = plain.takeIf { it.isNotBlank() } ?: html,
-            date = date,
+            date = forwardedInfo?.date ?: date,
         )
     }
 

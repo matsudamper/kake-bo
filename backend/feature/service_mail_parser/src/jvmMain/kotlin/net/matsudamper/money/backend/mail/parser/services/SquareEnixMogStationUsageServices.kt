@@ -16,9 +16,10 @@ internal object SquareEnixMogStationUsageServices : MoneyUsageServices {
         plain: String,
         date: LocalDateTime,
     ): List<MoneyUsage> {
+        val forwardedInfo = ParseUtil.parseForwarded(plain)
         val canHandle = sequence {
-            yield(canHandledWithFrom(from))
-            yield(canHandledWithSubject(subject))
+            yield(canHandledWithFrom(forwardedInfo?.from ?: from))
+            yield(canHandledWithSubject(forwardedInfo?.subject ?: subject))
         }
         if (canHandle.any { it }.not()) return listOf()
         val lines = ParseUtil.splitByNewLine(plain)
@@ -40,7 +41,7 @@ internal object SquareEnixMogStationUsageServices : MoneyUsageServices {
                         price = price,
                         description = description,
                         service = MoneyUsageServiceType.FFXIV,
-                        dateTime = date,
+                        dateTime = forwardedInfo?.date ?: date,
                     ),
                 )
             }
