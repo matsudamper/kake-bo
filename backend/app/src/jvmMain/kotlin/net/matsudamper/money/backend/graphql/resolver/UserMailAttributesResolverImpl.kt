@@ -10,6 +10,7 @@ import net.matsudamper.money.backend.base.element.MailResult
 import net.matsudamper.money.backend.graphql.GraphQlContext
 import net.matsudamper.money.backend.graphql.otelSupplyAsync
 import net.matsudamper.money.backend.graphql.toDataFetcher
+import net.matsudamper.money.backend.mail.parser.MailParser as ServiceMailParser
 import net.matsudamper.money.graphql.model.QlMailQuery
 import net.matsudamper.money.graphql.model.QlUserMail
 import net.matsudamper.money.graphql.model.QlUserMailAttributes
@@ -62,16 +63,21 @@ class UserMailAttributesResolverImpl : UserMailAttributesResolver {
                 usrMails = mails.map { mail ->
                     val html = mail.content.filterIsInstance<MailResult.Content.Html>()
                     val text = mail.content.filterIsInstance<MailResult.Content.Text>()
+                    val forwardedInfo = text.firstOrNull()?.text?.let { ServiceMailParser.forwardedInfo(it) }
 
                     // TODO: mail.forwardedForの先頭を見て、許可されているメールだけを取り込むようにする
                     QlUserMail(
                         id = mail.messageID,
                         plain = text.getOrNull(0)?.text,
                         html = html.getOrNull(0)?.html,
-                        time = OffsetDateTime.ofInstant(mail.sendDate, ZoneOffset.UTC),
+                        time = if (forwardedInfo != null) {
+                            OffsetDateTime.of(forwardedInfo.dateTime, ZoneOffset.UTC)
+                        } else {
+                            OffsetDateTime.ofInstant(mail.sendDate, ZoneOffset.UTC)
+                        },
                         subject = mail.subject,
                         sender = mail.sender,
-                        from = mail.from,
+                        from = if (forwardedInfo != null) listOf(forwardedInfo.from) else mail.from,
                     )
                 },
                 cursor = if (mails.isEmpty()) {
