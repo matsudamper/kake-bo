@@ -7,6 +7,7 @@ import kotlinx.coroutines.runBlocking
 import net.matsudamper.money.backend.app.interfaces.ImportedMailRepository
 import net.matsudamper.money.backend.base.element.MailResult
 import net.matsudamper.money.backend.di.DiContainer
+import net.matsudamper.money.backend.mail.parser.MailParser as ServiceMailParser
 import net.matsudamper.money.element.MailId
 import net.matsudamper.money.element.UserId
 
@@ -35,14 +36,16 @@ class ImportMailUseCase(
                 mailRepository.getMails(mailIds).map { mail ->
                     val html = mail.content.filterIsInstance<MailResult.Content.Html>()
                     val text = mail.content.filterIsInstance<MailResult.Content.Text>()
+                    val plainText = text.firstOrNull()?.text
+                    val forwardedInfo = plainText?.let { ServiceMailParser.forwardedInfo(it) }
 
                     val result = dbMailRepository.addMail(
                         userId = userId,
                         subject = mail.subject,
-                        plainText = text.firstOrNull()?.text,
+                        plainText = plainText,
                         html = html.firstOrNull()?.html,
-                        dateTime = LocalDateTime.ofInstant(mail.sendDate, ZoneOffset.UTC),
-                        from = mail.from.firstOrNull().orEmpty(),
+                        dateTime = forwardedInfo?.dateTime ?: LocalDateTime.ofInstant(mail.sendDate, ZoneOffset.UTC),
+                        from = forwardedInfo?.from ?: mail.from.firstOrNull().orEmpty(),
                     )
 
                     when (result) {
