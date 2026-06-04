@@ -192,4 +192,8 @@ public enum class MoneyUsageServiceType(
         id = 48,
         displayName = "チネチッタ",
     ),
+    ViewCard(
+        id = 49,
+        displayName = "ビューカード",
+    ),
 }
