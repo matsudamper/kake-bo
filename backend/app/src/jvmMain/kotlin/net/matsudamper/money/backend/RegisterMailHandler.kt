@@ -11,6 +11,7 @@ import net.matsudamper.money.backend.di.DiContainer
 import net.matsudamper.money.backend.logic.ApiTokenEncryptManager
 import net.matsudamper.money.backend.logic.IPasswordManager
 import net.matsudamper.money.backend.logic.PasswordManager
+import net.matsudamper.money.backend.mail.parser.MailParser as ServiceMailParser
 
 class RegisterMailHandler(
     private val diContainer: DiContainer,
@@ -36,14 +37,16 @@ class RegisterMailHandler(
             ?: return Result.Forbidden
 
         val mail = MailParser.rawContentToResponse(request.raw)
+        val plainText = mail.content.filterIsInstance<MailResult.Content.Text>().firstOrNull()?.text
+        val forwardedInfo = plainText?.let { ServiceMailParser.forwardedInfo(it) }
 
         val addResult = importedMailRepository.addMail(
             userId = verifyResult.userId,
-            plainText = mail.content.filterIsInstance<MailResult.Content.Text>().firstOrNull()?.text,
+            plainText = plainText,
             html = mail.content.filterIsInstance<MailResult.Content.Html>().firstOrNull()?.html,
-            from = mail.from.firstOrNull() ?: "",
+            from = forwardedInfo?.from ?: mail.from.firstOrNull() ?: "",
             subject = mail.subject,
-            dateTime = LocalDateTime.ofInstant(mail.sendDate, ZoneOffset.UTC),
+            dateTime = forwardedInfo?.dateTime ?: LocalDateTime.ofInstant(mail.sendDate, ZoneOffset.UTC),
         )
 
         return when (addResult) {
