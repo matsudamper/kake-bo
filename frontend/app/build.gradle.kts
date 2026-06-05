@@ -76,6 +76,9 @@ val localProperties = Properties().also { properties ->
 android {
     compileSdk = 37
     namespace = "net.matsudamper.money"
+    buildFeatures {
+        resValues = true
+    }
     signingConfigs {
         val keystorePath = localProperties["KEYSTORE_PATH"] as? String
         if (keystorePath != null) {
