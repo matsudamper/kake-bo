@@ -142,7 +142,7 @@ public object MailParser {
         val info = ParseUtil.parseForwarded(text) ?: return null
         return ForwardedInfo(
             from = info.from ?: return null,
-            subject = info.subject ?: return null,
+            subject = info.subject.orEmpty(),
             dateTime = info.date ?: return null,
         )
     }
