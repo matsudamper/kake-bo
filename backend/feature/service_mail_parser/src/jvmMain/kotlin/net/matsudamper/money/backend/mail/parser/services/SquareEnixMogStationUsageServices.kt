@@ -58,7 +58,7 @@ internal object SquareEnixMogStationUsageServices : MoneyUsageServices {
                         "${it.title} ${it.price}円"
                     },
                     service = MoneyUsageServiceType.FFXIV,
-                    dateTime = date,
+                    dateTime = forwardedInfo?.date ?: date,
                 ),
             )
             addAll(products)
