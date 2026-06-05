@@ -10,7 +10,7 @@ plugins {
 }
 
 kotlin {
-    js(IR) {
+    js {
         browser()
         binaries.executable()
     }
@@ -74,7 +74,7 @@ val localProperties = Properties().also { properties ->
     }
 }
 android {
-    compileSdk = 36
+    compileSdk = 37
     namespace = "net.matsudamper.money"
     signingConfigs {
         val keystorePath = localProperties["KEYSTORE_PATH"] as? String
@@ -105,7 +105,7 @@ android {
     defaultConfig {
         resValue("string", "app_name", appName)
         minSdk = 34
-        targetSdk = 36
+        targetSdk = 37
         manifestPlaceholders["SERVER_HOST"] = System.getenv("ANDROID_SERVER_HOST")
             ?: localProperties["net.matsudamper.money.android.serverHost"] as? String
             ?: ""
