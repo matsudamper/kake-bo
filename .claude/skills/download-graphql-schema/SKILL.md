@@ -71,7 +71,7 @@ sleep 8 && curl -sf http://localhost/healthz; echo "exit: $?"
 ### 4. スキーマをダウンロードする
 
 ```shell
-./gradlew :frontend:common:graphql:schema:downloadSchema
+./gradlew :frontend:common:graphql:schema:downloadMoneyApolloSchemaFromIntrospection
 ```
 
 `frontend/common/graphql/schema/src/commonMain/graphql/schema.graphqls` が更新される。
