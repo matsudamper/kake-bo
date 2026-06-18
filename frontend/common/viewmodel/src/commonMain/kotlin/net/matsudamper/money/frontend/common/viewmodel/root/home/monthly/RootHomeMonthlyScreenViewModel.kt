@@ -128,6 +128,10 @@ public class RootHomeMonthlyScreenViewModel(
                         order = order,
                     )
                 }
+
+                override suspend fun refresh() {
+                    fetchFromNetwork()
+                }
             },
         ),
     ).also { uiStateFlow ->
@@ -238,6 +242,28 @@ public class RootHomeMonthlyScreenViewModel(
         viewModelScope.launch {
             fetch()
         }
+    }
+
+    private suspend fun fetchFromNetwork() {
+        val sinceDateTime = createSinceLocalDateTime()
+        val untilDateTime = LocalDateTime(
+            date = sinceDateTime.date.plus(1, DateTimeUnit.MONTH),
+            time = sinceDateTime.time,
+        )
+        val analyticsResponse = graphqlClient.apolloClient.query(
+            MonthlyScreenQuery(
+                sinceDateTime = sinceDateTime,
+                untilDateTime = untilDateTime,
+            ),
+        ).fetchPolicy(FetchPolicy.NetworkOnly).execute()
+        viewModelStateFlow.value = viewModelStateFlow.value.copy(
+            moneyUsageAnalytics = analyticsResponse.data?.user?.moneyUsageAnalytics,
+        )
+
+        val firstQuery = getFirstQueryFlow().value
+        graphqlClient.apolloClient.query(firstQuery)
+            .fetchPolicy(FetchPolicy.NetworkOnly)
+            .execute()
     }
 
     private suspend fun fetch() {
