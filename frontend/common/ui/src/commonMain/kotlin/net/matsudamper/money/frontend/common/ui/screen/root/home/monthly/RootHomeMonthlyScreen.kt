@@ -90,6 +90,7 @@ public data class RootHomeMonthlyScreenUiState(
         val amount: String,
         val date: String,
         val category: String,
+        val categoryColor: Color,
         val imageUrls: ImmutableList<String>,
         val event: ItemEvent,
     )
@@ -255,6 +256,14 @@ private fun LoadedContent(
                             Column(
                                 modifier = Modifier.padding(horizontal = padding),
                             ) {
+                                if (item.category.isNotEmpty()) {
+                                    Text(
+                                        text = item.category,
+                                        maxLines = 1,
+                                        style = MaterialTheme.typography.labelSmall,
+                                    )
+                                    Spacer(modifier = Modifier.height(4.dp))
+                                }
                                 Text(
                                     text = item.date,
                                 )
@@ -264,14 +273,6 @@ private fun LoadedContent(
                                         modifier = Modifier.weight(1f),
                                         text = item.title,
                                         maxLines = 3,
-                                    )
-                                    Text(
-                                        modifier = Modifier
-                                            .align(Alignment.Bottom)
-                                            .height(IntrinsicSize.Max)
-                                            .requiredWidthIn(min = 80.dp),
-                                        text = item.category,
-                                        maxLines = 1,
                                     )
                                     Spacer(modifier = Modifier.width(4.dp))
                                     Text(
@@ -367,6 +368,7 @@ private fun RootHomeMonthlyScreenPreviewContent(isDarkTheme: Boolean) {
                             amount = "¥3,280",
                             date = "2026/02/25",
                             category = "ショッピング",
+                            categoryColor = Color(0xFFE65100),
                             imageUrls = listOf<String>().toImmutableList(),
                             event = noOpItemEvent,
                         ),
@@ -375,6 +377,7 @@ private fun RootHomeMonthlyScreenPreviewContent(isDarkTheme: Boolean) {
                             amount = "¥5,430",
                             date = "2026/02/24",
                             category = "食費",
+                            categoryColor = Color(0xFF558B2F),
                             imageUrls = listOf<String>().toImmutableList(),
                             event = noOpItemEvent,
                         ),
@@ -383,6 +386,7 @@ private fun RootHomeMonthlyScreenPreviewContent(isDarkTheme: Boolean) {
                             amount = "¥8,200",
                             date = "2026/02/20",
                             category = "光熱費",
+                            categoryColor = Color(0xFF1565C0),
                             imageUrls = listOf<String>().toImmutableList(),
                             event = noOpItemEvent,
                         ),
