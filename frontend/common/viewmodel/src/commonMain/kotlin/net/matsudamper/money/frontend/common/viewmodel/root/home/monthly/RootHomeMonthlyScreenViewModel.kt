@@ -256,9 +256,12 @@ public class RootHomeMonthlyScreenViewModel(
                 untilDateTime = untilDateTime,
             ),
         ).fetchPolicy(FetchPolicy.NetworkOnly).execute()
-        viewModelStateFlow.value = viewModelStateFlow.value.copy(
-            moneyUsageAnalytics = analyticsResponse.data?.user?.moneyUsageAnalytics,
-        )
+        val moneyUsageAnalytics = analyticsResponse.data?.user?.moneyUsageAnalytics
+        if (moneyUsageAnalytics != null) {
+            viewModelStateFlow.value = viewModelStateFlow.value.copy(
+                moneyUsageAnalytics = moneyUsageAnalytics,
+            )
+        }
 
         val firstQuery = getFirstQueryFlow().value
         graphqlClient.apolloClient.query(firstQuery)
