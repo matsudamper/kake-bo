@@ -1,5 +1,6 @@
 package net.matsudamper.money.frontend.common.ui.screen.root.home.monthly
 
+import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -20,6 +21,7 @@ import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.lazy.rememberLazyListState
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Card
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.ExperimentalMaterial3Api
@@ -258,8 +260,15 @@ private fun LoadedContent(
                             ) {
                                 if (item.category.isNotEmpty()) {
                                     Text(
+                                        modifier = Modifier
+                                            .background(
+                                                color = item.categoryColor,
+                                                shape = RoundedCornerShape(4.dp),
+                                            )
+                                            .padding(horizontal = 8.dp, vertical = 2.dp),
                                         text = item.category,
                                         maxLines = 1,
+                                        color = Color.White,
                                         style = MaterialTheme.typography.labelSmall,
                                     )
                                     Spacer(modifier = Modifier.height(4.dp))
