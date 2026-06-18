@@ -22,9 +22,12 @@ import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.material3.Card
 import androidx.compose.material3.CircularProgressIndicator
+import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.ProvideTextStyle
 import androidx.compose.material3.Text
+import androidx.compose.material3.pulltorefresh.PullToRefreshBox
+import androidx.compose.material3.pulltorefresh.rememberPullToRefreshState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.Immutable
 import androidx.compose.runtime.LaunchedEffect
@@ -32,6 +35,7 @@ import androidx.compose.runtime.MutableState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -44,6 +48,9 @@ import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import kotlin.time.Duration.Companion.milliseconds
+import kotlinx.coroutines.delay
+import kotlinx.coroutines.launch
 import coil3.compose.SubcomposeAsyncImage
 import net.matsudamper.money.frontend.common.base.ImmutableList
 import net.matsudamper.money.frontend.common.base.ImmutableList.Companion.toImmutableList
@@ -102,9 +109,11 @@ public data class RootHomeMonthlyScreenUiState(
         public suspend fun onViewInitialized()
         public fun onSortTypeChanged(sortType: SortSectionType)
         public fun onSortOrderChanged(order: SortSectionOrder)
+        public suspend fun refresh()
     }
 }
 
+@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 public fun RootHomeMonthlyScreen(
     uiState: RootHomeMonthlyScreenUiState,
@@ -115,29 +124,46 @@ public fun RootHomeMonthlyScreen(
     LaunchedEffect(Unit) {
         uiState.event.onViewInitialized()
     }
-    when (val loadingState = uiState.loadingState) {
-        is RootHomeMonthlyScreenUiState.LoadingState.Loaded -> {
-            LoadedContent(
-                modifier = modifier.fillMaxSize(),
-                loadingState = loadingState,
-                uiState = uiState,
-                showImages = showImages,
-            )
-        }
-
-        RootHomeMonthlyScreenUiState.LoadingState.Loading -> {
-            Box(modifier = modifier.fillMaxSize()) {
-                CircularProgressIndicator(modifier = Modifier.align(Alignment.Center))
+    val pullToRefreshState = rememberPullToRefreshState()
+    val coroutineScope = rememberCoroutineScope()
+    var isRefreshing by remember { mutableStateOf(false) }
+    PullToRefreshBox(
+        modifier = modifier.fillMaxSize(),
+        state = pullToRefreshState,
+        isRefreshing = isRefreshing,
+        onRefresh = {
+            coroutineScope.launch {
+                isRefreshing = true
+                uiState.event.refresh()
+                delay(1000.milliseconds)
+                isRefreshing = false
             }
-        }
+        },
+    ) {
+        when (val loadingState = uiState.loadingState) {
+            is RootHomeMonthlyScreenUiState.LoadingState.Loaded -> {
+                LoadedContent(
+                    modifier = Modifier.fillMaxSize(),
+                    loadingState = loadingState,
+                    uiState = uiState,
+                    showImages = showImages,
+                )
+            }
 
-        RootHomeMonthlyScreenUiState.LoadingState.Error -> {
-            LoadingErrorContent(
-                modifier = modifier.fillMaxWidth(),
-                onClickRetry = {
-                    // TODO
-                },
-            )
+            RootHomeMonthlyScreenUiState.LoadingState.Loading -> {
+                Box(modifier = Modifier.fillMaxSize()) {
+                    CircularProgressIndicator(modifier = Modifier.align(Alignment.Center))
+                }
+            }
+
+            RootHomeMonthlyScreenUiState.LoadingState.Error -> {
+                LoadingErrorContent(
+                    modifier = Modifier.fillMaxWidth(),
+                    onClickRetry = {
+                        // TODO
+                    },
+                )
+            }
         }
     }
 }
@@ -375,6 +401,7 @@ private fun RootHomeMonthlyScreenPreviewContent(isDarkTheme: Boolean) {
                     override suspend fun onViewInitialized() {}
                     override fun onSortTypeChanged(sortType: SortSectionType) {}
                     override fun onSortOrderChanged(order: SortSectionOrder) {}
+                    override suspend fun refresh() {}
                 },
                 currentSortType = SortSectionType.Date,
                 sortOrder = SortSectionOrder.Descending,
