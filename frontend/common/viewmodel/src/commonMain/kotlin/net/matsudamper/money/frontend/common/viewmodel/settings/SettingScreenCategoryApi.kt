@@ -32,22 +32,22 @@ private const val TAG = "SettingScreenCategoryApi"
 public class SettingScreenCategoryApi(
     private val apolloClient: ApolloClient,
 ) {
-    public suspend fun getCategories(): ApolloResponse<CategoriesSettingScreenCategoriesPagingQuery.Data>? {
-        return runCatching {
-            apolloClient
-                .query(
-                    CategoriesSettingScreenCategoriesPagingQuery(
-                        MoneyUsageCategoriesInput(
-                            cursor = Optional.present(null),
-                            size = 100,
-                        ),
-                    ),
-                )
-                .fetchPolicy(FetchPolicy.NetworkOnly)
-                .execute()
+    public fun getCategoriesPaging(): Flow<ApolloResponse<CategoriesSettingScreenCategoriesPagingQuery.Data>> {
+        return apolloClient
+            .query(createCategoriesPagingQuery())
+            .fetchPolicy(FetchPolicy.CacheAndNetwork)
+            .watch()
+    }
+
+    public suspend fun refetchCategoriesPaging() {
+        runCatching {
+            fetchCategoriesPaging(
+                query = createCategoriesPagingQuery(),
+                fetchPolicy = FetchPolicy.NetworkOnly,
+            )
         }.onFailure {
             Logger.e(TAG, it)
-        }.getOrNull()
+        }
     }
 
     public suspend fun addCategory(name: String): ApolloResponse<AddCategoryMutation.Data>? {
@@ -224,7 +224,7 @@ public class SettingScreenCategoryApi(
     }
 
     public suspend fun deleteCategory(id: MoneyUsageCategoryId): Boolean {
-        return runCatching {
+        val isDeleted = runCatching {
             apolloClient
                 .mutation(
                     DeleteCategoryMutation(
@@ -235,6 +235,71 @@ public class SettingScreenCategoryApi(
         }.onFailure {
             Logger.e(TAG, it)
         }.getOrNull()?.data?.userMutation?.deleteCategory == true
+        if (!isDeleted) {
+            return false
+        }
+
+        val cacheQuery = createCategoriesPagingQuery()
+        val updateResult = runCatching {
+            apolloClient.updateOperation(cacheQuery) update@{ before ->
+                if (before == null) {
+                    return@update success(
+                        fetchCategoriesPaging(
+                            query = cacheQuery,
+                            fetchPolicy = FetchPolicy.NetworkOnly,
+                        ),
+                    )
+                }
+
+                val user = before.user ?: return@update error()
+                val moneyUsageCategories = user.moneyUsageCategories ?: return@update error()
+                val response = fetchCategoriesPaging(
+                    query = cacheQuery,
+                    fetchPolicy = FetchPolicy.CacheOnly,
+                )
+
+                success(
+                    response.newBuilder()
+                        .data(
+                            before.copy(
+                                user = user.copy(
+                                    moneyUsageCategories = moneyUsageCategories.copy(
+                                        nodes = moneyUsageCategories.nodes.filterNot { it.id == id },
+                                    ),
+                                ),
+                            ),
+                        )
+                        .build(),
+                )
+            }
+        }.onFailure {
+            Logger.e(TAG, it)
+        }.getOrNull()
+
+        if (updateResult?.isSuccess() != true) {
+            refetchCategoriesPaging()
+        }
+
+        return true
+    }
+
+    private fun createCategoriesPagingQuery(): CategoriesSettingScreenCategoriesPagingQuery {
+        return CategoriesSettingScreenCategoriesPagingQuery(
+            MoneyUsageCategoriesInput(
+                cursor = Optional.present(null),
+                size = 100,
+            ),
+        )
+    }
+
+    private suspend fun fetchCategoriesPaging(
+        query: CategoriesSettingScreenCategoriesPagingQuery,
+        fetchPolicy: FetchPolicy,
+    ): ApolloResponse<CategoriesSettingScreenCategoriesPagingQuery.Data> {
+        return apolloClient
+            .query(query)
+            .fetchPolicy(fetchPolicy)
+            .execute()
     }
 
     private fun createSubCategoriesPagingQuery(
