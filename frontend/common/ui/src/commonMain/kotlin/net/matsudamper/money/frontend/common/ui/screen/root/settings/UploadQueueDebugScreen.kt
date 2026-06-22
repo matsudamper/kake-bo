@@ -92,6 +92,35 @@ public fun UploadQueueDebugScreen(
             onDismiss = { uiState.event.onDismissErrorDialog() },
         )
     }
+
+    if (uiState.showClearAllDialog) {
+        ClearAllConfirmDialog(
+            onConfirm = { uiState.event.onConfirmClearAll() },
+            onDismiss = { uiState.event.onDismissClearAllDialog() },
+        )
+    }
+}
+
+@Composable
+private fun ClearAllConfirmDialog(
+    onConfirm: () -> Unit,
+    onDismiss: () -> Unit,
+) {
+    AlertDialog(
+        onDismissRequest = onDismiss,
+        title = { Text("キューをクリア") },
+        text = { Text("すべてのアップロードキューを削除します。この操作は元に戻せません。") },
+        confirmButton = {
+            TextButton(onClick = onConfirm) {
+                Text("クリア")
+            }
+        },
+        dismissButton = {
+            TextButton(onClick = onDismiss) {
+                Text("キャンセル")
+            }
+        },
+    )
 }
 
 @Composable
@@ -142,40 +171,49 @@ private fun StatusFilterRow(
     modifier: Modifier = Modifier,
     uiState: UploadQueueDebugScreenUiState,
 ) {
-    Box(modifier = modifier) {
-        DropDownMenuButton(
-            onClick = { uiState.event.onClickStatusFilter() },
-        ) {
-            Text(
-                text = when (uiState.selectedStatusFilter) {
-                    UploadQueueDebugScreenUiState.StatusFilter.All -> "すべて"
-                    UploadQueueDebugScreenUiState.StatusFilter.Pending -> "PENDING"
-                    UploadQueueDebugScreenUiState.StatusFilter.Uploading -> "UPLOADING"
-                    UploadQueueDebugScreenUiState.StatusFilter.Completed -> "COMPLETED"
-                    UploadQueueDebugScreenUiState.StatusFilter.Failed -> "FAILED"
-                },
-            )
-        }
-        DropdownMenu(
-            expanded = uiState.statusFilterExpanded,
-            onDismissRequest = { uiState.event.onDismissStatusFilter() },
-        ) {
-            UploadQueueDebugScreenUiState.StatusFilter.entries.forEach { filter ->
-                DropdownMenuItem(
-                    text = {
-                        Text(
-                            text = when (filter) {
-                                UploadQueueDebugScreenUiState.StatusFilter.All -> "すべて"
-                                UploadQueueDebugScreenUiState.StatusFilter.Pending -> "PENDING"
-                                UploadQueueDebugScreenUiState.StatusFilter.Uploading -> "UPLOADING"
-                                UploadQueueDebugScreenUiState.StatusFilter.Completed -> "COMPLETED"
-                                UploadQueueDebugScreenUiState.StatusFilter.Failed -> "FAILED"
-                            },
-                        )
+    Row(
+        modifier = modifier,
+        verticalAlignment = Alignment.CenterVertically,
+    ) {
+        Box {
+            DropDownMenuButton(
+                onClick = { uiState.event.onClickStatusFilter() },
+            ) {
+                Text(
+                    text = when (uiState.selectedStatusFilter) {
+                        UploadQueueDebugScreenUiState.StatusFilter.All -> "すべて"
+                        UploadQueueDebugScreenUiState.StatusFilter.Pending -> "PENDING"
+                        UploadQueueDebugScreenUiState.StatusFilter.Uploading -> "UPLOADING"
+                        UploadQueueDebugScreenUiState.StatusFilter.Completed -> "COMPLETED"
+                        UploadQueueDebugScreenUiState.StatusFilter.Failed -> "FAILED"
                     },
-                    onClick = { uiState.event.onSelectStatusFilter(filter) },
                 )
             }
+            DropdownMenu(
+                expanded = uiState.statusFilterExpanded,
+                onDismissRequest = { uiState.event.onDismissStatusFilter() },
+            ) {
+                UploadQueueDebugScreenUiState.StatusFilter.entries.forEach { filter ->
+                    DropdownMenuItem(
+                        text = {
+                            Text(
+                                text = when (filter) {
+                                    UploadQueueDebugScreenUiState.StatusFilter.All -> "すべて"
+                                    UploadQueueDebugScreenUiState.StatusFilter.Pending -> "PENDING"
+                                    UploadQueueDebugScreenUiState.StatusFilter.Uploading -> "UPLOADING"
+                                    UploadQueueDebugScreenUiState.StatusFilter.Completed -> "COMPLETED"
+                                    UploadQueueDebugScreenUiState.StatusFilter.Failed -> "FAILED"
+                                },
+                            )
+                        },
+                        onClick = { uiState.event.onSelectStatusFilter(filter) },
+                    )
+                }
+            }
+        }
+        Spacer(modifier = Modifier.weight(1f))
+        TextButton(onClick = { uiState.event.onClickClearAll() }) {
+            Text("クリア")
         }
     }
 }
