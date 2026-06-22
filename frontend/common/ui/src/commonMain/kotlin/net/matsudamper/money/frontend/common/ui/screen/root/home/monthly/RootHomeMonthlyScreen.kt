@@ -258,21 +258,6 @@ private fun LoadedContent(
                             Column(
                                 modifier = Modifier.padding(horizontal = padding),
                             ) {
-                                if (item.category.isNotEmpty()) {
-                                    Text(
-                                        modifier = Modifier
-                                            .background(
-                                                color = item.categoryColor,
-                                                shape = RoundedCornerShape(4.dp),
-                                            )
-                                            .padding(horizontal = 8.dp, vertical = 2.dp),
-                                        text = item.category,
-                                        maxLines = 1,
-                                        color = Color.White,
-                                        style = MaterialTheme.typography.labelSmall,
-                                    )
-                                    Spacer(modifier = Modifier.height(4.dp))
-                                }
                                 Text(
                                     text = item.date,
                                 )
@@ -284,15 +269,35 @@ private fun LoadedContent(
                                         maxLines = 3,
                                     )
                                     Spacer(modifier = Modifier.width(4.dp))
-                                    Text(
+                                    Column(
                                         modifier = Modifier
                                             .align(Alignment.Bottom)
-                                            .height(IntrinsicSize.Max)
-                                            .requiredWidthIn(min = 60.dp),
-                                        maxLines = 1,
-                                        text = item.amount,
-                                        textAlign = TextAlign.End,
-                                    )
+                                            .height(IntrinsicSize.Max),
+                                        horizontalAlignment = Alignment.End,
+                                    ) {
+                                        if (item.category.isNotEmpty()) {
+                                            Text(
+                                                modifier = Modifier
+                                                    .background(
+                                                        color = item.categoryColor,
+                                                        shape = RoundedCornerShape(4.dp),
+                                                    )
+                                                    .padding(horizontal = 8.dp, vertical = 2.dp),
+                                                text = item.category,
+                                                maxLines = 1,
+                                                color = Color.White,
+                                                style = MaterialTheme.typography.labelSmall,
+                                            )
+                                            Spacer(modifier = Modifier.height(4.dp))
+                                        }
+                                        Text(
+                                            modifier = Modifier
+                                                .requiredWidthIn(min = 60.dp),
+                                            maxLines = 1,
+                                            text = item.amount,
+                                            textAlign = TextAlign.End,
+                                        )
+                                    }
                                 }
                             }
                             if (showImages && item.imageUrls.isNotEmpty()) {
