@@ -7,10 +7,6 @@ import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import com.apollographql.apollo.api.ApolloResponse
-import com.apollographql.apollo.api.Optional
-import com.apollographql.apollo.cache.normalized.FetchPolicy
-import com.apollographql.apollo.cache.normalized.apolloStore
-import com.apollographql.apollo.cache.normalized.fetchPolicy
 import net.matsudamper.money.element.ImportedMailCategoryFilterId
 import net.matsudamper.money.frontend.common.base.ImmutableList.Companion.toImmutableList
 import net.matsudamper.money.frontend.common.base.nav.ScopedObjectFeature
@@ -24,15 +20,13 @@ import net.matsudamper.money.frontend.common.viewmodel.CommonViewModel
 import net.matsudamper.money.frontend.common.viewmodel.layout.CategorySelectDialogViewModel
 import net.matsudamper.money.frontend.common.viewmodel.lib.EventHandler
 import net.matsudamper.money.frontend.common.viewmodel.lib.EventSender
+import net.matsudamper.money.frontend.common.viewmodel.root.settings.categoryfilters.ImportedMailCategoryFilterScreenPagingModel
 import net.matsudamper.money.frontend.graphql.GraphqlClient
 import net.matsudamper.money.frontend.graphql.ImportedMailCategoryFilterScreenQuery
-import net.matsudamper.money.frontend.graphql.ImportedMailCategoryFiltersScreenPagingQuery
 import net.matsudamper.money.frontend.graphql.lib.ApolloResponseCollector
 import net.matsudamper.money.frontend.graphql.lib.ApolloResponseState
 import net.matsudamper.money.frontend.graphql.type.ImportedMailCategoryFilterConditionType
 import net.matsudamper.money.frontend.graphql.type.ImportedMailCategoryFilterDataSourceType
-import net.matsudamper.money.frontend.graphql.type.ImportedMailCategoryFiltersQuery
-import net.matsudamper.money.frontend.graphql.type.ImportedMailCategoryFiltersSortType
 import net.matsudamper.money.frontend.graphql.type.ImportedMailFilterCategoryConditionOperator
 
 public class ImportedMailFilterCategoryViewModel(
@@ -40,6 +34,7 @@ public class ImportedMailFilterCategoryViewModel(
     private val graphqlClient: GraphqlClient,
     private val id: ImportedMailCategoryFilterId,
     private val api: ImportedMailFilterCategoryScreenGraphqlApi,
+    private val pagingModel: ImportedMailCategoryFilterScreenPagingModel,
     navController: ScreenNavController,
 ) : CommonViewModel(scopedObjectFeature) {
     private val viewModelStateFlow = MutableStateFlow(ViewModelState())
@@ -101,7 +96,7 @@ public class ImportedMailFilterCategoryViewModel(
                                         val isSuccess = api.deleteFilter(id = id)
                                         dismissConfirmDialog()
                                         if (isSuccess) {
-                                            removeFilterFromListCache(id)
+                                            pagingModel.removeFilterFromCache(id)
                                             eventSender.send {
                                                 it.navigateBack()
                                             }
@@ -385,39 +380,6 @@ public class ImportedMailFilterCategoryViewModel(
                 textInput = null,
             )
         }
-    }
-
-    private suspend fun removeFilterFromListCache(filterId: ImportedMailCategoryFilterId) {
-        val apolloClient = graphqlClient.apolloClient
-        val listQuery = ImportedMailCategoryFiltersScreenPagingQuery(
-            query = ImportedMailCategoryFiltersQuery(
-                cursor = Optional.present(null),
-                isAsc = true,
-                size = Optional.present(10),
-                sortType = Optional.present(ImportedMailCategoryFiltersSortType.TITLE),
-            ),
-        )
-        val before = apolloClient.query(listQuery)
-            .fetchPolicy(FetchPolicy.CacheOnly)
-            .execute()
-            .data ?: return
-        val connection = before.user?.importedMailCategoryFilters ?: return
-        val filteredNodes = connection.nodes.filterNot { node ->
-            node.id == filterId
-        }
-        if (filteredNodes.size == connection.nodes.size) return
-        apolloClient.apolloStore.writeOperation(
-            operation = listQuery,
-            operationData = before.copy(
-                user = before.user?.copy(
-                    importedMailCategoryFilters = connection.copy(
-                        nodes = filteredNodes,
-                    ),
-                ),
-            ),
-            customScalarAdapters = apolloClient.customScalarAdapters,
-            publish = true,
-        )
     }
 
     private fun dismissConfirmDialog() {
