@@ -397,30 +397,28 @@ public class ImportedMailFilterCategoryViewModel(
                 sortType = Optional.present(ImportedMailCategoryFiltersSortType.TITLE),
             ),
         )
-        apolloClient.query(listQuery)
+        val before = apolloClient.query(listQuery)
             .fetchPolicy(FetchPolicy.CacheOnly)
             .execute()
-            .data
-            ?.let { before ->
-                val connection = before.user?.importedMailCategoryFilters ?: return
-                val filteredNodes = connection.nodes.filterNot { node ->
-                    node.id == filterId
-                }
-                if (filteredNodes.size != connection.nodes.size) {
-                    apolloClient.apolloStore.writeOperation(
-                        operation = listQuery,
-                        operationData = before.copy(
-                            user = before.user?.copy(
-                                importedMailCategoryFilters = connection.copy(
-                                    nodes = filteredNodes,
-                                ),
-                            ),
+            .data ?: return
+        val connection = before.user?.importedMailCategoryFilters ?: return
+        val filteredNodes = connection.nodes.filterNot { node ->
+            node.id == filterId
+        }
+        if (filteredNodes.size != connection.nodes.size) {
+            apolloClient.apolloStore.writeOperation(
+                operation = listQuery,
+                operationData = before.copy(
+                    user = before.user?.copy(
+                        importedMailCategoryFilters = connection.copy(
+                            nodes = filteredNodes,
                         ),
-                        customScalarAdapters = apolloClient.customScalarAdapters,
-                        publish = true,
-                    )
-                }
-            }
+                    ),
+                ),
+                customScalarAdapters = apolloClient.customScalarAdapters,
+                publish = true,
+            )
+        }
     }
 
     private fun dismissConfirmDialog() {
