@@ -7,6 +7,7 @@ internal data class AdminUserSearchUiState(
     val users: List<User>,
     val hasMore: Boolean,
     val replacePasswordDialogState: ReplacePasswordDialogState?,
+    val confirmDeletePasswordDialogState: ConfirmDeletePasswordDialogState?,
     val userOperationDialogUiState: UserOperationDialogState?,
     val listener: Listener,
 ) {
@@ -19,6 +20,17 @@ internal data class AdminUserSearchUiState(
         interface Listener {
             fun onClick()
             fun dismiss()
+        }
+    }
+
+    internal data class ConfirmDeletePasswordDialogState(
+        val userName: String,
+        val listener: Listener,
+    ) {
+        @Immutable
+        interface Listener {
+            fun onConfirm()
+            fun onDismiss()
         }
     }
 

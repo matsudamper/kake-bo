@@ -9,6 +9,7 @@ import net.matsudamper.money.backend.app.interfaces.ApiTokenRepository
 import net.matsudamper.money.backend.app.interfaces.ChallengeRepository
 import net.matsudamper.money.backend.app.interfaces.DeleteUsageImageRelationDao
 import net.matsudamper.money.backend.app.interfaces.FidoRepository
+import net.matsudamper.money.backend.app.interfaces.ImageStorageGateway
 import net.matsudamper.money.backend.app.interfaces.ImportedMailRepository
 import net.matsudamper.money.backend.app.interfaces.MailFilterRepository
 import net.matsudamper.money.backend.app.interfaces.MailRepository
@@ -47,6 +48,12 @@ import net.matsudamper.money.backend.datasource.db.repository.DeleteUsageImageRe
 import net.matsudamper.money.backend.datasource.db.repository.EnvAdminLoginRepository
 import net.matsudamper.money.backend.datasource.session.AdminSessionRepositoryProvider
 import net.matsudamper.money.backend.datasource.session.UserSessionRepositoryProvider
+import net.matsudamper.money.backend.feature.imagestoragelocal.LocalImageStorageGateway
+import net.matsudamper.money.backend.feature.objectstorage.ObjectStorageConfig
+import net.matsudamper.money.backend.feature.objectstorage.S3ImageStorageGateway
+import net.matsudamper.money.backend.feature.objectstorage.StsCredentialProvider
+import net.matsudamper.money.backend.feature.oidc.JwtIssuer
+import net.matsudamper.money.backend.feature.oidc.OidcKeyManager
 import net.matsudamper.money.backend.mail.MailRepositoryImpl
 
 interface DiContainer {
@@ -97,6 +104,11 @@ interface DiContainer {
     fun createApiTokenRepository(): ApiTokenRepository
     fun traceLogger(): TraceLogger
     fun clock(): Clock
+
+    fun createOidcKeyManager(): OidcKeyManager?
+    fun createJwtIssuer(): JwtIssuer?
+    fun createWriteImageStorageGateway(): ImageStorageGateway
+    fun createReadImageStorageGateway(storageType: UserImageRepository.StorageType): ImageStorageGateway
 }
 
 class MainDiContainer : DiContainer {
@@ -108,7 +120,12 @@ class MainDiContainer : DiContainer {
         return EnvAdminLoginRepository()
     }
 
-    private val adminImageRepository = DbAdminImageRepository()
+    private val adminImageRepository by lazy {
+        DbAdminImageRepository(
+            localImageStorageGateway = localImageStorageGateway,
+            s3ImageStorageGateway = s3ImageStorageGateway,
+        )
+    }
 
     override fun createAdminImageRepository(): AdminImageRepository {
         return adminImageRepository
@@ -203,7 +220,12 @@ class MainDiContainer : DiContainer {
         return userImageRepository
     }
 
-    private val deleteUsageImageRelationDao = DeleteUsageImageRelationDaoImpl()
+    private val deleteUsageImageRelationDao by lazy {
+        DeleteUsageImageRelationDaoImpl(
+            localImageStorageGateway = localImageStorageGateway,
+            s3ImageStorageGateway = s3ImageStorageGateway,
+        )
+    }
 
     override fun createDeleteUsageImageRelationDao(): DeleteUsageImageRelationDao {
         return deleteUsageImageRelationDao
@@ -258,5 +280,119 @@ class MainDiContainer : DiContainer {
 
     override fun clock(): Clock {
         return Clock.systemUTC()
+    }
+
+    private val oidcKeyManager by lazy {
+        val s3 = ServerEnv.S3
+        if (s3 != null) {
+            OidcKeyManager(s3.oidcJwkPrivate)
+        } else {
+            null
+        }
+    }
+
+    override fun createOidcKeyManager(): OidcKeyManager? {
+        return oidcKeyManager
+    }
+
+    private val jwtIssuer by lazy {
+        val keyManager = createOidcKeyManager()
+        val s3 = ServerEnv.S3
+        if (keyManager != null && s3 != null) {
+            JwtIssuer(keyManager, s3.oidcIssuer)
+        } else {
+            null
+        }
+    }
+
+    override fun createJwtIssuer(): JwtIssuer? {
+        return jwtIssuer
+    }
+
+    private val objectStorageConfig by lazy {
+        val s3 = ServerEnv.S3
+        if (s3 != null) {
+            val region = s3.s3Region
+            require(!region.isNullOrBlank()) { "S3_REGION が未設定です" }
+            ObjectStorageConfig(
+                endpoint = s3.s3Endpoint,
+                stsEndpoint = s3.stsEndpoint,
+                region = region,
+                bucket = s3.s3Bucket,
+                roleArn = s3.s3RoleArn,
+                roleSessionName = s3.s3RoleSessionName,
+                audience = s3.s3Audience,
+                pathStyleAccess = s3.s3PathStyleAccess,
+            )
+        } else {
+            null
+        }
+    }
+
+    private val stsCredentialProvider by lazy {
+        val issuer = createJwtIssuer()
+        val config = objectStorageConfig
+        if (issuer != null && config != null) {
+            StsCredentialProvider(
+                jwtIssuer = issuer,
+                config = config,
+            )
+        } else {
+            null
+        }
+    }
+
+    private val s3ImageStorageGateway by lazy {
+        val provider = stsCredentialProvider
+        val config = objectStorageConfig
+        if (provider != null && config != null) {
+            S3ImageStorageGateway(
+                stsCredentialProvider = provider,
+                config = config,
+            )
+        } else {
+            null
+        }
+    }
+
+    private val localImageStorageGateway by lazy {
+        LocalImageStorageGateway(
+            storageDirectory = java.io.File(ServerEnv.imageStoragePath),
+        )
+    }
+
+    override fun createWriteImageStorageGateway(): ImageStorageGateway {
+        return if (ServerEnv.enableS3) {
+            s3ImageStorageGateway ?: throw IllegalStateException("S3 is enabled but credentials/config are missing.")
+        } else {
+            localImageStorageGateway
+        }
+    }
+
+    override fun createReadImageStorageGateway(
+        storageType: UserImageRepository.StorageType,
+    ): ImageStorageGateway {
+        return when (storageType) {
+            UserImageRepository.StorageType.LOCAL -> localImageStorageGateway
+            UserImageRepository.StorageType.S3 ->
+                s3ImageStorageGateway
+                    ?: throw IllegalStateException("Cannot read S3 image without S3 config.")
+        }
+    }
+
+    init {
+        if (ServerEnv.enableS3) {
+            validateS3Config()
+        }
+    }
+
+    // S3 関連の必須設定を起動時に検証して fail-fast にする。
+    // 各 lazy が non-blank/non-null を require しているため、ここで強制評価する。
+    private fun validateS3Config() {
+        objectStorageConfig
+        oidcKeyManager
+        jwtIssuer
+        stsCredentialProvider
+        s3ImageStorageGateway
     }
 }

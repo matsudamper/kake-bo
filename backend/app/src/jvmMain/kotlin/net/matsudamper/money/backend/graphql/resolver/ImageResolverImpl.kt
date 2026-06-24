@@ -21,12 +21,15 @@ class ImageResolverImpl : ImageResolver {
         val domain = ServerEnv.domain
             ?: throw IllegalStateException("DOMAIN is not configured")
         return otelSupplyAsync {
-            val displayIdMap = context.diContainer.createUserImageRepository().getDisplayIdsByImageIds(
+            val userImageRepository = context.diContainer.createUserImageRepository()
+
+            val displayIdMap = userImageRepository.getDisplayIdsByImageIds(
                 userId = userId,
                 imageIds = listOf(image.id),
             )
             val displayId = displayIdMap[image.id]
                 ?: throw IllegalStateException("displayId is not found: imageId=${image.id.value}")
+
             ImageApiPath.imageV1AbsoluteByDisplayId(
                 domain = domain,
                 displayId = displayId,

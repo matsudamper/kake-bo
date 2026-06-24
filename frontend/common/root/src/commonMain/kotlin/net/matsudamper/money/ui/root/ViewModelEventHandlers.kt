@@ -267,7 +267,11 @@ internal data class ViewModelEventHandlers(
                     }
 
                     override fun back() {
-                        navController.back()
+                        if (navController.canGoBack) {
+                            navController.back()
+                        } else {
+                            platformToolsProvider().backPressDispatcher.onBackPressed()
+                        }
                     }
                 },
             )

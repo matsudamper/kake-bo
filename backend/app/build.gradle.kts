@@ -20,6 +20,9 @@ kotlin {
                 implementation(projects.backend.feature.fido)
                 implementation(projects.backend.feature.image)
                 implementation(projects.backend.feature.session)
+                implementation(projects.backend.feature.oidc)
+                implementation(projects.backend.feature.objectStorage)
+                implementation(projects.backend.feature.imageStorageLocal)
 
                 implementation(kotlin("stdlib"))
                 implementation(libs.graphqlJava.extendedScalars)
