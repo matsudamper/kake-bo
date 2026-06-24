@@ -9,6 +9,7 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.SnackbarHostState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.remember
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 
 public enum class RootScreenTab {
@@ -34,9 +35,16 @@ public fun RootScreenScaffold(
             topBar = topBar,
             windowInsets = windowInsets,
             snackbarHost = {
-                MySnackBarHost(
-                    hostState = snackbarHostState,
-                )
+                Box(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(bottom = LocalRootSnackbarBottomPadding.current),
+                ) {
+                    MySnackBarHost(
+                        modifier = Modifier.align(Alignment.CenterEnd),
+                        hostState = snackbarHostState,
+                    )
+                }
             },
         ) {
             Box(
