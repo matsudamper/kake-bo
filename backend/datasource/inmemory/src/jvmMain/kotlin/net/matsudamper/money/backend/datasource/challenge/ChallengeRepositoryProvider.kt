@@ -1,10 +1,11 @@
 package net.matsudamper.money.backend.datasource.challenge
 
+import java.time.Clock
 import net.matsudamper.money.backend.app.interfaces.ChallengeRepository
 
 object ChallengeRepositoryProvider {
-    fun provideLocalRepository(): ChallengeRepository {
-        return LocalChallengeRepository()
+    fun provideLocalRepository(clock: Clock): ChallengeRepository {
+        return LocalChallengeRepository(clock)
     }
 
     fun provideRedisRepository(

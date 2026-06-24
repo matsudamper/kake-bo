@@ -28,9 +28,10 @@ kotlin {
                 implementation(projects.frontend.common.graphql)
                 implementation(projects.frontend.common.feature.localstore)
 
-                implementation(compose.foundation)
-                implementation(compose.material3)
-                implementation(compose.runtime)
+                implementation(libs.composeFoundation)
+                implementation(libs.composeMaterial3)
+                implementation(libs.composeRuntime)
+                implementation(libs.composeComponentsResources)
 
                 implementation(libs.koinCore)
                 implementation(libs.coilRuntime)
@@ -38,7 +39,11 @@ kotlin {
         }
         val androidMain by getting {
             dependencies {
+                implementation(projects.frontend.android.featureNotificationUsage)
                 implementation(projects.frontend.common.navigation)
+                implementation(projects.frontend.common.feature.uploader)
+                implementation(projects.frontend.common.feature.logging)
+                implementation(libs.workRuntimeKtx)
 
                 implementation(kotlin("stdlib"))
                 implementation(libs.kotlin.serialization.json)
@@ -55,7 +60,7 @@ kotlin {
 
                 implementation(kotlin("stdlib"))
                 implementation(libs.kotlin.serialization.json)
-                implementation(compose.html.core)
+                implementation(libs.composeHtmlCore)
                 implementation(libs.androidxComposeSaveable)
             }
         }
@@ -72,11 +77,14 @@ android {
     compileSdk = 36
     namespace = "net.matsudamper.money"
     signingConfigs {
-        create("release") {
-            storeFile = (localProperties["KEYSTORE_PATH"] as? String)?.let { file(it) } ?: return@create
-            storePassword = localProperties["KEYSTORE_PASSWORD"] as? String ?: return@create
-            keyAlias = localProperties["KEY_ALIAS"] as? String ?: return@create
-            keyPassword = localProperties["KEY_PASSWORD"] as? String ?: return@create
+        val keystorePath = localProperties["KEYSTORE_PATH"] as? String
+        if (keystorePath != null) {
+            create("release") {
+                storeFile = (localProperties["KEYSTORE_PATH"] as? String)?.let { file(it) } ?: return@create
+                storePassword = localProperties["KEYSTORE_PASSWORD"] as? String ?: return@create
+                keyAlias = localProperties["KEY_ALIAS"] as? String ?: return@create
+                keyPassword = localProperties["KEY_PASSWORD"] as? String ?: return@create
+            }
         }
     }
     val appName = "家計簿"
@@ -91,7 +99,7 @@ android {
             }
         }
         release {
-            signingConfig = signingConfigs.getByName("release")
+            signingConfig = signingConfigs.findByName("release")
         }
     }
     defaultConfig {

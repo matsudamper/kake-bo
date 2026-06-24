@@ -3,7 +3,6 @@ package net.matsudamper.money.backend.datasource.db.repository
 import java.lang.IllegalStateException
 import java.time.LocalDateTime
 import net.matsudamper.money.backend.app.interfaces.MoneyUsageRepository
-import net.matsudamper.money.backend.app.interfaces.MoneyUsageRepository.OrderType
 import net.matsudamper.money.backend.base.TraceLogger
 import net.matsudamper.money.backend.datasource.db.DbConnectionImpl
 import net.matsudamper.money.db.schema.tables.JMoneyUsageImagesRelation
@@ -124,9 +123,11 @@ class DbMoneyUsageRepository : MoneyUsageRepository {
                         throw IllegalStateException("failed to insert")
                     }
 
+                    val result = results.first()
                     val usage = mapMoneyUsage(
-                        result = results.first(),
+                        result = result,
                         imageIds = imageIds,
+                        subCategoryId = result.get(jUsage.MONEY_USAGE_SUB_CATEGORY_ID)?.let { MoneyUsageSubCategoryId(it) },
                     )
                     replaceMoneyUsageImages(
                         connection = connection,
@@ -327,11 +328,15 @@ class DbMoneyUsageRepository : MoneyUsageRepository {
                         jUsage.USER_ID,
                         jUsage.TITLE,
                         jUsage.DESCRIPTION,
-                        jUsage.MONEY_USAGE_SUB_CATEGORY_ID,
+                        jSubCategory.MONEY_USAGE_SUB_CATEGORY_ID,
                         jUsage.DATETIME,
                         jUsage.AMOUNT,
                     )
                     .from(jUsage)
+                    .leftJoin(jSubCategory).on(
+                        jSubCategory.MONEY_USAGE_SUB_CATEGORY_ID.eq(jUsage.MONEY_USAGE_SUB_CATEGORY_ID)
+                            .and(jSubCategory.USER_ID.eq(userId.value)),
+                    )
                     .where(
                         DSL.value(true)
                             .and(jUsage.USER_ID.eq(userId.value))
@@ -344,6 +349,8 @@ class DbMoneyUsageRepository : MoneyUsageRepository {
                     mapMoneyUsage(
                         result = result,
                         imageIds = imageIdsMap[usageId].orEmpty(),
+                        subCategoryId = result.get(jSubCategory.MONEY_USAGE_SUB_CATEGORY_ID)
+                            ?.let { MoneyUsageSubCategoryId(it) },
                     )
                 }
             }
@@ -353,13 +360,14 @@ class DbMoneyUsageRepository : MoneyUsageRepository {
     private fun mapMoneyUsage(
         result: Record,
         imageIds: List<ImageId>,
+        subCategoryId: MoneyUsageSubCategoryId?,
     ): MoneyUsageRepository.Usage {
         return MoneyUsageRepository.Usage(
             id = MoneyUsageId(result.get(jUsage.MONEY_USAGE_ID)!!),
             userId = UserId(result.get(jUsage.USER_ID)!!),
             title = result.get(jUsage.TITLE)!!,
             description = result.get(jUsage.DESCRIPTION)!!,
-            subCategoryId = result.get(jUsage.MONEY_USAGE_SUB_CATEGORY_ID)?.let { MoneyUsageSubCategoryId(it) },
+            subCategoryId = subCategoryId,
             date = result.get(jUsage.DATETIME)!!,
             amount = result.get(jUsage.AMOUNT)!!,
             imageIds = imageIds,
@@ -378,7 +386,7 @@ class DbMoneyUsageRepository : MoneyUsageRepository {
                         jUsage.USER_ID,
                         jUsage.TITLE,
                         jUsage.DESCRIPTION,
-                        jUsage.MONEY_USAGE_SUB_CATEGORY_ID,
+                        jSubCategory.MONEY_USAGE_SUB_CATEGORY_ID,
                         jUsage.DATETIME,
                         jUsage.AMOUNT,
                     )
@@ -386,6 +394,10 @@ class DbMoneyUsageRepository : MoneyUsageRepository {
                     .join(jUsage).on(
                         jRelation.MONEY_USAGE_ID.eq(jUsage.MONEY_USAGE_ID)
                             .and(jUsage.USER_ID.eq(userId.value)),
+                    )
+                    .leftJoin(jSubCategory).on(
+                        jSubCategory.MONEY_USAGE_SUB_CATEGORY_ID.eq(jUsage.MONEY_USAGE_SUB_CATEGORY_ID)
+                            .and(jSubCategory.USER_ID.eq(userId.value)),
                     )
                     .where(
                         DSL.value(true)
@@ -399,11 +411,13 @@ class DbMoneyUsageRepository : MoneyUsageRepository {
                     userId = userId,
                     usageIds = usageIds,
                 )
-                results.map {
-                    val usageId = MoneyUsageId(it.get(jUsage.MONEY_USAGE_ID)!!)
+                results.map { result ->
+                    val usageId = MoneyUsageId(result.get(jUsage.MONEY_USAGE_ID)!!)
                     mapMoneyUsage(
-                        result = it,
+                        result = result,
                         imageIds = imageIdsMap[usageId].orEmpty(),
+                        subCategoryId = result.get(jSubCategory.MONEY_USAGE_SUB_CATEGORY_ID)
+                            ?.let { MoneyUsageSubCategoryId(it) },
                     )
                 }
             }

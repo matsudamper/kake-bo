@@ -1,81 +1,100 @@
 package net.matsudamper.money.backend.datasource.session
 
+import java.time.Clock
+import java.time.Instant
 import java.time.LocalDateTime
-import java.time.ZoneOffset
 import java.util.UUID
-import kotlin.contracts.ExperimentalContracts
-import kotlin.contracts.InvocationKind
-import kotlin.contracts.contract
+import kotlin.time.Duration.Companion.days
+import kotlin.time.Duration.Companion.seconds
+import kotlin.time.toJavaInstant
+import kotlin.time.toKotlinInstant
+import kotlinx.serialization.KSerializer
 import kotlinx.serialization.Serializable
-import kotlinx.serialization.encodeToString
+import kotlinx.serialization.descriptors.SerialDescriptor
+import kotlinx.serialization.descriptors.buildClassSerialDescriptor
+import kotlinx.serialization.encoding.Decoder
+import kotlinx.serialization.encoding.Encoder
+import io.lettuce.core.ClientOptions
+import io.lettuce.core.MaintNotificationsConfig
+import io.lettuce.core.RedisClient
+import io.lettuce.core.RedisURI
+import io.lettuce.core.SetArgs
+import io.lettuce.core.api.StatefulRedisConnection
+import io.lettuce.core.api.sync.RedisCommands
+import io.lettuce.core.resource.ClientResources
+import io.opentelemetry.instrumentation.lettuce.v5_1.LettuceTelemetry
 import net.matsudamper.money.backend.app.interfaces.UserSessionRepository
 import net.matsudamper.money.backend.app.interfaces.element.UserSessionId
 import net.matsudamper.money.backend.base.ObjectMapper
+import net.matsudamper.money.backend.base.OpenTelemetryInitializer
 import net.matsudamper.money.backend.base.ServerVariables
 import net.matsudamper.money.backend.base.TraceLogger
+import net.matsudamper.money.element.SessionRecordId
 import net.matsudamper.money.element.UserId
-import redis.clients.jedis.JedisPool
-import redis.clients.jedis.params.SetParams
 
 internal class RedisUserSessionRepository(
     host: String,
     port: Int,
-    private val index: Int,
+    index: Int,
+    private val clock: Clock,
 ) : UserSessionRepository {
-    private val jedisPool = JedisPool(host, port)
+    private val redisClient: RedisClient = run {
+        val uri = RedisURI.Builder.redis(host, port).withDatabase(index).build()
+        val clientResources = ClientResources.builder()
+            .tracing(LettuceTelemetry.create(OpenTelemetryInitializer.get()).createTracing())
+            .build()
+        RedisClient.create(clientResources, uri).apply {
+            setOptions(
+                ClientOptions.builder()
+                    .maintNotificationsConfig(MaintNotificationsConfig.disabled())
+                    .build(),
+            )
+        }
+    }
+    private val connection: StatefulRedisConnection<String, String> by lazy { redisClient.connect() }
+    private val commands by lazy { connection.sync() }
 
     override fun clearSession(sessionId: UserSessionId) {
-        useJedis { jedis ->
-            val sessionKey = getSessionKey(sessionId)
-            val jsonData = jedis.get(sessionKey)
+        val sessionKey = SessionKeys.Session(sessionId)
+        val sessionData = sessionKey.get(commands) ?: return
 
-            if (jsonData != null) {
-                val sessionData = try {
-                    ObjectMapper.kotlinxSerialization.decodeFromString<SessionData>(jsonData)
-                } catch (e: Throwable) {
-                    TraceLogger.impl().noticeThrowable(e, true)
-                    TraceLogger.impl().setAttribute("jsonData", jsonData)
-                    null
-                }
+        SessionKeys.UserSessionByUser(sessionData.userId)
+            .delete(commands, sessionRecordId = sessionData.sessionRecordId)
 
-                if (sessionData != null) {
-                    val userId = UserId(sessionData.userId)
-                    val sessionName = sessionData.sessionName
-
-                    jedis.srem(getUserSessionsKey(userId), sessionId.id)
-
-                    if (sessionName.isNotEmpty()) {
-                        jedis.del(getUserSessionKey(userId, sessionName))
-                    }
-                }
-            }
-
-            jedis.del(sessionKey)
-        }
+        SessionKeys.UserSessionRecord(recordId = sessionData.sessionRecordId)
+            .delete(commands)
+        sessionKey.delete(commands)
     }
 
     override fun createSession(userId: UserId): UserSessionRepository.CreateSessionResult {
         val sessionId = UserSessionId(UUID.randomUUID().toString().replace("-", ""))
-        val now = LocalDateTime.now(ZoneOffset.UTC)
+        val now = LocalDateTime.now(clock)
 
-        useJedis { jedis ->
-            val sessionData = SessionData(
-                userId = userId.value,
-                latestAccess = now.toString(),
+        val sessionRecordId = SessionRecordId(UUID.randomUUID().toString())
+
+        SessionKeys.Session(sessionId)
+            .set(
+                commands,
+                SessionKeys.Session.SessionData(
+                    userId = userId,
+                    sessionRecordId = sessionRecordId,
+                    createdAt = Instant.now(clock).toKotlinInstant(),
+                    lastAccess = Instant.now(clock).toKotlinInstant(),
+                    name = UUID.randomUUID().toString().replace("-", ""),
+                ),
             )
 
-            val jsonData = ObjectMapper.kotlinxSerialization.encodeToString(sessionData)
-
-            val sessionKey = getSessionKey(sessionId)
-            jedis.set(
-                sessionKey,
-                jsonData,
-                SetParams().ex(ServerVariables.USER_SESSION_EXPIRE_DAY * 24 * 60 * 60),
+        SessionKeys.UserSessionRecord(sessionRecordId).set(
+            commands,
+            SessionKeys.UserSessionRecord.Data(
+                userSessionId = sessionId,
+            ),
+        )
+        SessionKeys.UserSessionByUser(userId)
+            .add(
+                commands,
+                sessionRecordId,
             )
-
-            jedis.sadd(getUserSessionsKey(userId), sessionId.id)
-            jedis.expire(getUserSessionsKey(userId), ServerVariables.USER_SESSION_EXPIRE_DAY * 24 * 60 * 60)
-        }
 
         return UserSessionRepository.CreateSessionResult(
             sessionId = sessionId,
@@ -87,173 +106,284 @@ internal class RedisUserSessionRepository(
         sessionId: UserSessionId,
         expireDay: Long,
     ): UserSessionRepository.VerifySessionResult {
-        val now = LocalDateTime.now(ZoneOffset.UTC)
+        val now = LocalDateTime.now(clock)
 
-        return useJedis { jedis ->
-            val sessionKey = getSessionKey(sessionId)
-            val jsonData = jedis.get(sessionKey) ?: return@useJedis UserSessionRepository.VerifySessionResult.Failure
+        val sessionKey = SessionKeys.Session(sessionId)
+        val sessionData = sessionKey.get(commands) ?: return UserSessionRepository.VerifySessionResult.Failure
 
-            val sessionData = try {
-                ObjectMapper.kotlinxSerialization.decodeFromString<SessionData>(jsonData)
-            } catch (e: Throwable) {
-                TraceLogger.impl().noticeThrowable(e, true)
-                TraceLogger.impl().setAttribute("jsonData", jsonData)
-                return@useJedis UserSessionRepository.VerifySessionResult.Failure
-            }
+        val sessionRecordId = sessionData.sessionRecordId
 
-            val userId = UserId(sessionData.userId)
-            val sessionName = sessionData.sessionName
+        sessionKey.update(commands, sessionData.copy(lastAccess = Instant.now(clock).toKotlinInstant()))
+        sessionKey.updateExpire(commands)
+        SessionKeys.UserSessionRecord(sessionRecordId)
+            .updateExpire(commands)
 
-            jedis.expire(sessionKey, ServerVariables.USER_SESSION_EXPIRE_DAY * 24 * 60 * 60)
+        SessionKeys.UserSessionByUser(sessionData.userId)
+            .updateExpire(commands)
 
-            jedis.expire(getUserSessionsKey(userId), ServerVariables.USER_SESSION_EXPIRE_DAY * 24 * 60 * 60)
-
-            if (sessionName.isNotEmpty()) {
-                jedis.expire(getUserSessionKey(userId, sessionName), ServerVariables.USER_SESSION_EXPIRE_DAY * 24 * 60 * 60)
-            }
-
-            UserSessionRepository.VerifySessionResult.Success(
-                userId = userId,
-                sessionId = sessionId,
-                latestAccess = now,
-            )
-        }
+        return UserSessionRepository.VerifySessionResult.Success(
+            userId = sessionData.userId,
+            sessionId = sessionId,
+            latestAccess = now,
+        )
     }
 
     override fun getSessionInfo(sessionId: UserSessionId): UserSessionRepository.SessionInfo? {
-        return useJedis { jedis ->
-            val sessionKey = getSessionKey(sessionId)
-            val jsonData = jedis.get(sessionKey) ?: return@useJedis null
+        val sessionData = SessionKeys.Session(sessionId).get(commands) ?: return null
 
-            val sessionData = try {
-                ObjectMapper.kotlinxSerialization.decodeFromString<SessionData>(jsonData)
-            } catch (e: Throwable) {
-                TraceLogger.impl().noticeThrowable(e, true)
-                TraceLogger.impl().setAttribute("jsonData", jsonData)
-                return@useJedis null
-            }
-
-            val now = LocalDateTime.now(ZoneOffset.UTC)
-
-            UserSessionRepository.SessionInfo(
-                name = sessionData.sessionName,
-                latestAccess = now,
-            )
-        }
+        return UserSessionRepository.SessionInfo(
+            sessionRecordId = sessionData.sessionRecordId,
+            name = sessionData.name,
+            latestAccess = sessionData.lastAccess.toJavaInstant(),
+        )
     }
 
     override fun getSessions(userId: UserId): List<UserSessionRepository.SessionInfo> {
-        return useJedis { jedis ->
-            val sessionsKey = getUserSessionsKey(userId)
-            val sessionIds = jedis.smembers(sessionsKey)
-            val now = LocalDateTime.now(ZoneOffset.UTC)
-
-            sessionIds.mapNotNull { sessionIdStr ->
-                val sessionKey = getSessionKey(UserSessionId(sessionIdStr))
-                val jsonData = jedis.get(sessionKey) ?: return@mapNotNull null
-
-                val sessionData = try {
-                    ObjectMapper.kotlinxSerialization.decodeFromString<SessionData>(jsonData)
-                } catch (e: Throwable) {
-                    TraceLogger.impl().noticeThrowable(e, true)
-                    TraceLogger.impl().setAttribute("jsonData", jsonData)
-                    return@mapNotNull null
-                }
-
-                UserSessionRepository.SessionInfo(
-                    name = sessionData.sessionName,
-                    latestAccess = now,
-                )
-            }
+        val sessionsKey = SessionKeys.UserSessionByUser(userId)
+        val recordIdList = sessionsKey.get(commands)
+        return recordIdList.mapNotNull { recordId ->
+            val sessionId = SessionKeys.UserSessionRecord(recordId).get(commands)?.userSessionId ?: return@mapNotNull null
+            val sessionData = SessionKeys.Session(sessionId).get(commands) ?: return@mapNotNull null
+            UserSessionRepository.SessionInfo(
+                sessionRecordId = recordId,
+                name = sessionData.name,
+                latestAccess = sessionData.lastAccess.toJavaInstant(),
+            )
         }
     }
 
     override fun deleteSession(
-        userId: UserId,
-        sessionName: String,
-        currentSessionName: String,
+        currentSessionId: UserSessionId,
+        targetSessionRecordId: SessionRecordId,
     ): Boolean {
-        if (sessionName == currentSessionName) {
-            return false
-        }
+        val userSessionRecord = SessionKeys.UserSessionRecord(targetSessionRecordId)
+        val recordData = userSessionRecord.get(commands) ?: return false
+        val currentSessionUserId = SessionKeys.Session(currentSessionId).get(commands)?.userId ?: return false
+        val targetSessionUserId = SessionKeys.Session(recordData.userSessionId).get(commands)?.userId ?: return false
+        if (currentSessionUserId != targetSessionUserId) return false
+        if (recordData.userSessionId == currentSessionId) return false
 
-        return useJedis { jedis ->
-            val userSessionKey = getUserSessionKey(userId, sessionName)
-            val sessionIdStr = jedis.get(userSessionKey) ?: return@useJedis false
-
-            val sessionId = UserSessionId(sessionIdStr)
-            clearSession(sessionId)
-
-            true
-        }
+        clearSession(recordData.userSessionId)
+        return true
     }
 
     override fun changeSessionName(
-        sessionId: UserSessionId,
-        name: String,
+        currentSessionId: UserSessionId,
+        sessionRecordId: SessionRecordId,
+        sessionName: String,
     ): UserSessionRepository.SessionInfo? {
-        return useJedis { jedis ->
-            val sessionKey = getSessionKey(sessionId)
-            val jsonData = jedis.get(sessionKey) ?: return@useJedis null
+        val currentSessionUserId = SessionKeys.Session(currentSessionId).get(commands)?.userId ?: return null
+        val recordKey = SessionKeys.UserSessionRecord(sessionRecordId)
+        val recordData = recordKey.get(commands) ?: return null
 
-            val sessionData = try {
+        val sessionKey = SessionKeys.Session(recordData.userSessionId)
+        val sessionData = sessionKey.get(commands) ?: return null
+
+        if (sessionData.userId != currentSessionUserId) return null
+
+        sessionKey.update(
+            commands,
+            sessionData.copy(
+                name = sessionName,
+            ),
+        )
+
+        return UserSessionRepository.SessionInfo(
+            sessionRecordId = sessionRecordId,
+            name = sessionName,
+            latestAccess = sessionData.lastAccess.toJavaInstant(),
+        )
+    }
+}
+
+private sealed interface SessionKeys {
+    val key: String
+
+    fun delete(commands: RedisCommands<String, String>) {
+        commands.del(key)
+    }
+
+    /**
+     * セッション管理のメイン
+     */
+    class Session(sessionId: UserSessionId) : SessionKeys {
+        override val key: String = "user_session:${sessionId.id}"
+
+        fun set(
+            commands: RedisCommands<String, String>,
+            data: SessionData,
+        ): String? {
+            return commands.set(
+                key,
+                ObjectMapper.kotlinxSerialization.encodeToString(data),
+                SetArgs()
+                    .nx()
+                    .ex(ServerVariables.USER_SESSION_EXPIRE_DAY.days.inWholeSeconds),
+            )
+        }
+
+        fun update(commands: RedisCommands<String, String>, data: SessionData): String? {
+            return commands.set(
+                key,
+                ObjectMapper.kotlinxSerialization.encodeToString(data),
+                SetArgs().keepttl(),
+            )
+        }
+
+        fun get(
+            commands: RedisCommands<String, String>,
+        ): SessionData? {
+            val jsonData = commands.get(key) ?: return null
+            return try {
                 ObjectMapper.kotlinxSerialization.decodeFromString<SessionData>(jsonData)
             } catch (e: Throwable) {
                 TraceLogger.impl().noticeThrowable(e, true)
                 TraceLogger.impl().setAttribute("jsonData", jsonData)
-                return@useJedis null
+                null
             }
+        }
 
-            val userId = UserId(sessionData.userId)
-            val oldName = sessionData.sessionName
-            val latestAccess = try {
-                LocalDateTime.parse(sessionData.latestAccess)
-            } catch (e: Throwable) {
-                TraceLogger.impl().noticeThrowable(e, true)
-                TraceLogger.impl().setAttribute("latestAccess", sessionData.latestAccess)
-                LocalDateTime.now(ZoneOffset.UTC)
-            }
-
-            if (oldName.isNotEmpty()) {
-                jedis.del(getUserSessionKey(userId, oldName))
-            }
-
-            jedis.set(getUserSessionKey(userId, name), sessionId.id)
-
-            val updatedSessionData = sessionData.copy(sessionName = name)
-
-            val updatedJsonData = ObjectMapper.kotlinxSerialization.encodeToString(updatedSessionData)
-
-            jedis.set(sessionKey, updatedJsonData)
-
-            UserSessionRepository.SessionInfo(
-                name = name,
-                latestAccess = latestAccess,
+        fun updateExpire(
+            commands: RedisCommands<String, String>,
+        ) {
+            commands.expire(
+                key,
+                ServerVariables.USER_SESSION_EXPIRE_DAY.days.inWholeSeconds,
             )
         }
+
+        @Serializable
+        data class SessionData(
+            @Serializable(UserIdSerializer::class)
+            val userId: UserId,
+            @Serializable(SessionRecordIdSerializer::class)
+            val sessionRecordId: SessionRecordId,
+            val createdAt: kotlin.time.Instant,
+            val lastAccess: kotlin.time.Instant,
+            val name: String,
+        )
     }
 
-    @OptIn(ExperimentalContracts::class)
-    private inline fun <T> useJedis(block: (jedis: redis.clients.jedis.Jedis) -> T): T {
-        contract {
-            callsInPlace(block, InvocationKind.EXACTLY_ONCE)
+    /**
+     * [UserId]ごとの[SessionRecordId]のセット
+     */
+    class UserSessionByUser(userId: UserId) : SessionKeys {
+        override val key: String = "user_session_by_user:${userId.value}"
+
+        private val expireSecond = ServerVariables.USER_SESSION_EXPIRE_DAY.days.inWholeSeconds
+            .plus(10.seconds.inWholeSeconds) // 本体のセッションより少し長めに設定
+
+        fun add(
+            commands: RedisCommands<String, String>,
+            sessionRecordId: SessionRecordId,
+        ) {
+            commands.sadd(
+                key,
+                sessionRecordId.value,
+            )
+            commands.expire(key, expireSecond)
         }
-        jedisPool.resource.use { jedis ->
-            jedis.select(index)
-            return block(jedis)
+
+        fun get(commands: RedisCommands<String, String>): List<SessionRecordId> {
+            val jsonDataList = commands.smembers(key)
+            return jsonDataList.mapNotNull { str ->
+                SessionRecordId(str)
+            }
+        }
+
+        fun delete(
+            commands: RedisCommands<String, String>,
+            sessionRecordId: SessionRecordId,
+        ) {
+            commands.srem(
+                key,
+                sessionRecordId.value,
+            )
+        }
+
+        fun updateExpire(
+            commands: RedisCommands<String, String>,
+        ) {
+            commands.expire(key, expireSecond)
         }
     }
 
-    private fun getSessionKey(sessionId: UserSessionId): String = "user_session:${sessionId.id}"
+    /**
+     * [SessionRecordId]を[UserSessionId]に紐づける。
+     */
+    class UserSessionRecord(recordId: SessionRecordId) : SessionKeys {
+        override val key: String = "user_session_record:${recordId.value}"
+        private val expireSecond = ServerVariables.USER_SESSION_EXPIRE_DAY.days.inWholeSeconds
+            .plus(10.seconds.inWholeSeconds) // 本体のセッションより少し長めに設定
 
-    private fun getUserSessionKey(userId: UserId, sessionName: String): String = "user_session_by_user:${userId.value}:$sessionName"
+        fun set(
+            commands: RedisCommands<String, String>,
+            data: Data,
+        ): String? {
+            return commands.set(
+                key,
+                ObjectMapper.kotlinxSerialization.encodeToString(data),
+                SetArgs()
+                    .nx()
+                    .ex(expireSecond),
+            )
+        }
 
-    private fun getUserSessionsKey(userId: UserId): String = "user_sessions:${userId.value}"
+        fun get(commands: RedisCommands<String, String>): Data? {
+            val jsonData = commands.get(key) ?: return null
 
-    @Serializable
-    private data class SessionData(
-        val userId: Int,
-        val sessionName: String = "",
-        val latestAccess: String = LocalDateTime.now(ZoneOffset.UTC).toString(),
-    )
+            return try {
+                ObjectMapper.kotlinxSerialization.decodeFromString<Data>(jsonData)
+            } catch (e: Throwable) {
+                TraceLogger.impl().noticeThrowable(e, true)
+                TraceLogger.impl().setAttribute("jsonData", jsonData)
+                null
+            }
+        }
+
+        fun updateExpire(
+            commands: RedisCommands<String, String>,
+        ) {
+            commands.expire(key, expireSecond)
+        }
+
+        @Serializable
+        data class Data(
+            @Serializable(UserSessionIdSerializer::class)
+            val userSessionId: UserSessionId,
+        )
+    }
+}
+
+private class UserSessionIdSerializer : KSerializer<UserSessionId> {
+    override val descriptor: SerialDescriptor = buildClassSerialDescriptor("UserSessionId")
+    override fun deserialize(decoder: Decoder): UserSessionId {
+        return UserSessionId(decoder.decodeString())
+    }
+
+    override fun serialize(encoder: Encoder, value: UserSessionId) {
+        encoder.encodeString(value.id)
+    }
+}
+
+private class SessionRecordIdSerializer : KSerializer<SessionRecordId> {
+    override val descriptor: SerialDescriptor = buildClassSerialDescriptor("SessionRecordId")
+    override fun deserialize(decoder: Decoder): SessionRecordId {
+        return SessionRecordId(decoder.decodeString())
+    }
+
+    override fun serialize(encoder: Encoder, value: SessionRecordId) {
+        encoder.encodeString(value.value)
+    }
+}
+
+private class UserIdSerializer : KSerializer<UserId> {
+    override val descriptor: SerialDescriptor = buildClassSerialDescriptor("UserId")
+    override fun deserialize(decoder: Decoder): UserId {
+        return UserId(decoder.decodeInt())
+    }
+
+    override fun serialize(encoder: Encoder, value: UserId) {
+        encoder.encodeInt(value.value)
+    }
 }

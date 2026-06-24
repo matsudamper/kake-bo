@@ -1,11 +1,9 @@
 package net.matsudamper.money.frontend.common.ui.screen.addmoneyusage
 
-import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.ExperimentalLayoutApi
 import androidx.compose.foundation.layout.FlowRow
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
@@ -24,12 +22,19 @@ import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.Button
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.HorizontalDivider
+import androidx.compose.material3.Icon
+import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.ProvideTextStyle
 import androidx.compose.material3.Scaffold
+import androidx.compose.material3.SnackbarDuration
+import androidx.compose.material3.SnackbarHostState
+import androidx.compose.material3.SnackbarResult
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.Immutable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -38,25 +43,33 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.text.TextStyle
+import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.window.Dialog
 import kotlinx.datetime.LocalDate
 import kotlinx.datetime.LocalTime
-import coil3.compose.AsyncImage
+import coil3.compose.SubcomposeAsyncImage
 import net.matsudamper.money.frontend.common.base.ImmutableList
 import net.matsudamper.money.frontend.common.ui.AppRoot
 import net.matsudamper.money.frontend.common.ui.base.CategorySelectDialog
 import net.matsudamper.money.frontend.common.ui.base.CategorySelectDialogUiState
 import net.matsudamper.money.frontend.common.ui.base.KakeBoTopAppBar
+import net.matsudamper.money.frontend.common.ui.base.MySnackBarHost
+import net.matsudamper.money.frontend.common.ui.base.ScreenBackHandler
+import net.matsudamper.money.frontend.common.ui.generated.resources.Res
+import net.matsudamper.money.frontend.common.ui.generated.resources.ic_arrow_back
+import net.matsudamper.money.frontend.common.ui.layout.AlertDialog
 import net.matsudamper.money.frontend.common.ui.layout.CalendarDialog
 import net.matsudamper.money.frontend.common.ui.layout.NumberInput
 import net.matsudamper.money.frontend.common.ui.layout.NumberInputValue
+import net.matsudamper.money.frontend.common.ui.layout.SnackbarEventState
 import net.matsudamper.money.frontend.common.ui.layout.TimePickerDialog
 import net.matsudamper.money.frontend.common.ui.layout.html.text.fullscreen.FullScreenTextInput
+import net.matsudamper.money.frontend.common.ui.layout.image.ImageLoadingPlaceholder
 import net.matsudamper.money.frontend.common.ui.layout.image.ImageUploadButton
 import net.matsudamper.money.frontend.common.ui.layout.image.ZoomableImageDialog
 import net.matsudamper.money.frontend.common.ui.lib.asWindowInsets
-import org.jetbrains.compose.ui.tooling.preview.Preview
+import org.jetbrains.compose.resources.painterResource
 
 public sealed interface ImageItem {
     public data object Uploading : ImageItem
@@ -68,6 +81,7 @@ public data class AddMoneyUsageScreenUiState(
     val timePickerDialog: TimePickerDialog?,
     val fullScreenTextInputDialog: FullScreenTextInputDialog?,
     val categorySelectDialog: CategorySelectDialogUiState?,
+    val discardConfirmDialog: DiscardConfirmDialog?,
     val date: String,
     val time: String,
     val title: String,
@@ -78,7 +92,18 @@ public data class AddMoneyUsageScreenUiState(
     val addButtonEnabled: Boolean,
     val event: Event,
     val numberInputDialog: NumberInputDialog?,
+    val snackbarEventState: SnackbarEventState,
 ) {
+    public data class DiscardConfirmDialog(
+        val listener: Listener,
+    ) {
+        @Immutable
+        public interface Listener {
+            public fun onClickDiscard()
+            public fun onClickCancel()
+        }
+    }
+
     public data class NumberInputDialog(
         val value: NumberInputValue,
         val onChangeValue: (NumberInputValue) -> Unit,
@@ -101,7 +126,10 @@ public data class AddMoneyUsageScreenUiState(
         val selectedTime: LocalTime,
     )
 
+    @Immutable
     public interface Event {
+        public fun onBack()
+
         public fun onClickAdd()
 
         public fun selectedCalendar(date: LocalDate)
@@ -128,14 +156,37 @@ public data class AddMoneyUsageScreenUiState(
     }
 }
 
-@OptIn(ExperimentalLayoutApi::class)
 @Composable
 public fun AddMoneyUsageScreen(
     modifier: Modifier = Modifier,
     uiState: AddMoneyUsageScreenUiState,
     windowInsets: PaddingValues,
 ) {
+    ScreenBackHandler(enabled = true) {
+        uiState.event.onBack()
+    }
+
     var selectedImageUrl by remember { mutableStateOf<String?>(null) }
+    val snackbarHostState = remember { SnackbarHostState() }
+
+    LaunchedEffect(uiState.snackbarEventState) {
+        uiState.snackbarEventState.collect { event ->
+            val result = snackbarHostState.showSnackbar(
+                message = event.message,
+                actionLabel = event.actionLabel,
+                duration = event.duration ?: if (event.withDismissAction) {
+                    SnackbarDuration.Indefinite
+                } else {
+                    SnackbarDuration.Short
+                },
+                withDismissAction = event.withDismissAction,
+            )
+            when (result) {
+                SnackbarResult.Dismissed -> SnackbarEventState.Result.Dismiss
+                SnackbarResult.ActionPerformed -> SnackbarEventState.Result.Action
+            }
+        }
+    }
 
     if (uiState.fullScreenTextInputDialog != null) {
         FullScreenTextInput(
@@ -151,6 +202,9 @@ public fun AddMoneyUsageScreen(
 
     Scaffold(
         modifier = modifier,
+        snackbarHost = {
+            MySnackBarHost(hostState = snackbarHostState)
+        },
         topBar = {
             KakeBoTopAppBar(
                 modifier = Modifier.fillMaxWidth()
@@ -158,6 +212,14 @@ public fun AddMoneyUsageScreen(
                         windowInsets.asWindowInsets()
                             .only(WindowInsetsSides.Horizontal + WindowInsetsSides.Top),
                     ),
+                navigation = {
+                    IconButton(onClick = { uiState.event.onBack() }) {
+                        Icon(
+                            painter = painterResource(Res.drawable.ic_arrow_back),
+                            contentDescription = "戻る",
+                        )
+                    }
+                },
                 title = {
                     Box(
                         modifier = Modifier,
@@ -307,14 +369,14 @@ public fun AddMoneyUsageScreen(
                                                 }
                                             }
                                             is ImageItem.Uploaded -> {
-                                                AsyncImage(
+                                                SubcomposeAsyncImage(
                                                     model = image.url,
                                                     contentDescription = null,
                                                     contentScale = ContentScale.Crop,
                                                     modifier = Modifier
                                                         .size(120.dp)
-                                                        .clickable { selectedImageUrl = image.url }
-                                                        .background(MaterialTheme.colorScheme.surfaceVariant),
+                                                        .clickable { selectedImageUrl = image.url },
+                                                    loading = { ImageLoadingPlaceholder() },
                                                 )
                                             }
                                         }
@@ -367,6 +429,17 @@ public fun AddMoneyUsageScreen(
             value = uiState.numberInputDialog.value,
             onChangeValue = { uiState.numberInputDialog.onChangeValue(it) },
             dismissRequest = { uiState.numberInputDialog.dismissRequest() },
+        )
+    }
+
+    if (uiState.discardConfirmDialog != null) {
+        AlertDialog(
+            title = { Text("入力内容を破棄しますか？") },
+            positiveButton = { Text("破棄") },
+            negativeButton = { Text("キャンセル") },
+            onClickPositive = { uiState.discardConfirmDialog.listener.onClickDiscard() },
+            onClickNegative = { uiState.discardConfirmDialog.listener.onClickCancel() },
+            onDismissRequest = { uiState.discardConfirmDialog.listener.onClickCancel() },
         )
     }
 
@@ -436,6 +509,7 @@ private fun AddMoneyUsageScreenPreview() {
                 timePickerDialog = null,
                 fullScreenTextInputDialog = null,
                 categorySelectDialog = null,
+                discardConfirmDialog = null,
                 date = "2026/02/26",
                 time = "12:30",
                 title = "スーパーマーケット",
@@ -445,6 +519,7 @@ private fun AddMoneyUsageScreenPreview() {
                 images = ImmutableList(listOf()),
                 addButtonEnabled = true,
                 event = object : AddMoneyUsageScreenUiState.Event {
+                    override fun onBack() {}
                     override fun onClickAdd() {}
                     override fun selectedCalendar(date: LocalDate) {}
                     override fun dismissCalendar() {}
@@ -459,6 +534,7 @@ private fun AddMoneyUsageScreenPreview() {
                     override fun onClickUploadImage() {}
                 },
                 numberInputDialog = null,
+                snackbarEventState = SnackbarEventState(),
             ),
             windowInsets = PaddingValues(),
         )

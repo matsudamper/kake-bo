@@ -19,6 +19,7 @@ type UserMutation {
     addSubCategory(input: AddSubCategoryInput!) : AddSubCategoryResult!
     updateSubCategory(id: MoneyUsageSubCategoryId!, query: UpdateSubCategoryQuery!): MoneyUsageSubCategory!
     deleteSubCategory(id: MoneyUsageSubCategoryId!): Boolean!
+    deleteCategory(id: MoneyUsageCategoryId!): Boolean!
 
     addImportedMailCategoryFilter(input: AddImportedMailCategoryFilterInput!): ImportedMailCategoryFilter
     updateImportedMailCategoryFilter(input: UpdateImportedMailCategoryFilterInput!): ImportedMailCategoryFilter
@@ -30,8 +31,8 @@ type UserMutation {
 
     registerFido(input: RegisterFidoInput!): RegisteredFidoResult!
     deleteFido(id: FidoId!): DeleteFidoResult!
-    deleteSession(name: String!): DeleteSessionResult!
-    changeSessionName(name: String!): ChangeSessionNameResult!
+    deleteSession(id: SessionRecordId!): DeleteSessionResult!
+    changeSessionName(id: SessionRecordId!, name: String!): ChangeSessionNameResult!
 
     registerApiToken(name: String!): RegisterApiTokenResult!
     deleteApiToken(id: ApiTokenId!): DeleteApiTokenResult!
@@ -183,6 +184,20 @@ type UserLoginResult {
 
 type SettingsMutation {
     updateImapConfig(config: UpdateUserImapConfigInput!) : UserImapConfig
+    changePassword(password: String): ChangePasswordResult! @lazy
+    updateTimezoneOffset(offsetMinutes: Int!): Int
+}
+
+type ChangePasswordResult {
+    isSuccess: Boolean!
+    errorType: ChangePasswordErrorType
+}
+
+enum ChangePasswordErrorType {
+    Unknown,
+    UserNotFound,
+    PasswordLength,
+    PasswordInvalidChar,
 }
 
 input UpdateUserImapConfigInput {

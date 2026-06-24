@@ -7,6 +7,9 @@ import net.matsudamper.money.element.ImportedMailId
 import net.matsudamper.money.element.MoneyUsageCategoryId
 import net.matsudamper.money.element.MoneyUsageId
 import net.matsudamper.money.element.MoneyUsagePresetId
+import net.matsudamper.money.frontend.common.base.Logger
+
+private const val TAG = "ScreenStructure"
 
 public sealed interface ScreenStructure : IScreenStructure {
     public sealed interface Root : ScreenStructure {
@@ -38,6 +41,12 @@ public sealed interface ScreenStructure : IScreenStructure {
             }
 
             @Serializable
+            public data object Timezone : Settings {
+                override val direction: Screens = Screens.SettingsTimezone
+                override val sameScreenId: String = "ScreenStructure#Root#Settings#Timezone"
+            }
+
+            @Serializable
             public data object Categories : Settings {
                 override val direction: Screens = Screens.SettingsCategory
                 override val sameScreenId: String = "ScreenStructure#Root#Settings#Categories"
@@ -65,6 +74,12 @@ public sealed interface ScreenStructure : IScreenStructure {
             public data object MailCategoryFilters : Settings {
                 override val direction: Screens = Screens.MailCategoryFilters
                 override val sameScreenId: String = "ScreenStructure#Root#Settings#MailCategoryFilters"
+            }
+
+            @Serializable
+            public data object UploadQueueDebug : Settings {
+                override val direction: Screens = Screens.SettingsUploadQueueDebug
+                override val sameScreenId: String = "ScreenStructure#Root#Settings#UploadQueueDebug"
             }
 
             @Serializable
@@ -140,6 +155,24 @@ public sealed interface ScreenStructure : IScreenStructure {
             public data object Preset : Add {
                 override val direction: Screens = Screens.AddPresets
                 override val sameScreenId: String = "ScreenStructure#Root#Add#Preset"
+            }
+
+            @Serializable
+            public data object NotificationUsage : Add {
+                override val direction: Screens = Screens.AddNotificationUsage
+                override val sameScreenId: String = "ScreenStructure#Root#Add#NotificationUsage"
+            }
+
+            @Serializable
+            public data object NotificationUsageFilters : Add {
+                override val direction: Screens = Screens.AddNotificationUsageFilters
+                override val sameScreenId: String = "ScreenStructure#Root#Add#NotificationUsageFilters"
+            }
+
+            @Serializable
+            public data object NotificationUsageDebug : Add {
+                override val direction: Screens = Screens.AddNotificationUsageDebug
+                override val sameScreenId: String = "ScreenStructure#Root#Add#NotificationUsageDebug"
             }
 
             @Serializable
@@ -259,11 +292,38 @@ public sealed interface ScreenStructure : IScreenStructure {
         override val sameScreenId: String = "ScreenStructure#Login"
     }
 
-    @Serializable
-    public data object Admin : ScreenStructure {
-        override val direction: Screens = Screens.Admin
-        override val stackGroupId: String? = null
-        override val sameScreenId: String = "ScreenStructure#Admin"
+    public sealed interface Admin : ScreenStructure {
+        override val stackGroupId: String? get() = null
+
+        @Serializable
+        public data object Root : Admin {
+            override val direction: Screens = Screens.AdminRoot
+            override val sameScreenId: String = "ScreenStructure#Admin#Root"
+        }
+
+        @Serializable
+        public data object Login : Admin {
+            override val direction: Screens = Screens.AdminLogin
+            override val sameScreenId: String = "ScreenStructure#Admin#Login"
+        }
+
+        @Serializable
+        public data object AddUser : Admin {
+            override val direction: Screens = Screens.AdminAddUser
+            override val sameScreenId: String = "ScreenStructure#Admin#AddUser"
+        }
+
+        @Serializable
+        public data object UnlinkedImages : Admin {
+            override val direction: Screens = Screens.AdminUnlinkedImages
+            override val sameScreenId: String = "ScreenStructure#Admin#UnlinkedImages"
+        }
+
+        @Serializable
+        public data object UserSearch : Admin {
+            override val direction: Screens = Screens.AdminUserSearch
+            override val sameScreenId: String = "ScreenStructure#Admin#UserSearch"
+        }
     }
 
     @Serializable
@@ -298,6 +358,34 @@ public sealed interface ScreenStructure : IScreenStructure {
         override fun createUrl(): String {
             return direction.placeholderUrl
                 .replace("{id}", id.id.toString())
+        }
+    }
+
+    @Serializable
+    public data class NotificationUsageDetail(
+        public val notificationUsageKey: String,
+    ) : ScreenStructure {
+        override val direction: Screens = Screens.NotificationUsageDetail
+        override val stackGroupId: String? = null
+        override val sameScreenId: String = "ScreenStructure#NotificationUsageDetail($notificationUsageKey)"
+
+        override fun createUrl(): String {
+            return direction.placeholderUrl.plus(
+                buildParameter {
+                    append(KEY_NOTIFICATION_USAGE_KEY, notificationUsageKey)
+                },
+            )
+        }
+
+        public companion object {
+            private const val KEY_NOTIFICATION_USAGE_KEY = "notification_usage_key"
+
+            public fun fromQueryParams(queryParams: Map<String, List<String>>): NotificationUsageDetail? {
+                val notificationUsageKey = queryParams[KEY_NOTIFICATION_USAGE_KEY]?.firstOrNull() ?: return null
+                return NotificationUsageDetail(
+                    notificationUsageKey = notificationUsageKey,
+                )
+            }
         }
     }
 
@@ -338,6 +426,7 @@ public sealed interface ScreenStructure : IScreenStructure {
         val date: LocalDateTime? = null,
         val description: String? = null,
         val subCategoryId: String? = null,
+        val notificationUsageKey: String? = null,
     ) : ScreenStructure {
         override val direction: Screens = Screens.AddMoneyUsage
         override val stackGroupId: String? = null
@@ -358,6 +447,26 @@ public sealed interface ScreenStructure : IScreenStructure {
                     if (description != null) {
                         append(KEY_DESCRIPTION, description)
                     }
+                    if (price != null) {
+                        append(KEY_PRICE, price.toString())
+                    }
+                    if (subCategoryId != null) {
+                        append(KEY_SUB_CATEGORY_ID, subCategoryId)
+                    }
+                    if (notificationUsageKey != null) {
+                        append(KEY_NOTIFICATION_USAGE_KEY, notificationUsageKey)
+                    }
+
+                    run {
+                        val parsedDate = if (date != null) {
+                            runCatching { dateFormat.format(date) }.onFailure { Logger.e(TAG, it) }.getOrNull()
+                        } else {
+                            null
+                        }
+                        if (parsedDate != null) {
+                            append(KEY_DATE, parsedDate)
+                        }
+                    }
                 },
             )
         }
@@ -370,6 +479,8 @@ public sealed interface ScreenStructure : IScreenStructure {
             private const val KEY_DATE = "date"
             private const val KEY_DESCRIPTION = "description"
             private const val KEY_SUB_CATEGORY_ID = "sub_category_id"
+            private const val KEY_NOTIFICATION_USAGE_KEY = "notification_usage_key"
+            private val dateFormat = LocalDateTime.Formats.ISO
 
             public fun fromQueryParams(queryParams: Map<String, List<String>>): AddMoneyUsage {
                 return AddMoneyUsage(
@@ -378,9 +489,10 @@ public sealed interface ScreenStructure : IScreenStructure {
                     importedMailIndex = queryParams[KEY_IMPORTED_MAIL_INDEX]?.firstOrNull()?.toIntOrNull(),
                     title = queryParams[KEY_TITLE]?.firstOrNull(),
                     price = queryParams[KEY_PRICE]?.firstOrNull()?.toFloatOrNull(),
-                    date = queryParams[KEY_DATE]?.firstOrNull()?.let { LocalDateTime.parse(it) },
+                    date = queryParams[KEY_DATE]?.firstOrNull()?.let { dateFormat.parse(it) },
                     description = queryParams[KEY_DESCRIPTION]?.firstOrNull(),
                     subCategoryId = queryParams[KEY_SUB_CATEGORY_ID]?.firstOrNull(),
+                    notificationUsageKey = queryParams[KEY_NOTIFICATION_USAGE_KEY]?.firstOrNull(),
                 )
             }
         }

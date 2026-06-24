@@ -3,7 +3,6 @@ package net.matsudamper.money.frontend.common.viewmodel.root.home
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.launch
 import net.matsudamper.money.frontend.common.base.nav.user.ScreenNavController
-import net.matsudamper.money.frontend.common.base.nav.user.ScreenStructure
 import net.matsudamper.money.frontend.common.usecase.LoginCheckUseCaseImpl
 import net.matsudamper.money.frontend.common.viewmodel.lib.EventSender
 import net.matsudamper.money.frontend.common.viewmodel.root.GlobalEvent
@@ -23,7 +22,7 @@ public class LoginCheckUseCaseEventListenerImpl(
     }
 
     override fun logout() {
-        navController.navigate(ScreenStructure.Login)
+        navController.navigateToLogin()
     }
 
     override fun serverError() {

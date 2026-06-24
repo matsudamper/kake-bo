@@ -17,14 +17,22 @@ include(":backend:feature:service_mail_parser")
 include(":backend:feature:fido")
 include(":backend:feature:image")
 include(":backend:feature:session")
+include(":backend:feature:oidc")
+include(":backend:feature:object-storage")
+include(":backend:feature:image-storage-local")
 
 include(":frontend:app")
+include(":frontend:feature-notification")
+include(":frontend:feature-admin")
+include(":frontend:android:feature-notification-usage")
 include(":frontend:common:ui")
 include(":frontend:common:root")
 include(":frontend:common:base")
 include(":frontend:common:di")
 include(":frontend:common:feature:webauth")
 include(":frontend:common:feature:localstore")
+include(":frontend:common:feature:uploader")
+include(":frontend:common:feature:logging")
 include(":frontend:common:viewmodel")
 include(":frontend:common:usecase")
 include(":frontend:common:navigation")
@@ -36,22 +44,29 @@ include(":shared")
 pluginManagement {
     includeBuild("build-logic")
     repositories {
+        exclusiveContent {
+            forRepository {
+                maven {
+                    name = "GitHubPackages"
+                    url = uri("https://maven.pkg.github.com/matsudamper/graphql-java-codegen")
+                    credentials {
+                        username = providers.gradleProperty("gpr.user")
+                            .orElse(System.getenv("GITHUB_ACTOR"))
+                            .get()
+                        password = providers.gradleProperty("gpr.key")
+                            .orElse(System.getenv("GITHUB_TOKEN"))
+                            .get()
+                    }
+                }
+            }
+            filter {
+                includeGroupByRegex("io\\.github\\.kobylynskyi.*")
+            }
+        }
         google()
         gradlePluginPortal()
         mavenCentral()
         maven("https://maven.pkg.jetbrains.space/public/p/compose/dev")
-        maven {
-            name = "GitHubPackages"
-            url = uri("https://maven.pkg.github.com/matsudamper/graphql-java-codegen")
-            credentials {
-                username = providers.gradleProperty("gpr.user")
-                    .orElse(System.getenv("GITHUB_ACTOR"))
-                    .get()
-                password = providers.gradleProperty("gpr.key")
-                    .orElse(System.getenv("GITHUB_TOKEN"))
-                    .get()
-            }
-        }
     }
 }
 

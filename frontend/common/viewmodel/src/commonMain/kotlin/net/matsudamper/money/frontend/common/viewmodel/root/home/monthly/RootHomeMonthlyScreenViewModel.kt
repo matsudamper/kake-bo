@@ -32,6 +32,7 @@ import net.matsudamper.money.frontend.common.base.nav.user.RootHomeScreenStructu
 import net.matsudamper.money.frontend.common.base.nav.user.ScreenNavController
 import net.matsudamper.money.frontend.common.base.nav.user.ScreenStructure
 import net.matsudamper.money.frontend.common.ui.layout.graph.pie.PieChartItem
+import net.matsudamper.money.frontend.common.ui.layout.graph.pie.PieChartItemEvent
 import net.matsudamper.money.frontend.common.ui.screen.root.home.SortSectionOrder
 import net.matsudamper.money.frontend.common.ui.screen.root.home.SortSectionType
 import net.matsudamper.money.frontend.common.ui.screen.root.home.monthly.RootHomeMonthlyScreenUiState
@@ -127,6 +128,10 @@ public class RootHomeMonthlyScreenViewModel(
                         order = order,
                     )
                 }
+
+                override suspend fun refresh() {
+                    fetchFromNetwork()
+                }
             },
         ),
     ).also { uiStateFlow ->
@@ -159,27 +164,45 @@ public class RootHomeMonthlyScreenViewModel(
     }.asStateFlow()
 
     private fun createLoadedUiState(viewModelState: ViewModelState): RootHomeMonthlyScreenUiState.LoadingState.Loaded {
+        val sinceDate = createSinceLocalDateTime().date
+
         val pieChartItems = viewModelState.moneyUsageAnalytics?.byCategories?.mapIndexed { index, byCategory ->
             PieChartItem(
                 title = byCategory.category.name,
                 color = reservedColorModel.getColor(byCategory.category.name),
                 value = byCategory.totalAmount ?: 0,
+                event = object : PieChartItemEvent {
+                    override fun onClick() {
+                        viewModelScope.launch {
+                            eventSender.send {
+                                it.navigate(
+                                    RootHomeScreenStructure.MonthlyCategory(
+                                        categoryId = byCategory.category.id,
+                                        year = sinceDate.year,
+                                        month = sinceDate.monthNumber,
+                                    ),
+                                )
+                            }
+                        }
+                    }
+                },
             )
         }.orEmpty().sortedByDescending { it.value }
 
         val response = (viewModelState.monthlyListResponse as? ApolloResponseState.Success)?.value
         val nodes = response?.data?.user?.moneyUsages?.nodes.orEmpty()
 
-        val sinceDate = createSinceLocalDateTime().date
-
         return RootHomeMonthlyScreenUiState.LoadingState.Loaded(
             yearMonth = "${sinceDate.year}年${sinceDate.monthNumber}月",
             items = nodes.map { node ->
+                val categoryName = node.moneyUsageSubCategory?.category?.name.orEmpty()
                 RootHomeMonthlyScreenUiState.Item(
                     title = node.title,
                     amount = "${Formatter.formatMoney(node.amount)}円",
                     date = Formatter.formatDateTime(node.date),
-                    category = node.moneyUsageSubCategory?.name.orEmpty(),
+                    category = categoryName,
+                    categoryColor = reservedColorModel.getColor(categoryName),
+                    imageUrls = node.images.map { it.url }.toImmutableList(),
                     event = ItemEventImpl(
                         coroutineScope = viewModelScope,
                         eventSender = eventSender,
@@ -221,6 +244,31 @@ public class RootHomeMonthlyScreenViewModel(
         viewModelScope.launch {
             fetch()
         }
+    }
+
+    private suspend fun fetchFromNetwork() {
+        val sinceDateTime = createSinceLocalDateTime()
+        val untilDateTime = LocalDateTime(
+            date = sinceDateTime.date.plus(1, DateTimeUnit.MONTH),
+            time = sinceDateTime.time,
+        )
+        val analyticsResponse = graphqlClient.apolloClient.query(
+            MonthlyScreenQuery(
+                sinceDateTime = sinceDateTime,
+                untilDateTime = untilDateTime,
+            ),
+        ).fetchPolicy(FetchPolicy.NetworkOnly).execute()
+        val moneyUsageAnalytics = analyticsResponse.data?.user?.moneyUsageAnalytics
+        if (moneyUsageAnalytics != null) {
+            viewModelStateFlow.value = viewModelStateFlow.value.copy(
+                moneyUsageAnalytics = moneyUsageAnalytics,
+            )
+        }
+
+        val firstQuery = getFirstQueryFlow().value
+        graphqlClient.apolloClient.query(firstQuery)
+            .fetchPolicy(FetchPolicy.NetworkOnly)
+            .execute()
     }
 
     private suspend fun fetch() {
@@ -279,7 +327,7 @@ public class RootHomeMonthlyScreenViewModel(
         return viewModelStateFlow.mapLatest { viewModelState ->
             MonthlyScreenListQuery(
                 cursor = Optional.present(null),
-                size = 5,
+                size = 20,
                 sinceDateTime = Optional.present(createSinceLocalDateTime()),
                 untilDateTime = Optional.present(
                     LocalDateTime(

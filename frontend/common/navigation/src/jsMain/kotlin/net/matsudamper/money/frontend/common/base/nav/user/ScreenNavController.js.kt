@@ -4,6 +4,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.remember
 import kotlinx.browser.window
 import io.ktor.http.ParametersBuilder
+import io.ktor.http.decodeURLQueryComponent
 import io.ktor.util.StringValues
 import io.ktor.util.toMap
 import net.matsudamper.money.element.ImportedMailCategoryFilterId
@@ -12,7 +13,18 @@ import net.matsudamper.money.element.MoneyUsageCategoryId
 import net.matsudamper.money.element.MoneyUsageId
 import net.matsudamper.money.element.MoneyUsagePresetId
 
-private val parser = UrlPlaceHolderParser(Screens.entries)
+private val browserHiddenScreens: Set<Screens> = setOf(
+    Screens.AddNotificationUsage,
+    Screens.AddNotificationUsageFilters,
+    Screens.NotificationUsageDetail,
+    Screens.AddNotificationUsageDebug,
+)
+
+private val parser = UrlPlaceHolderParser(
+    Screens.entries.filterNot { screen ->
+        screen in browserHiddenScreens
+    },
+)
 
 @Composable
 public actual fun rememberMainScreenNavController(initial: IScreenStructure): ScreenNavController {
@@ -20,11 +32,18 @@ public actual fun rememberMainScreenNavController(initial: IScreenStructure): Sc
         ScreenNavControllerImpl(
             initial = initial,
             currentScreenStructureProvider = {
-                parser.parse(pathname = window.location.pathname)
-                    .toScreenStructure(parseQueryParams(window.location.search))
+                parseBrowserScreenStructure(
+                    pathname = window.location.pathname,
+                    query = window.location.search,
+                )
             },
         )
     }
+}
+
+internal fun parseBrowserScreenStructure(pathname: String, query: String): ScreenStructure {
+    return parser.parse(pathname = pathname)
+        .toScreenStructure(parseQueryParams(query))
 }
 
 private fun parseQueryParams(query: String): Map<String, List<String>> {
@@ -34,9 +53,11 @@ private fun parseQueryParams(query: String): Map<String, List<String>> {
                 query.removePrefix("?")
                     .split("&")
                     .forEach { keyValue ->
-                        keyValue.split("=").let {
+                        keyValue.split("=", limit = 2).let {
                             val key = it.getOrNull(0) ?: return@forEach
-                            val value = it.getOrNull(1).orEmpty()
+                            val value = it.getOrNull(1)
+                                .orEmpty()
+                                .decodeURLQueryComponent(plusIsSpace = true)
 
                             append(key, value)
                         }
@@ -75,6 +96,7 @@ private fun UrlPlaceHolderParser.ScreenState<Screens>.toScreenStructure(queryPar
         Screens.Settings -> ScreenStructure.Root.Settings.Root
         Screens.Api -> ScreenStructure.Root.Settings.Api
         Screens.SettingsImap -> ScreenStructure.Root.Settings.Imap
+        Screens.SettingsTimezone -> ScreenStructure.Root.Settings.Timezone
         Screens.SettingsCategory -> ScreenStructure.Root.Settings.Categories
         Screens.SettingsCategoryId ->
             ScreenStructure.Root.Settings.Category(
@@ -87,7 +109,12 @@ private fun UrlPlaceHolderParser.ScreenState<Screens>.toScreenStructure(queryPar
         }
 
         Screens.SettingsTextFieldTest -> ScreenStructure.Root.Settings.TextFieldTest
+        Screens.SettingsUploadQueueDebug -> ScreenStructure.Root.Settings.UploadQueueDebug
         Screens.AddPresets -> ScreenStructure.Root.Add.Preset
+        Screens.AddNotificationUsage -> ScreenStructure.NotFound
+        Screens.AddNotificationUsageFilters -> ScreenStructure.NotFound
+        Screens.NotificationUsageDetail -> ScreenStructure.NotFound
+        Screens.AddNotificationUsageDebug -> ScreenStructure.NotFound
         Screens.AddPresetDetail -> {
             ScreenStructure.Root.Add.PresetDetail(
                 id = run id@{
@@ -109,7 +136,11 @@ private fun UrlPlaceHolderParser.ScreenState<Screens>.toScreenStructure(queryPar
             ) ?: ScreenStructure.NotFound
 
         Screens.Login -> ScreenStructure.Login
-        Screens.Admin -> ScreenStructure.Admin
+        Screens.AdminRoot -> ScreenStructure.Admin.Root
+        Screens.AdminLogin -> ScreenStructure.Admin.Login
+        Screens.AdminAddUser -> ScreenStructure.Admin.AddUser
+        Screens.AdminUnlinkedImages -> ScreenStructure.Admin.UnlinkedImages
+        Screens.AdminUserSearch -> ScreenStructure.Admin.UserSearch
         Screens.MailImport -> ScreenStructure.Root.Add.Import
         Screens.Add -> {
             ScreenStructure.Root.Add.Root

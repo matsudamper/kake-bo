@@ -4,10 +4,12 @@ import com.apollographql.apollo.api.ApolloResponse
 import com.apollographql.apollo.api.Optional
 import com.apollographql.apollo.cache.normalized.FetchPolicy
 import com.apollographql.apollo.cache.normalized.fetchPolicy
-import net.matsudamper.money.frontend.common.base.lib.getNestedMessage
+import net.matsudamper.money.frontend.common.base.Logger
 import net.matsudamper.money.frontend.graphql.type.ImportedMailQuery
 import net.matsudamper.money.frontend.graphql.type.ImportedMailQueryFilter
 import net.matsudamper.money.frontend.graphql.type.ImportedMailSortKey
+
+private const val TAG = "MailLinkScreenGraphqlApi"
 
 class MailLinkScreenGraphqlApi(
     private val graphqlClient: GraphqlClient,
@@ -36,7 +38,7 @@ class MailLinkScreenGraphqlApi(
                 .fetchPolicy(FetchPolicy.NetworkOnly)
                 .execute()
         }.onFailure {
-            println("error: ${it.getNestedMessage()}")
+            Logger.e(TAG, it)
         }.getOrNull()
     }
 }

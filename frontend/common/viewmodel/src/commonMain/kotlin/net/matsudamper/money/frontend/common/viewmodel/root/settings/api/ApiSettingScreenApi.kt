@@ -7,9 +7,12 @@ import com.apollographql.apollo.cache.normalized.FetchPolicy
 import com.apollographql.apollo.cache.normalized.fetchPolicy
 import com.apollographql.apollo.cache.normalized.watch
 import net.matsudamper.money.element.ApiTokenId
+import net.matsudamper.money.frontend.common.base.Logger
 import net.matsudamper.money.frontend.graphql.ApiSettingScreenDeleteApiTokenMutation
 import net.matsudamper.money.frontend.graphql.ApiSettingScreenQuery
 import net.matsudamper.money.frontend.graphql.ApiSettingScreenRegisterApiTokenMutation
+
+private const val TAG = "ApiSettingScreenApi"
 
 public class ApiSettingScreenApi(
     private val apolloClient: ApolloClient,
@@ -50,6 +53,8 @@ public class ApiSettingScreenApi(
                     id = id,
                 ),
             ).execute()
+        }.onFailure {
+            Logger.e(TAG, it)
         }.getOrNull()?.data?.userMutation?.deleteApiToken?.isSuccess == true
     }
 }

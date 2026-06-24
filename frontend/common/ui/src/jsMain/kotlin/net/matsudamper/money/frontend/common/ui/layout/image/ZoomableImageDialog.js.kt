@@ -15,7 +15,7 @@ import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.window.Dialog
 import androidx.compose.ui.window.DialogProperties
-import coil3.compose.AsyncImage
+import coil3.compose.SubcomposeAsyncImage
 
 @Composable
 public actual fun ZoomableImageDialog(
@@ -46,7 +46,7 @@ public actual fun ZoomableImageDialog(
             ) {
                 Text("閉じる")
             }
-            AsyncImage(
+            SubcomposeAsyncImage(
                 model = imageUrl,
                 contentDescription = null,
                 contentScale = ContentScale.Fit,
@@ -57,6 +57,7 @@ public actual fun ZoomableImageDialog(
                         indication = null,
                         onClick = {},
                     ),
+                loading = { ImageLoadingPlaceholder() },
             )
         }
     }

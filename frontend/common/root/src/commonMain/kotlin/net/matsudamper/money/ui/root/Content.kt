@@ -40,6 +40,7 @@ import net.matsudamper.money.frontend.common.base.nav.rememberScopedObjectStoreO
 import net.matsudamper.money.frontend.common.base.nav.user.IScreenStructure
 import net.matsudamper.money.frontend.common.base.nav.user.ScreenNavController
 import net.matsudamper.money.frontend.common.base.nav.user.ScreenStructure
+import net.matsudamper.money.frontend.common.di.LocalKoin
 import net.matsudamper.money.frontend.common.ui.base.KakeboScaffoldListener
 import net.matsudamper.money.frontend.common.ui.base.MySnackBarHost
 import net.matsudamper.money.frontend.common.ui.base.rootHostScaffoldEntryDecorator
@@ -52,9 +53,11 @@ import net.matsudamper.money.frontend.common.viewmodel.LocalGlobalEventHandlerLo
 import net.matsudamper.money.frontend.common.viewmodel.lib.EventSender
 import net.matsudamper.money.frontend.common.viewmodel.root.GlobalEvent
 import net.matsudamper.money.frontend.common.viewmodel.root.SettingViewModel
+import net.matsudamper.money.frontend.common.viewmodel.root.add.HomeAddExtensionEntryProvider
 import net.matsudamper.money.frontend.common.viewmodel.root.home.LoginCheckUseCaseEventListenerImpl
 import net.matsudamper.money.frontend.common.viewmodel.root.mail.HomeAddTabScreenViewModel
 import net.matsudamper.money.frontend.common.viewmodel.root.usage.RootUsageHostViewModel
+import net.matsudamper.money.frontend.feature.admin.AdminEntryProvider
 import net.matsudamper.money.frontend.graphql.GraphqlUserLoginQuery
 import net.matsudamper.money.ui.root.platform.PlatformTools
 import net.matsudamper.money.ui.root.viewmodel.LocalViewModelProviders
@@ -158,6 +161,7 @@ public fun Content(
             val mailScreenViewModel = LocalScopedObjectStore.current.putOrGet<HomeAddTabScreenViewModel>(Unit) {
                 HomeAddTabScreenViewModel(
                     scopedObjectFeature = it,
+                    additionalEntryProviders = koin.getAll<HomeAddExtensionEntryProvider>(),
                     navController = navController,
                 )
             }
@@ -211,6 +215,7 @@ public fun Content(
                 when (navController.currentBackstackEntry) {
                     is ScreenStructure.Login,
                     is ScreenStructure.Splash,
+                    is ScreenStructure.Admin,
                     -> Unit
                     else -> rootViewModel.navigateChanged()
                 }
@@ -292,9 +297,11 @@ public fun Content(
                                         windowInsets = paddingValues.value,
                                     )
                                 }
-                                addEntryProvider<ScreenStructure.Admin> {
-                                    AdminContainer(
-                                        windowInsets = paddingValues.value,
+                                with(AdminEntryProvider) {
+                                    addProviders(
+                                        navController = navController,
+                                        globalEventSender = globalEventSender,
+                                        paddingValues = paddingValues,
                                     )
                                 }
                                 addEntryProvider<ScreenStructure.NotFound> {
@@ -342,6 +349,14 @@ public fun Content(
                                         screen = current,
                                         viewModelEventHandlers = viewModelEventHandlers,
                                         kakeboScaffoldListener = kakeboScaffoldListener,
+                                        windowInsets = paddingValues.value,
+                                    )
+                                }
+
+                                addEntryProvider<ScreenStructure.NotificationUsageDetail> { current ->
+                                    NotificationUsageDetailScreenContainer(
+                                        current = current,
+                                        eventHandlerCollector = { viewModelEventHandlers.handleNotificationUsageDetail(it) },
                                         windowInsets = paddingValues.value,
                                     )
                                 }

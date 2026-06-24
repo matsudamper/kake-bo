@@ -20,6 +20,7 @@ public fun KakeboScaffold(
     topBar: (@Composable () -> Unit)? = null,
     bottomBar: @Composable () -> Unit = {},
     snackbarHost: @Composable () -> Unit = {},
+    floatingActionButton: @Composable () -> Unit = {},
     content: @Composable (PaddingValues) -> Unit,
 ) {
     Scaffold(
@@ -30,6 +31,7 @@ public fun KakeboScaffold(
                 topBar()
             }
         },
+        floatingActionButton = floatingActionButton,
         snackbarHost = snackbarHost,
         bottomBar = bottomBar,
         contentWindowInsets = windowInsets.asWindowInsets(),

@@ -1,11 +1,12 @@
 package net.matsudamper.money.backend.datasource.db.repository
 
+import java.time.Clock
+import java.time.LocalDateTime
 import java.util.UUID
 import net.matsudamper.money.backend.app.interfaces.AdminSessionRepository
 import net.matsudamper.money.backend.app.interfaces.element.AdminSession
 import net.matsudamper.money.backend.app.interfaces.element.AdminSessionId
 import net.matsudamper.money.backend.datasource.db.DbConnection
-import net.matsudamper.money.backend.datasource.db.dsl.LocalDateTimeExt
 import net.matsudamper.money.db.schema.tables.JAdminSessions
 import net.matsudamper.money.db.schema.tables.records.JAdminSessionsRecord
 import org.jooq.impl.DSL
@@ -20,6 +21,7 @@ import org.jooq.impl.DSL
  */
 class DbAdminSessionRepository(
     private val dbConnection: DbConnection,
+    private val clock: Clock,
 ) : AdminSessionRepository {
     private val adminSession = JAdminSessions.ADMIN_SESSIONS
 
@@ -34,7 +36,7 @@ class DbAdminSessionRepository(
                 .deleteFrom(adminSession)
                 .where(
                     adminSession.EXPIRE_DATETIME
-                        .lt(DSL.localDateTime(LocalDateTimeExt.nowUtc())),
+                        .lt(DSL.localDateTime(LocalDateTime.now(clock))),
                 )
                 .execute()
         }
@@ -48,7 +50,7 @@ class DbAdminSessionRepository(
                     adminSession.SESSION_ID.eq(adminSessionId)
                         .and(
                             adminSession.EXPIRE_DATETIME
-                                .gt(DSL.localDateTime(LocalDateTimeExt.nowUtc())),
+                                .gt(DSL.localDateTime(LocalDateTime.now(clock))),
                         ),
                 )
                 .fetchAny()
@@ -61,7 +63,7 @@ class DbAdminSessionRepository(
                 .set(
                     adminSession.EXPIRE_DATETIME,
                     DSL.localDateTime(
-                        LocalDateTimeExt.nowUtc()
+                        LocalDateTime.now(clock)
                             .plusMinutes(10),
                     ),
                 )
@@ -81,7 +83,7 @@ class DbAdminSessionRepository(
                 .insertInto(adminSession)
                 .set(
                     adminSession.EXPIRE_DATETIME,
-                    DSL.localDateTime(LocalDateTimeExt.nowUtc().plusMinutes(10)),
+                    DSL.localDateTime(LocalDateTime.now(clock).plusMinutes(10)),
                 )
                 .set(adminSession.SESSION_ID, UUID.randomUUID().toString())
                 .returningResult(adminSession)

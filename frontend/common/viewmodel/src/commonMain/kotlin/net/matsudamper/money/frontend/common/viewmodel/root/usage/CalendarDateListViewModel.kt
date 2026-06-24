@@ -8,11 +8,14 @@ import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
+import kotlinx.datetime.Clock
 import kotlinx.datetime.DateTimeUnit
 import kotlinx.datetime.LocalDate
 import kotlinx.datetime.LocalDateTime
 import kotlinx.datetime.LocalTime
+import kotlinx.datetime.TimeZone
 import kotlinx.datetime.plus
+import kotlinx.datetime.toLocalDateTime
 import com.apollographql.apollo.api.ApolloResponse
 import com.apollographql.apollo.api.Optional
 import com.apollographql.apollo.cache.normalized.FetchPolicy
@@ -72,6 +75,22 @@ public class CalendarDateListViewModel(
                     viewModelScope.launch {
                         viewModelEventSender.send {
                             it.navigateBack()
+                        }
+                    }
+                }
+
+                override fun onClickAdd() {
+                    val now = Clock.System.now().toLocalDateTime(TimeZone.currentSystemDefault())
+                    viewModelScope.launch {
+                        viewModelEventSender.send {
+                            it.navigate(
+                                ScreenStructure.AddMoneyUsage(
+                                    date = LocalDateTime(
+                                        date = date,
+                                        time = now.time,
+                                    ),
+                                ),
+                            )
                         }
                     }
                 }

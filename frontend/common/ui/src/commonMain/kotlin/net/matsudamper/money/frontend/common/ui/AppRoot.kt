@@ -1,5 +1,6 @@
 package net.matsudamper.money.frontend.common.ui
 
+import androidx.annotation.FloatRange
 import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.foundation.layout.BoxWithConstraints
 import androidx.compose.material3.ColorScheme
@@ -17,6 +18,9 @@ import androidx.compose.ui.platform.LocalFontFamilyResolver
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.unit.dp
+import kotlin.math.abs
+import kotlin.math.max
+import kotlin.math.min
 
 @Composable
 public fun AppRoot(
@@ -59,23 +63,27 @@ public fun AppRoot(
 }
 
 private fun darkColorScheme(customColors: CustomColors): ColorScheme {
-    return androidx.compose.material3.lightColorScheme().copy(
+    val background = Color(0xff343541)
+    return androidx.compose.material3.darkColorScheme().copy(
         primary = Color(0xff8BC34A),
         onPrimary = Color.White,
-        background = customColors.backgroundColor,
-        onBackground = Color.White,
-        surface = customColors.backgroundColor,
-        surfaceContainerHighest = customColors.surfaceColor,
+
+        surface = background, // Toolbar等
         onSurface = Color.White,
+
+        background = background,
+        onBackground = Color.White,
+
+        surfaceContainerHighest = background.brighten(0.1f), // Card
+        surfaceContainer = background,
+
+        primaryContainer = Color(0xff8BC34A),
+        onPrimaryContainer = Color.White,
+
         onSecondary = Color.Green,
         onSurfaceVariant = Color.White,
         outlineVariant = Color.LightGray,
-        surfaceVariant = customColors.surfaceColor,
-        surfaceContainer = customColors.surfaceColor,
         error = Color(0xffFF6075),
-        surfaceContainerHigh = customColors.surfaceColor,
-        surfaceContainerLow = customColors.surfaceColor,
-        surfaceContainerLowest = customColors.surfaceColor,
     )
 }
 
@@ -83,9 +91,8 @@ private fun lightColorScheme(customColors: CustomColors): ColorScheme {
     return androidx.compose.material3.lightColorScheme(
         primary = Color(0xFF558B2F),
         onPrimary = Color.White,
-        background = customColors.backgroundColor,
+        background = Color(0xFFF5F5F5),
         onBackground = Color(0xFF1C1B1F),
-        surface = customColors.surfaceColor,
         surfaceContainerHighest = Color(0xFFE0E0E0),
         onSurface = Color(0xFF1C1B1F),
         secondary = Color(0xFF558B2F),
@@ -142,4 +149,62 @@ private fun TextStyle.applyCustomFontFamily(): TextStyle {
     return copy(
         fontFamily = rememberCustomFontFamily(),
     )
+}
+
+/**
+ * HSVモデルの明度 (Value) を指定した量だけ増やし、新しい [Color] を返します。
+ *
+ * @param amount 明度に加算する割合。0.0（変化なし）から1.0（最大）の範囲で指定します。
+ * @return 明度が調整された新しい [Color] オブジェクト。
+ */
+private fun Color.brighten(
+    @FloatRange(from = 0.0, to = 1.0) amount: Float,
+): Color {
+    val (h, s, v) = toHsv()
+    return fromHsv(h, s, (v + amount).coerceIn(0f, 1f), this.alpha)
+}
+
+/**
+ * ColorからHSV形式の値を取得する内部関数
+ */
+private fun Color.toHsv(): Triple<Float, Float, Float> {
+    val r = this.red
+    val g = this.green
+    val b = this.blue
+
+    val max = max(r, max(g, b))
+    val min = min(r, min(g, b))
+    val diff = max - min
+
+    val h = when {
+        max == min -> 0f
+        max == r -> (60 * ((g - b) / diff) + 360) % 360
+        max == g -> (60 * ((b - r) / diff) + 120) % 360
+        else -> (60 * ((r - g) / diff) + 240) % 360
+    }
+
+    val s = if (max == 0f) 0f else diff / max
+    val v = max
+
+    return Triple(h, s, v)
+}
+
+/**
+ * HSV値から新しい Color を作成する内部関数
+ */
+private fun fromHsv(h: Float, s: Float, v: Float, a: Float): Color {
+    val c = v * s
+    val x = c * (1 - abs((h / 60f) % 2 - 1))
+    val m = v - c
+
+    val (r, g, b) = when (h.toInt() / 60) {
+        0 -> Triple(c, x, 0f)
+        1 -> Triple(x, c, 0f)
+        2 -> Triple(0f, c, x)
+        3 -> Triple(0f, x, c)
+        4 -> Triple(x, 0f, c)
+        else -> Triple(c, 0f, x)
+    }
+
+    return Color(r + m, g + m, b + m, a)
 }

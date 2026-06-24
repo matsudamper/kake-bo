@@ -16,6 +16,10 @@ concurrency:
 jobs:
   build_and_test:
     runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      pull-requests: write
+      id-token: write
     env:
       GRADLE_OPTS: -Dkotlin.compiler.execution.strategy=in-process -Dorg.gradle.workers.max=2 -Dorg.gradle.daemon=false -Dorg.gradle.jvmargs="-Xmx4500m"
       GITHUB_ACTOR: ${{ github.actor }}
@@ -25,44 +29,102 @@ jobs:
       - uses: actions/setup-java@v5
         with:
           distribution: 'temurin'
-          java-version: '25'
+          java-version: '24'
       - name: Setup Gradle
-        uses: gradle/actions/setup-gradle@v5
+        uses: gradle/actions/setup-gradle@v6
       - run: ./gradlew ktlintCheck --continue
       - env:
           CI: true
         run: ./gradlew :frontend:app:assembleDebug
+      - name: Rename APK with branch and short hash
+        env:
+          BRANCH_NAME: ${{ github.head_ref }}
+          REPOSITORY: ${{ github.repository }}
+        run: |
+          SHORT_SHA="${GITHUB_SHA:0:7}"
+          SAFE_REPO="${REPOSITORY##*/}"
+          SAFE_BRANCH="${BRANCH_NAME//\//-}"
+          APK_NAME="app-${SAFE_REPO}-${SAFE_BRANCH}-${SHORT_SHA}.apk"
+          mv frontend/app/build/outputs/apk/debug/app-debug.apk \
+             "frontend/app/build/outputs/apk/debug/${APK_NAME}"
+          echo "APK_NAME=${APK_NAME}" >> "$GITHUB_ENV"
+          echo "APK_PATH=frontend/app/build/outputs/apk/debug/${APK_NAME}" >> "$GITHUB_ENV"
       - id: upload_apk
         uses: actions/upload-artifact@v7
         with:
-          name: apk
-          path: frontend/app/build/outputs/apk/debug/*.apk
-      - name: APKアップロード完了コメント
-        if: github.event_name == 'pull_request'
-        uses: marocchino/sticky-pull-request-comment@v2
+          name: ${{ env.APK_NAME }}
+          path: ${{ env.APK_PATH }}
+          compression-level: 9
+      - name: Upload APK to S3
+        id: upload_s3
+        uses: matsudamper/actions/upload-matsudamper-s3@a1ecf81b1a0ce320824a49711e456f396e4e8fea # v1.0.0
+        continue-on-error: true
         with:
-          header: apk-upload
+          file_path: ${{ env.APK_PATH }}
+      - name: Generate GitHub QR code
+        if: github.event_name == 'pull_request'
+        run: |
+          pip install "qrcode[pil]" --quiet
+          python3 -c "import qrcode, sys; qrcode.make(sys.argv[1]).save('qrcode-github.png')" "${{ steps.upload_apk.outputs.artifact-url }}"
+      - name: Upload GitHub QR artifact
+        if: github.event_name == 'pull_request'
+        id: github_qr_artifact
+        uses: actions/upload-artifact@v7
+        with:
+          name: apk-qr-code-github
+          path: qrcode-github.png
+          archive: false
+      - name: Generate S3 QR code
+        if: github.event_name == 'pull_request' && steps.upload_s3.outputs.url != ''
+        run: |
+          python3 -c "import qrcode, sys; qrcode.make(sys.argv[1]).save('qrcode-s3.png')" "${{ steps.upload_s3.outputs.url }}"
+      - name: Upload S3 QR artifact
+        if: github.event_name == 'pull_request' && steps.upload_s3.outputs.url != ''
+        id: s3_qr_artifact
+        uses: actions/upload-artifact@v7
+        with:
+          name: apk-qr-code-s3
+          path: qrcode-s3.png
+          archive: false
+      - name: APKダウンロードURLをコメント
+        if: github.event_name == 'pull_request'
+        uses: marocchino/sticky-pull-request-comment@v3
+        with:
+          header: apk-download
           message: |
-            ✅ APKのアップロードが完了しました。
+            ✅ **Debug APK is ready!**
 
-            - Artifact名: `apk`
-            - APKダウンロード: ${{ steps.upload_apk.outputs.artifact-url }}
-            - Run: ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}
+            | Storage | Download Link | QR Code |
+            | :--- | :--- | :--- |
+            | 🐙 GitHub Artifacts | [Download](${{ steps.upload_apk.outputs.artifact-url }}) | [View](${{ steps.github_qr_artifact.outputs.artifact-url }}) |
+            ${{ steps.upload_s3.outputs.url && format('| ☁️ S3 | [Download]({0}) | [View]({1}) |', steps.upload_s3.outputs.url, steps.s3_qr_artifact.outputs.artifact-url) || '' }}
+
+            ---
+            *Artifact Name: `${{ env.APK_NAME }}`*
       - run: ./gradlew :backend:assemble
       - name: Backend healthz smoke test
         run: |
           mkdir -p backend-server
-          tar -xf backend/build/distributions/backend-jvm.tar -C backend-server --strip-components=1
+          tar -xf backend/build/distributions/backend.tar -C backend-server --strip-components=1
           export $(grep -v '^#' schema_update_local.env | xargs)
           export PORT=8080
-          ./backend-server/bin/backend &
+
+          SERVER_LOG=backend-server/server.log
+          ./backend-server/bin/backend > "$SERVER_LOG" 2>&1 &
           SERVER_PID=$!
+          echo "サーバーを起動しました (PID: ${SERVER_PID}, PORT: ${PORT})"
 
           TIMEOUT=60
           ELAPSED=0
           until curl -sf --max-time 5 http://localhost:${PORT}/healthz > /dev/null 2>&1; do
             if [ $ELAPSED -ge $TIMEOUT ]; then
               echo "サーバー起動がタイムアウトしました (${TIMEOUT}秒)"
+              echo "--- サーバーログ ---"
+              cat "$SERVER_LOG" || true
+              echo "--- プロセス状態 ---"
+              ps -p "$SERVER_PID" 2>/dev/null || echo "プロセスはすでに終了しています"
+              echo "--- ポート使用状況 ---"
+              ss -tlnp | grep ":${PORT}" || echo "ポート ${PORT} は使用されていません"
               kill $SERVER_PID 2>/dev/null || true
               exit 1
             fi
@@ -72,9 +134,11 @@ jobs:
 
           RESPONSE=$(curl -sf --max-time 5 http://localhost:${PORT}/healthz)
           if [ "$RESPONSE" = "ok" ]; then
-            echo "healthzチェック成功"
+            echo "healthzチェック成功 (${ELAPSED}秒で起動)"
           else
             echo "healthzチェック失敗: $RESPONSE"
+            echo "--- サーバーログ ---"
+            cat "$SERVER_LOG" || true
             kill $SERVER_PID 2>/dev/null || true
             exit 1
           fi

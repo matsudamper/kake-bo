@@ -25,6 +25,7 @@ interface MailFilterRepository {
         sortType: SortType,
         userId: UserId,
         cursor: MailFilterCursor?,
+        size: Int,
     ): Result<MailFiltersResult>
 
     fun getConditions(

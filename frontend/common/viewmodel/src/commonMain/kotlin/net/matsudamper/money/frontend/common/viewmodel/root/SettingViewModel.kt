@@ -73,6 +73,14 @@ public class SettingViewModel(
                     }
                 }
 
+                override fun onClickTimezoneSetting() {
+                    viewModelScope.launch {
+                        backgroundEventSender.send {
+                            it.navigate(ScreenStructure.Root.Settings.Timezone)
+                        }
+                    }
+                }
+
                 override fun onClickMailFilter() {
                     viewModelScope.launch {
                         backgroundEventSender.send {
@@ -88,6 +96,16 @@ public class SettingViewModel(
                         backgroundEventSender.send {
                             it.navigate(
                                 ScreenStructure.Root.Settings.TextFieldTest,
+                            )
+                        }
+                    }
+                }
+
+                override fun onClickUploadQueueDebug() {
+                    viewModelScope.launch {
+                        backgroundEventSender.send {
+                            it.navigate(
+                                ScreenStructure.Root.Settings.UploadQueueDebug,
                             )
                         }
                     }

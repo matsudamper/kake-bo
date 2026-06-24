@@ -1,5 +1,6 @@
 package net.matsudamper.money.frontend.common.viewmodel.addmoneyusage
 
+import androidx.compose.material3.SnackbarDuration
 import kotlin.time.Clock
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -17,12 +18,16 @@ import net.matsudamper.money.element.ImageId
 import net.matsudamper.money.element.ImportedMailId
 import net.matsudamper.money.element.MoneyUsageSubCategoryId
 import net.matsudamper.money.frontend.common.base.ImmutableList.Companion.toImmutableList
+import net.matsudamper.money.frontend.common.base.Logger
+import net.matsudamper.money.frontend.common.base.image.SelectedImage
 import net.matsudamper.money.frontend.common.base.immutableListOf
 import net.matsudamper.money.frontend.common.base.nav.ScopedObjectFeature
 import net.matsudamper.money.frontend.common.base.nav.user.ScreenStructure
+import net.matsudamper.money.frontend.common.base.notification.NotificationUsageRepository
+import net.matsudamper.money.frontend.common.base.runCatchingWithoutCancel
 import net.matsudamper.money.frontend.common.ui.base.CategorySelectDialogUiState
 import net.matsudamper.money.frontend.common.ui.layout.NumberInputValue
-import net.matsudamper.money.frontend.common.ui.layout.image.SelectedImage
+import net.matsudamper.money.frontend.common.ui.layout.SnackbarEventState
 import net.matsudamper.money.frontend.common.ui.screen.addmoneyusage.AddMoneyUsageScreenUiState
 import net.matsudamper.money.frontend.common.ui.screen.addmoneyusage.ImageItem
 import net.matsudamper.money.frontend.common.viewmodel.CommonViewModel
@@ -32,13 +37,18 @@ import net.matsudamper.money.frontend.common.viewmodel.lib.EventSender
 import net.matsudamper.money.frontend.common.viewmodel.lib.Formatter
 import net.matsudamper.money.frontend.graphql.GraphqlClient
 
+private const val TAG = "AddMoneyUsageViewModel"
+
 public class AddMoneyUsageViewModel(
     scopedObjectFeature: ScopedObjectFeature,
     public val graphqlApi: AddMoneyUsageScreenApi,
     private val graphqlClient: GraphqlClient,
+    private val notificationUsageRepository: NotificationUsageRepository,
 ) : CommonViewModel(scopedObjectFeature) {
     private val eventSender = EventSender<Event>()
     public val eventHandler: EventHandler<Event> = eventSender.asHandler()
+
+    private val snackbarEventState = SnackbarEventState()
 
     private val categorySelectDialogViewModel = object {
         private val event: CategorySelectDialogViewModel.Event = object : CategorySelectDialogViewModel.Event {
@@ -46,6 +56,7 @@ public class AddMoneyUsageViewModel(
                 viewModelStateFlow.update {
                     it.copy(
                         usageCategorySet = result,
+                        hasInputChanges = true,
                     )
                 }
                 viewModel.dismissDialog()
@@ -63,6 +74,29 @@ public class AddMoneyUsageViewModel(
     )
 
     private val uiEvent = object : AddMoneyUsageScreenUiState.Event {
+        override fun onBack() {
+            if (viewModelStateFlow.value.hasInputChanges) {
+                viewModelStateFlow.update { state ->
+                    state.copy(
+                        discardConfirmDialog = AddMoneyUsageScreenUiState.DiscardConfirmDialog(
+                            listener = object : AddMoneyUsageScreenUiState.DiscardConfirmDialog.Listener {
+                                override fun onClickDiscard() {
+                                    viewModelStateFlow.update { it.copy(discardConfirmDialog = null) }
+                                    viewModelScope.launch { eventSender.send { it.back() } }
+                                }
+
+                                override fun onClickCancel() {
+                                    viewModelStateFlow.update { it.copy(discardConfirmDialog = null) }
+                                }
+                            },
+                        ),
+                    )
+                }
+            } else {
+                viewModelScope.launch { eventSender.send { it.back() } }
+            }
+        }
+
         override fun onClickAdd() {
             addMoneyUsage()
         }
@@ -80,6 +114,7 @@ public class AddMoneyUsageViewModel(
                 viewModelState.copy(
                     usageDate = date,
                     showCalendarDialog = false,
+                    hasInputChanges = true,
                 )
             }
         }
@@ -105,6 +140,7 @@ public class AddMoneyUsageViewModel(
                 viewModelState.copy(
                     usageTime = time,
                     showTimePickerDialog = false,
+                    hasInputChanges = true,
                 )
             }
         }
@@ -127,6 +163,7 @@ public class AddMoneyUsageViewModel(
                             viewModelStateFlow.update { viewModelState ->
                                 viewModelState.copy(
                                     usageDescription = text,
+                                    hasInputChanges = true,
                                 )
                             }
                             dismissTextInputDialog()
@@ -159,6 +196,7 @@ public class AddMoneyUsageViewModel(
                 viewModelStateFlow.update { viewModelState ->
                     viewModelState.copy(
                         usageAmount = amount,
+                        hasInputChanges = true,
                         numberInputDialog = viewModelState.numberInputDialog?.copy(
                             value = amount,
                         ),
@@ -186,6 +224,7 @@ public class AddMoneyUsageViewModel(
                             viewModelStateFlow.update { viewModelState ->
                                 viewModelState.copy(
                                     usageTitle = text,
+                                    hasInputChanges = true,
                                 )
                             }
                             dismissTextInputDialog()
@@ -210,10 +249,10 @@ public class AddMoneyUsageViewModel(
 
                 try {
                     images.forEach { image ->
-                        val selectedImageData = image.await() ?: return@forEach
+                        val imageBytes = image.bytes ?: return@forEach
                         val uploadResult = graphqlApi.uploadImage(
-                            bytes = selectedImageData.bytes,
-                            contentType = selectedImageData.contentType,
+                            bytes = imageBytes,
+                            contentType = image.contentType,
                         )
 
                         if (uploadResult != null) {
@@ -225,6 +264,7 @@ public class AddMoneyUsageViewModel(
                                             url = uploadResult.url,
                                         )
                                         ).distinctBy { it.imageId.value },
+                                    hasInputChanges = true,
                                 )
                             }
                         }
@@ -281,17 +321,39 @@ public class AddMoneyUsageViewModel(
                     .takeIf { it.isNotEmpty() },
             )
 
-            // TODO Toast
-            if (result?.data?.userMutation?.addUsage == null) {
-                // TODO
-            } else {
-                // TODO
-            }
-
-            viewModelStateFlow.update {
-                ViewModelState(
-                    usageDate = it.usageDate,
+            val addedUsage = result?.data?.userMutation?.addUsage
+            if (addedUsage == null) {
+                snackbarEventState.show(
+                    SnackbarEventState.Event(
+                        message = "追加に失敗しました",
+                    ),
                 )
+            } else {
+                val notificationUsageKey = viewModelStateFlow.value.notificationUsageKey
+                if (notificationUsageKey != null) {
+                    runCatchingWithoutCancel {
+                        notificationUsageRepository.markNotificationAsAdded(notificationUsageKey, addedUsage.id)
+                    }.onFailure {
+                        snackbarEventState.show(
+                            SnackbarEventState.Event(
+                                message = "追加は完了しましたが、通知状態の更新に失敗しました",
+                            ),
+                        )
+                    }
+                }
+                viewModelStateFlow.update {
+                    ViewModelState(usageDate = it.usageDate)
+                }
+                val snackbarResult = snackbarEventState.show(
+                    SnackbarEventState.Event(
+                        message = "追加しました",
+                        actionLabel = "表示",
+                        duration = SnackbarDuration.Long,
+                    ),
+                )
+                if (snackbarResult == SnackbarEventState.Result.Action) {
+                    eventSender.send { it.navigate(ScreenStructure.MoneyUsage(addedUsage.id)) }
+                }
             }
         }
     }
@@ -300,7 +362,15 @@ public class AddMoneyUsageViewModel(
 
     public fun updateScreenStructure(current: ScreenStructure.AddMoneyUsage) {
         usageFromMailIdJob.cancel()
+        viewModelStateFlow.update { state ->
+            state.copy(
+                notificationUsageKey = current.notificationUsageKey,
+                hasInputChanges = false,
+                discardConfirmDialog = null,
+            )
+        }
 
+        val isFromNotification = current.notificationUsageKey != null
         val subCategoryId = current.subCategoryId
         if (subCategoryId != null) {
             usageFromMailIdJob = viewModelScope.launch {
@@ -308,15 +378,18 @@ public class AddMoneyUsageViewModel(
                     .map { response ->
                         response.data?.user?.moneyUsageSubCategory
                     }
+                    .onFailure { Logger.e(TAG, it) }
                     .getOrNull()
 
                 viewModelStateFlow.update { state ->
                     state.copy(
-                        usageTitle = current.title ?: state.usageTitle,
-                        usageDate = current.date?.date ?: state.usageDate,
-                        usageTime = current.date?.time ?: state.usageTime,
-                        usageAmount = current.price?.let { NumberInputValue.default(it.toInt()) } ?: state.usageAmount,
-                        usageDescription = current.description ?: state.usageDescription,
+                        // 通知から遷移した場合は通知のデータで上書きするため、
+                        // 通知が値を持たないフィールドは既存 state を引き継がず空にリセットする
+                        usageTitle = current.title ?: if (isFromNotification) "" else state.usageTitle,
+                        usageDate = current.date?.date ?: if (isFromNotification) Clock.System.todayIn(TimeZone.currentSystemDefault()) else state.usageDate,
+                        usageTime = current.date?.time ?: if (isFromNotification) LocalTime(0, 0, 0, 0) else state.usageTime,
+                        usageAmount = current.price?.let { NumberInputValue.default(it.toInt()) } ?: if (isFromNotification) NumberInputValue.default() else state.usageAmount,
+                        usageDescription = current.description ?: if (isFromNotification) "" else state.usageDescription,
                         usageImages = listOf(),
                         usageCategorySet = if (subCategory != null) {
                             CategorySelectDialogViewModel.SelectedResult(
@@ -337,11 +410,13 @@ public class AddMoneyUsageViewModel(
         if (importedMailId == null) {
             viewModelStateFlow.update { state ->
                 state.copy(
-                    usageTitle = current.title ?: state.usageTitle,
-                    usageDate = current.date?.date ?: state.usageDate,
-                    usageTime = current.date?.time ?: state.usageTime,
-                    usageAmount = current.price?.let { NumberInputValue.default(it.toInt()) } ?: state.usageAmount,
-                    usageDescription = current.description ?: state.usageDescription,
+                    // 通知から遷移した場合は通知のデータで上書きするため、
+                    // 通知が値を持たないフィールドは既存 state を引き継がず空にリセットする
+                    usageTitle = current.title ?: if (isFromNotification) "" else state.usageTitle,
+                    usageDate = current.date?.date ?: if (isFromNotification) Clock.System.todayIn(TimeZone.currentSystemDefault()) else state.usageDate,
+                    usageTime = current.date?.time ?: if (isFromNotification) LocalTime(0, 0, 0, 0) else state.usageTime,
+                    usageAmount = current.price?.let { NumberInputValue.default(it.toInt()) } ?: if (isFromNotification) NumberInputValue.default() else state.usageAmount,
+                    usageDescription = current.description ?: if (isFromNotification) "" else state.usageDescription,
                     usageImages = listOf(),
                     usageCategorySet = null,
                 )
@@ -414,9 +489,11 @@ public class AddMoneyUsageViewModel(
             addButtonEnabled = true,
             fullScreenTextInputDialog = null,
             categorySelectDialog = null,
+            discardConfirmDialog = null,
             numberInputDialog = null,
             category = "",
             event = uiEvent,
+            snackbarEventState = snackbarEventState,
         ),
     ).also { uiStateFlow ->
         viewModelScope.launch {
@@ -452,6 +529,7 @@ public class AddMoneyUsageViewModel(
                         }.toImmutableList(),
                         addButtonEnabled = viewModelState.uploadingImageCount == 0,
                         categorySelectDialog = viewModelState.categorySelectDialog,
+                        discardConfirmDialog = viewModelState.discardConfirmDialog,
                     )
                 }
             }
@@ -466,6 +544,7 @@ public class AddMoneyUsageViewModel(
 
     private data class ViewModelState(
         val importedMailId: ImportedMailId? = null,
+        val notificationUsageKey: String? = null,
         val usageDate: LocalDate = Clock.System.todayIn(TimeZone.currentSystemDefault()),
         val usageTime: LocalTime = LocalTime(0, 0, 0, 0),
         val usageTitle: String = "",
@@ -479,6 +558,8 @@ public class AddMoneyUsageViewModel(
         val textInputDialog: AddMoneyUsageScreenUiState.FullScreenTextInputDialog? = null,
         val categorySelectDialog: CategorySelectDialogUiState? = null,
         val usageCategorySet: CategorySelectDialogViewModel.SelectedResult? = null,
+        val hasInputChanges: Boolean = false,
+        val discardConfirmDialog: AddMoneyUsageScreenUiState.DiscardConfirmDialog? = null,
     ) {
         data class UploadedImage(val imageId: ImageId, val url: String)
     }

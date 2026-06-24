@@ -21,10 +21,14 @@ internal class IdLoggerInstrumentation(
                 val id = source::class.memberProperties
                     .firstOrNull { it.name == "id" }
                     ?.getter?.call(source)
+                    ?: runCatching {
+                        source.javaClass.getMethod("getId").invoke(source)
+                    }.getOrNull()
 
                 if (id != null) {
                     tracer.setAttribute("graphql.id", id.toString())
                 }
+                tracer.setAttribute("graphql.members", source::class.memberProperties.joinToString { it.name })
             }
 
             return@DataFetcher dataFetcher?.get(environment)

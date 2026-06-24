@@ -1,13 +1,13 @@
 plugins {
     alias(libs.plugins.kotlin.multiplatform)
     alias(libs.plugins.kotlin.serialization)
+    id("net.matsudamper.money.buildlogic.compose")
     id("net.matsudamper.money.buildlogic.androidLibrary")
 }
 
 kotlin {
     js(IR) {
         browser()
-        binaries.executable()
     }
     androidTarget()
     sourceSets {
@@ -18,16 +18,19 @@ kotlin {
                 implementation(projects.frontend.common.base)
                 implementation(projects.frontend.common.feature.webauth)
                 implementation(projects.frontend.common.feature.localstore)
+                implementation(projects.frontend.common.feature.uploader)
                 implementation(projects.frontend.common.graphql)
                 implementation(projects.frontend.common.usecase)
 
                 implementation(libs.koinCore)
+                implementation(libs.composeRuntime)
                 implementation(libs.kotlin.serialization.json)
             }
         }
         val androidMain by getting {
             dependencies {
                 implementation(libs.okHttp)
+                implementation(libs.workRuntimeKtx)
             }
         }
     }

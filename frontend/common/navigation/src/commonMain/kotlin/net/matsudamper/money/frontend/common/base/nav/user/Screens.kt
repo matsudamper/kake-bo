@@ -38,6 +38,10 @@ public enum class Screens : Direction {
         override val title: String = "IMAP設定"
         override val placeholderUrl: String = "/settings/imap"
     },
+    SettingsTimezone {
+        override val title: String = "タイムゾーン設定"
+        override val placeholderUrl: String = "/settings/timezone"
+    },
     SettingsCategory {
         override val title: String = "カテゴリ設定"
         override val placeholderUrl: String = "/settings/category"
@@ -66,9 +70,29 @@ public enum class Screens : Direction {
         override val title: String = "TextFieldテスト"
         override val placeholderUrl: String = "/settings/textfield-test"
     },
+    SettingsUploadQueueDebug {
+        override val title: String = "画像アップロードキュー"
+        override val placeholderUrl: String = "/settings/upload-queue-debug"
+    },
     AddPresets {
         override val title: String = "プリセット"
         override val placeholderUrl: String = "/add/presets"
+    },
+    AddNotificationUsage {
+        override val title: String = "通知から追加"
+        override val placeholderUrl: String = "/add/notification-usage"
+    },
+    AddNotificationUsageFilters {
+        override val title: String = "通知フィルター"
+        override val placeholderUrl: String = "/add/notification-usage/filters"
+    },
+    NotificationUsageDetail {
+        override val title: String = "通知"
+        override val placeholderUrl: String = "/add/notification-usage/detail"
+    },
+    AddNotificationUsageDebug {
+        override val title: String = "通知一覧"
+        override val placeholderUrl: String = "/add/notification-usage/debug"
     },
     AddPresetDetail {
         override val title: String = "プリセット詳細"
@@ -98,9 +122,25 @@ public enum class Screens : Direction {
         override val title: String = "ログイン"
         override val placeholderUrl: String = "/login"
     },
-    Admin {
-        override val title: String = "ログイン"
+    AdminRoot {
+        override val title: String = "管理者"
         override val placeholderUrl: String = "/admin"
+    },
+    AdminLogin {
+        override val title: String = "管理者ログイン"
+        override val placeholderUrl: String = "/admin/login"
+    },
+    AdminAddUser {
+        override val title: String = "ユーザー追加"
+        override val placeholderUrl: String = "/admin/add-user"
+    },
+    AdminUnlinkedImages {
+        override val title: String = "リンクなし画像"
+        override val placeholderUrl: String = "/admin/unlinked-images"
+    },
+    AdminUserSearch {
+        override val title: String = "ユーザー検索"
+        override val placeholderUrl: String = "/admin/user-search"
     },
     MailImport {
         override val title: String = "メールインポート"

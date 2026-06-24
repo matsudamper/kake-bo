@@ -3,12 +3,12 @@ package net.matsudamper.money.backend.graphql.resolver
 import java.time.OffsetDateTime
 import java.time.ZoneOffset
 import java.util.Base64
-import java.util.concurrent.CompletableFuture
 import java.util.concurrent.CompletionStage
 import graphql.execution.DataFetcherResult
 import graphql.schema.DataFetchingEnvironment
 import net.matsudamper.money.backend.base.element.MailResult
 import net.matsudamper.money.backend.graphql.GraphQlContext
+import net.matsudamper.money.backend.graphql.otelSupplyAsync
 import net.matsudamper.money.backend.graphql.toDataFetcher
 import net.matsudamper.money.graphql.model.QlMailQuery
 import net.matsudamper.money.graphql.model.QlUserMail
@@ -27,7 +27,7 @@ class UserMailAttributesResolverImpl : UserMailAttributesResolver {
         val userId = context.verifyUserSessionAndGetUserId()
         val userConfigRepository = context.diContainer.createUserConfigRepository()
 
-        return CompletableFuture.supplyAsync {
+        return otelSupplyAsync {
             fun createError(error: QlUserMailError): QlUserMailConnection {
                 return QlUserMailConnection(
                     error = error,
@@ -37,12 +37,12 @@ class UserMailAttributesResolverImpl : UserMailAttributesResolver {
             }
 
             val imapConfig = userConfigRepository.getImapConfig(userId)
-                ?: return@supplyAsync createError(QlUserMailError.InternalServerError)
+                ?: return@otelSupplyAsync createError(QlUserMailError.InternalServerError)
 
-            val host = imapConfig.host ?: return@supplyAsync createError(QlUserMailError.MailConfigNotFound)
-            val port = imapConfig.port ?: return@supplyAsync createError(QlUserMailError.MailConfigNotFound)
-            val userName = imapConfig.userName ?: return@supplyAsync createError(QlUserMailError.MailConfigNotFound)
-            val password = imapConfig.password ?: return@supplyAsync createError(QlUserMailError.MailConfigNotFound)
+            val host = imapConfig.host ?: return@otelSupplyAsync createError(QlUserMailError.MailConfigNotFound)
+            val port = imapConfig.port ?: return@otelSupplyAsync createError(QlUserMailError.MailConfigNotFound)
+            val userName = imapConfig.userName ?: return@otelSupplyAsync createError(QlUserMailError.MailConfigNotFound)
+            val password = imapConfig.password ?: return@otelSupplyAsync createError(QlUserMailError.MailConfigNotFound)
             val cursor = mailQuery.cursor?.let {
                 UserMailQueryCursor.fromString(it) ?: throw IllegalStateException("cursor parse failed: $it")
             }
@@ -90,15 +90,15 @@ class UserMailAttributesResolverImpl : UserMailAttributesResolver {
         val context = env.graphQlContext.get<GraphQlContext>(GraphQlContext::class.java.name)
         val userId = context.verifyUserSessionAndGetUserId()
 
-        return CompletableFuture.supplyAsync {
-            val imapConfig = context.diContainer.createUserConfigRepository().getImapConfig(userId) ?: return@supplyAsync null
+        return otelSupplyAsync {
+            val imapConfig = context.diContainer.createUserConfigRepository().getImapConfig(userId) ?: return@otelSupplyAsync null
 
-            val host = imapConfig.host ?: return@supplyAsync 0
-            val port = imapConfig.port ?: return@supplyAsync 0
-            val userName = imapConfig.userName ?: return@supplyAsync 0
-            val password = imapConfig.password ?: return@supplyAsync 0
+            val host = imapConfig.host ?: return@otelSupplyAsync 0
+            val port = imapConfig.port ?: return@otelSupplyAsync 0
+            val userName = imapConfig.userName ?: return@otelSupplyAsync 0
+            val password = imapConfig.password ?: return@otelSupplyAsync 0
 
-            return@supplyAsync context.diContainer.createMailRepository(
+            return@otelSupplyAsync context.diContainer.createMailRepository(
                 host = host,
                 port = port,
                 userName = userName,

@@ -9,6 +9,7 @@ import net.matsudamper.money.backend.app.interfaces.element.ImportedMailCategory
 import net.matsudamper.money.backend.app.interfaces.element.ImportedMailCategoryFilterDatasourceType
 import net.matsudamper.money.backend.dataloader.ImportedMailCategoryFilterConditionDataLoaderDefine
 import net.matsudamper.money.backend.graphql.GraphQlContext
+import net.matsudamper.money.backend.graphql.otelThenApplyAsync
 import net.matsudamper.money.backend.graphql.toDataFetcher
 import net.matsudamper.money.graphql.model.ImportedMailCategoryConditionResolver
 import net.matsudamper.money.graphql.model.QlImportedMailCategoryCondition
@@ -28,7 +29,7 @@ class ImportedMailCategoryConditionResolverImpl : ImportedMailCategoryConditionR
             importedMailCategoryCondition = importedMailCategoryCondition,
         )
 
-        return CompletableFuture.allOf(future).thenApplyAsync {
+        return CompletableFuture.allOf(future).otelThenApplyAsync {
             future.get()!!.text
         }.toDataFetcher()
     }
@@ -45,7 +46,7 @@ class ImportedMailCategoryConditionResolverImpl : ImportedMailCategoryConditionR
             importedMailCategoryCondition = importedMailCategoryCondition,
         )
 
-        return CompletableFuture.allOf(future).thenApplyAsync {
+        return CompletableFuture.allOf(future).otelThenApplyAsync {
             when (future.get().dataSourceType) {
                 ImportedMailCategoryFilterDatasourceType.MailTitle -> QlImportedMailCategoryFilterDataSourceType.MailTitle
                 ImportedMailCategoryFilterDatasourceType.MailFrom -> QlImportedMailCategoryFilterDataSourceType.MailFrom
@@ -69,7 +70,7 @@ class ImportedMailCategoryConditionResolverImpl : ImportedMailCategoryConditionR
             importedMailCategoryCondition = importedMailCategoryCondition,
         )
 
-        return CompletableFuture.allOf(future).thenApplyAsync {
+        return CompletableFuture.allOf(future).otelThenApplyAsync {
             when (future.get()!!.conditionType) {
                 ImportedMailCategoryFilterConditionType.Include -> QlImportedMailCategoryFilterConditionType.Include
                 ImportedMailCategoryFilterConditionType.NotInclude -> QlImportedMailCategoryFilterConditionType.NotInclude

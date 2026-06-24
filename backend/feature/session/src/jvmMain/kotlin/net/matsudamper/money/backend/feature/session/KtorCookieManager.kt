@@ -42,6 +42,14 @@ class KtorCookieManager(
         return call.request.cookies[USER_SESSION_ID_KEY]
     }
 
+    override fun clearAdminSession() {
+        setCookie(
+            key = ADMIN_SESSION_ID_KEY,
+            value = "",
+            expires = OffsetDateTime.now(),
+        )
+    }
+
     override fun clearUserSession() {
         setCookie(
             key = USER_SESSION_ID_KEY,
@@ -60,7 +68,8 @@ class KtorCookieManager(
             value = value,
             expires = expires.toInstant().toGMTDate(),
             domain = host,
-            path = ".",
+            path = "/",
+            httpOnly = true,
             secure = ServerEnv.isSecure,
             extensions = mapOf(
                 "SameSite" to "Strict",

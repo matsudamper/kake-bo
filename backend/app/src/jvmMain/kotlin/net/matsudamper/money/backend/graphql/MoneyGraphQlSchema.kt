@@ -2,14 +2,15 @@ package net.matsudamper.money.backend.graphql
 
 import java.time.LocalDateTime
 import java.util.Locale
-import java.util.jar.JarFile
 import com.fasterxml.jackson.databind.module.SimpleModule
 import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule
+import com.fasterxml.jackson.module.kotlin.KotlinModule
 import graphql.GraphQL
 import graphql.GraphQLContext
 import graphql.Scalars
 import graphql.execution.AsyncExecutionStrategy
 import graphql.execution.CoercedVariables
+import graphql.execution.instrumentation.ChainedInstrumentation
 import graphql.kickstart.tools.PerFieldConfiguringObjectMapperProvider
 import graphql.kickstart.tools.SchemaParser
 import graphql.kickstart.tools.SchemaParserOptions
@@ -17,8 +18,11 @@ import graphql.language.Value
 import graphql.scalars.ExtendedScalars
 import graphql.schema.Coercing
 import graphql.schema.GraphQLScalarType
+import io.opentelemetry.instrumentation.graphql.v20_0.GraphQLTelemetry
+import net.matsudamper.money.backend.base.OpenTelemetryInitializer
 import net.matsudamper.money.backend.base.ServerEnv
 import net.matsudamper.money.backend.di.MainDiContainer
+import net.matsudamper.money.backend.graphql.resolver.AdminUnlinkedImagesConnectionResolverImpl
 import net.matsudamper.money.backend.graphql.resolver.ImageResolverImpl
 import net.matsudamper.money.backend.graphql.resolver.MoneyUsageCategoryResolverImpl
 import net.matsudamper.money.backend.graphql.resolver.MoneyUsageResolverImpl
@@ -52,48 +56,27 @@ import net.matsudamper.money.element.MoneyUsageCategoryId
 import net.matsudamper.money.element.MoneyUsageId
 import net.matsudamper.money.element.MoneyUsagePresetId
 import net.matsudamper.money.element.MoneyUsageSubCategoryId
+import net.matsudamper.money.element.SessionRecordId
 import net.matsudamper.money.graphql.model.GraphQlInputField
 
 object MoneyGraphQlSchema {
     private val diContainer = MainDiContainer()
-    private fun getDebugSchemaFiles(): List<String> {
-        return ClassLoader.getSystemClassLoader()
-            .getResourceAsStream("graphql")!!
-            .bufferedReader().lines()
-            .filter { it.endsWith(".graphqls") }
-            .toList()
-            .onEach {
-                println("lines -> $it")
-            }
-            .map {
-                ClassLoader.getSystemClassLoader()
-                    .getResourceAsStream("graphql/$it")!!
-                    .bufferedReader()
-                    .readText()
-            }
-    }
-
     private fun getSchemaFiles(): List<String> {
-        return runCatching {
-            val currentJarUri = GraphqlSchemaModule::class.java.protectionDomain.codeSource.location.file
-            val jarFIle = JarFile(currentJarUri)
-            JarFile(currentJarUri)
-                .entries()
-                .toList()
-                .filter { it.isDirectory.not() }
-                .filter { it.name.startsWith("graphql/") }
-                .filter { it.name.endsWith(".graphqls") }
-                .map {
-                    jarFIle.getInputStream(it).bufferedReader().readText()
-                }
-        }.getOrNull().orEmpty()
+        val schemaFileNames = GraphqlSchemaModule::class.java.classLoader
+            .getResourceAsStream("graphql/schema-list.txt")
+            ?.bufferedReader()
+            ?.readLines()
+            .orEmpty()
+        return schemaFileNames.mapNotNull { fileName ->
+            GraphqlSchemaModule::class.java.classLoader
+                .getResourceAsStream("graphql/$fileName")
+                ?.bufferedReader()
+                ?.readText()
+        }
     }
 
     private val schema by lazy {
-        val schemaFiles = run {
-            getSchemaFiles().takeIf { it.isNotEmpty() }
-                ?: getDebugSchemaFiles()
-        }
+        val schemaFiles = getSchemaFiles()
         println("==========schema==========")
         schemaFiles.forEach {
             println(it)
@@ -101,9 +84,11 @@ object MoneyGraphQlSchema {
         SchemaParser.newParser()
             .schemaString(schemaFiles.joinToString("\n"))
             .scalars(
-                GraphQLScalarType.newScalar(ExtendedScalars.GraphQLLong)
-                    .name("UserId")
-                    .build(),
+                createIntScalarType(
+                    name = "UserId",
+                    deserialize = { net.matsudamper.money.element.UserId(it) },
+                    serialize = { it.value },
+                ),
                 GraphQLScalarType.newScalar(ExtendedScalars.GraphQLLong)
                     .name("Long")
                     .build(),
@@ -152,6 +137,11 @@ object MoneyGraphQlSchema {
                     deserialize = { ApiTokenId(it) },
                     serialize = { it.value },
                 ),
+                createStringScalarType(
+                    name = "SessionRecordId",
+                    deserialize = { SessionRecordId(it) },
+                    serialize = { it.value },
+                ),
                 createIntScalarType(
                     name = "ImageId",
                     deserialize = { ImageId(it) },
@@ -171,6 +161,7 @@ object MoneyGraphQlSchema {
                     .build(),
             )
             .resolvers(
+                AdminUnlinkedImagesConnectionResolverImpl(),
                 ImageResolverImpl(),
                 QueryResolverImpl(),
                 ImportedMailCategoryConditionResolverImpl(),
@@ -212,6 +203,8 @@ object MoneyGraphQlSchema {
                             mapper.registerModule(
                                 JavaTimeModule(),
                             ).registerModule(
+                                KotlinModule.Builder().build(),
+                            ).registerModule(
                                 SimpleModule()
                                     .addDeserializer(
                                         GraphQlInputField::class.java,
@@ -229,7 +222,16 @@ object MoneyGraphQlSchema {
 
     val graphql: GraphQL = GraphQL.newGraphQL(schema)
         .queryExecutionStrategy(AsyncExecutionStrategy())
-        .instrumentation(IdLoggerInstrumentation(diContainer.traceLogger()))
+        .instrumentation(
+            ChainedInstrumentation(
+                IdLoggerInstrumentation(diContainer.traceLogger()),
+                GraphQLTelemetry.builder(OpenTelemetryInitializer.get())
+                    .setAddOperationNameToSpanName(true)
+                    .setDataFetcherInstrumentationEnabled(true)
+                    .build()
+                    .createInstrumentation(),
+            ),
+        )
         .build()
 
     private fun <T> createStringScalarType(

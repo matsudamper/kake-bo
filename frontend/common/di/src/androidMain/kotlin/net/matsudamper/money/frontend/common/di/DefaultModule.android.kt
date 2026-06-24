@@ -13,16 +13,27 @@ import com.apollographql.apollo.interceptor.ApolloInterceptor
 import com.apollographql.apollo.interceptor.ApolloInterceptorChain
 import com.apollographql.apollo.network.http.HttpInfo
 import com.apollographql.apollo.network.http.LoggingInterceptor
+import net.matsudamper.money.frontend.common.base.AppSettingsRepository
+import net.matsudamper.money.frontend.common.base.AppSettingsRepositoryAndroidImpl
+import net.matsudamper.money.frontend.common.base.DeviceNameProvider
+import net.matsudamper.money.frontend.common.base.DeviceNameProviderAndroidImpl
 import net.matsudamper.money.frontend.common.base.ImageUploadClient
 import net.matsudamper.money.frontend.common.base.Logger
 import net.matsudamper.money.frontend.common.feature.localstore.DataStores
+import net.matsudamper.money.frontend.common.feature.uploader.ImageUploadDatabase
+import net.matsudamper.money.frontend.common.feature.uploader.ImageUploadQueue
 import net.matsudamper.money.frontend.common.feature.webauth.WebAuthModel
 import net.matsudamper.money.frontend.common.feature.webauth.WebAuthModelAndroidImpl
 import net.matsudamper.money.frontend.graphql.BuildConfig
 import net.matsudamper.money.frontend.graphql.GraphqlClient
 import net.matsudamper.money.frontend.graphql.GraphqlClientImpl
 import net.matsudamper.money.frontend.graphql.ServerHostConfig
+import org.koin.core.module.Module
 import org.koin.core.scope.Scope
+import org.koin.dsl.module
+
+internal actual val platformDefaultModule: Module = module {
+}
 
 internal actual val factory: Factory = object : Factory() {
     private val UserSessionIdKey = "user_session_id"
@@ -76,14 +87,10 @@ internal actual val factory: Factory = object : Factory() {
                                 ?.get("Set-Cookie")
                                 ?: return@onEach
                             for (cookie in cookies.split(";")) {
-                                val key: String
-                                val value: String
-                                run {
-                                    cookie.split("=").let {
-                                        key = it[0]
-                                        value = it[1]
-                                    }
-                                }
+                                val parts = cookie.trim().split("=", limit = 2)
+                                if (parts.size < 2) continue
+                                val key = parts[0].trim()
+                                val value = parts[1]
                                 if (key != UserSessionIdKey) continue
                                 sessionDataStore.updateData {
                                     it.toBuilder()
@@ -113,6 +120,21 @@ internal actual val factory: Factory = object : Factory() {
             onServerUrlChanged = { url ->
                 activeHost = url.substringAfter("://").substringBefore("/")
             },
+        )
+    }
+
+    override fun createAppSettingsRepository(scope: Scope): AppSettingsRepository {
+        return AppSettingsRepositoryAndroidImpl(context = scope.get())
+    }
+
+    override fun createDeviceNameProvider(scope: Scope): DeviceNameProvider {
+        return DeviceNameProviderAndroidImpl()
+    }
+
+    override fun createImageUploadQueue(scope: Scope): ImageUploadQueue {
+        return scope.get<ImageUploadDatabase>().createQueue(
+            context = scope.get(),
+            localStorage = scope.get(),
         )
     }
 }

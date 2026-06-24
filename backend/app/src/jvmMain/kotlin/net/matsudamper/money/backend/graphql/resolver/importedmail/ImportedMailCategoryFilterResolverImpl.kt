@@ -9,6 +9,7 @@ import net.matsudamper.money.backend.app.interfaces.element.ImportedMailFilterCa
 import net.matsudamper.money.backend.dataloader.ImportedMailCategoryFilterConditionDataLoaderDefine
 import net.matsudamper.money.backend.dataloader.ImportedMailCategoryFilterDataLoaderDefine
 import net.matsudamper.money.backend.graphql.GraphQlContext
+import net.matsudamper.money.backend.graphql.otelThenApplyAsync
 import net.matsudamper.money.backend.graphql.toDataFetcher
 import net.matsudamper.money.element.UserId
 import net.matsudamper.money.graphql.model.ImportedMailCategoryFilterResolver
@@ -31,7 +32,7 @@ class ImportedMailCategoryFilterResolverImpl : ImportedMailCategoryFilterResolve
             env = env,
         )
 
-        return CompletableFuture.allOf(future).thenApplyAsync {
+        return CompletableFuture.allOf(future).otelThenApplyAsync {
             future.get()!!.title
         }.toDataFetcher()
     }
@@ -49,7 +50,7 @@ class ImportedMailCategoryFilterResolverImpl : ImportedMailCategoryFilterResolve
             env = env,
         )
 
-        return CompletableFuture.allOf(future).thenApplyAsync {
+        return CompletableFuture.allOf(future).otelThenApplyAsync {
             future.get()!!.moneyUsageSubCategoryId?.let {
                 QlMoneyUsageSubCategory(
                     id = it,
@@ -71,7 +72,7 @@ class ImportedMailCategoryFilterResolverImpl : ImportedMailCategoryFilterResolve
             env = env,
         )
 
-        return CompletableFuture.allOf(future).thenApplyAsync {
+        return CompletableFuture.allOf(future).otelThenApplyAsync {
             future.get()!!.orderNumber
         }.toDataFetcher()
     }
@@ -89,7 +90,7 @@ class ImportedMailCategoryFilterResolverImpl : ImportedMailCategoryFilterResolve
             env = env,
         )
 
-        return CompletableFuture.allOf(future).thenApplyAsync {
+        return CompletableFuture.allOf(future).otelThenApplyAsync {
             when (future.get()!!.operator) {
                 ImportedMailFilterCategoryConditionOperator.AND -> QlImportedMailFilterCategoryConditionOperator.AND
                 ImportedMailFilterCategoryConditionOperator.OR -> QlImportedMailFilterCategoryConditionOperator.OR
@@ -106,14 +107,14 @@ class ImportedMailCategoryFilterResolverImpl : ImportedMailCategoryFilterResolve
 
         val dataLoader = context.dataLoaders.importedMailCategoryFilterConditionDataLoader.get(env)
 
-        return CompletableFuture.allOf().thenApplyAsync {
+        return CompletableFuture.allOf().otelThenApplyAsync {
             val result = context.diContainer.createMailFilterRepository()
                 .getConditions(
                     userId = userId,
                     filterId = importedMailCategoryFilter.id,
                 ).onFailure {
                     it.printStackTrace()
-                }.getOrNull() ?: return@thenApplyAsync null
+                }.getOrNull() ?: return@otelThenApplyAsync null
 
             result.conditions.map { condition ->
                 dataLoader.prime(

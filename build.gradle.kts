@@ -1,3 +1,5 @@
+import org.gradle.api.tasks.testing.logging.TestExceptionFormat
+import org.gradle.api.tasks.testing.logging.TestLogEvent
 import org.jetbrains.kotlin.gradle.dsl.KotlinMultiplatformExtension
 import org.jetbrains.kotlin.gradle.plugin.KotlinPlatformType
 
@@ -44,10 +46,20 @@ allprojects {
     configure<org.jlleitschuh.gradle.ktlint.KtlintExtension> {
         filter {
             verbose.set(true)
-            exclude { project.path == ":backend:datasource:db:schema" }
-            exclude { project.path == ":backend:graphql" }
-            exclude { project.path == ":frontend:common:graphql:schema" }
+            val currentProjectPath = project.path
+            exclude { currentProjectPath == ":backend:datasource:db:schema" }
+            exclude { currentProjectPath == ":backend:graphql" }
+            exclude { currentProjectPath == ":frontend:common:graphql:schema" }
             exclude { it.file.path.contains("generated") }
+        }
+    }
+
+    tasks.withType<Test>().configureEach {
+        testLogging {
+            events(TestLogEvent.FAILED)
+            exceptionFormat = TestExceptionFormat.FULL
+            showStackTraces = true
+            showCauses = true
         }
     }
 }

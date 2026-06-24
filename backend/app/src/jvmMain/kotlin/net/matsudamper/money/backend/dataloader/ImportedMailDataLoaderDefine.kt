@@ -1,8 +1,8 @@
 package net.matsudamper.money.backend.dataloader
 
-import java.util.concurrent.CompletableFuture
 import net.matsudamper.money.backend.app.interfaces.ImportedMailRepository
 import net.matsudamper.money.backend.di.DiContainer
+import net.matsudamper.money.backend.graphql.otelSupplyAsync
 import net.matsudamper.money.element.ImportedMailId
 import net.matsudamper.money.element.UserId
 import org.dataloader.DataLoader
@@ -15,7 +15,7 @@ class ImportedMailDataLoaderDefine(
 
     override fun getDataLoader(): DataLoader<Key, ImportedMailRepository.Mail> {
         return DataLoaderFactory.newMappedDataLoader { keys, _ ->
-            CompletableFuture.supplyAsync {
+            otelSupplyAsync {
                 val dbMailRepository = repositoryFactory.createDbMailRepository()
 
                 val result = keys.groupBy { it.userId }

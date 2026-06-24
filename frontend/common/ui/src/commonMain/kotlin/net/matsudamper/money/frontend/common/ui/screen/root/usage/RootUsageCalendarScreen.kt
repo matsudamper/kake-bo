@@ -38,18 +38,22 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalDensity
+import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
+import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.IntSize
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
+import net.matsudamper.money.frontend.common.base.ColorUtil
 import net.matsudamper.money.frontend.common.base.ImmutableList
 import net.matsudamper.money.frontend.common.base.ImmutableList.Companion.toImmutableList
 import net.matsudamper.money.frontend.common.ui.AppRoot
+import net.matsudamper.money.frontend.common.ui.LocalIsLargeScreen
 import net.matsudamper.money.frontend.common.ui.StickyHeaderState
 import net.matsudamper.money.frontend.common.ui.stickyHeaderScrollable
-import org.jetbrains.compose.ui.tooling.preview.Preview
 
 public data class RootUsageCalendarScreenUiState(
     val event: Event,
@@ -215,6 +219,7 @@ private fun CalendarCell(
     modifier: Modifier = Modifier,
     uiState: RootUsageCalendarScreenUiState.CalendarCell.Day,
 ) {
+    val horizontalPadding = if (LocalIsLargeScreen.current) 2.dp else 1.dp
     Column(
         modifier = modifier
             .clickable { uiState.event.onClick() }
@@ -222,7 +227,8 @@ private fun CalendarCell(
     ) {
         Text(
             modifier = Modifier
-                .padding(2.dp)
+                .padding(vertical = 2.dp)
+                .padding(horizontal = horizontalPadding)
                 .clip(MaterialTheme.shapes.small)
                 .background(
                     if (uiState.isToday) {
@@ -243,14 +249,14 @@ private fun CalendarCell(
         HorizontalDivider(
             modifier = Modifier
                 .fillMaxWidth()
-                .padding(horizontal = 2.dp)
+                .padding(horizontal = horizontalPadding)
                 .height(1.dp),
         )
         uiState.items.forEach { item ->
             Spacer(Modifier.height(2.dp))
-            val textColor = contrastTextColor(item.color)
+            val textColor = ColorUtil.contrastTextColor(item.color)
             Card(
-                modifier = Modifier.padding(horizontal = 2.dp),
+                modifier = Modifier.padding(horizontal = horizontalPadding),
                 colors = CardDefaults.cardColors(
                     containerColor = item.color,
                 ),
@@ -264,27 +270,36 @@ private fun CalendarCell(
                     overflow = TextOverflow.Ellipsis,
                     color = textColor,
                     text = item.title,
-                    style = MaterialTheme.typography.bodySmall,
+                    style = if (LocalIsLargeScreen.current) {
+                        MaterialTheme.typography.bodyMedium
+                    } else {
+                        MaterialTheme.typography.bodySmall.copy(
+                            fontSize = 10.sp,
+                            fontWeight = FontWeight.Bold,
+                        )
+                    },
                 )
             }
         }
     }
 }
 
-private fun contrastTextColor(backgroundColor: Color): Color {
-    val luminance = 0.299 * backgroundColor.red + 0.587 * backgroundColor.green + 0.114 * backgroundColor.blue
-    return if (luminance > 0.5) Color.Black else Color.White
-}
-
 @Composable
 @Preview
-private fun RootUsageCalendarScreenPreview() {
+private fun Preview() {
     val noOpDayCellEvent = object : RootUsageCalendarScreenUiState.DayCellEvent {
         override fun onClick() {}
     }
     val noOpCalendarDayEvent = object : RootUsageCalendarScreenUiState.CalendarDayEvent {
         override fun onClick() {}
     }
+
+    fun dayItem(title: String, color: Color) = RootUsageCalendarScreenUiState.CalendarDayItem(
+        title = title,
+        color = color,
+        event = noOpCalendarDayEvent,
+    )
+
     val dayOfWeeks = listOf(
         kotlinx.datetime.DayOfWeek.SUNDAY to "日",
         kotlinx.datetime.DayOfWeek.MONDAY to "月",
@@ -299,28 +314,32 @@ private fun RootUsageCalendarScreenPreview() {
             text = text,
         )
     }
-    val days = (1..28).map { day ->
+    val itemsPerDay = mapOf(
+        1 to listOf(dayItem("Netflix", Color(0xFFE53935))),
+        5 to listOf(
+            dayItem("Amazon", Color(0xFF1565C0)),
+            dayItem("Spotify", Color(0xFF2E7D32)),
+        ),
+        10 to listOf(dayItem("電気代", Color(0xFFEF6C00))),
+        15 to listOf(
+            dayItem("家賃", Color(0xFF6A1B9A)),
+            dayItem("水道代", Color(0xFF00695C)),
+            dayItem("ガス代", Color(0xFFB71C1C)),
+        ),
+        20 to listOf(dayItem("スーパー", Color(0xFF1B5E20))),
+        25 to listOf(dayItem("コンビニ", Color(0xFF4A148C))),
+    )
+    val days = (1..31).map { day ->
         RootUsageCalendarScreenUiState.CalendarCell.Day(
             text = day.toString(),
-            isToday = day == 27,
-            items = if (day == 25) {
-                listOf(
-                    RootUsageCalendarScreenUiState.CalendarDayItem(
-                        title = "Amazon",
-                        color = Color(0xFF558B2F),
-                        event = noOpCalendarDayEvent,
-                    ),
-                ).toImmutableList()
-            } else {
-                ImmutableList(listOf())
-            },
+            isToday = day == 15,
+            items = itemsPerDay[day].orEmpty().toImmutableList(),
             event = noOpDayCellEvent,
         )
     }
-    val emptyCells = List(6) { RootUsageCalendarScreenUiState.CalendarCell.Empty }
+    val emptyCells = List(3) { RootUsageCalendarScreenUiState.CalendarCell.Empty }
     val calendarCells = (dayOfWeeks + emptyCells + days).toImmutableList()
-
-    AppRoot(isDarkTheme = false) {
+    AppRoot(isDarkTheme = true) {
         RootUsageCalendarScreen(
             modifier = Modifier.fillMaxSize(),
             uiState = RootUsageCalendarScreenUiState(

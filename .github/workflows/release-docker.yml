@@ -26,10 +26,10 @@ jobs:
         uses: actions/setup-java@v5
         with:
           distribution: 'corretto'
-          java-version: '25'
+          java-version: '24'
 
       - name: Setup Gradle
-        uses: gradle/actions/setup-gradle@v5
+        uses: gradle/actions/setup-gradle@v6
 
       - run: ./gradlew :backend:build
       - run: ./gradlew :frontend:app:jsBrowserDistribution
@@ -38,7 +38,7 @@ jobs:
         uses: actions/upload-artifact@v7
         with:
           name: backend-distribution
-          path: backend/build/distributions/backend-jvm.tar
+          path: backend/build/distributions/backend.tar
 
       - name: Upload frontend artifacts
         uses: actions/upload-artifact@v7
@@ -65,7 +65,7 @@ jobs:
           path: frontend/app/build/dist/js/productionExecutable
 
       - name: Log in to GitHub Container Registry
-        uses: docker/login-action@v3
+        uses: docker/login-action@v4
         with:
           registry: ghcr.io
           username: ${{ github.actor }}
@@ -73,7 +73,7 @@ jobs:
 
       - name: Extract metadata for Docker
         id: meta
-        uses: docker/metadata-action@v5
+        uses: docker/metadata-action@v6
         with:
           images: ghcr.io/${{ github.repository }}
           tags: |
@@ -82,7 +82,7 @@ jobs:
             type=semver,pattern={{version}}
 
       - name: Build and push Docker image
-        uses: docker/build-push-action@v6
+        uses: docker/build-push-action@v7
         with:
           context: .
           push: true
@@ -116,12 +116,12 @@ jobs:
           if gh release view ${{ github.ref_name }} 2>&1 >/dev/null; then
             echo "Release already exists"
             gh release upload ${{ github.ref_name }} \
-              backend-jvm.tar \
+              backend.tar \
               frontend-dist.zip
           else
             echo "Creating release"
             gh release create ${{ github.ref_name }} \
               --title ${{ github.ref_name }} \
-              backend-jvm.tar \
+              backend.tar \
               frontend-dist.zip
           fi

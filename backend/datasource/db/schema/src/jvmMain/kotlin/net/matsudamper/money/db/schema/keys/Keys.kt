@@ -24,6 +24,7 @@ import net.matsudamper.money.db.schema.tables.JUserMails
 import net.matsudamper.money.db.schema.tables.JUserPasswordExtendData
 import net.matsudamper.money.db.schema.tables.JUserPasswords
 import net.matsudamper.money.db.schema.tables.JUserSessions
+import net.matsudamper.money.db.schema.tables.JUserTimezoneSetting
 import net.matsudamper.money.db.schema.tables.JUsers
 import net.matsudamper.money.db.schema.tables.JWebAuthAuthenticator
 import net.matsudamper.money.db.schema.tables.records.JAdminSessionsRecord
@@ -45,6 +46,7 @@ import net.matsudamper.money.db.schema.tables.records.JUserMailsRecord
 import net.matsudamper.money.db.schema.tables.records.JUserPasswordExtendDataRecord
 import net.matsudamper.money.db.schema.tables.records.JUserPasswordsRecord
 import net.matsudamper.money.db.schema.tables.records.JUserSessionsRecord
+import net.matsudamper.money.db.schema.tables.records.JUserTimezoneSettingRecord
 import net.matsudamper.money.db.schema.tables.records.JUsersRecord
 import net.matsudamper.money.db.schema.tables.records.JWebAuthAuthenticatorRecord
 
@@ -82,6 +84,7 @@ val KEY_USER_PASSWORD_EXTEND_DATA_PRIMARY: UniqueKey<JUserPasswordExtendDataReco
 val KEY_USER_PASSWORDS_PRIMARY: UniqueKey<JUserPasswordsRecord> = Internal.createUniqueKey(JUserPasswords.USER_PASSWORDS, DSL.name("KEY_user_passwords_PRIMARY"), arrayOf(JUserPasswords.USER_PASSWORDS.USER_ID), true)
 val KEY_USER_SESSIONS_PRIMARY: UniqueKey<JUserSessionsRecord> = Internal.createUniqueKey(JUserSessions.USER_SESSIONS, DSL.name("KEY_user_sessions_PRIMARY"), arrayOf(JUserSessions.USER_SESSIONS.SESSION_ID), true)
 val KEY_USER_SESSIONS_USER_ID_AND_NAME: UniqueKey<JUserSessionsRecord> = Internal.createUniqueKey(JUserSessions.USER_SESSIONS, DSL.name("KEY_user_sessions_user_id_and_name"), arrayOf(JUserSessions.USER_SESSIONS.USER_ID, JUserSessions.USER_SESSIONS.NAME), true)
+val KEY_USER_TIMEZONE_SETTING_PRIMARY: UniqueKey<JUserTimezoneSettingRecord> = Internal.createUniqueKey(JUserTimezoneSetting.USER_TIMEZONE_SETTING, DSL.name("KEY_user_timezone_setting_PRIMARY"), arrayOf(JUserTimezoneSetting.USER_TIMEZONE_SETTING.USER_ID), true)
 val KEY_USERS_PRIMARY: UniqueKey<JUsersRecord> = Internal.createUniqueKey(JUsers.USERS, DSL.name("KEY_users_PRIMARY"), arrayOf(JUsers.USERS.USER_ID), true)
 val KEY_USERS_USER_NAME_UNIQUE: UniqueKey<JUsersRecord> = Internal.createUniqueKey(JUsers.USERS, DSL.name("KEY_users_user_name_unique"), arrayOf(JUsers.USERS.USER_NAME), true)
 val KEY_WEB_AUTH_AUTHENTICATOR_PRIMARY: UniqueKey<JWebAuthAuthenticatorRecord> = Internal.createUniqueKey(JWebAuthAuthenticator.WEB_AUTH_AUTHENTICATOR, DSL.name("KEY_web_auth_authenticator_PRIMARY"), arrayOf(JWebAuthAuthenticator.WEB_AUTH_AUTHENTICATOR.ID), true)

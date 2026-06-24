@@ -190,7 +190,7 @@ private fun LoadedContent(
                         modifier = Modifier
                             .fillMaxWidth()
                             .padding(vertical = 6.dp)
-                            .padding(start = 12.dp),
+                            .padding(horizontal = 6.dp),
                         item = item,
                     )
                 }

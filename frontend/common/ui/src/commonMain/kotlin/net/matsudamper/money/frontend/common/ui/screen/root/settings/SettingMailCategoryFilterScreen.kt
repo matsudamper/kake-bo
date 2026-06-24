@@ -7,18 +7,19 @@ import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.calculateEndPadding
 import androidx.compose.foundation.layout.calculateStartPadding
 import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.lazy.rememberLazyListState
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.automirrored.filled.ArrowBack
-import androidx.compose.material.icons.filled.Add
 import androidx.compose.material3.CircularProgressIndicator
+import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.FloatingActionButton
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.Text
+import androidx.compose.material3.pulltorefresh.PullToRefreshBox
+import androidx.compose.material3.pulltorefresh.rememberPullToRefreshState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.Immutable
 import androidx.compose.runtime.LaunchedEffect
@@ -32,7 +33,13 @@ import net.matsudamper.money.frontend.common.ui.base.KakeBoTopAppBar
 import net.matsudamper.money.frontend.common.ui.base.KakeboScaffoldListener
 import net.matsudamper.money.frontend.common.ui.base.LoadingErrorContent
 import net.matsudamper.money.frontend.common.ui.base.RootScreenScaffold
+import net.matsudamper.money.frontend.common.ui.generated.resources.Res
+import net.matsudamper.money.frontend.common.ui.generated.resources.ic_add
+import net.matsudamper.money.frontend.common.ui.generated.resources.ic_arrow_back
 import net.matsudamper.money.frontend.common.ui.layout.html.text.fullscreen.FullScreenTextInput
+import org.jetbrains.compose.resources.painterResource
+
+private val FabPadding = 16.dp
 
 public data class SettingMailCategoryFilterScreenUiState(
     public val event: Event,
@@ -54,6 +61,8 @@ public data class SettingMailCategoryFilterScreenUiState(
         public data class Loaded(
             val filters: ImmutableList<Item>,
             val isError: Boolean,
+            val loadToEnd: Boolean,
+            val isRefreshing: Boolean,
             val event: LoadedEvent,
         ) : LoadingState
     }
@@ -66,6 +75,10 @@ public data class SettingMailCategoryFilterScreenUiState(
     @Immutable
     public interface LoadedEvent {
         public fun onClickAdd()
+
+        public fun onPullToRefresh()
+
+        public fun loadMore()
     }
 
     @Immutable
@@ -108,7 +121,7 @@ public fun SettingMailCategoryFiltersScreen(
             KakeBoTopAppBar(
                 navigation = {
                     IconButton(onClick = { uiState.event.onClickBack() }) {
-                        Icon(Icons.AutoMirrored.Filled.ArrowBack, contentDescription = null)
+                        Icon(painter = painterResource(Res.drawable.ic_arrow_back), contentDescription = null)
                     }
                 },
                 title = {
@@ -129,6 +142,27 @@ public fun SettingMailCategoryFiltersScreen(
         SettingScaffold(
             title = {
                 Text("メールカテゴリフィルタ一覧")
+            },
+            fab = {
+                when (val loadingState = uiState.loadingState) {
+                    is SettingMailCategoryFilterScreenUiState.LoadingState.Error,
+                    is SettingMailCategoryFilterScreenUiState.LoadingState.Loading,
+                    -> Unit
+
+                    is SettingMailCategoryFilterScreenUiState.LoadingState.Loaded -> {
+                        FloatingActionButton(
+                            modifier = Modifier
+                                .align(Alignment.BottomEnd)
+                                .padding(
+                                    end = FabPadding,
+                                    bottom = FabPadding,
+                                ),
+                            onClick = { loadingState.event.onClickAdd() },
+                        ) {
+                            Icon(painter = painterResource(Res.drawable.ic_add), contentDescription = "フィルタを追加")
+                        }
+                    }
+                }
             },
         ) { paddingValues ->
             when (val loadingState = uiState.loadingState) {
@@ -163,6 +197,7 @@ public fun SettingMailCategoryFiltersScreen(
     }
 }
 
+@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 private fun LoadedContent(
     modifier: Modifier = Modifier,
@@ -172,8 +207,13 @@ private fun LoadedContent(
     val layoutDirection = LocalLayoutDirection.current
     val lazyListState = rememberLazyListState()
     val fabSize = 56.dp
-    val fabPadding = 16.dp
-    Box(modifier = modifier) {
+    val pullToRefreshState = rememberPullToRefreshState()
+    PullToRefreshBox(
+        isRefreshing = uiState.isRefreshing,
+        modifier = modifier,
+        state = pullToRefreshState,
+        onRefresh = { uiState.event.onPullToRefresh() },
+    ) {
         LazyColumn(
             modifier = Modifier
                 .fillMaxSize(),
@@ -182,7 +222,7 @@ private fun LoadedContent(
                 top = contentPadding.calculateTopPadding(),
                 start = contentPadding.calculateStartPadding(layoutDirection),
                 end = contentPadding.calculateEndPadding(layoutDirection),
-                bottom = contentPadding.calculateBottomPadding() + fabSize + fabPadding * 2,
+                bottom = contentPadding.calculateBottomPadding() + fabSize + (FabPadding * 2),
             ),
         ) {
             items(uiState.filters) { item ->
@@ -190,17 +230,21 @@ private fun LoadedContent(
                     Text(item.title)
                 }
             }
-        }
-        FloatingActionButton(
-            modifier = Modifier
-                .align(Alignment.BottomEnd)
-                .padding(
-                    end = contentPadding.calculateEndPadding(layoutDirection) + fabPadding,
-                    bottom = contentPadding.calculateBottomPadding() + fabPadding,
-                ),
-            onClick = { uiState.event.onClickAdd() },
-        ) {
-            Icon(Icons.Default.Add, contentDescription = "フィルタを追加")
+            if (uiState.loadToEnd.not()) {
+                item {
+                    LaunchedEffect(Unit) {
+                        uiState.event.loadMore()
+                    }
+                    Box(
+                        modifier = Modifier.fillMaxWidth()
+                            .padding(vertical = 12.dp),
+                    ) {
+                        CircularProgressIndicator(
+                            modifier = Modifier.align(Alignment.Center),
+                        )
+                    }
+                }
+            }
         }
     }
 }

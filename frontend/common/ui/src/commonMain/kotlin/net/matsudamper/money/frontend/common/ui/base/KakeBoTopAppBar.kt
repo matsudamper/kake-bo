@@ -40,9 +40,11 @@ public fun KakeBoTopAppBar(
                 Row(
                     verticalAlignment = Alignment.CenterVertically,
                 ) {
-                    title()
+                    Box(modifier = Modifier.weight(1f)) {
+                        title()
+                    }
                     Box(
-                        modifier = Modifier.weight(1f),
+                        modifier = Modifier,
                         contentAlignment = Alignment.CenterEnd,
                     ) {
                         menu()

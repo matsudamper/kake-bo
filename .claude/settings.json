@@ -10,5 +10,11 @@
         ]
       }
     ]
+  },
+  "permissions": {
+    "allow": [
+      "Bash(./gradlew:*)",
+      "Bash(cd backend)"
+    ]
   }
 }

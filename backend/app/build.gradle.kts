@@ -20,14 +20,21 @@ kotlin {
                 implementation(projects.backend.feature.fido)
                 implementation(projects.backend.feature.image)
                 implementation(projects.backend.feature.session)
+                implementation(projects.backend.feature.oidc)
+                implementation(projects.backend.feature.objectStorage)
+                implementation(projects.backend.feature.imageStorageLocal)
 
                 implementation(kotlin("stdlib"))
                 implementation(libs.graphqlJava.extendedScalars)
                 implementation(libs.graphqlJava)
+                implementation(libs.jackson.databind)
+                implementation(libs.jackson.kotlin)
                 implementation(libs.jackson.jsr310)
                 implementation(libs.kotlin.serialization.json)
                 implementation(libs.kotlin.coroutines.core)
                 implementation(libs.logback.classic)
+                implementation(libs.opentelemetryApi)
+                implementation(libs.opentelemetryGraphqlJava)
             }
         }
         val jvmTest by getting {
@@ -42,4 +49,13 @@ kotlin {
 
 tasks.withType<Test>().configureEach {
     useJUnitPlatform()
+}
+
+tasks.register<JavaExec>("adminPasswordHash") {
+    val jvmMain = kotlin.targets.getByName("jvm").compilations.getByName("main")
+
+    dependsOn("jvmMainClasses")
+    mainClass.set("net.matsudamper.money.backend.logic.AdminPasswordHashMainKt")
+    classpath = project.files(jvmMain.output.allOutputs, jvmMain.runtimeDependencyFiles)
+    standardInput = System.`in`
 }

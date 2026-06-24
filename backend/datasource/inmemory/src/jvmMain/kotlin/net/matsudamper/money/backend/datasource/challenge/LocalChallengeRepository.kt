@@ -1,10 +1,13 @@
 package net.matsudamper.money.backend.datasource.challenge
 
+import java.time.Clock
 import java.time.LocalDateTime
 import kotlin.time.Duration
 import net.matsudamper.money.backend.app.interfaces.ChallengeRepository
 
-internal class LocalChallengeRepository : ChallengeRepository {
+internal class LocalChallengeRepository(
+    private val clock: Clock,
+) : ChallengeRepository {
     private val repository: MutableMap<String, Data> = mutableMapOf()
 
     override fun set(
@@ -12,7 +15,7 @@ internal class LocalChallengeRepository : ChallengeRepository {
         expire: Duration,
     ) {
         deleteAfterExpire()
-        repository[key] = Data(LocalDateTime.now().plusSeconds(expire.inWholeSeconds))
+        repository[key] = Data(LocalDateTime.now(clock).plusSeconds(expire.inWholeSeconds))
     }
 
     override fun containsWithDelete(key: String): Boolean {
@@ -27,7 +30,7 @@ internal class LocalChallengeRepository : ChallengeRepository {
 
     private fun deleteAfterExpire() {
         repository
-            .filter { (_, value) -> value.expire.isBefore(LocalDateTime.now()) }
+            .filter { (_, value) -> value.expire.isBefore(LocalDateTime.now(clock)) }
             .forEach { (key, _) -> repository.remove(key) }
     }
 

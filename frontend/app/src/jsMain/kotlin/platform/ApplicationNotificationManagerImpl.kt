@@ -7,4 +7,7 @@ internal class ApplicationNotificationManagerImpl : ApplicationNotificationManag
     override fun notify(message: String) {
         window.alert(message)
     }
+
+    override suspend fun requestNotificationPermission() {
+    }
 }

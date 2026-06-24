@@ -18,12 +18,33 @@ class DbMoneyUsagePresetRepository : MoneyUsagePresetRepository {
     override fun getPresets(userId: UserId): List<MoneyUsagePresetRepository.PresetResult> {
         return DbConnectionImpl.use { connection ->
             DSL.using(connection)
-                .selectFrom(presets)
+                .select(
+                    presets.MONEY_USAGE_PRESET_ID,
+                    presets.USER_ID,
+                    presets.NAME,
+                    subCategories.MONEY_USAGE_SUB_CATEGORY_ID,
+                    presets.AMOUNT,
+                    presets.DESCRIPTION,
+                    presets.ORDER_NUMBER,
+                )
+                .from(presets)
+                .leftJoin(subCategories).on(
+                    subCategories.MONEY_USAGE_SUB_CATEGORY_ID.eq(presets.MONEY_USAGE_SUB_CATEGORY_ID)
+                        .and(subCategories.USER_ID.eq(userId.value)),
+                )
                 .where(presets.USER_ID.eq(userId.value))
                 .orderBy(presets.ORDER_NUMBER.asc(), presets.MONEY_USAGE_PRESET_ID.asc())
                 .fetch()
                 .map { record ->
-                    record.toPresetResult()
+                    MoneyUsagePresetRepository.PresetResult(
+                        presetId = MoneyUsagePresetId(record.get(presets.MONEY_USAGE_PRESET_ID)!!),
+                        userId = UserId(record.get(presets.USER_ID)!!),
+                        name = record.get(presets.NAME)!!,
+                        subCategoryId = record.get(subCategories.MONEY_USAGE_SUB_CATEGORY_ID)
+                            ?.let { MoneyUsageSubCategoryId(it) },
+                        amount = record.get(presets.AMOUNT),
+                        description = record.get(presets.DESCRIPTION),
+                    )
                 }
         }
     }

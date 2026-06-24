@@ -12,3 +12,4 @@ scalar OffsetDateTime
 scalar Long
 scalar FidoId
 scalar ApiTokenId
+scalar SessionRecordId

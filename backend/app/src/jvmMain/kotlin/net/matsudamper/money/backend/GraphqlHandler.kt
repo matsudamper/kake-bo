@@ -1,6 +1,7 @@
 package net.matsudamper.money.backend
 
 import java.lang.reflect.UndeclaredThrowableException
+import kotlin.time.TimeSource
 import com.fasterxml.jackson.module.kotlin.jacksonObjectMapper
 import com.fasterxml.jackson.module.kotlin.readValue
 import graphql.ExceptionWhileDataFetching
@@ -10,8 +11,13 @@ import graphql.GraphQLError
 import graphql.InvalidSyntaxError
 import graphql.execution.NonNullableFieldWasNullError
 import graphql.validation.ValidationError
+import io.opentelemetry.api.common.AttributeKey
+import io.opentelemetry.api.common.Attributes
+import io.opentelemetry.api.metrics.DoubleHistogram
+import io.opentelemetry.context.Context
 import net.matsudamper.money.backend.base.CookieManager
 import net.matsudamper.money.backend.base.ObjectMapper
+import net.matsudamper.money.backend.base.OpenTelemetryInitializer
 import net.matsudamper.money.backend.di.DiContainer
 import net.matsudamper.money.backend.feature.session.UserSessionManagerImpl
 import net.matsudamper.money.backend.graphql.DataLoaders
@@ -25,8 +31,17 @@ class GraphqlHandler(
     private val cookieManager: CookieManager,
     private val diContainer: DiContainer,
 ) {
+    private val operationDurationHistogram: DoubleHistogram = OpenTelemetryInitializer.get()
+        .getMeter("net.matsudamper.money.backend")
+        .histogramBuilder("graphql.operation.duration")
+        .setDescription("GraphQLのOperationNameごとのHTTPアクセス合計処理時間")
+        .setUnit("ms")
+        .build()
+
     fun handle(requestText: String): String {
+        val mark = TimeSource.Monotonic.markNow()
         val request = jacksonObjectMapper().readValue<GraphQlRequest>(requestText)
+        val otelContext = Context.current()
 
         val dataLoaderRegistryBuilder = DataLoaderRegistry.Builder()
         val userSessionManager = UserSessionManagerImpl(
@@ -37,6 +52,7 @@ class GraphqlHandler(
             diContainer = diContainer,
             dataLoaderRegistryBuilder = dataLoaderRegistryBuilder,
             userSessionManager = userSessionManager,
+            otelContext = otelContext,
         )
         val graphqlContext = GraphQlContext(
             cookieManager = cookieManager,
@@ -54,6 +70,7 @@ class GraphqlHandler(
                 ),
             )
             .query(request.query)
+            .operationName(request.operationName)
             .variables(request.variables)
 
         val result = MoneyGraphQlSchema.graphql
@@ -77,7 +94,19 @@ class GraphqlHandler(
             )
             .build()
 
-        return ObjectMapper.jackson.writeValueAsString(responseResult)
+        // GraalVM native imageではExecutionResultのgetterがリフレクションで見つからず
+        // Jacksonが空の`{}`を返すため、toSpecification()でMapに変換してからシリアライズする。
+        val responseText = ObjectMapper.jackson.writeValueAsString(responseResult.toSpecification())
+
+        operationDurationHistogram.record(
+            mark.elapsedNow().inWholeMilliseconds.toDouble(),
+            Attributes.of(
+                AttributeKey.stringKey("graphql.operation.name"),
+                request.operationName.ifEmpty { "anonymous" },
+            ),
+        )
+
+        return responseText
     }
 
     private fun handleError(errors: MutableList<GraphQLError>): List<GraphqlMoneyException> {

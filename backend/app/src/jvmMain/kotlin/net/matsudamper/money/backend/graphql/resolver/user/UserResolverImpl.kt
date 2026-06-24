@@ -14,6 +14,8 @@ import net.matsudamper.money.backend.graphql.DataFetcherResultBuilder
 import net.matsudamper.money.backend.graphql.GraphQlContext
 import net.matsudamper.money.backend.graphql.localcontext.MoneyUsageAnalyticsByCategoryLocalContext
 import net.matsudamper.money.backend.graphql.localcontext.MoneyUsageAnalyticsLocalContext
+import net.matsudamper.money.backend.graphql.otelSupplyAsync
+import net.matsudamper.money.backend.graphql.otelThenApplyAsync
 import net.matsudamper.money.backend.graphql.toDataFetcher
 import net.matsudamper.money.element.ImportedMailCategoryFilterId
 import net.matsudamper.money.element.MoneyUsageCategoryId
@@ -68,11 +70,11 @@ class UserResolverImpl : UserResolver {
         val context = env.graphQlContext.get<GraphQlContext>(GraphQlContext::class.java.name)
         val userId = context.verifyUserSessionAndGetUserId()
 
-        return CompletableFuture.supplyAsync {
+        return otelSupplyAsync {
             val result = context.diContainer.createMoneyUsageCategoryRepository()
                 .getCategory(userId = userId)
 
-            return@supplyAsync when (result) {
+            return@otelSupplyAsync when (result) {
                 is MoneyUsageCategoryRepository.GetCategoryResult.Failed -> {
                     null
                 }
@@ -126,7 +128,7 @@ class UserResolverImpl : UserResolver {
         val context = env.graphQlContext.get<GraphQlContext>(GraphQlContext::class.java.name)
         val userId = context.verifyUserSessionAndGetUserId()
 
-        return CompletableFuture.supplyAsync {
+        return otelSupplyAsync {
             val results = context.diContainer.createMoneyUsageRepository()
                 .getMoneyUsageByQuery(
                     userId = userId,
@@ -185,7 +187,7 @@ class UserResolverImpl : UserResolver {
         val userId = context.verifyUserSessionAndGetUserId()
         val dataLoader = context.dataLoaders.importedMailCategoryFilterDataLoader.get(env)
 
-        return CompletableFuture.allOf().thenApplyAsync {
+        return CompletableFuture.allOf().otelThenApplyAsync {
             val filterRepository = context.diContainer.createMailFilterRepository()
             val sortType = when (query.sortType) {
                 null,
@@ -203,9 +205,10 @@ class UserResolverImpl : UserResolver {
                 cursor = query.cursor?.let {
                     ImportedMailCategoryFiltersCursor.fromString(it)
                 },
+                size = query.size ?: 10,
             ).onFailure {
                 it.printStackTrace()
-            }.getOrNull() ?: return@thenApplyAsync null
+            }.getOrNull() ?: return@otelThenApplyAsync null
 
             result.items.forEach { item ->
                 dataLoader.prime(
@@ -239,7 +242,7 @@ class UserResolverImpl : UserResolver {
         val context = env.graphQlContext.get<GraphQlContext>(GraphQlContext::class.java.name)
         context.verifyUserSessionAndGetUserId()
 
-        return CompletableFuture.allOf().thenApplyAsync {
+        return CompletableFuture.allOf().otelThenApplyAsync {
             QlImportedMailCategoryFilter(
                 id = id,
             )
@@ -252,7 +255,7 @@ class UserResolverImpl : UserResolver {
     ): CompletionStage<DataFetcherResult<List<QlMoneyUsagePreset>>> {
         val context = env.graphQlContext.get<GraphQlContext>(GraphQlContext::class.java.name)
         val userId = context.verifyUserSessionAndGetUserId()
-        return CompletableFuture.supplyAsync {
+        return otelSupplyAsync {
             val results = context.diContainer.createMoneyUsagePresetRepository()
                 .getPresets(userId = userId)
             results.map { preset ->
@@ -274,9 +277,9 @@ class UserResolverImpl : UserResolver {
     ): CompletionStage<DataFetcherResult<QlMoneyUsagePreset?>> {
         val context = env.graphQlContext.get<GraphQlContext>(GraphQlContext::class.java.name)
         val userId = context.verifyUserSessionAndGetUserId()
-        return CompletableFuture.supplyAsync {
+        return otelSupplyAsync {
             val result = context.diContainer.createMoneyUsagePresetRepository()
-                .getPreset(userId = userId, presetId = id) ?: return@supplyAsync null
+                .getPreset(userId = userId, presetId = id) ?: return@otelSupplyAsync null
 
             QlMoneyUsagePreset(
                 id = result.presetId,
@@ -302,7 +305,7 @@ class UserResolverImpl : UserResolver {
                     moneyUsageId = id,
                 ),
             )
-        return CompletableFuture.allOf(moneyUsageFuture).thenApplyAsync {
+        return CompletableFuture.allOf(moneyUsageFuture).otelThenApplyAsync {
             QlMoneyUsage(
                 id = id,
             )
@@ -335,7 +338,7 @@ class UserResolverImpl : UserResolver {
         val context = env.graphQlContext.get<GraphQlContext>(GraphQlContext::class.java.name)
         val userId = context.verifyUserSessionAndGetUserId()
 
-        return CompletableFuture.supplyAsync {
+        return otelSupplyAsync {
             val results = context.diContainer.createMoneyUsageAnalyticsRepository()
                 .getTotalAmountByCategories(
                     userId = userId,
@@ -344,7 +347,7 @@ class UserResolverImpl : UserResolver {
                 )
                 .onFailure {
                     it.printStackTrace()
-                }.getOrNull() ?: return@supplyAsync DataFetcherResultBuilder.buildNullValue()
+                }.getOrNull() ?: return@otelSupplyAsync DataFetcherResultBuilder.buildNullValue()
 
             val result = results.firstOrNull { it.categoryId == id }
 
@@ -375,8 +378,8 @@ class UserResolverImpl : UserResolver {
             ),
         )
 
-        return CompletableFuture.allOf(future).thenApplyAsync {
-            val result = future.get() ?: return@thenApplyAsync null
+        return CompletableFuture.allOf(future).otelThenApplyAsync {
+            val result = future.get() ?: return@otelThenApplyAsync null
 
             QlMoneyUsageAnalyticsBySubCategory(
                 subCategory = QlMoneyUsageSubCategory(result.id),

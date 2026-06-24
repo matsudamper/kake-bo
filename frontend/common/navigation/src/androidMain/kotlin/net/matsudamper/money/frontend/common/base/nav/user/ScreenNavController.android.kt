@@ -7,9 +7,8 @@ import androidx.navigation3.runtime.rememberNavBackStack
 
 @Composable
 public actual fun rememberMainScreenNavController(initial: IScreenStructure): ScreenNavController {
-    val navBackstack = rememberNavBackStack()
-    return remember(navBackstack, initial) {
-        navBackstack.add(initial)
+    val navBackstack = rememberNavBackStack(initial)
+    return remember(navBackstack) {
         @Suppress("UNCHECKED_CAST")
         CommonScreenNavControllerImpl(
             navBackstack = navBackstack as NavBackStack<IScreenStructure>,

@@ -1,8 +1,8 @@
 package net.matsudamper.money.backend.dataloader
 
-import java.util.concurrent.CompletableFuture
 import net.matsudamper.money.backend.app.interfaces.MoneyUsageSubCategoryRepository
 import net.matsudamper.money.backend.di.DiContainer
+import net.matsudamper.money.backend.graphql.otelSupplyAsync
 import net.matsudamper.money.element.MoneyUsageCategoryId
 import net.matsudamper.money.element.MoneyUsageSubCategoryId
 import net.matsudamper.money.element.UserId
@@ -17,7 +17,7 @@ class MoneyUsageSubCategoryDataLoaderDefine(
 
     override fun getDataLoader(): DataLoader<Key, Result> {
         return DataLoaderFactory.newMappedDataLoader { keys, _ ->
-            CompletableFuture.supplyAsync {
+            otelSupplyAsync {
                 val repository = repositoryFactory.createMoneyUsageSubCategoryRepository()
 
                 val results = keys.groupBy { it.userId }

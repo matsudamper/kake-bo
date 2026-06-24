@@ -1,5 +1,7 @@
 plugins {
     alias(libs.plugins.kotlin.multiplatform)
+    alias(libs.plugins.ksp)
+    alias(libs.plugins.kotest)
     id("net.matsudamper.money.buildlogic.compose")
     id("net.matsudamper.money.buildlogic.androidLibrary")
     alias(libs.plugins.kotlin.serialization)
@@ -11,7 +13,6 @@ android {
 kotlin {
     js(IR) {
         browser()
-        binaries.executable()
     }
     jvm { }
     androidTarget()
@@ -22,9 +23,9 @@ kotlin {
                 implementation(projects.shared)
                 implementation(projects.frontend.common.base)
 
-                implementation(compose.runtime)
-                implementation(compose.ui)
-                implementation(compose.animation)
+                implementation(libs.composeRuntime)
+                implementation(libs.composeUi)
+                implementation(libs.composeAnimation)
 
                 implementation(libs.kotlin.coroutines.core)
                 implementation(libs.kotlin.datetime)
@@ -38,10 +39,10 @@ kotlin {
             dependencies {
                 implementation(projects.shared)
 
-                implementation(compose.runtime)
-                implementation(compose.ui)
+                implementation(libs.composeRuntime)
+                implementation(libs.composeUi)
 
-                implementation("io.ktor:ktor-client-logging-js:3.4.0")
+                implementation("io.ktor:ktor-client-logging-js:3.5.0")
                 implementation(libs.ktorClientCore)
                 implementation(libs.ktorClientJs)
             }
@@ -50,8 +51,8 @@ kotlin {
             dependencies {
                 implementation(projects.shared)
 
-                implementation(compose.runtime)
-                implementation(compose.ui)
+                implementation(libs.composeRuntime)
+                implementation(libs.composeUi)
                 implementation(libs.androidxLifecycleRuntimeCompose)
                 implementation(libs.androidxLifecycleViewModelCompose)
             }
@@ -60,8 +61,8 @@ kotlin {
             dependencies {
                 implementation(projects.shared)
 
-                implementation(compose.runtime)
-                implementation(compose.ui)
+                implementation(libs.composeRuntime)
+                implementation(libs.composeUi)
                 implementation(libs.androidxLifecycleRuntimeCompose)
                 implementation(libs.androidxLifecycleViewModelCompose)
             }
@@ -75,7 +76,8 @@ kotlin {
         }
         val jsTest by getting {
             dependencies {
-                implementation(kotlin("test"))
+                implementation(libs.kotestFrameworkEngine)
+                implementation(libs.kotestAssertionsCore)
             }
         }
     }

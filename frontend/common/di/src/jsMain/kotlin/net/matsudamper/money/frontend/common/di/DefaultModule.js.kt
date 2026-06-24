@@ -1,13 +1,30 @@
 package net.matsudamper.money.frontend.common.di
 
+import net.matsudamper.money.frontend.common.base.AppSettingsRepository
+import net.matsudamper.money.frontend.common.base.AppSettingsRepositoryJsImpl
+import net.matsudamper.money.frontend.common.base.DeviceNameProvider
+import net.matsudamper.money.frontend.common.base.DeviceNameProviderJsImpl
 import net.matsudamper.money.frontend.common.base.ImageUploadClient
+import net.matsudamper.money.frontend.common.base.notification.EmptyNotificationUsageAccessGateway
+import net.matsudamper.money.frontend.common.base.notification.EmptyNotificationUsageRepository
+import net.matsudamper.money.frontend.common.base.notification.NotificationUsageAccessGateway
+import net.matsudamper.money.frontend.common.base.notification.NotificationUsageRepository
+import net.matsudamper.money.frontend.common.feature.uploader.ImageUploadQueue
+import net.matsudamper.money.frontend.common.feature.uploader.ImageUploadQueueJsImpl
 import net.matsudamper.money.frontend.common.feature.webauth.WebAuthModel
 import net.matsudamper.money.frontend.common.feature.webauth.WebAuthModelJsImpl
 import net.matsudamper.money.frontend.graphql.GraphqlClient
 import net.matsudamper.money.frontend.graphql.GraphqlClientImpl
 import net.matsudamper.money.frontend.graphql.serverHost
 import net.matsudamper.money.frontend.graphql.serverProtocol
+import org.koin.core.module.Module
 import org.koin.core.scope.Scope
+import org.koin.dsl.module
+
+internal actual val platformDefaultModule: Module = module {
+    single<NotificationUsageRepository> { EmptyNotificationUsageRepository }
+    single<NotificationUsageAccessGateway> { EmptyNotificationUsageAccessGateway }
+}
 
 internal actual val factory: Factory = object : Factory() {
     override fun createWebAuthModule(scope: Scope): WebAuthModel {
@@ -23,6 +40,21 @@ internal actual val factory: Factory = object : Factory() {
             interceptors = listOf(),
             serverUrl = "$serverProtocol://$serverHost/query",
             onServerUrlChanged = {},
+        )
+    }
+
+    override fun createAppSettingsRepository(scope: Scope): AppSettingsRepository {
+        return AppSettingsRepositoryJsImpl()
+    }
+
+    override fun createDeviceNameProvider(scope: Scope): DeviceNameProvider {
+        return DeviceNameProviderJsImpl()
+    }
+
+    override fun createImageUploadQueue(scope: Scope): ImageUploadQueue {
+        return ImageUploadQueueJsImpl.create(
+            graphqlClient = scope.get(),
+            imageUploadClient = scope.get(),
         )
     }
 }

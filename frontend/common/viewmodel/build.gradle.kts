@@ -7,7 +7,6 @@ plugins {
 kotlin {
     js(IR) {
         browser()
-        binaries.executable()
     }
     androidTarget()
     sourceSets {
@@ -16,14 +15,15 @@ kotlin {
             dependencies {
                 implementation(projects.frontend.common.base)
                 api(projects.frontend.common.feature.webauth)
+                api(projects.frontend.common.feature.uploader)
                 implementation(projects.frontend.common.navigation)
                 implementation(projects.frontend.common.ui)
                 implementation(projects.frontend.common.graphql)
                 implementation(projects.frontend.common.usecase)
                 implementation(projects.shared)
-                implementation(compose.runtime)
-                implementation(compose.foundation)
-                implementation(compose.material3)
+                implementation(libs.composeRuntime)
+                implementation(libs.composeFoundation)
+                implementation(libs.composeMaterial3)
                 implementation(libs.kotlin.datetime)
                 implementation(libs.kotlin.serialization.json)
                 implementation(libs.apolloRuntime)

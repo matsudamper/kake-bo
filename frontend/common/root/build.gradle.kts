@@ -12,7 +12,6 @@ plugins {
 kotlin {
     js(IR) {
         browser()
-        binaries.executable()
     }
     androidTarget()
     sourceSets {
@@ -26,13 +25,16 @@ kotlin {
                 implementation(projects.frontend.common.viewmodel)
                 implementation(projects.frontend.common.usecase)
                 implementation(projects.frontend.common.graphql)
+                implementation(projects.frontend.common.di)
+                implementation(projects.frontend.featureNotification)
+                implementation(projects.frontend.featureAdmin)
 
                 implementation(kotlin("stdlib"))
                 implementation(kotlin("reflect"))
                 implementation(libs.kotlin.serialization.json)
-                implementation(compose.foundation)
-                implementation(compose.material3)
-                implementation(compose.runtime)
+                implementation(libs.composeFoundation)
+                implementation(libs.composeMaterial3)
+                implementation(libs.composeRuntime)
 
                 implementation(libs.koinCore)
             }
@@ -50,7 +52,4 @@ kotlin {
 
 android {
     namespace = "net.matsudamper.money.ui.root"
-}
-dependencies {
-    implementation(project(":frontend:common:di"))
 }

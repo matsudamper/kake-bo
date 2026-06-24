@@ -1,6 +1,5 @@
 package net.matsudamper.money.backend.graphql.resolver.analytics
 
-import java.util.concurrent.CompletableFuture
 import java.util.concurrent.CompletionStage
 import graphql.execution.DataFetcherResult
 import graphql.schema.DataFetchingEnvironment
@@ -8,6 +7,7 @@ import net.matsudamper.money.backend.graphql.DataFetcherResultBuilder
 import net.matsudamper.money.backend.graphql.GraphQlContext
 import net.matsudamper.money.backend.graphql.localcontext.MoneyUsageAnalyticsByCategoryLocalContext
 import net.matsudamper.money.backend.graphql.localcontext.MoneyUsageAnalyticsLocalContext
+import net.matsudamper.money.backend.graphql.otelSupplyAsync
 import net.matsudamper.money.backend.graphql.requireLocalContext
 import net.matsudamper.money.backend.graphql.toDataFetcher
 import net.matsudamper.money.graphql.model.MoneyUsageAnalyticsResolver
@@ -25,7 +25,7 @@ class MoneyUsageAnalyticsResolverImpl : MoneyUsageAnalyticsResolver {
         val context = env.graphQlContext.get<GraphQlContext>(GraphQlContext::class.java.name)
         val userId = context.verifyUserSessionAndGetUserId()
 
-        return CompletableFuture.supplyAsync {
+        return otelSupplyAsync {
             context.diContainer.createMoneyUsageAnalyticsRepository()
                 .getTotalAmount(
                     userId = userId,
@@ -42,7 +42,7 @@ class MoneyUsageAnalyticsResolverImpl : MoneyUsageAnalyticsResolver {
         val context = env.graphQlContext.get<GraphQlContext>(GraphQlContext::class.java.name)
         val userId = context.verifyUserSessionAndGetUserId()
 
-        return CompletableFuture.supplyAsync {
+        return otelSupplyAsync {
             val results = context.diContainer.createMoneyUsageAnalyticsRepository()
                 .getTotalAmountByCategories(
                     userId = userId,
@@ -51,7 +51,7 @@ class MoneyUsageAnalyticsResolverImpl : MoneyUsageAnalyticsResolver {
                 )
                 .onFailure {
                     it.printStackTrace()
-                }.getOrNull() ?: return@supplyAsync DataFetcherResultBuilder.buildNullValue()
+                }.getOrNull() ?: return@otelSupplyAsync DataFetcherResultBuilder.buildNullValue()
 
             DataFetcherResultBuilder.nullable(
                 value = results.map {

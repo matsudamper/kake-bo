@@ -122,6 +122,9 @@ class MailRepositoryImpl(
                 it.setProperty("mail.imap.ssl.enable", "true")
                 it.setProperty("mail.imap.host", host)
                 it.setProperty("mail.imap.port", port.toString())
+                it.setProperty("mail.imap.connectiontimeout", "10000")
+                it.setProperty("mail.imap.timeout", "10000")
+                it.setProperty("mail.imap.writetimeout", "10000")
             },
             object : Authenticator() {
                 override fun getPasswordAuthentication(): PasswordAuthentication {
