@@ -31,6 +31,22 @@ class UserSettingsResolverImpl : UserSettingsResolver {
         }.toDataFetcher()
     }
 
+    override fun timezoneOffsetMinutes(
+        userSettings: QlUserSettings,
+        env: DataFetchingEnvironment,
+    ): CompletionStage<DataFetcherResult<Int>> {
+        val context = env.graphQlContext.get<GraphQlContext>(GraphQlContext::class.java.name)
+        val userId = context.verifyUserSessionAndGetUserId()
+
+        return otelSupplyAsync {
+            context.diContainer.createUserConfigRepository()
+                .getTimezoneOffset(userId)
+                ?.totalSeconds
+                ?.div(60)
+                ?: 0
+        }.toDataFetcher()
+    }
+
     override fun imapConfig(
         userSettings: QlUserSettings,
         env: DataFetchingEnvironment,
