@@ -12,7 +12,6 @@ import net.matsudamper.money.element.MoneyUsageSubCategoryId
 import net.matsudamper.money.frontend.common.base.Logger
 import net.matsudamper.money.frontend.graphql.AddCategoryMutation
 import net.matsudamper.money.frontend.graphql.AddSubCategoryMutation
-import net.matsudamper.money.frontend.graphql.CategoriesSettingScreenCategoriesPagingQuery
 import net.matsudamper.money.frontend.graphql.CategorySettingScreenQuery
 import net.matsudamper.money.frontend.graphql.CategorySettingScreenSubCategoriesPagingQuery
 import net.matsudamper.money.frontend.graphql.DeleteCategoryMutation
@@ -21,7 +20,6 @@ import net.matsudamper.money.frontend.graphql.UpdateCategoryMutation
 import net.matsudamper.money.frontend.graphql.UpdateSubCategoryMutation
 import net.matsudamper.money.frontend.graphql.type.AddCategoryInput
 import net.matsudamper.money.frontend.graphql.type.AddSubCategoryInput
-import net.matsudamper.money.frontend.graphql.type.MoneyUsageCategoriesInput
 import net.matsudamper.money.frontend.graphql.type.MoneyUsageSubCategoryQuery
 import net.matsudamper.money.frontend.graphql.type.UpdateCategoryQuery
 import net.matsudamper.money.frontend.graphql.type.UpdateSubCategoryQuery
@@ -32,24 +30,6 @@ private const val TAG = "SettingScreenCategoryApi"
 public class SettingScreenCategoryApi(
     private val apolloClient: ApolloClient,
 ) {
-    public fun getCategoriesPaging(): Flow<ApolloResponse<CategoriesSettingScreenCategoriesPagingQuery.Data>> {
-        return apolloClient
-            .query(createCategoriesPagingQuery())
-            .fetchPolicy(FetchPolicy.CacheAndNetwork)
-            .watch()
-    }
-
-    public suspend fun refetchCategoriesPaging() {
-        runCatching {
-            fetchCategoriesPaging(
-                query = createCategoriesPagingQuery(),
-                fetchPolicy = FetchPolicy.NetworkOnly,
-            )
-        }.onFailure {
-            Logger.e(TAG, it)
-        }
-    }
-
     public suspend fun addCategory(name: String): ApolloResponse<AddCategoryMutation.Data>? {
         return runCatching {
             apolloClient
@@ -224,7 +204,7 @@ public class SettingScreenCategoryApi(
     }
 
     public suspend fun deleteCategory(id: MoneyUsageCategoryId): Boolean {
-        val isDeleted = runCatching {
+        return runCatching {
             apolloClient
                 .mutation(
                     DeleteCategoryMutation(
@@ -235,71 +215,6 @@ public class SettingScreenCategoryApi(
         }.onFailure {
             Logger.e(TAG, it)
         }.getOrNull()?.data?.userMutation?.deleteCategory == true
-        if (!isDeleted) {
-            return false
-        }
-
-        val cacheQuery = createCategoriesPagingQuery()
-        val updateResult = runCatching {
-            apolloClient.updateOperation(cacheQuery) update@{ before ->
-                if (before == null) {
-                    return@update success(
-                        fetchCategoriesPaging(
-                            query = cacheQuery,
-                            fetchPolicy = FetchPolicy.NetworkOnly,
-                        ),
-                    )
-                }
-
-                val user = before.user ?: return@update error()
-                val moneyUsageCategories = user.moneyUsageCategories ?: return@update error()
-                val response = fetchCategoriesPaging(
-                    query = cacheQuery,
-                    fetchPolicy = FetchPolicy.CacheOnly,
-                )
-
-                success(
-                    response.newBuilder()
-                        .data(
-                            before.copy(
-                                user = user.copy(
-                                    moneyUsageCategories = moneyUsageCategories.copy(
-                                        nodes = moneyUsageCategories.nodes.filterNot { it.id == id },
-                                    ),
-                                ),
-                            ),
-                        )
-                        .build(),
-                )
-            }
-        }.onFailure {
-            Logger.e(TAG, it)
-        }.getOrNull()
-
-        if (updateResult?.isSuccess() != true) {
-            refetchCategoriesPaging()
-        }
-
-        return true
-    }
-
-    private fun createCategoriesPagingQuery(): CategoriesSettingScreenCategoriesPagingQuery {
-        return CategoriesSettingScreenCategoriesPagingQuery(
-            MoneyUsageCategoriesInput(
-                cursor = Optional.present(null),
-                size = 100,
-            ),
-        )
-    }
-
-    private suspend fun fetchCategoriesPaging(
-        query: CategoriesSettingScreenCategoriesPagingQuery,
-        fetchPolicy: FetchPolicy,
-    ): ApolloResponse<CategoriesSettingScreenCategoriesPagingQuery.Data> {
-        return apolloClient
-            .query(query)
-            .fetchPolicy(fetchPolicy)
-            .execute()
     }
 
     private fun createSubCategoriesPagingQuery(

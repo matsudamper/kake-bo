@@ -22,6 +22,7 @@ import net.matsudamper.money.frontend.graphql.CategoriesSettingScreenCategoriesP
 
 public class SettingCategoriesViewModel(
     private val api: SettingScreenCategoryApi,
+    private val pagingModel: SettingCategoriesScreenPagingModel,
     scopedObjectFeature: ScopedObjectFeature,
     navController: ScreenNavController,
 ) : CommonViewModel(scopedObjectFeature) {
@@ -85,7 +86,7 @@ public class SettingCategoriesViewModel(
                             )
                         }
 
-                        api.refetchCategoriesPaging()
+                        pagingModel.refetch()
                     }
                 }
 
@@ -151,7 +152,7 @@ public class SettingCategoriesViewModel(
 
     private fun observeCategoriesPaging() {
         viewModelScope.launch {
-            api.getCategoriesPaging()
+            pagingModel.getFlow()
                 .catch {
                     viewModelStateFlow.update { state -> state.copy(isFirstLoading = false) }
                     globalEventSender.send { event ->
@@ -183,7 +184,7 @@ public class SettingCategoriesViewModel(
     private suspend fun refresh() {
         viewModelStateFlow.update { it.copy(isRefreshing = true) }
         try {
-            api.refetchCategoriesPaging()
+            pagingModel.refetch()
         } finally {
             viewModelStateFlow.update { it.copy(isRefreshing = false) }
         }
