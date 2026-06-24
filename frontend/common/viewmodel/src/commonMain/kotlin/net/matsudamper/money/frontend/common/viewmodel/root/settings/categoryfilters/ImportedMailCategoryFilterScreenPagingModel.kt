@@ -7,7 +7,6 @@ import kotlinx.coroutines.withContext
 import com.apollographql.apollo.api.ApolloResponse
 import com.apollographql.apollo.api.Optional
 import com.apollographql.apollo.cache.normalized.FetchPolicy
-import com.apollographql.apollo.cache.normalized.apolloStore
 import com.apollographql.apollo.cache.normalized.fetchPolicy
 import com.apollographql.apollo.cache.normalized.watch
 import net.matsudamper.money.element.ImportedMailCategoryFilterId
@@ -72,28 +71,30 @@ public class ImportedMailCategoryFilterScreenPagingModel(
     }
 
     public suspend fun removeFilterFromCache(filterId: ImportedMailCategoryFilterId) {
-        val apolloClient = graphqlClient.apolloClient
-        val before = apolloClient.query(firstQuery)
-            .fetchPolicy(FetchPolicy.CacheOnly)
-            .execute()
-            .data ?: return
-        val connection = before.user?.importedMailCategoryFilters ?: return
-        val filteredNodes = connection.nodes.filterNot { node ->
-            node.id == filterId
+        graphqlClient.apolloClient.updateOperation(firstQuery) update@{ before ->
+            if (before == null) return@update error()
+            val connection = before.user?.importedMailCategoryFilters ?: return@update error()
+            val filteredNodes = connection.nodes.filterNot { node ->
+                node.id == filterId
+            }
+            if (filteredNodes.size == connection.nodes.size) return@update error()
+            val cached = graphqlClient.apolloClient.query(firstQuery)
+                .fetchPolicy(FetchPolicy.CacheOnly)
+                .execute()
+            success(
+                cached.newBuilder()
+                    .data(
+                        data = before.copy(
+                            user = before.user?.copy(
+                                importedMailCategoryFilters = connection.copy(
+                                    nodes = filteredNodes,
+                                ),
+                            ),
+                        ),
+                    )
+                    .build(),
+            )
         }
-        if (filteredNodes.size == connection.nodes.size) return
-        apolloClient.apolloStore.writeOperation(
-            operation = firstQuery,
-            operationData = before.copy(
-                user = before.user?.copy(
-                    importedMailCategoryFilters = connection.copy(
-                        nodes = filteredNodes,
-                    ),
-                ),
-            ),
-            customScalarAdapters = apolloClient.customScalarAdapters,
-            publish = true,
-        )
     }
 
     private suspend fun fetchPage(cursor: String?): ApolloResponse<ImportedMailCategoryFiltersScreenPagingQuery.Data> {
