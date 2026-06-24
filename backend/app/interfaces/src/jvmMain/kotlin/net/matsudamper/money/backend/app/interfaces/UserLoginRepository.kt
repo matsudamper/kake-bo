@@ -3,6 +3,8 @@ package net.matsudamper.money.backend.app.interfaces
 import net.matsudamper.money.element.UserId
 
 interface UserLoginRepository {
+    fun hasPassword(userId: UserId): Boolean
+
     sealed interface Result {
         data class Success(val uerId: UserId) : Result
 
