@@ -1,34 +1,34 @@
 [versions]
 awsSdk = "2.30.20"
-nimbusJoseJwt = "10.9"
+nimbusJoseJwt = "10.9.1"
 java = "24"
 javaToolchain = "24"
-kotlin = "2.3.21"
+kotlin = "2.4.0"
 apollo = "4.4.3"
-ktor = "3.4.3"
+ktor = "3.5.0"
 activity = "1.13.0"
 appcompat = "1.7.1"
 agp = "8.13.2"
-jackson = "2.21.2"
-compose = "1.10.3"
-protoBuf = "4.34.1"
+jackson = "2.21.3"
+compose = "1.11.1"
+protoBuf = "4.35.0"
 lifecycle = "2.10.0"
-jooq = "3.21.2"
-nav3 = "1.1.1"
+jooq = "3.21.4"
+nav3 = "1.1.2"
 jetbrainsNav3 = "1.1.1"
 coil3 = "3.4.0"
-zoomable = "2.11.1"
+zoomable = "2.12.0"
 okhttp = "5.3.2"
 graalvmNative = "0.10.6"
-opentelemetry = "1.61.0"
-paparazzi = "2.0.0-alpha04"
+opentelemetry = "1.62.0"
+paparazzi = "2.0.0-alpha05"
 composablePreviewScanner = "0.9.0"
 room = "2.8.4"
-room3 = "3.0.0-alpha03"
-sqlite = "2.7.0-alpha03"
+room3 = "3.0.0-alpha05"
+sqlite = "2.7.0-alpha05"
 workmanager = "2.11.2"
 timber = "5.0.1"
-ksp = "2.3.7"
+ksp = "2.3.9"
 
 [plugins]
 apollo = { id = "com.apollographql.apollo", version.ref = "apollo" }
@@ -52,7 +52,7 @@ awsS3 = { module = "software.amazon.awssdk:s3", version.ref = "awsSdk" }
 awsSts = { module = "software.amazon.awssdk:sts", version.ref = "awsSdk" }
 nimbusJoseJwt = { module = "com.nimbusds:nimbus-jose-jwt", version.ref = "nimbusJoseJwt" }
 kotlinRefrect = { module = "org.jetbrains.kotlin:kotlin-reflect", version.ref = "kotlin" }
-kotlin-coroutines-core = { module = "org.jetbrains.kotlinx:kotlinx-coroutines-core", version.require = "1.10.2" }
+kotlin-coroutines-core = { module = "org.jetbrains.kotlinx:kotlinx-coroutines-core", version.require = "1.11.0" }
 kotlin-datetime = { module = "org.jetbrains.kotlinx:kotlinx-datetime", version.require = "0.7.1-0.6.x-compat" }
 kotlin-serialization-json = { module = "org.jetbrains.kotlinx:kotlinx-serialization-json", version.require = "1.11.0" }
 
@@ -107,7 +107,7 @@ composeHtmlCore = { module = "org.jetbrains.compose.html:html-core", version.ref
 composeComponentsResources = { module = "org.jetbrains.compose.components:components-resources", version.ref = "compose" }
 
 # WebAUth4J
-webauth4jCore = { module = "com.webauthn4j:webauthn4j-core", version.require = "0.31.3.RELEASE" }
+webauth4jCore = { module = "com.webauthn4j:webauthn4j-core", version.require = "0.31.6.RELEASE" }
 
 opentelemetryApi = { module = "io.opentelemetry:opentelemetry-api", version.ref = "opentelemetry" }
 opentelemetrySdk = { module = "io.opentelemetry:opentelemetry-sdk", version.ref = "opentelemetry" }
@@ -131,8 +131,8 @@ androidxLifecycleRuntimeCompose = { module = "androidx.lifecycle:lifecycle-runti
 androidxNavigation3Runtime = { module = "androidx.navigation3:navigation3-runtime", version.ref = "nav3" }
 androidxNavigation3Ui = { module = "androidx.navigation3:navigation3-ui", version.ref = "nav3" }
 jetbrainsNavigation3Ui = { module = "org.jetbrains.androidx.navigation3:navigation3-ui", version.ref = "jetbrainsNav3" }
-androidxComposeSaveable = { module = "androidx.compose.runtime:runtime-saveable", version = "1.11.1" }
-composeUiToolingPreview = { module = "org.jetbrains.compose.ui:ui-tooling-preview", version = "1.10.3" }
+androidxComposeSaveable = { module = "androidx.compose.runtime:runtime-saveable", version = "1.11.2" }
+composeUiToolingPreview = { module = "org.jetbrains.compose.ui:ui-tooling-preview", version = "1.11.1" }
 composeUiTooling = { module = "org.jetbrains.compose.ui:ui-tooling", version.ref = "compose" }
 
 # Test
@@ -161,8 +161,8 @@ okHttp = { module = "com.squareup.okhttp3:okhttp", version.ref = "okhttp" }
 zoomable = { module = "net.engawapg.lib:zoomable", version.ref = "zoomable" }
 
 # Log
-log4j-api = { module = "org.slf4j:slf4j-api", version.require = "2.0.17" }
-logback-classic = { module = "ch.qos.logback:logback-classic", version.require = "1.5.32" }
+log4j-api = { module = "org.slf4j:slf4j-api", version.require = "2.0.18" }
+logback-classic = { module = "ch.qos.logback:logback-classic", version.require = "1.5.34" }
 logstashLogbackEncoder = { module = "net.logstash.logback:logstash-logback-encoder", version.require = "9.0" }
 
 # Graphql
@@ -189,7 +189,7 @@ workRuntimeKtx = { module = "androidx.work:work-runtime-ktx", version.ref = "wor
 timber = { module = "com.jakewharton.timber:timber", version.ref = "timber" }
 
 # Other
-lettuce = { module = "io.lettuce:lettuce-core", version.require = "7.5.1.RELEASE" }
+lettuce = { module = "io.lettuce:lettuce-core", version.require = "7.5.2.RELEASE" }
 jsoup = { module = "org.jsoup:jsoup", version.require = "1.22.2" }
 hikariCP = { module = "com.zaxxer:HikariCP", version.require = "7.0.2" }
 mariadbClient = { module = "org.mariadb.jdbc:mariadb-java-client", version.require = "3.5.8" }

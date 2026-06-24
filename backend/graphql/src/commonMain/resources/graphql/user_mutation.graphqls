@@ -184,6 +184,20 @@ type UserLoginResult {
 
 type SettingsMutation {
     updateImapConfig(config: UpdateUserImapConfigInput!) : UserImapConfig
+    changePassword(password: String): ChangePasswordResult! @lazy
+    updateTimezoneOffset(offsetMinutes: Int!): Int
+}
+
+type ChangePasswordResult {
+    isSuccess: Boolean!
+    errorType: ChangePasswordErrorType
+}
+
+enum ChangePasswordErrorType {
+    Unknown,
+    UserNotFound,
+    PasswordLength,
+    PasswordInvalidChar,
 }
 
 input UpdateUserImapConfigInput {

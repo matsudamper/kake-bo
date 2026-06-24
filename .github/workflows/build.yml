@@ -16,6 +16,10 @@ concurrency:
 jobs:
   build_and_test:
     runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      pull-requests: write
+      id-token: write
     env:
       GRADLE_OPTS: -Dkotlin.compiler.execution.strategy=in-process -Dorg.gradle.workers.max=2 -Dorg.gradle.daemon=false -Dorg.gradle.jvmargs="-Xmx4500m"
       GITHUB_ACTOR: ${{ github.actor }}
@@ -25,29 +29,78 @@ jobs:
       - uses: actions/setup-java@v5
         with:
           distribution: 'temurin'
-          java-version: '25'
+          java-version: '24'
       - name: Setup Gradle
         uses: gradle/actions/setup-gradle@v6
       - run: ./gradlew ktlintCheck --continue
       - env:
           CI: true
         run: ./gradlew :frontend:app:assembleDebug
+      - name: Rename APK with branch and short hash
+        env:
+          BRANCH_NAME: ${{ github.head_ref }}
+          REPOSITORY: ${{ github.repository }}
+        run: |
+          SHORT_SHA="${GITHUB_SHA:0:7}"
+          SAFE_REPO="${REPOSITORY##*/}"
+          SAFE_BRANCH="${BRANCH_NAME//\//-}"
+          APK_NAME="app-${SAFE_REPO}-${SAFE_BRANCH}-${SHORT_SHA}.apk"
+          mv frontend/app/build/outputs/apk/debug/app-debug.apk \
+             "frontend/app/build/outputs/apk/debug/${APK_NAME}"
+          echo "APK_NAME=${APK_NAME}" >> "$GITHUB_ENV"
+          echo "APK_PATH=frontend/app/build/outputs/apk/debug/${APK_NAME}" >> "$GITHUB_ENV"
       - id: upload_apk
         uses: actions/upload-artifact@v7
         with:
-          name: apk
-          path: frontend/app/build/outputs/apk/debug/*.apk
-      - name: APKアップロード完了コメント
+          name: ${{ env.APK_NAME }}
+          path: ${{ env.APK_PATH }}
+          compression-level: 9
+      - name: Upload APK to S3
+        id: upload_s3
+        uses: matsudamper/actions/upload-matsudamper-s3@a1ecf81b1a0ce320824a49711e456f396e4e8fea # v1.0.0
+        continue-on-error: true
+        with:
+          file_path: ${{ env.APK_PATH }}
+      - name: Generate GitHub QR code
+        if: github.event_name == 'pull_request'
+        run: |
+          pip install "qrcode[pil]" --quiet
+          python3 -c "import qrcode, sys; qrcode.make(sys.argv[1]).save('qrcode-github.png')" "${{ steps.upload_apk.outputs.artifact-url }}"
+      - name: Upload GitHub QR artifact
+        if: github.event_name == 'pull_request'
+        id: github_qr_artifact
+        uses: actions/upload-artifact@v7
+        with:
+          name: apk-qr-code-github
+          path: qrcode-github.png
+          archive: false
+      - name: Generate S3 QR code
+        if: github.event_name == 'pull_request' && steps.upload_s3.outputs.url != ''
+        run: |
+          python3 -c "import qrcode, sys; qrcode.make(sys.argv[1]).save('qrcode-s3.png')" "${{ steps.upload_s3.outputs.url }}"
+      - name: Upload S3 QR artifact
+        if: github.event_name == 'pull_request' && steps.upload_s3.outputs.url != ''
+        id: s3_qr_artifact
+        uses: actions/upload-artifact@v7
+        with:
+          name: apk-qr-code-s3
+          path: qrcode-s3.png
+          archive: false
+      - name: APKダウンロードURLをコメント
         if: github.event_name == 'pull_request'
         uses: marocchino/sticky-pull-request-comment@v3
         with:
-          header: apk-upload
+          header: apk-download
           message: |
-            ✅ APKのアップロードが完了しました。
+            ✅ **Debug APK is ready!**
 
-            - Artifact名: `apk`
-            - APKダウンロード: ${{ steps.upload_apk.outputs.artifact-url }}
-            - Run: ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}
+            | Storage | Download Link | QR Code |
+            | :--- | :--- | :--- |
+            | 🐙 GitHub Artifacts | [Download](${{ steps.upload_apk.outputs.artifact-url }}) | [View](${{ steps.github_qr_artifact.outputs.artifact-url }}) |
+            ${{ steps.upload_s3.outputs.url && format('| ☁️ S3 | [Download]({0}) | [View]({1}) |', steps.upload_s3.outputs.url, steps.s3_qr_artifact.outputs.artifact-url) || '' }}
+
+            ---
+            *Artifact Name: `${{ env.APK_NAME }}`*
       - run: ./gradlew :backend:assemble
       - name: Backend healthz smoke test
         run: |

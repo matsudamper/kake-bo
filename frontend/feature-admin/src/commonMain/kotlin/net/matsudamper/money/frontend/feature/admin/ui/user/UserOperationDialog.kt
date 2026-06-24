@@ -32,6 +32,7 @@ internal class UserOperationDialogState(
     interface Listener {
         fun onDismissUserMenu()
         fun onClickReplacePassword()
+        fun onClickDeletePassword()
     }
 }
 
@@ -72,6 +73,15 @@ internal fun UserOperationDialog(
                     ) {
                         Text(
                             text = "パスワード上書き",
+                            fontFamily = rememberCustomFontFamily(),
+                        )
+                    }
+                    Button(
+                        onClick = { uiState.listener.onClickDeletePassword() },
+                        modifier = Modifier.fillMaxWidth(),
+                    ) {
+                        Text(
+                            text = "パスワード削除",
                             fontFamily = rememberCustomFontFamily(),
                         )
                     }

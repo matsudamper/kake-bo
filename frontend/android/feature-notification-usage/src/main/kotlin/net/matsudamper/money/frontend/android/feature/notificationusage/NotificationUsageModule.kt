@@ -32,6 +32,7 @@ public object NotificationUsageModule {
         single<NotificationUsageParser>(named("jp.co.saisoncard.android.saisonportal")) { SaisonCardNotificationUsageParser() }
         single<NotificationUsageParser>(named("com.google.android.apps.walletnfcrel")) { GoogleWalletNotificationUsageParser() }
         single<NotificationUsageParser>(named("com.samsung.android.spay")) { SamsungPayNotificationUsageParser() }
+        single<NotificationUsageParser>(named("jp.ne.paypay.android.app")) { PayPayNotificationUsageParser() }
         single<NotificationUsageAutoAddApi> {
             NotificationUsageAutoAddGraphqlApi(
                 graphqlClient = get<GraphqlClient>(),
