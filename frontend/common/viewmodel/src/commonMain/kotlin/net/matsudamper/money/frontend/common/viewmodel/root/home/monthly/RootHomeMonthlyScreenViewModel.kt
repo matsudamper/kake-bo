@@ -195,11 +195,13 @@ public class RootHomeMonthlyScreenViewModel(
         return RootHomeMonthlyScreenUiState.LoadingState.Loaded(
             yearMonth = "${sinceDate.year}年${sinceDate.monthNumber}月",
             items = nodes.map { node ->
+                val categoryName = node.moneyUsageSubCategory?.category?.name.orEmpty()
                 RootHomeMonthlyScreenUiState.Item(
                     title = node.title,
                     amount = "${Formatter.formatMoney(node.amount)}円",
                     date = Formatter.formatDateTime(node.date),
-                    category = node.moneyUsageSubCategory?.name.orEmpty(),
+                    category = categoryName,
+                    categoryColor = reservedColorModel.getColor(categoryName),
                     imageUrls = node.images.map { it.url }.toImmutableList(),
                     event = ItemEventImpl(
                         coroutineScope = viewModelScope,
