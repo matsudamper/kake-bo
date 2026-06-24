@@ -152,16 +152,13 @@ internal fun SettingNavContent(
 
         ScreenStructure.Root.Settings.MailCategoryFilters -> {
             holder.SaveableStateProvider(state::class.toString()) {
-                val pagingModel = LocalScopedObjectStore.current.putOrGet<ImportedMailCategoryFilterScreenPagingModel>(Unit) {
-                    ImportedMailCategoryFilterScreenPagingModel(
-                        scopedObjectFeature = it,
-                        graphqlClient = koin.get<GraphqlClient>(),
-                    )
-                }
                 val viewModel = LocalScopedObjectStore.current.putOrGet<SettingMailCategoryFiltersViewModel>(Unit) {
                     SettingMailCategoryFiltersViewModel(
                         scopedObjectFeature = it,
-                        pagingModel = pagingModel,
+                        pagingModel = ImportedMailCategoryFilterScreenPagingModel(
+                            scopedObjectFeature = it,
+                            graphqlClient = koin.get<GraphqlClient>(),
+                        ),
                         api = SettingImportedMailCategoryFilterApi(
                             apolloClient = koin.get<GraphqlClient>().apolloClient,
                         ),
@@ -181,12 +178,6 @@ internal fun SettingNavContent(
 
         is ScreenStructure.Root.Settings.MailCategoryFilter -> {
             holder.SaveableStateProvider(state::class.toString()) {
-                val pagingModel = LocalScopedObjectStore.current.putOrGet<ImportedMailCategoryFilterScreenPagingModel>(Unit) {
-                    ImportedMailCategoryFilterScreenPagingModel(
-                        scopedObjectFeature = it,
-                        graphqlClient = koin.get<GraphqlClient>(),
-                    )
-                }
                 val viewModel = LocalScopedObjectStore.current.putOrGet<ImportedMailFilterCategoryViewModel>(Unit) {
                     ImportedMailFilterCategoryViewModel(
                         scopedObjectFeature = it,
@@ -195,7 +186,6 @@ internal fun SettingNavContent(
                             apolloClient = koin.get<GraphqlClient>().apolloClient,
                         ),
                         graphqlClient = koin.get<GraphqlClient>(),
-                        pagingModel = pagingModel,
                         navController = navController,
                     )
                 }
