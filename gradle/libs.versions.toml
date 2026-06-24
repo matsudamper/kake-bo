@@ -8,7 +8,7 @@ apollo = "5.0.0"
 ktor = "3.5.0"
 activity = "1.13.0"
 appcompat = "1.7.1"
-agp = "9.1.0"
+agp = "9.0.0"
 jackson = "2.21.3"
 compose = "1.11.1"
 protoBuf = "4.35.0"
@@ -124,7 +124,7 @@ opentelemetryRuntimeTelemetry = { module = "io.opentelemetry.instrumentation:ope
 # Android
 androidActivityActivityCompose = { module = "androidx.activity:activity-compose", version.ref = "activity" }
 androidAppCompatAppCompat = { module = "androidx.appcompat:appcompat", version.ref = "appcompat" }
-androidxCoreKtx = { module = "androidx.core:core-ktx", version.require = "1.19.0" }
+androidxCoreKtx = { module = "androidx.core:core-ktx", version.require = "1.18.0" }
 androidxLifecycleViewModelKtx = { module = "androidx.lifecycle:lifecycle-viewmodel-ktx", version.ref = "lifecycle" }
 androidxLifecycleViewModelCompose = { module = "androidx.lifecycle:lifecycle-viewmodel-compose", version.ref = "lifecycle" }
 androidxLifecycleRuntimeCompose = { module = "androidx.lifecycle:lifecycle-runtime-compose", version.ref = "lifecycle" }
