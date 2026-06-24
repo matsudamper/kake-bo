@@ -282,6 +282,12 @@
     "allDeclaredFields": true
   },
   {
+    "name": "net.matsudamper.money.db.schema.tables.records.JUserTimezoneSettingRecord",
+    "allDeclaredConstructors": true,
+    "allPublicMethods": true,
+    "allDeclaredFields": true
+  },
+  {
     "name": "net.matsudamper.money.db.schema.tables.records.JWebAuthAuthenticatorRecord",
     "allDeclaredConstructors": true,
     "allPublicMethods": true,

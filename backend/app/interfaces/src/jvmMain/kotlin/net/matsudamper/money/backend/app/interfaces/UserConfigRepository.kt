@@ -1,5 +1,6 @@
 package net.matsudamper.money.backend.app.interfaces
 
+import java.time.ZoneOffset
 import net.matsudamper.money.backend.app.interfaces.element.ImapConfig
 import net.matsudamper.money.element.UserId
 
@@ -13,6 +14,10 @@ interface UserConfigRepository {
         password: String?,
         userName: String?,
     ): Boolean
+
+    fun getTimezoneOffset(userId: UserId): ZoneOffset?
+
+    fun updateTimezoneOffset(userId: UserId, offset: ZoneOffset): Boolean
 
     sealed interface Optional<T> {
         class None<T> : Optional<T>

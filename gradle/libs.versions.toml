@@ -1,16 +1,16 @@
 [versions]
 awsSdk = "2.30.20"
-nimbusJoseJwt = "10.9"
+nimbusJoseJwt = "10.9.1"
 java = "24"
 javaToolchain = "24"
-kotlin = "2.3.21"
+kotlin = "2.4.0"
 apollo = "4.4.3"
 ktor = "3.5.0"
 activity = "1.13.0"
 appcompat = "1.7.1"
 agp = "8.13.2"
 jackson = "2.21.3"
-compose = "1.11.0"
+compose = "1.11.1"
 protoBuf = "4.35.0"
 lifecycle = "2.10.0"
 jooq = "3.21.4"
@@ -28,7 +28,7 @@ room3 = "3.0.0-alpha05"
 sqlite = "2.7.0-alpha05"
 workmanager = "2.11.2"
 timber = "5.0.1"
-ksp = "2.3.8"
+ksp = "2.3.9"
 
 [plugins]
 apollo = { id = "com.apollographql.apollo", version.ref = "apollo" }
@@ -107,7 +107,7 @@ composeHtmlCore = { module = "org.jetbrains.compose.html:html-core", version.ref
 composeComponentsResources = { module = "org.jetbrains.compose.components:components-resources", version.ref = "compose" }
 
 # WebAUth4J
-webauth4jCore = { module = "com.webauthn4j:webauthn4j-core", version.require = "0.31.5.RELEASE" }
+webauth4jCore = { module = "com.webauthn4j:webauthn4j-core", version.require = "0.31.6.RELEASE" }
 
 opentelemetryApi = { module = "io.opentelemetry:opentelemetry-api", version.ref = "opentelemetry" }
 opentelemetrySdk = { module = "io.opentelemetry:opentelemetry-sdk", version.ref = "opentelemetry" }
@@ -132,7 +132,7 @@ androidxNavigation3Runtime = { module = "androidx.navigation3:navigation3-runtim
 androidxNavigation3Ui = { module = "androidx.navigation3:navigation3-ui", version.ref = "nav3" }
 jetbrainsNavigation3Ui = { module = "org.jetbrains.androidx.navigation3:navigation3-ui", version.ref = "jetbrainsNav3" }
 androidxComposeSaveable = { module = "androidx.compose.runtime:runtime-saveable", version = "1.11.2" }
-composeUiToolingPreview = { module = "org.jetbrains.compose.ui:ui-tooling-preview", version = "1.11.0" }
+composeUiToolingPreview = { module = "org.jetbrains.compose.ui:ui-tooling-preview", version = "1.11.1" }
 composeUiTooling = { module = "org.jetbrains.compose.ui:ui-tooling", version.ref = "compose" }
 
 # Test
@@ -162,7 +162,7 @@ zoomable = { module = "net.engawapg.lib:zoomable", version.ref = "zoomable" }
 
 # Log
 log4j-api = { module = "org.slf4j:slf4j-api", version.require = "2.0.18" }
-logback-classic = { module = "ch.qos.logback:logback-classic", version.require = "1.5.32" }
+logback-classic = { module = "ch.qos.logback:logback-classic", version.require = "1.5.34" }
 logstashLogbackEncoder = { module = "net.logstash.logback:logstash-logback-encoder", version.require = "9.0" }
 
 # Graphql
