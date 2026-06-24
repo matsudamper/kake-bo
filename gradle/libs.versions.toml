@@ -189,7 +189,7 @@ workRuntimeKtx = { module = "androidx.work:work-runtime-ktx", version.ref = "wor
 timber = { module = "com.jakewharton.timber:timber", version.ref = "timber" }
 
 # Other
-lettuce = { module = "io.lettuce:lettuce-core", version.require = "7.5.2.RELEASE" }
+lettuce = { module = "io.lettuce:lettuce-core", version.require = "7.6.0.RELEASE" }
 jsoup = { module = "org.jsoup:jsoup", version.require = "1.22.2" }
 hikariCP = { module = "com.zaxxer:HikariCP", version.require = "7.0.2" }
 mariadbClient = { module = "org.mariadb.jdbc:mariadb-java-client", version.require = "3.5.8" }
