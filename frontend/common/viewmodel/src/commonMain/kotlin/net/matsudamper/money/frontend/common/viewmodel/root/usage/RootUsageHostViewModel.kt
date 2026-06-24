@@ -56,8 +56,17 @@ public class RootUsageHostViewModel(
 
         override fun onClickCalendar() {
             viewModelScope.launch {
+                val state = mutableViewModelStateFlow.value
+                val yearMonth = if (state.calendarYear != null && state.calendarMonth != null) {
+                    ScreenStructure.Root.Usage.Calendar.YearMonth(
+                        year = state.calendarYear,
+                        month = state.calendarMonth,
+                    )
+                } else {
+                    null
+                }
                 rootNavigationEventSender.send {
-                    it.navigate(ScreenStructure.Root.Usage.Calendar())
+                    it.navigate(ScreenStructure.Root.Usage.Calendar(yearMonth = yearMonth))
                 }
             }
         }
