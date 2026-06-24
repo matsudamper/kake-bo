@@ -54,7 +54,7 @@ fun Project.androidLibrary(action: LibraryExtension.() -> Unit) {
     extensions.configure(action)
 }
 
-fun Project.androidCommon(action: CommonExtension<*, *, *, *, *, *>.() -> Unit) {
-    val extension = extensions.findByName("android") as CommonExtension<*, *, *, *, *, *>
+fun Project.androidCommon(action: CommonExtension.() -> Unit) {
+    val extension = extensions.findByName("android") as CommonExtension
     action(extension)
 }
