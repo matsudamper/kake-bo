@@ -39,4 +39,10 @@ internal interface ImageUploadRoomDao {
 
     @Query("SELECT * FROM image_upload_queue ORDER BY createdAt DESC")
     fun observeAll(): Flow<List<ImageUploadRoomEntity>>
+
+    @Query("SELECT * FROM image_upload_queue")
+    suspend fun getAll(): List<ImageUploadRoomEntity>
+
+    @Query("DELETE FROM image_upload_queue")
+    suspend fun deleteAll()
 }

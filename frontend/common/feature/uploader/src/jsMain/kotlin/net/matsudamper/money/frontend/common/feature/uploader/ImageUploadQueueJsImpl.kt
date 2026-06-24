@@ -111,6 +111,19 @@ public class ImageUploadQueueJsImpl private constructor(
         triggerNext(MoneyUsageId(entity.moneyUsageId))
     }
 
+    override suspend fun clearAll() {
+        val allItems = dao.getAll()
+        allItems.forEach { entity ->
+            val moneyUsageKey = entity.moneyUsageId
+            if (activeItemIds[moneyUsageKey] == entity.id) {
+                activeJobs.remove(moneyUsageKey)?.cancel()
+                activeItemIds.remove(moneyUsageKey)
+            }
+            localStorage.deleteImages(entity.id)
+        }
+        dao.deleteAll()
+    }
+
     private fun triggerNext(moneyUsageId: MoneyUsageId) {
         val moneyUsageKey = moneyUsageId.id
         if (activeJobs[moneyUsageKey]?.isActive == true) return
