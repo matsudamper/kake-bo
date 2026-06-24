@@ -15,12 +15,12 @@ class AndroidLibraryPlugin : Plugin<Project> {
                 apply("com.android.library")
             }
             androidLibrary {
-                compileSdk = 36
+                compileSdk = 37
                 defaultConfig {
                     minSdk = 34
                 }
                 lint {
-                    targetSdk = 36
+                    targetSdk = 37
                 }
                 compileOptions {
                     sourceCompatibility = JavaVersion.toVersion(libs.findVersion("java").get().displayName.toInt())
