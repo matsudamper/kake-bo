@@ -34,12 +34,9 @@ public class ImportedMailFilterCategoryViewModel(
     private val graphqlClient: GraphqlClient,
     private val id: ImportedMailCategoryFilterId,
     private val api: ImportedMailFilterCategoryScreenGraphqlApi,
+    private val pagingModel: ImportedMailCategoryFilterScreenPagingModel,
     navController: ScreenNavController,
 ) : CommonViewModel(scopedObjectFeature) {
-    private val pagingModel = ImportedMailCategoryFilterScreenPagingModel(
-        scopedObjectFeature = scopedObjectFeature,
-        graphqlClient = graphqlClient,
-    )
     private val viewModelStateFlow = MutableStateFlow(ViewModelState())
     private val apiResponseCollector = ApolloResponseCollector.create(
         apolloClient = graphqlClient.apolloClient,
