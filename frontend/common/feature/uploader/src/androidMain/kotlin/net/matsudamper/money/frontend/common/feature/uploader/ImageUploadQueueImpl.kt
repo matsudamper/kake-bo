@@ -114,6 +114,18 @@ internal class ImageUploadQueueImpl(
         }
     }
 
+    override suspend fun clearAll() {
+        val allItems = dao.getAll()
+        allItems.forEach { entity ->
+            localStorage.deleteImages(entity.id)
+            val workManagerId = entity.workManagerId
+            if (workManagerId != null) {
+                WorkManager.getInstance(context).cancelWorkById(UUID.fromString(workManagerId))
+            }
+        }
+        dao.deleteAll()
+    }
+
     internal companion object {
         const val STATUS_PENDING = "PENDING"
         const val STATUS_UPLOADING = "UPLOADING"
