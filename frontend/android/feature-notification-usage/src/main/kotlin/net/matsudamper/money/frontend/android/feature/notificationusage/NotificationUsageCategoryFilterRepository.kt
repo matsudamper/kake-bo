@@ -8,6 +8,7 @@ import net.matsudamper.money.categoryfilter.CategoryFilterDataSourceType
 import net.matsudamper.money.categoryfilter.CategoryFilterOperator
 import net.matsudamper.money.categoryfilter.evaluateCategoryFilters
 import net.matsudamper.money.element.MoneyUsageSubCategoryId
+import net.matsudamper.money.frontend.common.base.Logger
 import net.matsudamper.money.frontend.common.base.runCatchingWithoutCancel
 import net.matsudamper.money.frontend.graphql.GraphqlClient
 import net.matsudamper.money.frontend.graphql.NotificationUsageCategoryFiltersQuery
@@ -20,6 +21,8 @@ import net.matsudamper.money.frontend.graphql.type.ImportedMailFilterCategoryCon
 internal interface NotificationUsageCategoryFilterRepository {
     suspend fun getMatchingSubCategoryId(title: String, serviceName: String): MoneyUsageSubCategoryId?
 }
+
+private const val TAG = "NotificationUsageCategoryFilterRepository"
 
 internal class NotificationUsageCategoryFilterGraphqlRepository(
     private val graphqlClient: GraphqlClient,
@@ -37,6 +40,8 @@ internal class NotificationUsageCategoryFilterGraphqlRepository(
                     ),
                 )
                 .execute()
+        }.onFailure {
+            Logger.e(TAG, it)
         }.getOrNull() ?: return null
 
         val nodes = response.data?.user?.importedMailCategoryFilters?.nodes.orEmpty()

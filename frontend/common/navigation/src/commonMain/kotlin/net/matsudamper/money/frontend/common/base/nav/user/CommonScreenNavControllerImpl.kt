@@ -57,4 +57,12 @@ internal class CommonScreenNavControllerImpl(
             back()
         }
     }
+
+    override fun navigateToLogin() {
+        val size = navBackstack.size
+        repeat(size) {
+            navBackstack.removeAt(navBackstack.lastIndex)
+        }
+        navBackstack.add(ScreenStructure.Login)
+    }
 }

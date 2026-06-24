@@ -22,6 +22,7 @@ import kotlinx.coroutines.flow.filterNotNull
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.launch
 import kotlinx.datetime.toKotlinLocalDateTime
+import net.matsudamper.money.frontend.common.base.Logger
 import net.matsudamper.money.frontend.common.base.nav.user.ScreenNavController
 import net.matsudamper.money.frontend.common.base.nav.user.ScreenStructure
 import net.matsudamper.money.frontend.common.base.nav.user.rememberMainScreenNavController
@@ -31,6 +32,8 @@ import net.matsudamper.money.frontend.common.viewmodel.root.GlobalEvent
 import net.matsudamper.money.platform.PlatFormToolsImpl
 import net.matsudamper.money.ui.root.Content
 import org.koin.core.context.GlobalContext
+
+private const val TAG = "MainActivity"
 
 class MainActivity : ComponentActivity() {
     private val navControllerFlow: MutableStateFlow<ScreenNavController?> = MutableStateFlow(null)
@@ -113,7 +116,7 @@ class MainActivity : ComponentActivity() {
                     runCatching {
                         LocalDateTime.parse(dateString, formatter)
                     }.onFailure {
-                        it.printStackTrace()
+                        Logger.e(TAG, it)
                     }.getOrNull()?.toKotlinLocalDateTime()
                 }
 

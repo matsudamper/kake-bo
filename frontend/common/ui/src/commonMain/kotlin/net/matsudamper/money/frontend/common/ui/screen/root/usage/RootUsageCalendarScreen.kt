@@ -47,6 +47,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
+import net.matsudamper.money.frontend.common.base.ColorUtil
 import net.matsudamper.money.frontend.common.base.ImmutableList
 import net.matsudamper.money.frontend.common.base.ImmutableList.Companion.toImmutableList
 import net.matsudamper.money.frontend.common.ui.AppRoot
@@ -253,7 +254,7 @@ private fun CalendarCell(
         )
         uiState.items.forEach { item ->
             Spacer(Modifier.height(2.dp))
-            val textColor = contrastTextColor(item.color)
+            val textColor = ColorUtil.contrastTextColor(item.color)
             Card(
                 modifier = Modifier.padding(horizontal = horizontalPadding),
                 colors = CardDefaults.cardColors(
@@ -281,11 +282,6 @@ private fun CalendarCell(
             }
         }
     }
-}
-
-private fun contrastTextColor(backgroundColor: Color): Color {
-    val luminance = 0.299 * backgroundColor.red + 0.587 * backgroundColor.green + 0.114 * backgroundColor.blue
-    return if (luminance > 0.5) Color.Black else Color.White
 }
 
 @Composable

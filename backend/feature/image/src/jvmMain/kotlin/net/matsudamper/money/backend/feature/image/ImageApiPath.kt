@@ -5,10 +5,21 @@ object ImageApiPath {
         return "/api/image/v1/$displayId"
     }
 
+    fun adminImageV1ByDisplayId(displayId: String): String {
+        return "/api/admin/image/v1/$displayId"
+    }
+
     fun imageV1AbsoluteByDisplayId(
         domain: String,
         displayId: String,
     ): String {
         return "https://$domain${imageV1ByDisplayId(displayId)}"
+    }
+
+    fun adminImageV1AbsoluteByDisplayId(
+        domain: String,
+        displayId: String,
+    ): String {
+        return "https://$domain${adminImageV1ByDisplayId(displayId)}"
     }
 }

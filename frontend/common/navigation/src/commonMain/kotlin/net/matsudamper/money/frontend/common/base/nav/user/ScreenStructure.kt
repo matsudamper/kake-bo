@@ -7,6 +7,9 @@ import net.matsudamper.money.element.ImportedMailId
 import net.matsudamper.money.element.MoneyUsageCategoryId
 import net.matsudamper.money.element.MoneyUsageId
 import net.matsudamper.money.element.MoneyUsagePresetId
+import net.matsudamper.money.frontend.common.base.Logger
+
+private const val TAG = "ScreenStructure"
 
 public sealed interface ScreenStructure : IScreenStructure {
     public sealed interface Root : ScreenStructure {
@@ -35,6 +38,12 @@ public sealed interface ScreenStructure : IScreenStructure {
             public data object Imap : Settings {
                 override val direction: Screens = Screens.SettingsImap
                 override val sameScreenId: String = "ScreenStructure#Root#Settings#Imap"
+            }
+
+            @Serializable
+            public data object Timezone : Settings {
+                override val direction: Screens = Screens.SettingsTimezone
+                override val sameScreenId: String = "ScreenStructure#Root#Settings#Timezone"
             }
 
             @Serializable
@@ -283,11 +292,38 @@ public sealed interface ScreenStructure : IScreenStructure {
         override val sameScreenId: String = "ScreenStructure#Login"
     }
 
-    @Serializable
-    public data object Admin : ScreenStructure {
-        override val direction: Screens = Screens.Admin
-        override val stackGroupId: String? = null
-        override val sameScreenId: String = "ScreenStructure#Admin"
+    public sealed interface Admin : ScreenStructure {
+        override val stackGroupId: String? get() = null
+
+        @Serializable
+        public data object Root : Admin {
+            override val direction: Screens = Screens.AdminRoot
+            override val sameScreenId: String = "ScreenStructure#Admin#Root"
+        }
+
+        @Serializable
+        public data object Login : Admin {
+            override val direction: Screens = Screens.AdminLogin
+            override val sameScreenId: String = "ScreenStructure#Admin#Login"
+        }
+
+        @Serializable
+        public data object AddUser : Admin {
+            override val direction: Screens = Screens.AdminAddUser
+            override val sameScreenId: String = "ScreenStructure#Admin#AddUser"
+        }
+
+        @Serializable
+        public data object UnlinkedImages : Admin {
+            override val direction: Screens = Screens.AdminUnlinkedImages
+            override val sameScreenId: String = "ScreenStructure#Admin#UnlinkedImages"
+        }
+
+        @Serializable
+        public data object UserSearch : Admin {
+            override val direction: Screens = Screens.AdminUserSearch
+            override val sameScreenId: String = "ScreenStructure#Admin#UserSearch"
+        }
     }
 
     @Serializable
@@ -423,7 +459,7 @@ public sealed interface ScreenStructure : IScreenStructure {
 
                     run {
                         val parsedDate = if (date != null) {
-                            runCatching { dateFormat.format(date) }.getOrNull()
+                            runCatching { dateFormat.format(date) }.onFailure { Logger.e(TAG, it) }.getOrNull()
                         } else {
                             null
                         }

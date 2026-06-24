@@ -6,6 +6,7 @@ import kotlinx.datetime.LocalDateTime
 import kotlinx.datetime.LocalTime
 import kotlinx.datetime.TimeZone
 import kotlinx.datetime.toLocalDateTime
+import net.matsudamper.money.frontend.common.base.Logger
 import net.matsudamper.money.frontend.common.base.notification.NotificationUsageDraft
 import net.matsudamper.money.frontend.common.base.notification.NotificationUsageFilterDefinition
 import net.matsudamper.money.frontend.common.base.notification.NotificationUsageParser
@@ -34,7 +35,6 @@ internal class SaisonCardNotificationUsageParser : NotificationUsageParser {
     }
 
     private fun parseAmount(text: String): Int? {
-        // "金額：3,111円" のような利用金額を抽出する
         val match = Regex("""金額：([0-9,]+)円""").find(text) ?: return null
         return match.groupValues[1].replace(",", "").toIntOrNull()
     }
@@ -45,7 +45,6 @@ internal class SaisonCardNotificationUsageParser : NotificationUsageParser {
     }
 
     private fun parseDateTime(text: String): LocalDateTime? {
-        // "日時：2020年5月22日 12時33分" のような利用日時を抽出する
         val match = Regex("""日時：(\d+)年(\d+)月(\d+)日\s+(\d+)時(\d+)分""").find(text) ?: return null
         val (year, month, day, hour, minute) = match.destructured
         return runCatching {
@@ -53,6 +52,12 @@ internal class SaisonCardNotificationUsageParser : NotificationUsageParser {
                 date = LocalDate(year.toInt(), month.toInt(), day.toInt()),
                 time = LocalTime(hour.toInt(), minute.toInt()),
             )
+        }.onFailure {
+            Logger.e(TAG, it)
         }.getOrNull()
+    }
+
+    companion object {
+        private const val TAG = "SaisonCardNotificationUsageParser"
     }
 }

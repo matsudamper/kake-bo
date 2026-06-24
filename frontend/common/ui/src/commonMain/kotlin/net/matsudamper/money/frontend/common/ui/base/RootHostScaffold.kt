@@ -14,11 +14,6 @@ import androidx.compose.foundation.layout.only
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.safeDrawing
 import androidx.compose.foundation.layout.width
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.automirrored.filled.List
-import androidx.compose.material.icons.filled.Add
-import androidx.compose.material.icons.filled.Home
-import androidx.compose.material.icons.filled.Settings
 import androidx.compose.material3.Icon
 import androidx.compose.material3.NavigationBar
 import androidx.compose.material3.NavigationBarItem
@@ -45,8 +40,14 @@ import net.matsudamper.money.frontend.common.base.nav.user.ScreenNavController
 import net.matsudamper.money.frontend.common.base.nav.user.ScreenStructure
 import net.matsudamper.money.frontend.common.ui.LocalCustomColors
 import net.matsudamper.money.frontend.common.ui.LocalIsLargeScreen
+import net.matsudamper.money.frontend.common.ui.generated.resources.Res
+import net.matsudamper.money.frontend.common.ui.generated.resources.ic_add
+import net.matsudamper.money.frontend.common.ui.generated.resources.ic_home
+import net.matsudamper.money.frontend.common.ui.generated.resources.ic_list
+import net.matsudamper.money.frontend.common.ui.generated.resources.ic_settings
 import net.matsudamper.money.frontend.common.ui.lib.asWindowInsets
 import net.matsudamper.money.frontend.common.ui.rememberCustomFontFamily
+import org.jetbrains.compose.resources.painterResource
 
 public val LocalRootScaffoldPadding: ProvidableCompositionLocal<PaddingValues> =
     staticCompositionLocalOf { PaddingValues(0.dp) }
@@ -137,7 +138,7 @@ private fun RootHostScaffoldContent(
                         selected = currentScreen == RootScreenTab.Home,
                         onClick = { onClickTab(RootScreenTab.Home) },
                         icon = {
-                            Icon(Icons.Default.Home, null)
+                            Icon(painter = painterResource(Res.drawable.ic_home), contentDescription = null)
                         },
                         label = {
                             Text(
@@ -150,7 +151,7 @@ private fun RootHostScaffoldContent(
                         selected = currentScreen == RootScreenTab.List,
                         onClick = { onClickTab(RootScreenTab.List) },
                         icon = {
-                            Icon(Icons.AutoMirrored.Filled.List, null)
+                            Icon(painter = painterResource(Res.drawable.ic_list), contentDescription = null)
                         },
                         label = {
                             Text(
@@ -163,7 +164,7 @@ private fun RootHostScaffoldContent(
                         selected = currentScreen == RootScreenTab.Add,
                         onClick = { onClickTab(RootScreenTab.Add) },
                         icon = {
-                            Icon(Icons.Default.Add, null)
+                            Icon(painter = painterResource(Res.drawable.ic_add), contentDescription = null)
                         },
                         label = {
                             Text(
@@ -176,7 +177,7 @@ private fun RootHostScaffoldContent(
                         selected = currentScreen == RootScreenTab.Settings,
                         onClick = { onClickTab(RootScreenTab.Settings) },
                         icon = {
-                            Icon(Icons.Default.Settings, null)
+                            Icon(painter = painterResource(Res.drawable.ic_settings), contentDescription = null)
                         },
                         label = {
                             Text(
@@ -198,9 +199,14 @@ private fun RootHostScaffoldContent(
                     .weight(1f)
                     .fillMaxHeight(),
             ) {
+                val contentSides = if (LocalIsLargeScreen.current) {
+                    WindowInsetsSides.Top + WindowInsetsSides.End
+                } else {
+                    WindowInsetsSides.Top + WindowInsetsSides.Horizontal
+                }
                 content(
                     windowInsets.asWindowInsets()
-                        .only(WindowInsetsSides.Top + WindowInsetsSides.Horizontal)
+                        .only(contentSides)
                         .asPaddingValues(),
                 )
             }
@@ -218,7 +224,7 @@ private fun RootHostScaffoldContent(
                     selected = currentScreen == RootScreenTab.Home,
                     onClick = { onClickTab(RootScreenTab.Home) },
                     icon = {
-                        Icon(Icons.Default.Home, null)
+                        Icon(painter = painterResource(Res.drawable.ic_home), contentDescription = null)
                     },
                     label = {
                         Text(
@@ -231,7 +237,7 @@ private fun RootHostScaffoldContent(
                     selected = currentScreen == RootScreenTab.List,
                     onClick = { onClickTab(RootScreenTab.List) },
                     icon = {
-                        Icon(Icons.AutoMirrored.Filled.List, null)
+                        Icon(painter = painterResource(Res.drawable.ic_list), contentDescription = null)
                     },
                     label = {
                         Text(
@@ -244,7 +250,7 @@ private fun RootHostScaffoldContent(
                     selected = currentScreen == RootScreenTab.Add,
                     onClick = { onClickTab(RootScreenTab.Add) },
                     icon = {
-                        Icon(Icons.Default.Add, null)
+                        Icon(painter = painterResource(Res.drawable.ic_add), contentDescription = null)
                     },
                     label = {
                         Text(
@@ -257,7 +263,7 @@ private fun RootHostScaffoldContent(
                     selected = currentScreen == RootScreenTab.Settings,
                     onClick = { onClickTab(RootScreenTab.Settings) },
                     icon = {
-                        Icon(Icons.Default.Settings, null)
+                        Icon(painter = painterResource(Res.drawable.ic_settings), contentDescription = null)
                     },
                     label = {
                         Text(

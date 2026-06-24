@@ -7,6 +7,7 @@ import kotlinx.coroutines.flow.firstOrNull
 import kotlinx.coroutines.withContext
 import kotlinx.serialization.json.Json
 import net.matsudamper.money.frontend.common.base.ImageUploadClient
+import net.matsudamper.money.frontend.common.base.Logger
 import net.matsudamper.money.frontend.common.feature.localstore.generated.Session
 import net.matsudamper.money.frontend.graphql.serverHost
 import net.matsudamper.money.frontend.graphql.serverProtocol
@@ -19,6 +20,7 @@ import okhttp3.Request
 import okhttp3.RequestBody.Companion.toRequestBody
 
 private const val UserSessionIdKey = "user_session_id"
+private const val TAG = "ImageUploadClientAndroidImpl"
 
 public class ImageUploadClientAndroidImpl(
     private val sessionDataStore: DataStore<Session>,
@@ -76,6 +78,8 @@ public class ImageUploadClientAndroidImpl(
                     imageId = success.imageId,
                     url = success.url,
                 )
+            }.onFailure {
+                Logger.e(TAG, it)
             }.getOrNull()
         }
     }

@@ -11,7 +11,9 @@ import com.apollographql.apollo.api.ApolloResponse
 import com.apollographql.apollo.cache.normalized.FetchPolicy
 import com.apollographql.apollo.cache.normalized.fetchPolicy
 import net.matsudamper.money.element.ImportedMailId
+import net.matsudamper.money.frontend.common.base.HtmlEscape
 import net.matsudamper.money.frontend.common.base.IO
+import net.matsudamper.money.frontend.common.base.Logger
 import net.matsudamper.money.frontend.common.base.nav.ScopedObjectFeature
 import net.matsudamper.money.frontend.common.ui.screen.importedmail.plain.ImportedMailPlainScreenUiState
 import net.matsudamper.money.frontend.common.viewmodel.CommonViewModel
@@ -19,6 +21,8 @@ import net.matsudamper.money.frontend.common.viewmodel.lib.EventHandler
 import net.matsudamper.money.frontend.common.viewmodel.lib.EventSender
 import net.matsudamper.money.frontend.graphql.GraphqlClient
 import net.matsudamper.money.frontend.graphql.ImportedMailPlainScreenQuery
+
+private const val TAG = "ImportedMailPlainViewModel"
 
 public class ImportedMailPlainViewModel(
     private val id: ImportedMailId,
@@ -64,6 +68,7 @@ public class ImportedMailPlainViewModel(
                 }
 
                 if (apolloResult.isFailure) {
+                    Logger.e(TAG, apolloResult.exceptionOrNull() ?: Exception("unknown error"))
                     loadingState = ImportedMailPlainScreenUiState.LoadingState.Error
                     uiStateFlow.update { it.copy(loadingState = loadingState) }
                     return@collectLatest
@@ -78,14 +83,15 @@ public class ImportedMailPlainViewModel(
                     return@collectLatest
                 }
 
+                val plain = mailData.plain
                 loadingState = ImportedMailPlainScreenUiState.LoadingState.Loaded(
-                    html = sequence {
-                        yield(
-                            mailData.plain
-                                ?.replace("\r\n", "<br>")
-                                ?.replace("\n", "<br>"),
-                        )
-                    }.filterNotNull().firstOrNull().orEmpty(),
+                    html = if (plain != null) {
+                        HtmlEscape.escape(plain)
+                            .replace("\r\n", "<br>")
+                            .replace("\n", "<br>")
+                    } else {
+                        ""
+                    },
                 )
 
                 uiStateFlow.update {

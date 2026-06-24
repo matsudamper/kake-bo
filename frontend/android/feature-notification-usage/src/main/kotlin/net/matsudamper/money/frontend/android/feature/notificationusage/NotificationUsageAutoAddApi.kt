@@ -4,6 +4,7 @@ import kotlinx.datetime.LocalDateTime
 import com.apollographql.apollo.api.Optional
 import net.matsudamper.money.element.MoneyUsageId
 import net.matsudamper.money.element.MoneyUsageSubCategoryId
+import net.matsudamper.money.frontend.common.base.Logger
 import net.matsudamper.money.frontend.common.base.runCatchingWithoutCancel
 import net.matsudamper.money.frontend.graphql.AddMoneyUsageMutation
 import net.matsudamper.money.frontend.graphql.GraphqlClient
@@ -42,6 +43,12 @@ internal class NotificationUsageAutoAddGraphqlApi(
                 )
                 .execute()
                 .data?.userMutation?.addUsage?.id
+        }.onFailure {
+            Logger.e(TAG, it)
         }.getOrNull()
+    }
+
+    companion object {
+        private const val TAG = "NotificationUsageAutoAddGraphqlApi"
     }
 }

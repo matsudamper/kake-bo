@@ -20,11 +20,32 @@ public object ServerEnv {
     public val appFingerprint: String get() = System.getenv()["APP_FINGERPRINT"]!!
     public val apkKeyHash: String get() = System.getenv()["APK_KEY_HASH"].orEmpty()
 
-    public val adminPassword: String get() = System.getenv()["ADMIN_PASSWORD"]!!
-
     public val userPasswordPepper: String get() = System.getenv("USER_PASSWORD_PEPPER")!!
+
+    public val adminPasswordHash: String? get() = System.getenv("ADMIN_PASSWORD_HASH")
+    public val adminPasswordSalt: String? get() = System.getenv("ADMIN_PASSWORD_SALT")
+
+    public val adminPasswordAlgorithm: String get() = "PBKDF2WithHmacSHA512"
+    public val adminPasswordIterationCount: Int get() = 100000
+    public val adminPasswordKeyLength: Int get() = 512
 
     public val enableRedis: Boolean get() = System.getenv("ENABLE_REDIS")?.toBooleanStrictOrNull() ?: false
     public val redisHost: String? get() = System.getenv("REDIS_HOST")?.takeIf { it.isNotBlank() }
     public val redisPort: Int? get() = System.getenv("REDIS_PORT")?.toInt()
+
+    public val enableS3: Boolean get() = System.getenv("ENABLE_S3")?.toBooleanStrictOrNull() ?: false
+    public val S3: S3Env? by lazy { if (enableS3) S3Env() else null }
+
+    public class S3Env {
+        public val oidcIssuer: String get() = requireNotNull(System.getenv("OIDC_ISSUER")) { "OIDC_ISSUER が未設定です" }
+        public val oidcJwkPrivate: String get() = requireNotNull(System.getenv("OIDC_JWK_PRIVATE")) { "OIDC_JWK_PRIVATE が未設定です" }
+        public val s3Endpoint: String get() = requireNotNull(System.getenv("S3_ENDPOINT")) { "S3_ENDPOINT が未設定です" }
+        public val s3Region: String? get() = System.getenv("S3_REGION")
+        public val s3Bucket: String get() = requireNotNull(System.getenv("S3_BUCKET")) { "S3_BUCKET が未設定です" }
+        public val s3RoleArn: String get() = requireNotNull(System.getenv("S3_ROLE_ARN")) { "S3_ROLE_ARN が未設定です" }
+        public val s3RoleSessionName: String get() = System.getenv("S3_ROLE_SESSION_NAME") ?: "kake-bo-image-upload"
+        public val s3Audience: String get() = requireNotNull(System.getenv("S3_AUDIENCE")) { "S3_AUDIENCE が未設定です" }
+        public val s3PathStyleAccess: Boolean get() = System.getenv("S3_PATH_STYLE_ACCESS")?.toBooleanStrictOrNull() ?: true
+        public val stsEndpoint: String get() = requireNotNull(System.getenv("STS_ENDPOINT")) { "STS_ENDPOINT が未設定です" }
+    }
 }

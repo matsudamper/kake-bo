@@ -22,6 +22,7 @@ import io.opentelemetry.instrumentation.graphql.v20_0.GraphQLTelemetry
 import net.matsudamper.money.backend.base.OpenTelemetryInitializer
 import net.matsudamper.money.backend.base.ServerEnv
 import net.matsudamper.money.backend.di.MainDiContainer
+import net.matsudamper.money.backend.graphql.resolver.AdminUnlinkedImagesConnectionResolverImpl
 import net.matsudamper.money.backend.graphql.resolver.ImageResolverImpl
 import net.matsudamper.money.backend.graphql.resolver.MoneyUsageCategoryResolverImpl
 import net.matsudamper.money.backend.graphql.resolver.MoneyUsageResolverImpl
@@ -55,6 +56,7 @@ import net.matsudamper.money.element.MoneyUsageCategoryId
 import net.matsudamper.money.element.MoneyUsageId
 import net.matsudamper.money.element.MoneyUsagePresetId
 import net.matsudamper.money.element.MoneyUsageSubCategoryId
+import net.matsudamper.money.element.SessionRecordId
 import net.matsudamper.money.graphql.model.GraphQlInputField
 
 object MoneyGraphQlSchema {
@@ -82,9 +84,11 @@ object MoneyGraphQlSchema {
         SchemaParser.newParser()
             .schemaString(schemaFiles.joinToString("\n"))
             .scalars(
-                GraphQLScalarType.newScalar(ExtendedScalars.GraphQLLong)
-                    .name("UserId")
-                    .build(),
+                createIntScalarType(
+                    name = "UserId",
+                    deserialize = { net.matsudamper.money.element.UserId(it) },
+                    serialize = { it.value },
+                ),
                 GraphQLScalarType.newScalar(ExtendedScalars.GraphQLLong)
                     .name("Long")
                     .build(),
@@ -133,6 +137,11 @@ object MoneyGraphQlSchema {
                     deserialize = { ApiTokenId(it) },
                     serialize = { it.value },
                 ),
+                createStringScalarType(
+                    name = "SessionRecordId",
+                    deserialize = { SessionRecordId(it) },
+                    serialize = { it.value },
+                ),
                 createIntScalarType(
                     name = "ImageId",
                     deserialize = { ImageId(it) },
@@ -152,6 +161,7 @@ object MoneyGraphQlSchema {
                     .build(),
             )
             .resolvers(
+                AdminUnlinkedImagesConnectionResolverImpl(),
                 ImageResolverImpl(),
                 QueryResolverImpl(),
                 ImportedMailCategoryConditionResolverImpl(),
