@@ -346,7 +346,13 @@ public class RootHomeTabPeriodSubCategoryContentViewModel(
             val last = displayPeriod.sinceDate.addMonth(displayPeriod.monthCount - 1)
             return RootHomeTabPeriodSubCategoryContentUiState.PeriodUiState(
                 between = "${first.year}/${first.month} - ${last.year}/${last.month}",
-                rangeText = "${displayPeriod.monthCount}ヶ月",
+                rangeText = displayPeriod.monthCount.let { monthCount ->
+                    if (monthCount == 24) {
+                        "2年"
+                    } else {
+                        "${monthCount}ヶ月"
+                    }
+                },
             )
         }
     }
