@@ -69,4 +69,12 @@ internal interface NotificationUsageDao {
         """,
     )
     suspend fun markAsAdded(notificationKey: String, moneyUsageId: Int?)
+
+    @Query(
+        """
+        DELETE FROM notification_usage_records
+        WHERE notificationKey = :notificationKey
+        """,
+    )
+    suspend fun deleteByKey(notificationKey: String)
 }

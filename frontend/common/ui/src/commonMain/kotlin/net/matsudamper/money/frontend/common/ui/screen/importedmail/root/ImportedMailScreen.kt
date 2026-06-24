@@ -17,10 +17,6 @@ import androidx.compose.foundation.layout.widthIn
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.lazy.rememberLazyListState
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.automirrored.filled.ArrowBack
-import androidx.compose.material.icons.filled.Add
-import androidx.compose.material.icons.filled.MoreVert
 import androidx.compose.material3.Card
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.DropdownMenu
@@ -46,10 +42,15 @@ import androidx.compose.ui.unit.dp
 import net.matsudamper.money.frontend.common.base.ImmutableList
 import net.matsudamper.money.frontend.common.ui.base.KakeBoTopAppBar
 import net.matsudamper.money.frontend.common.ui.base.LoadingErrorContent
+import net.matsudamper.money.frontend.common.ui.generated.resources.Res
+import net.matsudamper.money.frontend.common.ui.generated.resources.ic_add
+import net.matsudamper.money.frontend.common.ui.generated.resources.ic_arrow_back
+import net.matsudamper.money.frontend.common.ui.generated.resources.ic_more_vert
 import net.matsudamper.money.frontend.common.ui.layout.AlertDialog
 import net.matsudamper.money.frontend.common.ui.layout.GridColumn
 import net.matsudamper.money.frontend.common.ui.layout.UrlClickableText
 import net.matsudamper.money.frontend.common.ui.layout.UrlMenuDialog
+import org.jetbrains.compose.resources.painterResource
 
 public data class MailScreenUiState(
     val loadingState: LoadingState,
@@ -192,7 +193,7 @@ public fun ImportedMailScreen(
                 navigation = {
                     IconButton(onClick = { uiState.event.onClickArrowBackButton() }) {
                         Icon(
-                            imageVector = Icons.AutoMirrored.Filled.ArrowBack,
+                            painter = painterResource(Res.drawable.ic_arrow_back),
                             contentDescription = null,
                         )
                     }
@@ -201,7 +202,7 @@ public fun ImportedMailScreen(
                     var expand by remember { mutableStateOf(false) }
                     Box {
                         IconButton(onClick = { expand = !expand }) {
-                            Icon(Icons.Default.MoreVert, contentDescription = "menu")
+                            Icon(painter = painterResource(Res.drawable.ic_more_vert), contentDescription = "menu")
                         }
                         DropdownMenu(
                             expanded = expand,
@@ -405,7 +406,7 @@ private fun UsageSuggestEmptyContent(
             onClick = { onClickRegister() },
         ) {
             Icon(
-                imageVector = Icons.Default.Add,
+                painter = painterResource(Res.drawable.ic_add),
                 contentDescription = null,
             )
             Text("手動登録")

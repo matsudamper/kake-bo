@@ -2,7 +2,7 @@ package net.matsudamper.money
 
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.CompositionLocalProvider
-import net.matsudamper.money.ui.root.LocalKoin
+import net.matsudamper.money.frontend.common.di.LocalKoin
 import org.koin.core.Koin
 
 @Composable

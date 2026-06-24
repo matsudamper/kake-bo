@@ -39,6 +39,10 @@ internal class BrowserNavBackstack(initial: IScreenStructure) {
         }
     }
 
+    fun navigateToLogin(navigation: IScreenStructure) {
+        entries = listOf(navigation)
+    }
+
     fun navigateReplace(navigation: IScreenStructure) {
         entries = if (entries.isEmpty()) {
             listOf(navigation)

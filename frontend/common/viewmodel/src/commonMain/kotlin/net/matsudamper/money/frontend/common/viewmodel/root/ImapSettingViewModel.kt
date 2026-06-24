@@ -8,6 +8,7 @@ import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import net.matsudamper.money.frontend.common.base.ImmutableList.Companion.toImmutableList
+import net.matsudamper.money.frontend.common.base.Logger
 import net.matsudamper.money.frontend.common.base.immutableListOf
 import net.matsudamper.money.frontend.common.base.nav.ScopedObjectFeature
 import net.matsudamper.money.frontend.common.base.nav.user.ScreenNavController
@@ -17,6 +18,8 @@ import net.matsudamper.money.frontend.common.viewmodel.CommonViewModel
 import net.matsudamper.money.frontend.common.viewmodel.lib.EventSender
 import net.matsudamper.money.frontend.graphql.GraphqlUserConfigQuery
 import net.matsudamper.money.frontend.graphql.fragment.DisplayImapConfig
+
+private const val TAG = "ImapSettingViewModel"
 
 public class ImapSettingViewModel(
     scopedObjectFeature: ScopedObjectFeature,
@@ -101,6 +104,7 @@ public class ImapSettingViewModel(
                                         )
                                     }
                                 }.onFailure {
+                                    Logger.e(TAG, it)
                                     globalEventSender.send {
                                         it.showNativeNotification("更新に失敗しました")
                                     }
@@ -138,6 +142,7 @@ public class ImapSettingViewModel(
                                         )
                                     }
                                 }.onFailure {
+                                    Logger.e(TAG, it)
                                     globalEventSender.send {
                                         it.showNativeNotification("更新に失敗しました")
                                     }
@@ -182,6 +187,7 @@ public class ImapSettingViewModel(
                                         )
                                     }
                                 }.onFailure {
+                                    Logger.e(TAG, it)
                                     globalEventSender.send {
                                         it.showNativeNotification("更新に失敗しました")
                                     }
@@ -219,6 +225,7 @@ public class ImapSettingViewModel(
                                         )
                                     }
                                 }.onFailure {
+                                    Logger.e(TAG, it)
                                     globalEventSender.send {
                                         it.showNativeNotification("更新に失敗しました")
                                     }
@@ -270,12 +277,12 @@ public class ImapSettingViewModel(
     }
 
     private fun load() {
-        println("load")
         viewModelScope.launch {
             val configFLow = withContext(ioDispatchers) {
                 runCatching {
                     graphqlQuery.getConfig()
                 }.onFailure {
+                    Logger.e(TAG, it)
                 }.getOrNull()
             } ?: return@launch
             val displayImapConfig = configFLow.data?.user?.settings?.imapConfig?.displayImapConfig

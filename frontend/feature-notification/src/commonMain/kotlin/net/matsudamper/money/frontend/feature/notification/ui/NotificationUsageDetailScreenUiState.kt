@@ -4,6 +4,7 @@ import androidx.compose.runtime.Immutable
 
 public data class NotificationUsageDetailScreenUiState(
     val loadingState: LoadingState,
+    val deleteConfirmDialog: DeleteConfirmDialog?,
     val event: Event,
 ) {
     public sealed interface LoadingState {
@@ -15,11 +16,21 @@ public data class NotificationUsageDetailScreenUiState(
             val notification: Notification,
             val filter: Filter,
             val draft: Draft?,
-            val canRegister: Boolean,
             val linkedUsage: LinkedUsageState,
             val metadataDialog: MetadataDialog?,
             val event: LoadedEvent,
         ) : LoadingState
+    }
+
+    public data class DeleteConfirmDialog(
+        val event: DeleteConfirmDialogEvent,
+    )
+
+    @Immutable
+    public interface DeleteConfirmDialogEvent {
+        public fun onConfirm()
+
+        public fun onDismiss()
     }
 
     public data class Notification(
@@ -101,5 +112,7 @@ public data class NotificationUsageDetailScreenUiState(
         public fun onClickBack()
 
         public fun onClickTitle()
+
+        public fun onClickDelete()
     }
 }

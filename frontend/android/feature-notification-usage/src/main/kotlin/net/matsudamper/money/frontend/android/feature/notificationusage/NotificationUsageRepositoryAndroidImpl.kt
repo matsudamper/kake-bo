@@ -76,6 +76,10 @@ internal class NotificationUsageRepositoryAndroidImpl(
         dao.markAsAdded(notificationKey, moneyUsageId?.id)
     }
 
+    override suspend fun deleteNotification(notificationKey: String) {
+        dao.deleteByKey(notificationKey)
+    }
+
     private fun entityToRecord(entity: NotificationUsageEntity): NotificationUsageRecord {
         return NotificationUsageRecord(
             notificationKey = entity.notificationKey,

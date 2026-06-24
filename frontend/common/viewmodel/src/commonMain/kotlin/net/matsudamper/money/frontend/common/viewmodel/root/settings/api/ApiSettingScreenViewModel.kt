@@ -11,6 +11,7 @@ import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import kotlinx.datetime.TimeZone
 import kotlinx.datetime.toLocalDateTime
+import net.matsudamper.money.frontend.common.base.Logger
 import net.matsudamper.money.frontend.common.base.nav.ScopedObjectFeature
 import net.matsudamper.money.frontend.common.base.nav.user.ScreenNavController
 import net.matsudamper.money.frontend.common.base.nav.user.ScreenStructure
@@ -21,6 +22,8 @@ import net.matsudamper.money.frontend.common.viewmodel.lib.EventHandler
 import net.matsudamper.money.frontend.common.viewmodel.lib.EventSender
 import net.matsudamper.money.frontend.graphql.ApiSettingScreenQuery
 import net.matsudamper.money.frontend.graphql.ApiSettingScreenRegisterApiTokenMutation
+
+private const val TAG = "ApiSettingScreenViewModel"
 
 public class ApiSettingScreenViewModel(
     scopedObjectFeature: ScopedObjectFeature,
@@ -49,6 +52,7 @@ public class ApiSettingScreenViewModel(
                                         api.updateCache()
                                     }
                                     .onFailure {
+                                        Logger.e(TAG, it)
                                         eventSender.send {
                                             it.showToast("トークンの追加に失敗しました")
                                         }

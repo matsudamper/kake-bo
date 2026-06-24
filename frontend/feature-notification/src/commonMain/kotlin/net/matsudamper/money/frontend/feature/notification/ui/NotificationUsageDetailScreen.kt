@@ -16,12 +16,11 @@ import androidx.compose.foundation.layout.widthIn
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.automirrored.filled.ArrowBack
-import androidx.compose.material.icons.filled.Add
 import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Card
 import androidx.compose.material3.CircularProgressIndicator
+import androidx.compose.material3.DropdownMenu
+import androidx.compose.material3.DropdownMenuItem
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
@@ -31,7 +30,10 @@ import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalClipboardManager
@@ -39,7 +41,12 @@ import androidx.compose.ui.text.AnnotatedString
 import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.unit.dp
 import net.matsudamper.money.frontend.common.ui.base.KakeBoTopAppBar
+import net.matsudamper.money.frontend.common.ui.generated.resources.Res
+import net.matsudamper.money.frontend.common.ui.generated.resources.ic_add
+import net.matsudamper.money.frontend.common.ui.generated.resources.ic_arrow_back
+import net.matsudamper.money.frontend.common.ui.generated.resources.ic_more_vert
 import net.matsudamper.money.frontend.common.ui.layout.GridColumn
+import org.jetbrains.compose.resources.painterResource
 
 @Composable
 public fun NotificationUsageDetailScreen(
@@ -47,13 +54,51 @@ public fun NotificationUsageDetailScreen(
     windowInsets: PaddingValues,
     modifier: Modifier = Modifier,
 ) {
+    if (uiState.deleteConfirmDialog != null) {
+        AlertDialog(
+            onDismissRequest = { uiState.deleteConfirmDialog.event.onDismiss() },
+            title = { Text("通知を削除しますか？") },
+            confirmButton = {
+                TextButton(onClick = { uiState.deleteConfirmDialog.event.onConfirm() }) {
+                    Text("削除")
+                }
+            },
+            dismissButton = {
+                TextButton(onClick = { uiState.deleteConfirmDialog.event.onDismiss() }) {
+                    Text("キャンセル")
+                }
+            },
+        )
+    }
     Scaffold(
         modifier = modifier,
         topBar = {
             KakeBoTopAppBar(
                 navigation = {
                     IconButton(onClick = { uiState.event.onClickBack() }) {
-                        Icon(Icons.AutoMirrored.Filled.ArrowBack, contentDescription = "戻る")
+                        Icon(painter = painterResource(Res.drawable.ic_arrow_back), contentDescription = "戻る")
+                    }
+                },
+                menu = {
+                    var isMenuExpanded by remember { mutableStateOf(false) }
+                    Box {
+                        IconButton(onClick = { isMenuExpanded = !isMenuExpanded }) {
+                            Icon(painter = painterResource(Res.drawable.ic_more_vert), contentDescription = "メニュー")
+                        }
+                        DropdownMenu(
+                            expanded = isMenuExpanded,
+                            onDismissRequest = { isMenuExpanded = false },
+                        ) {
+                            DropdownMenuItem(
+                                onClick = {
+                                    isMenuExpanded = false
+                                    uiState.event.onClickDelete()
+                                },
+                                text = {
+                                    Text("削除")
+                                },
+                            )
+                        }
                     }
                 },
                 title = {
@@ -171,16 +216,14 @@ private fun LoadedContent(
                         modifier = Modifier.fillMaxWidth(),
                         uiState = uiState.draft,
                     )
-                    if (uiState.canRegister) {
-                        Spacer(modifier = Modifier.height(8.dp))
-                        Row {
-                            Spacer(modifier = Modifier.weight(1f))
-                            OutlinedButton(
-                                onClick = { uiState.event.onClickRegister() },
-                            ) {
-                                Icon(Icons.Default.Add, contentDescription = null)
-                                Text("登録")
-                            }
+                    Spacer(modifier = Modifier.height(8.dp))
+                    Row {
+                        Spacer(modifier = Modifier.weight(1f))
+                        OutlinedButton(
+                            onClick = { uiState.event.onClickRegister() },
+                        ) {
+                            Icon(painter = painterResource(Res.drawable.ic_add), contentDescription = null)
+                            Text("登録")
                         }
                     }
                     Spacer(modifier = Modifier.height(24.dp))

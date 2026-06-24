@@ -16,29 +16,31 @@ internal object PovoUsageServices : MoneyUsageServices {
         date: LocalDateTime,
     ): List<MoneyUsage> {
         val forwardedInfo = ParseUtil.parseForwarded(plain)
-        val canHandle = sequence {
-            yield(canHandledWithFrom(forwardedInfo?.from ?: from))
-        }
-        if (canHandle.any { it }.not()) return listOf()
+        val actualFrom = forwardedInfo?.from ?: from
+        val actualSubject = forwardedInfo?.subject ?: subject
+        val actualDate = forwardedInfo?.date ?: date
 
-        val date = forwardedInfo?.date ?: date
-        val subject = forwardedInfo?.subject ?: subject
+        val canHandle = sequence {
+            yield(canHandledWithFrom(actualFrom))
+            yield(canHandledWithSubject(actualSubject))
+        }
+        if (canHandle.all { it }.not()) return listOf()
 
         val price = "から(.+?)円のお支払いが完了しました".toRegex()
-            .find(plain)
+            .find(ParseUtil.removeHtmlTag(html))
             ?.groups?.get(1)
             ?.value
             ?: return listOf()
-        val month = """(\d+月)""".toRegex()
-            .find(subject)
+        val month = """(\d+月ご利用分)""".toRegex()
+            .find(actualSubject)
             ?.groups?.get(1)
             ?.value
             ?: return listOf()
         return listOf(
             MoneyUsage(
                 title = "povo $month",
-                description = subject,
-                dateTime = date,
+                description = actualSubject,
+                dateTime = actualDate,
                 price = ParseUtil.getInt(price),
                 service = MoneyUsageServiceType.Povo,
             ),
@@ -47,5 +49,10 @@ internal object PovoUsageServices : MoneyUsageServices {
 
     private fun canHandledWithFrom(from: String): Boolean {
         return from == "info@povo.jp"
+    }
+
+    private fun canHandledWithSubject(subject: String): Boolean {
+        return subject.contains("povo") &&
+            subject.contains("月ご利用分のご請求のお支払いが完了しました")
     }
 }

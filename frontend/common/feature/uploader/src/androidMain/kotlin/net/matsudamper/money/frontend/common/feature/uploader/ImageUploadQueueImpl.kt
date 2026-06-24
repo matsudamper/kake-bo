@@ -9,6 +9,7 @@ import java.util.UUID
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.map
 import net.matsudamper.money.element.MoneyUsageId
+import net.matsudamper.money.frontend.common.base.image.SelectedImage
 
 internal class ImageUploadQueueImpl(
     private val context: Context,
@@ -35,14 +36,13 @@ internal class ImageUploadQueueImpl(
 
     override suspend fun enqueue(
         moneyUsageId: MoneyUsageId,
-        rawImageBytes: ByteArray,
-        previewBytes: ByteArray?,
-        contentType: String?,
+        selectedImage: SelectedImage,
     ) {
         val id = UUID.randomUUID().toString()
-        localStorage.writeRawImage(id, rawImageBytes)
-        if (previewBytes != null) {
-            localStorage.writePreview(id, previewBytes)
+        val imageBytes = selectedImage.bytes
+        if (imageBytes != null) {
+            localStorage.writeRawImage(id, imageBytes)
+            // previewはwritePreviewせず、readPreviewがrawImageへフォールバックする
         }
         dao.insert(
             ImageUploadRoomEntity(
@@ -52,7 +52,9 @@ internal class ImageUploadQueueImpl(
                 workManagerId = null,
                 errorMessage = null,
                 stackTrace = null,
-                contentType = contentType,
+                contentType = selectedImage.contentType,
+                // bytesがnullの場合はURIからWorkerが直接読み込む
+                imageSourceUri = if (imageBytes == null) selectedImage.id else null,
                 createdAt = System.currentTimeMillis(),
             ),
         )

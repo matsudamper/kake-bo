@@ -23,6 +23,11 @@ interface MoneyUsageCategoryRepository {
         color: String?,
     ): Boolean
 
+    fun deleteCategory(
+        userId: UserId,
+        categoryId: MoneyUsageCategoryId,
+    ): Boolean
+
     data class CategoryResult(
         val userId: UserId,
         val moneyUsageCategoryId: MoneyUsageCategoryId,

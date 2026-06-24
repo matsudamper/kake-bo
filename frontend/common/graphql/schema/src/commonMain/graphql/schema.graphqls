@@ -87,7 +87,77 @@ type AdminLoginResult {
 type AdminMutation {
   adminLogin(password: String!): AdminLoginResult!
 
+  adminLogout: Boolean!
+
   addUser(name: String!, password: String!): AdminAddUserResult!
+
+  deleteImages(imageIds: [ImageId!]!): Boolean!
+
+  replacePassword(userId: UserId!, password: String): AdminReplacePasswordResult!
+}
+
+enum AdminReplacePasswordErrorType {
+  Unknown
+
+  UserNotFound
+
+  PasswordLength
+
+  PasswordInvalidChar
+}
+
+type AdminReplacePasswordResult {
+  isSuccess: Boolean!
+
+  errorType: AdminReplacePasswordErrorType
+}
+
+type AdminSearchedUser {
+  userId: UserId!
+
+  name: String!
+}
+
+type AdminUnlinkedImage {
+  id: ImageId!
+
+  url: String!
+
+  userId: UserId!
+
+  userName: String!
+}
+
+type AdminUnlinkedImagesConnection {
+  nodes: [AdminUnlinkedImage!]!
+
+  cursor: String
+
+  hasMore: Boolean!
+
+  totalCount: Int!
+}
+
+input AdminUnlinkedImagesInput {
+  size: Int!
+
+  cursor: String
+}
+
+input AdminUserSearchInput {
+  query: String!
+
+  size: Int!
+
+  cursor: String
+}
+
+type AdminUserSearchUsersConnection {
+  nodes: [AdminSearchedUser!]!
+
+  cursor: String
+
+  hasMore: Boolean!
 }
 
 type ApiToken {
@@ -108,6 +178,22 @@ scalar ApiTokenId
 Built-in Boolean
 """
 scalar Boolean
+
+enum ChangePasswordErrorType {
+  Unknown
+
+  UserNotFound
+
+  PasswordLength
+
+  PasswordInvalidChar
+}
+
+type ChangePasswordResult {
+  isSuccess: Boolean!
+
+  errorType: ChangePasswordErrorType
+}
 
 type ChangeSessionNameResult {
   isSuccess: Boolean!
@@ -264,7 +350,7 @@ type ImportedMailCategoryFiltersConnection {
 }
 
 input ImportedMailCategoryFiltersQuery {
-  size: Int!
+  size: Int
 
   isAsc: Boolean!
 
@@ -515,6 +601,12 @@ scalar OffsetDateTime
 type Query {
   isLoggedIn: Boolean!
 
+  isAdminLoggedIn: Boolean!
+
+  adminUnlinkedImages(input: AdminUnlinkedImagesInput!): AdminUnlinkedImagesConnection!
+
+  adminSearchUsers(input: AdminUserSearchInput!): AdminUserSearchUsersConnection!
+
   user: User
 
   fidoLoginInfo: FidoLoginInfo!
@@ -549,6 +641,8 @@ type RegisteredFidoResult {
 }
 
 type Session {
+  id: SessionRecordId!
+
   name: String!
 
   lastAccess: OffsetDateTime!
@@ -560,8 +654,14 @@ type SessionAttributes {
   sessions: [Session!]!
 }
 
+scalar SessionRecordId
+
 type SettingsMutation {
   updateImapConfig(config: UpdateUserImapConfigInput!): UserImapConfig
+
+  changePassword(password: String): ChangePasswordResult!
+
+  updateTimezoneOffset(offsetMinutes: Int!): Int
 }
 
 """
@@ -693,6 +793,8 @@ input UserFidoLoginInput {
   base64UserHandle: String!
 }
 
+scalar UserId
+
 type UserImapConfig {
   host: String
 
@@ -778,6 +880,8 @@ type UserMutation {
 
   deleteSubCategory(id: MoneyUsageSubCategoryId!): Boolean!
 
+  deleteCategory(id: MoneyUsageCategoryId!): Boolean!
+
   addImportedMailCategoryFilter(input: AddImportedMailCategoryFilterInput!): ImportedMailCategoryFilter
 
   updateImportedMailCategoryFilter(input: UpdateImportedMailCategoryFilterInput!): ImportedMailCategoryFilter
@@ -794,9 +898,9 @@ type UserMutation {
 
   deleteFido(id: FidoId!): DeleteFidoResult!
 
-  deleteSession(name: String!): DeleteSessionResult!
+  deleteSession(id: SessionRecordId!): DeleteSessionResult!
 
-  changeSessionName(name: String!): ChangeSessionNameResult!
+  changeSessionName(id: SessionRecordId!, name: String!): ChangeSessionNameResult!
 
   registerApiToken(name: String!): RegisterApiTokenResult!
 
@@ -819,6 +923,10 @@ type UserSettings {
   sessionAttributes: SessionAttributes!
 
   apiTokenAttributes: ApiTokenAttributes!
+
+  hasPassword: Boolean!
+
+  timezoneOffsetMinutes: Int!
 }
 
 type __Directive {

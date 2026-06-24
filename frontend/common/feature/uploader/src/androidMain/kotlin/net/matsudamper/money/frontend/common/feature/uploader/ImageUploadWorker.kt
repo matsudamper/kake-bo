@@ -28,6 +28,7 @@ import com.apollographql.apollo.cache.normalized.FetchPolicy
 import com.apollographql.apollo.cache.normalized.fetchPolicy
 import net.matsudamper.money.element.ImageId
 import net.matsudamper.money.element.MoneyUsageId
+import net.matsudamper.money.frontend.common.base.Logger
 import net.matsudamper.money.frontend.common.feature.localstore.DataStores
 import net.matsudamper.money.frontend.graphql.GraphqlClient
 import net.matsudamper.money.frontend.graphql.MoneyUsageScreenQuery
@@ -43,6 +44,8 @@ import okhttp3.MultipartBody
 import okhttp3.OkHttpClient
 import okhttp3.Request
 import okhttp3.RequestBody.Companion.toRequestBody
+
+private const val TAG = "ImageUploadWorker"
 
 internal class ImageUploadWorker(
     appContext: Context,
@@ -86,7 +89,22 @@ internal class ImageUploadWorker(
     }
 
     private suspend fun doUploadWork(recordId: String): Result {
+        val entity = dao.getById(recordId) ?: return Result.failure()
         val rawImageBytes = localStorage.readRawImage(recordId)
+            ?: if (entity.imageSourceUri != null) {
+                // bytesがnullだった場合のfallback: content URIから直接読み込み
+                withContext(Dispatchers.IO) {
+                    runCatching {
+                        applicationContext.contentResolver
+                            .openInputStream(android.net.Uri.parse(entity.imageSourceUri))
+                            ?.use { it.readBytes() }
+                    }.onFailure {
+                        Logger.e(TAG, it)
+                    }.getOrNull()
+                }
+            } else {
+                null
+            }
         if (rawImageBytes == null) {
             // キャッシュがクリアされてファイルが消えた場合はDBレコードも削除してクリーンアップ
             dao.deleteById(recordId)
@@ -126,7 +144,6 @@ internal class ImageUploadWorker(
             return Result.failure()
         }
 
-        val entity = dao.getById(recordId) ?: return Result.failure()
         val moneyUsageId = MoneyUsageId(id = entity.moneyUsageId)
         val currentImageIds = runCatching {
             graphqlClient.apolloClient
@@ -135,6 +152,8 @@ internal class ImageUploadWorker(
                 .execute()
                 .data?.user?.moneyUsage?.moneyUsageScreenMoneyUsage?.images
                 ?.map { it.id }
+        }.onFailure {
+            Logger.e(TAG, it)
         }.getOrNull()
 
         val updatedImageIds = ((currentImageIds ?: listOf()) + uploadedImageId)

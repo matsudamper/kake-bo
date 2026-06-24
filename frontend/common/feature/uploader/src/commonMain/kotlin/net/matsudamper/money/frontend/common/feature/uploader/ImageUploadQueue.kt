@@ -2,6 +2,7 @@ package net.matsudamper.money.frontend.common.feature.uploader
 
 import kotlinx.coroutines.flow.Flow
 import net.matsudamper.money.element.MoneyUsageId
+import net.matsudamper.money.frontend.common.base.image.SelectedImage
 
 public interface ImageUploadQueue {
     public sealed class Status {
@@ -36,9 +37,7 @@ public interface ImageUploadQueue {
 
     public suspend fun enqueue(
         moneyUsageId: MoneyUsageId,
-        rawImageBytes: ByteArray,
-        previewBytes: ByteArray?,
-        contentType: String?,
+        selectedImage: SelectedImage,
     )
 
     public suspend fun retry(itemId: String)

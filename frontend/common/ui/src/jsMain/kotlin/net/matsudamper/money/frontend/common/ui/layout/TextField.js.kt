@@ -15,7 +15,9 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Shape
+import androidx.compose.ui.text.AnnotatedString
 import androidx.compose.ui.text.TextStyle
+import androidx.compose.ui.text.input.PasswordVisualTransformation
 import androidx.compose.ui.text.input.VisualTransformation
 import net.matsudamper.money.frontend.common.ui.layout.html.text.fullscreen.FullScreenTextInput
 
@@ -64,13 +66,17 @@ public actual fun TextField(
             visibleInput = true
         },
     ) {
+        val visualTransformation = when (type) {
+            TextFieldType.Text -> VisualTransformation.None
+            TextFieldType.Password -> PasswordVisualTransformation()
+        }
         TextFieldDefaults.DecorationBox(
             value = text,
-            visualTransformation = VisualTransformation.None,
+            visualTransformation = visualTransformation,
             innerTextField = {
                 Text(
                     modifier = Modifier.fillMaxWidth(),
-                    text = text,
+                    text = visualTransformation.filter(AnnotatedString(text)).text,
                     style = textStyle,
                     maxLines = maxLines,
                 )

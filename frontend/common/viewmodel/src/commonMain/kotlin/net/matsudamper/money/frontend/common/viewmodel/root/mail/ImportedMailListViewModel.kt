@@ -13,6 +13,7 @@ import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import net.matsudamper.money.element.ImportedMailId
 import net.matsudamper.money.frontend.common.base.ImmutableList.Companion.toImmutableList
+import net.matsudamper.money.frontend.common.base.Logger
 import net.matsudamper.money.frontend.common.base.nav.ScopedObjectFeature
 import net.matsudamper.money.frontend.common.base.nav.user.ScreenNavController
 import net.matsudamper.money.frontend.common.base.nav.user.ScreenStructure
@@ -25,6 +26,8 @@ import net.matsudamper.money.frontend.common.viewmodel.lib.EventSender
 import net.matsudamper.money.frontend.common.viewmodel.lib.Formatter
 import net.matsudamper.money.frontend.graphql.ImportedMailListScreenMailPagingQuery
 import net.matsudamper.money.frontend.graphql.MailLinkScreenGraphqlApi
+
+private const val TAG = "ImportedMailListViewModel"
 
 public class ImportedMailListViewModel(
     scopedObjectFeature: ScopedObjectFeature,
@@ -261,6 +264,8 @@ public class ImportedMailListViewModel(
                             text = mailState.query.text,
                         )
                     }
+                }.onFailure {
+                    Logger.e(TAG, it)
                 }.getOrNull() ?: return@launch
             } finally {
                 viewModelStateFlow.update { viewModelState ->

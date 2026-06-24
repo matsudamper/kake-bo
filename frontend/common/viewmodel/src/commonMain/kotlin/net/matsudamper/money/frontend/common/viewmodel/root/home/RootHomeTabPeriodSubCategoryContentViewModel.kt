@@ -21,6 +21,7 @@ import com.apollographql.apollo.cache.normalized.isFromCache
 import net.matsudamper.money.element.MoneyUsageCategoryId
 import net.matsudamper.money.element.MoneyUsageSubCategoryId
 import net.matsudamper.money.frontend.common.base.ImmutableList.Companion.toImmutableList
+import net.matsudamper.money.frontend.common.base.Logger
 import net.matsudamper.money.frontend.common.base.immutableListOf
 import net.matsudamper.money.frontend.common.base.nav.ScopedObjectFeature
 import net.matsudamper.money.frontend.common.base.nav.user.RootHomeScreenStructure
@@ -37,6 +38,8 @@ import net.matsudamper.money.frontend.common.viewmodel.lib.EventSender
 import net.matsudamper.money.frontend.common.viewmodel.root.home.RootHomeTabPeriodSubCategoryContentViewModel.ViewModelState.Period
 import net.matsudamper.money.frontend.common.viewmodel.root.home.RootHomeTabPeriodSubCategoryContentViewModel.ViewModelState.YearMonth
 import net.matsudamper.money.frontend.graphql.RootHomeTabScreenAnalyticsBySubCategoryQuery
+
+private const val TAG = "RootHomeTabPeriodSubCategoryContentViewModel"
 
 public class RootHomeTabPeriodSubCategoryContentViewModel(
     structure: RootHomeScreenStructure.PeriodSubCategory,
@@ -208,7 +211,7 @@ public class RootHomeTabPeriodSubCategoryContentViewModel(
                         if (result == null) {
                             return@loadingState RootHomeTabPeriodSubCategoryContentUiState.LoadingState.Loading
                         }
-                        val bySubCategory = result.getOrNull()?.data?.user?.moneyUsageAnalyticsBySubCategory
+                        val bySubCategory = result.onFailure { Logger.e(TAG, it) }.getOrNull()?.data?.user?.moneyUsageAnalyticsBySubCategory
                         if (bySubCategory == null) {
                             return@loadingState RootHomeTabPeriodSubCategoryContentUiState.LoadingState.Error
                         }

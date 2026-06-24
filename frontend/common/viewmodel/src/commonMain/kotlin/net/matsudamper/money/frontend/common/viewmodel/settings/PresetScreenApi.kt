@@ -9,6 +9,7 @@ import com.apollographql.apollo.cache.normalized.fetchPolicy
 import com.apollographql.apollo.cache.normalized.watch
 import net.matsudamper.money.element.MoneyUsagePresetId
 import net.matsudamper.money.element.MoneyUsageSubCategoryId
+import net.matsudamper.money.frontend.common.base.Logger
 import net.matsudamper.money.frontend.graphql.AddMoneyUsagePresetMutation
 import net.matsudamper.money.frontend.graphql.DeleteMoneyUsagePresetMutation
 import net.matsudamper.money.frontend.graphql.GetMoneyUsagePresetQuery
@@ -16,6 +17,8 @@ import net.matsudamper.money.frontend.graphql.GetMoneyUsagePresetsQuery
 import net.matsudamper.money.frontend.graphql.UpdateMoneyUsagePresetMutation
 import net.matsudamper.money.frontend.graphql.type.AddMoneyUsagePresetInput
 import net.matsudamper.money.frontend.graphql.type.UpdateMoneyUsagePresetInput
+
+private const val TAG = "PresetScreenApi"
 
 public class PresetScreenApi(
     private val apolloClient: ApolloClient,
@@ -34,7 +37,7 @@ public class PresetScreenApi(
                 .fetchPolicy(FetchPolicy.NetworkOnly)
                 .execute()
         }.onFailure {
-            it.printStackTrace()
+            Logger.e(TAG, it)
         }.getOrNull()
     }
 
@@ -58,7 +61,7 @@ public class PresetScreenApi(
                 )
                 .execute()
         }.onFailure {
-            it.printStackTrace()
+            Logger.e(TAG, it)
         }.getOrNull()
     }
 
@@ -68,7 +71,7 @@ public class PresetScreenApi(
                 .mutation(DeleteMoneyUsagePresetMutation(id = id))
                 .execute()
         }.onFailure {
-            it.printStackTrace()
+            Logger.e(TAG, it)
         }.getOrNull()?.data?.userMutation?.deleteMoneyUsagePreset == true
     }
 
@@ -94,7 +97,7 @@ public class PresetScreenApi(
                 )
                 .execute()
         }.onFailure {
-            it.printStackTrace()
+            Logger.e(TAG, it)
         }.getOrNull()
     }
 }

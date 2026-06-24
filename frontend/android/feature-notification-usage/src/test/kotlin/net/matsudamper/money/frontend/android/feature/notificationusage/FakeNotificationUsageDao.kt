@@ -58,6 +58,10 @@ internal class FakeNotificationUsageDao(
         }
     }
 
+    override suspend fun deleteByKey(notificationKey: String) {
+        entitiesFlow.value = entitiesFlow.value.filter { it.notificationKey != notificationKey }
+    }
+
     private fun List<NotificationUsageEntity>.sortByReceivedAtDescending(): List<NotificationUsageEntity> {
         return sortedWith(
             compareByDescending<NotificationUsageEntity> { it.receivedAtEpochMillis }

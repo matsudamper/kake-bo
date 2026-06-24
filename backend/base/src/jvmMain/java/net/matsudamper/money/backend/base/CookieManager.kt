@@ -17,5 +17,7 @@ public interface CookieManager {
 
     public fun getUserSessionId(): String?
 
+    public fun clearAdminSession()
+
     public fun clearUserSession()
 }
