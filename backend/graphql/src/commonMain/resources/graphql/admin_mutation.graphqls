@@ -3,7 +3,7 @@ type AdminMutation {
     adminLogout: Boolean! @lazy
     addUser(name: String!, password: String!): AdminAddUserResult!
     deleteImages(imageIds: [ImageId!]!): Boolean!
-    replacePassword(userId: UserId!, password: String!): AdminReplacePasswordResult!
+    replacePassword(userId: UserId!, password: String): AdminReplacePasswordResult!
 }
 
 type AdminAddUserResult {

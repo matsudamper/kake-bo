@@ -1,6 +1,7 @@
 query LoginSettingScreen {
     user {
         settings {
+            hasPassword
             registeredFidoList {
                 id
                 name
@@ -68,6 +69,19 @@ mutation LoginSettingScreenDeleteSession(
     userMutation {
         deleteSession(id: $id) {
             isSuccess
+        }
+    }
+}
+
+mutation LoginSettingScreenChangePassword(
+    $password: String
+) {
+    userMutation {
+        settingsMutation {
+            changePassword(password: $password) {
+                isSuccess
+                errorType
+            }
         }
     }
 }

@@ -151,7 +151,7 @@ class AdminMutationResolverImpl : AdminMutationResolver {
     override fun replacePassword(
         adminMutation: QlAdminMutation,
         userId: UserId,
-        password: String,
+        password: String?,
         env: DataFetchingEnvironment,
     ): CompletionStage<DataFetcherResult<QlAdminReplacePasswordResult>> {
         val context = env.graphQlContext.get<GraphQlContext>(GraphQlContext::class.java.name)
