@@ -42,6 +42,7 @@ internal fun Route.postImage(
         val multipart = call.receiveMultipart()
 
         var result: ImageUploadHandler.Result? = null
+        val imageStorageGateway = diContainer.createWriteImageStorageGateway()
         while (true) {
             val part = multipart.readPart() ?: break
             if (part !is PartData.FileItem) {
@@ -59,19 +60,17 @@ internal fun Route.postImage(
                 )
                 return@post
             }
-            result = part.provider().toInputStream().use { inputStream ->
-                imageUploadHandler.handle(
-                    request = ImageUploadHandler.Request(
-                        userId = userId,
-                        userImageRepository = diContainer.createUserImageRepository(),
-                        storageDirectory = config.storageDirectory,
-                        maxUploadBytes = config.maxUploadBytes,
-                        contentType = part.contentType?.withoutParameters()?.toString(),
-                        inputStream = inputStream,
-                    ),
-                )
-            }
-            part.dispose()
+            val byteReadChannel = part.provider().toInputStream()
+            result = imageUploadHandler.handle(
+                request = ImageUploadHandler.Request(
+                    userId = userId,
+                    userImageRepository = diContainer.createUserImageRepository(),
+                    imageStorageGateway = imageStorageGateway,
+                    maxUploadBytes = config.maxUploadBytes,
+                    contentType = part.contentType?.withoutParameters()?.toString(),
+                    inputStream = byteReadChannel,
+                ),
+            )
         }
 
         when (val uploadResult = result) {
@@ -114,6 +113,12 @@ internal fun Route.postImage(
             is ImageUploadHandler.Result.Success -> {
                 val domain = ServerEnv.domain
                     ?: throw IllegalStateException("DOMAIN is not configured")
+
+                val displayUrl = ImageApiPath.imageV1AbsoluteByDisplayId(
+                    domain = domain,
+                    displayId = uploadResult.displayId,
+                )
+
                 call.respondText(
                     status = HttpStatusCode.Created,
                     contentType = ContentType.Application.Json,
@@ -121,10 +126,7 @@ internal fun Route.postImage(
                         ImageUploadImageResponse(
                             success = Success(
                                 imageId = uploadResult.imageId,
-                                url = ImageApiPath.imageV1AbsoluteByDisplayId(
-                                    domain = domain,
-                                    displayId = uploadResult.displayId,
-                                ),
+                                url = displayUrl,
                             ),
                         ),
                     ),

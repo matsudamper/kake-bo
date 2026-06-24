@@ -1,0 +1,1 @@
+ALTER TABLE user_images ADD COLUMN storage_type VARCHAR(16) NOT NULL DEFAULT 'LOCAL';

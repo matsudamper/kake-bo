@@ -28,13 +28,14 @@ import org.jooq.QueryPart
 import org.jooq.Record
 import org.jooq.SQL
 import org.jooq.Schema
-import org.jooq.Select
 import org.jooq.Stringly
 import org.jooq.Table
 import org.jooq.TableField
+import org.jooq.TableLike
 import org.jooq.TableOptions
 import org.jooq.UniqueKey
 import org.jooq.impl.DSL
+import org.jooq.impl.Internal
 import org.jooq.impl.SQLDataType
 import org.jooq.impl.TableImpl
 
@@ -79,7 +80,7 @@ open class JUserImages(
     /**
      * The column <code>money.user_images.user_image_id</code>.
      */
-    val USER_IMAGE_ID: TableField<JUserImagesRecord, Int?> = createField(DSL.name("user_image_id"), SQLDataType.INTEGER.nullable(false).identity(true), this, "")
+    val USER_IMAGE_ID: TableField<JUserImagesRecord, Int?> = createField(DSL.name("user_image_id"), SQLDataType.INTEGER.nullable(false).generatedByDefaultAsIdentity(), this, "")
 
     /**
      * The column <code>money.user_images.user_id</code>.
@@ -110,6 +111,11 @@ open class JUserImages(
      * The column <code>money.user_images.uploaded</code>.
      */
     val UPLOADED: TableField<JUserImagesRecord, Boolean?> = createField(DSL.name("uploaded"), SQLDataType.BOOLEAN.nullable(false), this, "")
+
+    /**
+     * The column <code>money.user_images.storage_type</code>.
+     */
+    val STORAGE_TYPE: TableField<JUserImagesRecord, String?> = createField(DSL.name("storage_type"), SQLDataType.VARCHAR(16).nullable(false).defaultValue(DSL.field(DSL.raw("'LOCAL'"), SQLDataType.VARCHAR)), this, "")
 
     private constructor(alias: Name, aliased: Table<JUserImagesRecord>?): this(alias, null, null, null, aliased, null, null)
     private constructor(alias: Name, aliased: Table<JUserImagesRecord>?, parameters: Array<Field<*>?>?): this(alias, null, null, null, aliased, parameters, null)
@@ -156,7 +162,7 @@ open class JUserImages(
     /**
      * Create an inline derived table from this table
      */
-    override fun where(condition: Condition?): JUserImages = JUserImages(qualifiedName, if (aliased()) this else null, condition)
+    override fun where(condition: Condition?): JUserImages = JUserImages(qualifiedName, if (aliased()) this else null, Internal.condition(this, condition))
 
     /**
      * Create an inline derived table from this table
@@ -196,10 +202,10 @@ open class JUserImages(
     /**
      * Create an inline derived table from this table
      */
-    override fun whereExists(select: Select<*>): JUserImages = where(DSL.exists(select))
+    override fun whereExists(select: TableLike<*>): JUserImages = where(DSL.exists(select))
 
     /**
      * Create an inline derived table from this table
      */
-    override fun whereNotExists(select: Select<*>): JUserImages = where(DSL.notExists(select))
+    override fun whereNotExists(select: TableLike<*>): JUserImages = where(DSL.notExists(select))
 }

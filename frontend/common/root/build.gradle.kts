@@ -25,7 +25,9 @@ kotlin {
                 implementation(projects.frontend.common.viewmodel)
                 implementation(projects.frontend.common.usecase)
                 implementation(projects.frontend.common.graphql)
+                implementation(projects.frontend.common.di)
                 implementation(projects.frontend.featureNotification)
+                implementation(projects.frontend.featureAdmin)
 
                 implementation(kotlin("stdlib"))
                 implementation(kotlin("reflect"))
@@ -50,7 +52,4 @@ kotlin {
 
 android {
     namespace = "net.matsudamper.money.ui.root"
-}
-dependencies {
-    implementation(project(":frontend:common:di"))
 }

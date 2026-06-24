@@ -6,9 +6,6 @@ import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.shape.CircleShape
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.automirrored.filled.KeyboardArrowLeft
-import androidx.compose.material.icons.automirrored.filled.KeyboardArrowRight
 import androidx.compose.material3.DropdownMenu
 import androidx.compose.material3.DropdownMenuItem
 import androidx.compose.material3.Icon
@@ -23,6 +20,10 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.unit.dp
 import net.matsudamper.money.frontend.common.ui.base.DropDownMenuButton
+import net.matsudamper.money.frontend.common.ui.generated.resources.Res
+import net.matsudamper.money.frontend.common.ui.generated.resources.ic_keyboard_arrow_left
+import net.matsudamper.money.frontend.common.ui.generated.resources.ic_keyboard_arrow_right
+import org.jetbrains.compose.resources.painterResource
 
 @Composable
 internal fun RootHomePeriodSection(
@@ -45,14 +46,14 @@ internal fun RootHomePeriodSection(
                     .clickable { onClickPreviousMonth() }
                     .padding(8.dp),
             ) {
-                Icon(Icons.AutoMirrored.Filled.KeyboardArrowLeft, contentDescription = "前の月")
+                Icon(painter = painterResource(Res.drawable.ic_keyboard_arrow_left), contentDescription = "前の月")
             }
             Box(
                 modifier = Modifier.clip(CircleShape)
                     .clickable { onClickNextMonth() }
                     .padding(8.dp),
             ) {
-                Icon(Icons.AutoMirrored.Filled.KeyboardArrowRight, contentDescription = "次の月")
+                Icon(painter = painterResource(Res.drawable.ic_keyboard_arrow_right), contentDescription = "次の月")
             }
         }
         betweenText()

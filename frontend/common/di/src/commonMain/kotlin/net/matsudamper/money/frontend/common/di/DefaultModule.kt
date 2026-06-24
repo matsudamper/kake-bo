@@ -1,6 +1,7 @@
 package net.matsudamper.money.frontend.common.di
 
 import net.matsudamper.money.frontend.common.base.AppSettingsRepository
+import net.matsudamper.money.frontend.common.base.DeviceNameProvider
 import net.matsudamper.money.frontend.common.base.ImageUploadClient
 import net.matsudamper.money.frontend.common.feature.uploader.ImageUploadQueue
 import net.matsudamper.money.frontend.common.feature.webauth.WebAuthModel
@@ -20,6 +21,7 @@ object DefaultModule {
         single<ImageUploadClient> { factory.createPhotoUploadClient(scope = this) }
         single<AppSettingsRepository> { factory.createAppSettingsRepository(scope = this) }
         single<ImageUploadQueue> { factory.createImageUploadQueue(scope = this) }
+        single<DeviceNameProvider> { factory.createDeviceNameProvider(scope = this) }
     }
 }
 
@@ -29,4 +31,5 @@ internal abstract class Factory {
     abstract fun createPhotoUploadClient(scope: Scope): ImageUploadClient
     abstract fun createAppSettingsRepository(scope: Scope): AppSettingsRepository
     abstract fun createImageUploadQueue(scope: Scope): ImageUploadQueue
+    abstract fun createDeviceNameProvider(scope: Scope): DeviceNameProvider
 }

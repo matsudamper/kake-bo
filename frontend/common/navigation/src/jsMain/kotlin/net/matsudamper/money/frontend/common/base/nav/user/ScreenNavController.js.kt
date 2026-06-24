@@ -96,6 +96,7 @@ private fun UrlPlaceHolderParser.ScreenState<Screens>.toScreenStructure(queryPar
         Screens.Settings -> ScreenStructure.Root.Settings.Root
         Screens.Api -> ScreenStructure.Root.Settings.Api
         Screens.SettingsImap -> ScreenStructure.Root.Settings.Imap
+        Screens.SettingsTimezone -> ScreenStructure.Root.Settings.Timezone
         Screens.SettingsCategory -> ScreenStructure.Root.Settings.Categories
         Screens.SettingsCategoryId ->
             ScreenStructure.Root.Settings.Category(
@@ -135,7 +136,11 @@ private fun UrlPlaceHolderParser.ScreenState<Screens>.toScreenStructure(queryPar
             ) ?: ScreenStructure.NotFound
 
         Screens.Login -> ScreenStructure.Login
-        Screens.Admin -> ScreenStructure.Admin
+        Screens.AdminRoot -> ScreenStructure.Admin.Root
+        Screens.AdminLogin -> ScreenStructure.Admin.Login
+        Screens.AdminAddUser -> ScreenStructure.Admin.AddUser
+        Screens.AdminUnlinkedImages -> ScreenStructure.Admin.UnlinkedImages
+        Screens.AdminUserSearch -> ScreenStructure.Admin.UserSearch
         Screens.MailImport -> ScreenStructure.Root.Add.Import
         Screens.Add -> {
             ScreenStructure.Root.Add.Root

@@ -22,7 +22,7 @@ import androidx.compose.ui.unit.dp
 public fun SettingScaffold(
     modifier: Modifier = Modifier,
     titleStyle: TextStyle = MaterialTheme.typography.titleLarge,
-    title: @Composable () -> Unit,
+    title: (@Composable () -> Unit)? = null,
     menu: @Composable () -> Unit = {},
     fab: @Composable () -> Unit = {},
     content: @Composable (PaddingValues) -> Unit,
@@ -34,30 +34,32 @@ public fun SettingScaffold(
             modifier = Modifier
                 .fillMaxWidth(),
         ) {
-            Row(
-                modifier = Modifier
-                    .padding(horizontal = settingHorizontalPadding),
-                verticalAlignment = Alignment.CenterVertically,
-            ) {
-                Box(
+            if (title != null) {
+                Row(
                     modifier = Modifier
-                        .weight(1f)
-                        .padding(
-                            horizontal = 18.dp,
-                            vertical = 24.dp,
-                        ),
+                        .padding(horizontal = settingHorizontalPadding),
+                    verticalAlignment = Alignment.CenterVertically,
                 ) {
-                    ProvideTextStyle(titleStyle) {
-                        title()
+                    Box(
+                        modifier = Modifier
+                            .weight(1f)
+                            .padding(
+                                horizontal = 18.dp,
+                                vertical = 24.dp,
+                            ),
+                    ) {
+                        ProvideTextStyle(titleStyle) {
+                            title()
+                        }
                     }
+                    menu()
                 }
-                menu()
+                HorizontalDivider(
+                    modifier = Modifier.fillMaxWidth()
+                        .padding(horizontal = settingHorizontalPadding),
+                    color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.5f),
+                )
             }
-            HorizontalDivider(
-                modifier = Modifier.fillMaxWidth()
-                    .padding(horizontal = settingHorizontalPadding),
-                color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.5f),
-            )
             Box(
                 modifier = Modifier.fillMaxWidth(),
                 contentAlignment = Alignment.Center,
