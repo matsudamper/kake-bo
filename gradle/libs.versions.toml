@@ -1,5 +1,5 @@
 [versions]
-awsSdk = "2.30.20"
+awsSdk = "2.46.17"
 nimbusJoseJwt = "10.9.1"
 java = "24"
 javaToolchain = "24"
