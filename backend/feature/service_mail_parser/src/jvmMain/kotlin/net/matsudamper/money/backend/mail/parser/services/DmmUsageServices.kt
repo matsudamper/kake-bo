@@ -18,9 +18,10 @@ internal object DmmUsageServices : MoneyUsageServices {
         plain: String,
         date: LocalDateTime,
     ): List<MoneyUsage> {
+        val forwardedInfo = ParseUtil.parseForwarded(plain)
         val canHandle = sequence {
-            yield(canHandledWithFrom(from))
-            yield(canHandledWithSubject(subject))
+            yield(canHandledWithFrom(forwardedInfo?.from ?: from))
+            yield(canHandledWithSubject(forwardedInfo?.subject ?: subject))
         }
         if (canHandle.any { it }.not()) return listOf()
 
@@ -51,7 +52,7 @@ internal object DmmUsageServices : MoneyUsageServices {
                 price = parsedPrice,
                 description = "",
                 service = MoneyUsageServiceType.Dmm,
-                dateTime = parsedDate ?: date,
+                dateTime = parsedDate ?: forwardedInfo?.date ?: date,
             ),
         )
     }

@@ -3,6 +3,7 @@ package net.matsudamper.money.frontend.common.viewmodel.root.settings.login
 import kotlinx.coroutines.flow.Flow
 import com.apollographql.apollo.ApolloClient
 import com.apollographql.apollo.api.ApolloResponse
+import com.apollographql.apollo.api.Optional
 import com.apollographql.apollo.cache.normalized.FetchPolicy
 import com.apollographql.apollo.cache.normalized.apolloStore
 import com.apollographql.apollo.cache.normalized.fetchPolicy
@@ -10,12 +11,14 @@ import com.apollographql.apollo.cache.normalized.watch
 import net.matsudamper.money.element.FidoId
 import net.matsudamper.money.element.SessionRecordId
 import net.matsudamper.money.frontend.common.base.Logger
+import net.matsudamper.money.frontend.graphql.LoginSettingScreenChangePasswordMutation
 import net.matsudamper.money.frontend.graphql.LoginSettingScreenChangeSessionNameMutation
 import net.matsudamper.money.frontend.graphql.LoginSettingScreenDeleteSessionMutation
 import net.matsudamper.money.frontend.graphql.LoginSettingScreenLogoutMutation
 import net.matsudamper.money.frontend.graphql.LoginSettingScreenQuery
 import net.matsudamper.money.frontend.graphql.SettingScreenAddFidoMutation
 import net.matsudamper.money.frontend.graphql.SettingScreenDeleteFidoMutation
+import net.matsudamper.money.frontend.graphql.type.ChangePasswordErrorType
 import net.matsudamper.money.frontend.graphql.type.RegisterFidoInput
 
 private const val TAG = "LoginSettingScreenApi"
@@ -109,5 +112,41 @@ public class LoginSettingScreenApi(
         }.onFailure {
             Logger.e(TAG, it)
         }.getOrNull() ?: false
+    }
+
+    public suspend fun changePassword(password: String?): ChangePasswordResult {
+        val result = runCatching {
+            apolloClient
+                .mutation(
+                    LoginSettingScreenChangePasswordMutation(password = Optional.present(password)),
+                )
+                .fetchPolicy(FetchPolicy.NetworkOnly)
+                .execute()
+                .data?.userMutation?.settingsMutation?.changePassword
+        }.onFailure {
+            Logger.e(TAG, it)
+        }.getOrNull()
+
+        return if (result == null) {
+            ChangePasswordResult.Failed
+        } else if (result.isSuccess) {
+            ChangePasswordResult.Success
+        } else {
+            when (result.errorType) {
+                ChangePasswordErrorType.PasswordLength -> ChangePasswordResult.PasswordLength
+                ChangePasswordErrorType.PasswordInvalidChar -> ChangePasswordResult.PasswordInvalidChar
+                else -> ChangePasswordResult.Failed
+            }
+        }
+    }
+
+    public sealed interface ChangePasswordResult {
+        public data object Success : ChangePasswordResult
+
+        public data object PasswordLength : ChangePasswordResult
+
+        public data object PasswordInvalidChar : ChangePasswordResult
+
+        public data object Failed : ChangePasswordResult
     }
 }
