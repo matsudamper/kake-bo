@@ -51,7 +51,9 @@ public class UploadQueueDebugViewModel(
         override fun onConfirmClearAll() {
             viewModelState.update { it.copy(showClearAllDialog = false) }
             viewModelScope.launch {
-                imageUploadQueue.clearAll()
+                runCatching {
+                    imageUploadQueue.clearAll()
+                }
             }
         }
 
