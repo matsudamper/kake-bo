@@ -15,7 +15,6 @@ import net.matsudamper.money.frontend.common.ui.layout.html.text.fullscreen.Loca
 import org.jetbrains.compose.web.css.Color
 import org.jetbrains.compose.web.css.DisplayStyle
 import org.jetbrains.compose.web.css.FlexDirection
-import org.jetbrains.compose.web.css.Position
 import org.jetbrains.compose.web.css.backgroundColor
 import org.jetbrains.compose.web.css.color
 import org.jetbrains.compose.web.css.cssRem
@@ -23,14 +22,11 @@ import org.jetbrains.compose.web.css.display
 import org.jetbrains.compose.web.css.flexDirection
 import org.jetbrains.compose.web.css.flexGrow
 import org.jetbrains.compose.web.css.height
-import org.jetbrains.compose.web.css.outline
 import org.jetbrains.compose.web.css.overflow
 import org.jetbrains.compose.web.css.padding
 import org.jetbrains.compose.web.css.percent
-import org.jetbrains.compose.web.css.position
 import org.jetbrains.compose.web.css.width
 import org.jetbrains.compose.web.dom.Button
-import org.jetbrains.compose.web.dom.Canvas
 import org.jetbrains.compose.web.dom.Div
 import org.jetbrains.compose.web.dom.Iframe
 import org.jetbrains.compose.web.dom.Text
@@ -38,56 +34,38 @@ import org.jetbrains.compose.web.renderComposable
 
 @Suppress("FunctionName")
 internal fun JsCompose(composeSize: StateFlow<IntSize>) {
-    renderComposable(rootElementId = "ComposeTargetContainer") {
-        Canvas(
-            attrs = {
-                id("ComposeTarget")
-                style {
-                    width(100.percent)
-                    height(100.percent)
-                    position(Position.Absolute)
-                    outline("none")
-                    // Compose1.5.10に上げたらスマホでここが解除されなくなった。無くても動いたので一旦コメントアウト
-//                    if (hasFullScreenOverlay) {
-//                        property(
-//                            "pointer-events",
-//                            "none",
-//                        )
-//                    }
-                }
-            },
-        )
-    }
-
     renderComposable(rootElementId = "HtmlComposeTarget") {
         val widthDensityState: MutableState<Float?> = remember { mutableStateOf(null) }
         val heightDensityState: MutableState<Float?> = remember { mutableStateOf(null) }
         LaunchedEffect(Unit) {
-            val htmlComposeTarget = document.getElementById("ComposeTarget")!!
-            ResizeObserver { entries, _ ->
-                val target = entries[0].target
+            // ComposeViewportが描画するcanvasはShadow DOM内にあるため、サイズの基準には常に存在するコンテナを観測する
+            val composeTargetContainer = document.getElementById("ComposeTargetContainer")
+            if (composeTargetContainer != null) {
+                ResizeObserver { entries, _ ->
+                    val target = entries[0].target
 
-                widthDensityState.value = run {
-                    val jsWidth = target.scrollWidth.toFloat()
-                    val composeWidth = composeSize.value.width.toFloat()
+                    widthDensityState.value = run {
+                        val jsWidth = target.scrollWidth.toFloat()
+                        val composeWidth = composeSize.value.width.toFloat()
 
-                    if (jsWidth > 0 && composeWidth > 0) {
-                        jsWidth / composeWidth
-                    } else {
-                        1f
+                        if (jsWidth > 0 && composeWidth > 0) {
+                            jsWidth / composeWidth
+                        } else {
+                            1f
+                        }
                     }
-                }
-                heightDensityState.value = run {
-                    val jsSize = target.scrollHeight.toFloat()
-                    val composeHeight = composeSize.value.height.toFloat()
+                    heightDensityState.value = run {
+                        val jsSize = target.scrollHeight.toFloat()
+                        val composeHeight = composeSize.value.height.toFloat()
 
-                    if (jsSize > 0 && composeHeight > 0) {
-                        jsSize / composeHeight
-                    } else {
-                        1f
+                        if (jsSize > 0 && composeHeight > 0) {
+                            jsSize / composeHeight
+                        } else {
+                            1f
+                        }
                     }
-                }
-            }.observe(htmlComposeTarget)
+                }.observe(composeTargetContainer)
+            }
         }
 
         val htmlRenderContextState by LocalHtmlRenderContext.current.stateFlow.collectAsState()
