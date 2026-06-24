@@ -86,12 +86,12 @@ class GraphqlAdminQuery(
 
     suspend fun replacePassword(
         userId: UserId,
-        password: String,
+        password: String?,
     ): ApolloResponse<AdminReplacePasswordMutation.Data> {
         return graphqlClient.apolloClient.mutation(
             AdminReplacePasswordMutation(
                 userId = userId,
-                password = password,
+                password = com.apollographql.apollo.api.Optional.present(password),
             ),
         )
             .execute()
