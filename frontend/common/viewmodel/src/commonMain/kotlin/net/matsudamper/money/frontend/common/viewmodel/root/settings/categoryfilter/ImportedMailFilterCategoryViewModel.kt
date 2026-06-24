@@ -405,20 +405,19 @@ public class ImportedMailFilterCategoryViewModel(
         val filteredNodes = connection.nodes.filterNot { node ->
             node.id == filterId
         }
-        if (filteredNodes.size != connection.nodes.size) {
-            apolloClient.apolloStore.writeOperation(
-                operation = listQuery,
-                operationData = before.copy(
-                    user = before.user?.copy(
-                        importedMailCategoryFilters = connection.copy(
-                            nodes = filteredNodes,
-                        ),
+        if (filteredNodes.size == connection.nodes.size) return
+        apolloClient.apolloStore.writeOperation(
+            operation = listQuery,
+            operationData = before.copy(
+                user = before.user?.copy(
+                    importedMailCategoryFilters = connection.copy(
+                        nodes = filteredNodes,
                     ),
                 ),
-                customScalarAdapters = apolloClient.customScalarAdapters,
-                publish = true,
-            )
-        }
+            ),
+            customScalarAdapters = apolloClient.customScalarAdapters,
+            publish = true,
+        )
     }
 
     private fun dismissConfirmDialog() {
