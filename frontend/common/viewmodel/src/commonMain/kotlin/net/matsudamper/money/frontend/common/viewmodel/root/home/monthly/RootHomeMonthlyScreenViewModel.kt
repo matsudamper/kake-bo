@@ -128,6 +128,10 @@ public class RootHomeMonthlyScreenViewModel(
                         order = order,
                     )
                 }
+
+                override suspend fun refresh() {
+                    fetchFromNetwork()
+                }
             },
         ),
     ).also { uiStateFlow ->
@@ -191,11 +195,13 @@ public class RootHomeMonthlyScreenViewModel(
         return RootHomeMonthlyScreenUiState.LoadingState.Loaded(
             yearMonth = "${sinceDate.year}年${sinceDate.monthNumber}月",
             items = nodes.map { node ->
+                val categoryName = node.moneyUsageSubCategory?.category?.name.orEmpty()
                 RootHomeMonthlyScreenUiState.Item(
                     title = node.title,
                     amount = "${Formatter.formatMoney(node.amount)}円",
                     date = Formatter.formatDateTime(node.date),
-                    category = node.moneyUsageSubCategory?.name.orEmpty(),
+                    category = categoryName,
+                    categoryColor = reservedColorModel.getColor(categoryName),
                     imageUrls = node.images.map { it.url }.toImmutableList(),
                     event = ItemEventImpl(
                         coroutineScope = viewModelScope,
@@ -238,6 +244,31 @@ public class RootHomeMonthlyScreenViewModel(
         viewModelScope.launch {
             fetch()
         }
+    }
+
+    private suspend fun fetchFromNetwork() {
+        val sinceDateTime = createSinceLocalDateTime()
+        val untilDateTime = LocalDateTime(
+            date = sinceDateTime.date.plus(1, DateTimeUnit.MONTH),
+            time = sinceDateTime.time,
+        )
+        val analyticsResponse = graphqlClient.apolloClient.query(
+            MonthlyScreenQuery(
+                sinceDateTime = sinceDateTime,
+                untilDateTime = untilDateTime,
+            ),
+        ).fetchPolicy(FetchPolicy.NetworkOnly).execute()
+        val moneyUsageAnalytics = analyticsResponse.data?.user?.moneyUsageAnalytics
+        if (moneyUsageAnalytics != null) {
+            viewModelStateFlow.value = viewModelStateFlow.value.copy(
+                moneyUsageAnalytics = moneyUsageAnalytics,
+            )
+        }
+
+        val firstQuery = getFirstQueryFlow().value
+        graphqlClient.apolloClient.query(firstQuery)
+            .fetchPolicy(FetchPolicy.NetworkOnly)
+            .execute()
     }
 
     private suspend fun fetch() {

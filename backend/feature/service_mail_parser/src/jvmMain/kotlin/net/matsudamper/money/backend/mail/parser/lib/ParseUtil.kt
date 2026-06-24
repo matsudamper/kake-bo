@@ -52,9 +52,10 @@ internal object ParseUtil {
         val forwardedStartIndex = lines.indexOf("---------- Forwarded message ---------")
             .takeIf { it >= 0 } ?: return null
 
-        val forwardedEndIndex = lines.subList(forwardedStartIndex, lines.size)
+        val relativeForwardedEndIndex = lines.subList(forwardedStartIndex, lines.size)
             .indexOf("")
             .takeIf { it >= 0 } ?: return null
+        val forwardedEndIndex = forwardedStartIndex + relativeForwardedEndIndex
 
         val forwardedMetadata = lines.subList(forwardedStartIndex, forwardedEndIndex)
             .associate {
