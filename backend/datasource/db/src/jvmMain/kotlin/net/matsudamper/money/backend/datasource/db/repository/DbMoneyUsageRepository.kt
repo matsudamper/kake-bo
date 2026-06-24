@@ -93,11 +93,8 @@ class DbMoneyUsageRepository : MoneyUsageRepository {
                 if (!isAllOwnedImages(connection = connection, userId = userId, imageIds = imageIds)) {
                     throw IllegalArgumentException("image is not found")
                 }
-                if (
-                    subCategoryId != null &&
-                    !isOwnedSubCategory(connection = connection, userId = userId, subCategoryId = subCategoryId)
-                ) {
-                    throw IllegalArgumentException("subCategory is not found")
+                if (!isOwnedSubCategory(connection = connection, userId = userId, subCategoryId = subCategoryId)) {
+                    throw IllegalArgumentException("sub category is not found")
                 }
 
                 val context = DSL.using(connection)
@@ -497,6 +494,10 @@ class DbMoneyUsageRepository : MoneyUsageRepository {
                 if (imageIds != null && !isAllOwnedImages(connection = connection, userId = userId, imageIds = imageIds)) {
                     return@use false
                 }
+                if (!isOwnedSubCategory(connection = connection, userId = userId, subCategoryId = subCategoryId)) {
+                    TraceLogger.impl().noticeInfo("updateUsage: invalid subCategoryId=${subCategoryId?.id}")
+                    return@use false
+                }
                 val context = DSL.using(connection)
                 context.startTransaction()
                 try {
@@ -528,6 +529,7 @@ class DbMoneyUsageRepository : MoneyUsageRepository {
                         .limit(1)
                         .execute()
                     if (updatedCount != 1) {
+                        TraceLogger.impl().noticeInfo("updateUsage: usage not found usageId=${usageId.id}")
                         context.rollback()
                         return@use false
                     }
@@ -578,8 +580,11 @@ class DbMoneyUsageRepository : MoneyUsageRepository {
     private fun isOwnedSubCategory(
         connection: java.sql.Connection,
         userId: UserId,
-        subCategoryId: MoneyUsageSubCategoryId,
+        subCategoryId: MoneyUsageSubCategoryId?,
     ): Boolean {
+        if (subCategoryId == null) {
+            return true
+        }
         val count = DSL.using(connection)
             .selectCount()
             .from(jSubCategory)
