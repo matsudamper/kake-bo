@@ -72,6 +72,7 @@ class QueryResolverImpl : QueryResolver {
                         AdminImageRepository.Cursor(imageId = it.imageId)
                     },
                 )
+
                 QlAdminUnlinkedImagesConnection(
                     nodes = result.items.map { item ->
                         QlAdminUnlinkedImage(

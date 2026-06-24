@@ -93,7 +93,7 @@ type AdminMutation {
 
   deleteImages(imageIds: [ImageId!]!): Boolean!
 
-  replacePassword(userId: UserId!, password: String!): AdminReplacePasswordResult!
+  replacePassword(userId: UserId!, password: String): AdminReplacePasswordResult!
 }
 
 enum AdminReplacePasswordErrorType {
@@ -184,6 +184,22 @@ scalar ApiTokenId
 Built-in Boolean
 """
 scalar Boolean
+
+enum ChangePasswordErrorType {
+  Unknown
+
+  UserNotFound
+
+  PasswordLength
+
+  PasswordInvalidChar
+}
+
+type ChangePasswordResult {
+  isSuccess: Boolean!
+
+  errorType: ChangePasswordErrorType
+}
 
 type ChangeSessionNameResult {
   isSuccess: Boolean!
@@ -652,6 +668,10 @@ scalar SessionRecordId
 
 type SettingsMutation {
   updateImapConfig(config: UpdateUserImapConfigInput!): UserImapConfig
+
+  changePassword(password: String): ChangePasswordResult!
+
+  updateTimezoneOffset(offsetMinutes: Int!): Int
 }
 
 """
@@ -913,6 +933,10 @@ type UserSettings {
   sessionAttributes: SessionAttributes!
 
   apiTokenAttributes: ApiTokenAttributes!
+
+  hasPassword: Boolean!
+
+  timezoneOffsetMinutes: Int!
 }
 
 type __Directive {

@@ -28,13 +28,14 @@ import org.jooq.QueryPart
 import org.jooq.Record
 import org.jooq.SQL
 import org.jooq.Schema
-import org.jooq.Select
 import org.jooq.Stringly
 import org.jooq.Table
 import org.jooq.TableField
+import org.jooq.TableLike
 import org.jooq.TableOptions
 import org.jooq.UniqueKey
 import org.jooq.impl.DSL
+import org.jooq.impl.Internal
 import org.jooq.impl.SQLDataType
 import org.jooq.impl.TableImpl
 
@@ -79,7 +80,7 @@ open class JApiTokens(
     /**
      * The column <code>money.api_tokens.api_token_id</code>.
      */
-    val API_TOKEN_ID: TableField<JApiTokensRecord, Int?> = createField(DSL.name("api_token_id"), SQLDataType.INTEGER.nullable(false).identity(true), this, "")
+    val API_TOKEN_ID: TableField<JApiTokensRecord, Int?> = createField(DSL.name("api_token_id"), SQLDataType.INTEGER.nullable(false).generatedByDefaultAsIdentity(), this, "")
 
     /**
      * The column <code>money.api_tokens.display_name</code>.
@@ -161,7 +162,7 @@ open class JApiTokens(
     /**
      * Create an inline derived table from this table
      */
-    override fun where(condition: Condition?): JApiTokens = JApiTokens(qualifiedName, if (aliased()) this else null, condition)
+    override fun where(condition: Condition?): JApiTokens = JApiTokens(qualifiedName, if (aliased()) this else null, Internal.condition(this, condition))
 
     /**
      * Create an inline derived table from this table
@@ -201,10 +202,10 @@ open class JApiTokens(
     /**
      * Create an inline derived table from this table
      */
-    override fun whereExists(select: Select<*>): JApiTokens = where(DSL.exists(select))
+    override fun whereExists(select: TableLike<*>): JApiTokens = where(DSL.exists(select))
 
     /**
      * Create an inline derived table from this table
      */
-    override fun whereNotExists(select: Select<*>): JApiTokens = where(DSL.notExists(select))
+    override fun whereNotExists(select: TableLike<*>): JApiTokens = where(DSL.notExists(select))
 }

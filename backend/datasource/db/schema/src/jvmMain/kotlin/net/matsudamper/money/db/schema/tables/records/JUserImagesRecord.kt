@@ -46,6 +46,10 @@ open class JUserImagesRecord() : UpdatableRecordImpl<JUserImagesRecord>(JUserIma
         set(value): Unit = set(6, value)
         get(): Boolean? = get(6) as Boolean?
 
+    open var storageType: String?
+        set(value): Unit = set(7, value)
+        get(): String? = get(7) as String?
+
     // -------------------------------------------------------------------------
     // Primary key information
     // -------------------------------------------------------------------------
@@ -55,7 +59,7 @@ open class JUserImagesRecord() : UpdatableRecordImpl<JUserImagesRecord>(JUserIma
     /**
      * Create a detached, initialised JUserImagesRecord
      */
-    constructor(userImageId: Int? = null, userId: Int? = null, displayId: String? = null, imagePath: String? = null, contentType: String? = null, createdDatetime: LocalDateTime? = null, uploaded: Boolean? = null): this() {
+    constructor(userImageId: Int? = null, userId: Int? = null, displayId: String? = null, imagePath: String? = null, contentType: String? = null, createdDatetime: LocalDateTime? = null, uploaded: Boolean? = null, storageType: String? = null): this() {
         this.userImageId = userImageId
         this.userId = userId
         this.displayId = displayId
@@ -63,6 +67,7 @@ open class JUserImagesRecord() : UpdatableRecordImpl<JUserImagesRecord>(JUserIma
         this.contentType = contentType
         this.createdDatetime = createdDatetime
         this.uploaded = uploaded
+        this.storageType = storageType
         resetTouchedOnNotNull()
     }
 }
