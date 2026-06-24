@@ -192,7 +192,7 @@ timber = { module = "com.jakewharton.timber:timber", version.ref = "timber" }
 lettuce = { module = "io.lettuce:lettuce-core", version.require = "7.5.2.RELEASE" }
 jsoup = { module = "org.jsoup:jsoup", version.require = "1.22.2" }
 hikariCP = { module = "com.zaxxer:HikariCP", version.require = "7.0.2" }
-mariadbClient = { module = "org.mariadb.jdbc:mariadb-java-client", version.require = "3.5.8" }
+mariadbClient = { module = "org.mariadb.jdbc:mariadb-java-client", version.require = "3.5.9" }
 
 # Play
 androidxCredentialsPlayServicesAuth = { module = "androidx.credentials:credentials-play-services-auth", version.require = "1.6.0" }
