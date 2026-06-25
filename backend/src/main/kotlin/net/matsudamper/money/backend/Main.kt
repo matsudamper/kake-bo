@@ -59,6 +59,8 @@ class Main {
 
             // Initialize
             MoneyGraphQlSchema.graphql
+            // 不正な環境変数が設定されている場合は起動させない
+            ServerEnv.adminUserIds
             if (System.getenv("CI")?.toBooleanStrictOrNull() != true) {
                 runCatching { DbConnectionImpl.warmup() }
                     .onFailure { TraceLogger.impl().noticeThrowable(it, isError = true) }

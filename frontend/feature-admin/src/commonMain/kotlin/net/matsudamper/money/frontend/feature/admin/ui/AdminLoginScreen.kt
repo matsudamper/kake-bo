@@ -14,6 +14,7 @@ import androidx.compose.material3.Button
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
+import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -72,6 +73,16 @@ internal fun AdminLoginScreen(uiState: AdminLoginScreenUiState) {
                 ) {
                     Text(
                         text = "ログイン",
+                        fontFamily = rememberCustomFontFamily(),
+                    )
+                }
+                Spacer(Modifier.height(8.dp))
+                TextButton(
+                    modifier = Modifier.align(Alignment.End),
+                    onClick = { uiState.listener.onClickPromoteToAdmin() },
+                ) {
+                    Text(
+                        text = "ログイン中のユーザーでAdmin昇格",
                         fontFamily = rememberCustomFontFamily(),
                     )
                 }
