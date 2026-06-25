@@ -186,6 +186,10 @@ internal fun SettingNavContent(
                             apolloClient = koin.get<GraphqlClient>().apolloClient,
                         ),
                         graphqlClient = koin.get<GraphqlClient>(),
+                        pagingModel = ImportedMailCategoryFilterScreenPagingModel(
+                            scopedObjectFeature = it,
+                            graphqlClient = koin.get<GraphqlClient>(),
+                        ),
                         navController = navController,
                     )
                 }
