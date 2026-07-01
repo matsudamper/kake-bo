@@ -7,6 +7,6 @@ internal class BackPressDispatcherImpl(
     private val componentActivity: ComponentActivity,
 ) : BackPressDispatcher {
     override fun onBackPressed() {
-        componentActivity.onBackPressedDispatcher.onBackPressed()
+        componentActivity.finish()
     }
 }
