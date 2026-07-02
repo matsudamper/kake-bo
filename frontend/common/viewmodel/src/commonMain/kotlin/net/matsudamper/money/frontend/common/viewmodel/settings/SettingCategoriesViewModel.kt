@@ -3,8 +3,10 @@ package net.matsudamper.money.frontend.common.viewmodel.settings
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.flow.catch
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
+import com.apollographql.apollo.cache.normalized.isFromCache
 import net.matsudamper.money.element.MoneyUsageCategoryId
 import net.matsudamper.money.frontend.common.base.ColorUtil
 import net.matsudamper.money.frontend.common.base.ImmutableList.Companion.toImmutableList
@@ -20,6 +22,7 @@ import net.matsudamper.money.frontend.graphql.CategoriesSettingScreenCategoriesP
 
 public class SettingCategoriesViewModel(
     private val api: SettingScreenCategoryApi,
+    private val pagingModel: SettingCategoriesScreenPagingModel,
     scopedObjectFeature: ScopedObjectFeature,
     navController: ScreenNavController,
 ) : CommonViewModel(scopedObjectFeature) {
@@ -83,7 +86,7 @@ public class SettingCategoriesViewModel(
                             )
                         }
 
-                        initialFetch()
+                        pagingModel.refetch()
                     }
                 }
 
@@ -144,38 +147,44 @@ public class SettingCategoriesViewModel(
     }.asStateFlow()
 
     init {
-        initialFetch()
+        observeCategoriesPaging()
     }
 
-    private fun initialFetch() {
+    private fun observeCategoriesPaging() {
         viewModelScope.launch {
-            val data = api.getCategories()?.data
-
-            if (data == null) {
-                globalEventSender.send {
-                    it.showSnackBar("データの取得に失敗しました")
+            pagingModel.getFlow()
+                .catch {
+                    viewModelStateFlow.update { state -> state.copy(isFirstLoading = false) }
+                    globalEventSender.send { event ->
+                        event.showSnackBar("データの取得に失敗しました")
+                    }
                 }
-                return@launch
-            }
+                .collect { response ->
+                    val data = response.data
+                    val categories = data?.user?.moneyUsageCategories
+                    if (data == null || categories == null) {
+                        if (response.isFromCache && response.data == null) return@collect
+                        viewModelStateFlow.update { state -> state.copy(isFirstLoading = false) }
+                        globalEventSender.send {
+                            it.showSnackBar("データの取得に失敗しました")
+                        }
+                        return@collect
+                    }
 
-            viewModelStateFlow.update {
-                it.copy(
-                    isFirstLoading = false,
-                    responseList = listOf(data),
-                )
-            }
+                    viewModelStateFlow.update {
+                        it.copy(
+                            isFirstLoading = false,
+                            responseList = listOf(data),
+                        )
+                    }
+                }
         }
     }
 
     private suspend fun refresh() {
         viewModelStateFlow.update { it.copy(isRefreshing = true) }
         try {
-            val data = api.getCategories()?.data ?: return
-            viewModelStateFlow.update {
-                it.copy(
-                    responseList = listOf(data),
-                )
-            }
+            pagingModel.refetch()
         } finally {
             viewModelStateFlow.update { it.copy(isRefreshing = false) }
         }
