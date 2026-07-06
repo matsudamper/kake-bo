@@ -86,7 +86,12 @@ public class SettingCategoriesViewModel(
                             )
                         }
 
-                        pagingModel.refetch()
+                        val isSuccess = pagingModel.refetch()
+                        if (!isSuccess) {
+                            globalEventSender.send {
+                                it.showSnackBar("データの取得に失敗しました")
+                            }
+                        }
                     }
                 }
 
@@ -184,7 +189,12 @@ public class SettingCategoriesViewModel(
     private suspend fun refresh() {
         viewModelStateFlow.update { it.copy(isRefreshing = true) }
         try {
-            pagingModel.refetch()
+            val isSuccess = pagingModel.refetch()
+            if (!isSuccess) {
+                globalEventSender.send {
+                    it.showSnackBar("データの取得に失敗しました")
+                }
+            }
         } finally {
             viewModelStateFlow.update { it.copy(isRefreshing = false) }
         }

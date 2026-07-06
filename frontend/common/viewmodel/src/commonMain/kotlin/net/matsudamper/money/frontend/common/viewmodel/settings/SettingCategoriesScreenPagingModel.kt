@@ -35,14 +35,14 @@ public class SettingCategoriesScreenPagingModel(
             .watch()
     }
 
-    internal suspend fun refetch() {
-        runCatching {
+    internal suspend fun refetch(): Boolean {
+        return runCatching {
             graphqlClient.apolloClient.query(firstQuery)
                 .fetchPolicy(FetchPolicy.NetworkOnly)
                 .execute()
         }.onFailure {
             Logger.e(TAG, it)
-        }
+        }.isSuccess
     }
 
     public suspend fun removeCategoryFromCache(categoryId: MoneyUsageCategoryId) {
