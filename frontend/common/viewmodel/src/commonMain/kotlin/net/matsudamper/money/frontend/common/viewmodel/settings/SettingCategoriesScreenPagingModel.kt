@@ -4,7 +4,6 @@ import kotlinx.coroutines.flow.Flow
 import com.apollographql.apollo.api.ApolloResponse
 import com.apollographql.apollo.api.Optional
 import com.apollographql.apollo.cache.normalized.FetchPolicy
-import com.apollographql.apollo.cache.normalized.apolloStore
 import com.apollographql.apollo.cache.normalized.fetchPolicy
 import com.apollographql.apollo.cache.normalized.watch
 import net.matsudamper.money.element.MoneyUsageCategoryId
@@ -14,6 +13,7 @@ import net.matsudamper.money.frontend.common.viewmodel.CommonViewModel
 import net.matsudamper.money.frontend.graphql.CategoriesSettingScreenCategoriesPagingQuery
 import net.matsudamper.money.frontend.graphql.GraphqlClient
 import net.matsudamper.money.frontend.graphql.type.MoneyUsageCategoriesInput
+import net.matsudamper.money.frontend.graphql.updateOperation
 
 private const val TAG = "SettingCategoriesScreenPagingModel"
 
@@ -46,27 +46,29 @@ public class SettingCategoriesScreenPagingModel(
     }
 
     public suspend fun removeCategoryFromCache(categoryId: MoneyUsageCategoryId) {
-        val apolloClient = graphqlClient.apolloClient
-        val before = apolloClient.query(firstQuery)
-            .fetchPolicy(FetchPolicy.CacheOnly)
-            .execute()
-            .data ?: return
-        val connection = before.user?.moneyUsageCategories ?: return
-        val filteredNodes = connection.nodes.filterNot { node ->
-            node.id == categoryId
+        graphqlClient.apolloClient.updateOperation(firstQuery) update@{ before ->
+            if (before == null) return@update error()
+            val connection = before.user?.moneyUsageCategories ?: return@update error()
+            val filteredNodes = connection.nodes.filterNot { node ->
+                node.id == categoryId
+            }
+            if (filteredNodes.size == connection.nodes.size) return@update error()
+            val cached = graphqlClient.apolloClient.query(firstQuery)
+                .fetchPolicy(FetchPolicy.CacheOnly)
+                .execute()
+            success(
+                cached.newBuilder()
+                    .data(
+                        data = before.copy(
+                            user = before.user?.copy(
+                                moneyUsageCategories = connection.copy(
+                                    nodes = filteredNodes,
+                                ),
+                            ),
+                        ),
+                    )
+                    .build(),
+            )
         }
-        if (filteredNodes.size == connection.nodes.size) return
-        apolloClient.apolloStore.writeOperation(
-            operation = firstQuery,
-            operationData = before.copy(
-                user = before.user?.copy(
-                    moneyUsageCategories = connection.copy(
-                        nodes = filteredNodes,
-                    ),
-                ),
-            ),
-            customScalarAdapters = apolloClient.customScalarAdapters,
-            publish = true,
-        )
     }
 }
