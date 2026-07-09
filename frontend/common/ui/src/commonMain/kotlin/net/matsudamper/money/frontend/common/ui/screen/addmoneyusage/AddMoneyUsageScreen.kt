@@ -90,6 +90,7 @@ public data class AddMoneyUsageScreenUiState(
     val amount: String,
     val images: ImmutableList<ImageItem>,
     val addButtonEnabled: Boolean,
+    val handleBackPress: Boolean,
     val event: Event,
     val numberInputDialog: NumberInputDialog?,
     val snackbarEventState: SnackbarEventState,
@@ -162,7 +163,7 @@ public fun AddMoneyUsageScreen(
     uiState: AddMoneyUsageScreenUiState,
     windowInsets: PaddingValues,
 ) {
-    ScreenBackHandler(enabled = true) {
+    ScreenBackHandler(enabled = uiState.handleBackPress) {
         uiState.event.onBack()
     }
 
@@ -518,6 +519,7 @@ private fun AddMoneyUsageScreenPreview() {
                 amount = "¥3,500",
                 images = ImmutableList(listOf()),
                 addButtonEnabled = true,
+                handleBackPress = false,
                 event = object : AddMoneyUsageScreenUiState.Event {
                     override fun onBack() {}
                     override fun onClickAdd() {}
