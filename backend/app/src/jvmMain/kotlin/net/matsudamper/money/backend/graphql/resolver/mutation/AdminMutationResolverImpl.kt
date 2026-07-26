@@ -4,6 +4,7 @@ import java.util.concurrent.CompletionStage
 import kotlinx.coroutines.runBlocking
 import graphql.execution.DataFetcherResult
 import graphql.schema.DataFetchingEnvironment
+import net.matsudamper.money.backend.base.ServerEnv
 import net.matsudamper.money.backend.graphql.GraphQlContext
 import net.matsudamper.money.backend.graphql.otelSupplyAsync
 import net.matsudamper.money.backend.graphql.toDataFetcher
@@ -144,6 +145,28 @@ class AdminMutationResolverImpl : AdminMutationResolver {
                         )
                     }
                 }
+            }
+        }.toDataFetcher()
+    }
+
+    override fun adminLoginWithUserSession(
+        adminMutation: QlAdminMutation,
+        env: DataFetchingEnvironment,
+    ): CompletionStage<DataFetcherResult<QlAdminLoginResult>> {
+        val context = env.graphQlContext.get<GraphQlContext>(GraphQlContext::class.java.name)
+        return otelSupplyAsync {
+            val userId = context.userSessionManager.verifyUserSession()
+                ?: return@otelSupplyAsync QlAdminLoginResult(isSuccess = false)
+
+            if (userId !in ServerEnv.adminUserIds) {
+                QlAdminLoginResult(isSuccess = false)
+            } else {
+                val adminSession = context.diContainer.createAdminUserSessionRepository().createSession()
+                context.setAdminSessionCookie(
+                    value = adminSession.adminSessionId.id,
+                    expires = adminSession.expire,
+                )
+                QlAdminLoginResult(isSuccess = true)
             }
         }.toDataFetcher()
     }

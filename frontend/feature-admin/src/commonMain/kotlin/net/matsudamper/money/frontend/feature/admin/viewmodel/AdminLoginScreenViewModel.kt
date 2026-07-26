@@ -37,6 +37,10 @@ internal class AdminLoginScreenViewModel(
                 override fun onClickLogin() {
                     login(viewModelStateFlow.value.password.text)
                 }
+
+                override fun onClickPromoteToAdmin() {
+                    promoteToAdmin()
+                }
             },
         ),
     ).also { uiStateFlow ->
@@ -65,6 +69,23 @@ internal class AdminLoginScreenViewModel(
                 navController.navigateReplace(ScreenStructure.Admin.Root)
             } else {
                 globalEventSender.send { it.showSnackBar("ログインに失敗しました") }
+            }
+        }
+    }
+
+    private fun promoteToAdmin() {
+        viewModelScope.launch {
+            val result = runCatching {
+                adminQuery.adminLoginWithUserSession()
+            }.onFailure {
+                Logger.e(TAG, it)
+            }.getOrNull()
+
+            val isSuccess = result?.data?.adminMutation?.adminLoginWithUserSession?.isSuccess ?: false
+            if (isSuccess) {
+                navController.navigateReplace(ScreenStructure.Admin.Root)
+            } else {
+                globalEventSender.send { it.showSnackBar("Admin昇格に失敗しました") }
             }
         }
     }
