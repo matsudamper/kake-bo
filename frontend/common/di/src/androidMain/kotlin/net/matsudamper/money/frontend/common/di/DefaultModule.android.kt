@@ -1,5 +1,7 @@
 package net.matsudamper.money.frontend.common.di
 
+import android.content.Context
+import android.content.pm.ApplicationInfo
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.firstOrNull
 import kotlinx.coroutines.flow.onEach
@@ -24,7 +26,6 @@ import net.matsudamper.money.frontend.common.feature.uploader.ImageUploadDatabas
 import net.matsudamper.money.frontend.common.feature.uploader.ImageUploadQueue
 import net.matsudamper.money.frontend.common.feature.webauth.WebAuthModel
 import net.matsudamper.money.frontend.common.feature.webauth.WebAuthModelAndroidImpl
-import net.matsudamper.money.frontend.graphql.BuildConfig
 import net.matsudamper.money.frontend.graphql.GraphqlClient
 import net.matsudamper.money.frontend.graphql.GraphqlClientImpl
 import net.matsudamper.money.frontend.graphql.ServerHostConfig
@@ -52,6 +53,8 @@ internal actual val factory: Factory = object : Factory() {
     override fun createGraphQlClient(scope: Scope): GraphqlClient {
         val sessionDataStore = scope.get<DataStores>().sessionDataStore
         val config = scope.get<ServerHostConfig>()
+        val applicationInfo = scope.get<Context>().applicationInfo
+        val isDebuggable = applicationInfo.flags and ApplicationInfo.FLAG_DEBUGGABLE != 0
         val initialHost = config.savedHost.ifEmpty { config.defaultHost }
         val initialServerUrl = if (initialHost.isNotEmpty()) {
             "${config.protocol}://$initialHost/query"
@@ -66,7 +69,7 @@ internal actual val factory: Factory = object : Factory() {
             httpInterceptors = listOfNotNull(
                 LoggingInterceptor(LoggingInterceptor.Level.BODY) { line ->
                     Logger.i("GraphqlHttp", line)
-                }.takeIf { BuildConfig.DEBUG },
+                }.takeIf { isDebuggable },
             ),
             interceptors = listOf(
                 object : ApolloInterceptor {

@@ -18,6 +18,10 @@ kotlin {
         namespace = "net.matsudamper.money.frontend.common.ui"
         compileSdk = 36
         minSdk = 34
+        // Android KMP Library Pluginはandroidリソースが既定で無効で、無効だとCompose Resourcesがassetsに含まれない
+        androidResources {
+            enable = true
+        }
         withHostTest {
             isIncludeAndroidResources = true
         }

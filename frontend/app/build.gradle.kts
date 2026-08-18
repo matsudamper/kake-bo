@@ -45,15 +45,3 @@ kotlin {
         }
     }
 }
-
-tasks.register("assembleDebug") {
-    dependsOn(":frontend:android:app:assembleDebug")
-}
-
-tasks.register("assembleRelease") {
-    dependsOn(":frontend:android:app:assembleRelease")
-}
-
-tasks.named("assemble") {
-    dependsOn(":frontend:android:app:assemble")
-}

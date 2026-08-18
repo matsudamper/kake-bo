@@ -105,5 +105,5 @@ frontend/common/graphql/schema/src/commonMain/graphql/
 ビルドして型エラーがないことを確認する：
 
 ```shell
-./gradlew :backend:assemble :frontend:app:jsBrowserDevelopmentWebpack :frontend:app:assembleDebug --warn
+./gradlew :backend:assemble :frontend:app:jsBrowserDevelopmentWebpack :frontend:android:app:assembleDebug --warn
 ```

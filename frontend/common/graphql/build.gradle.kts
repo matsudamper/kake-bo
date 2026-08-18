@@ -12,28 +12,28 @@ val localProperties = Properties().also { properties ->
     }
 }
 
-val generatedBuildConfigDir = layout.buildDirectory.dir("generated/source/buildConfig/androidMain")
-
+// Android KMP Library Pluginはvariantを持たないためBuildConfigを生成しない。公式はBuildKonfig等での代替を案内しているが、
+// 必要なのは定数2つだけなのでプラグインを増やさずKotlinソースを生成している。
 val generateBuildConfig = tasks.register("generateBuildConfig") {
     val serverProtocol = localProperties["net.matsudamper.money.android.serverProtocol"] as? String ?: "https"
     val serverHost = System.getenv("ANDROID_SERVER_HOST")
         ?: localProperties["net.matsudamper.money.android.serverHost"] as? String
         ?: ""
 
-    val outputFile = generatedBuildConfigDir.get().file("net/matsudamper/money/frontend/graphql/BuildConfig.kt").asFile
+    val outputDir = layout.buildDirectory.dir("generated/source/buildConfig/androidMain")
 
     inputs.property("serverProtocol", serverProtocol)
     inputs.property("serverHost", serverHost)
-    outputs.file(outputFile)
+    outputs.dir(outputDir)
 
     doLast {
+        val outputFile = outputDir.get().file("net/matsudamper/money/frontend/graphql/BuildConfig.kt").asFile
         outputFile.parentFile.mkdirs()
         outputFile.writeText(
             """
             |package net.matsudamper.money.frontend.graphql
             |
             |public object BuildConfig {
-            |    public const val DEBUG: Boolean = false
             |    public const val SERVER_PROTOCOL: String = "$serverProtocol"
             |    public const val SERVER_HOST: String = "$serverHost"
             |}
@@ -68,11 +68,7 @@ kotlin {
             }
         }
         val androidMain by getting {
-            kotlin.srcDir(generatedBuildConfigDir)
+            kotlin.srcDir(generateBuildConfig)
         }
     }
-}
-
-tasks.matching { (it.name.contains("compile", ignoreCase = true) || it.name.contains("ktlint", ignoreCase = true)) && it.name.contains("Android", ignoreCase = true) }.configureEach {
-    dependsOn(generateBuildConfig)
 }
