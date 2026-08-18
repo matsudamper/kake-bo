@@ -21,9 +21,14 @@ internal class LocalUserSessionRepository(
     override fun clearSession(sessionId: UserSessionId) {
         val sessionData = sessions.remove(sessionId) ?: return
 
-        userSessions[sessionData.userId]?.remove(sessionData.sessionRecordId)
-        if (userSessions[sessionData.userId]?.isEmpty() == true) {
-            userSessions.remove(sessionData.userId)
+        // 空判定と削除の間にcreateSession()が追加すると新しいセッションごとSetが消えるためアトミックに更新する
+        userSessions.computeIfPresent(sessionData.userId) { _, recordIds ->
+            recordIds.remove(sessionData.sessionRecordId)
+            if (recordIds.isEmpty()) {
+                null
+            } else {
+                recordIds
+            }
         }
         sessionRecords.remove(sessionData.sessionRecordId)
     }
@@ -41,7 +46,11 @@ internal class LocalUserSessionRepository(
             name = UUID.randomUUID().toString().replace("-", ""),
         )
         sessionRecords[sessionRecordId] = sessionId
-        userSessions.computeIfAbsent(userId) { ConcurrentHashMap.newKeySet() }.add(sessionRecordId)
+        userSessions.compute(userId) { _, recordIds ->
+            val newRecordIds = recordIds ?: ConcurrentHashMap.newKeySet()
+            newRecordIds.add(sessionRecordId)
+            newRecordIds
+        }
 
         return UserSessionRepository.CreateSessionResult(
             sessionId = sessionId,
