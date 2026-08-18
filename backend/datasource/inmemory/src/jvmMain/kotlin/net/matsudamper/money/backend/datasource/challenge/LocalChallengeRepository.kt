@@ -22,8 +22,10 @@ internal class LocalChallengeRepository(
 
     override fun containsWithDelete(key: String): Boolean {
         deleteAfterExpire()
-        // 同じチャレンジの並行検証で両方が成功しないようにアトミックに取得と削除を行う
-        return repository.remove(key) != null
+        // 同じチャレンジの並行検証で両方が成功しないようにアトミックに取得と削除を行い、
+        // 削除した値そのもので期限を判定する。判定と削除を分けると、その間に期限を迎えたチャレンジが検証を通る
+        val data = repository.remove(key)
+        return data != null && data.expire.isAfter(LocalDateTime.now(clock))
     }
 
     // プロセス内のみで完結するため事前に確立する接続も解放する資源も持たない
