@@ -194,6 +194,10 @@ internal class RedisUserSessionRepository(
             latestAccess = sessionData.lastAccess.toJavaInstant(),
         )
     }
+
+    override fun warmup() {
+        commands.ping()
+    }
 }
 
 private sealed interface SessionKeys {

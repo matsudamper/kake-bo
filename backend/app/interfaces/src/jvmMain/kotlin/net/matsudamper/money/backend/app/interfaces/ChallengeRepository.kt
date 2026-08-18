@@ -9,4 +9,6 @@ interface ChallengeRepository {
     )
 
     fun containsWithDelete(key: String): Boolean
+
+    fun warmup()
 }

@@ -47,4 +47,8 @@ internal class RedisChallengeRepository(
     override fun containsWithDelete(key: String): Boolean {
         return commands.getdel(key) != null
     }
+
+    override fun warmup() {
+        commands.ping()
+    }
 }

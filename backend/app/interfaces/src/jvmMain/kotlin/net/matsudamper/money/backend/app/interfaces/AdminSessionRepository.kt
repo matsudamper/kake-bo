@@ -6,4 +6,6 @@ interface AdminSessionRepository {
     fun verifySession(adminSessionId: String): AdminSession?
 
     fun createSession(): AdminSession
+
+    fun warmup()
 }

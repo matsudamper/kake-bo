@@ -39,6 +39,7 @@ import net.matsudamper.money.backend.base.OpenTelemetryInitializer
 import net.matsudamper.money.backend.base.ServerEnv
 import net.matsudamper.money.backend.base.TraceLogger
 import net.matsudamper.money.backend.datasource.db.DbConnectionImpl
+import net.matsudamper.money.backend.di.DiContainer
 import net.matsudamper.money.backend.di.MainDiContainer
 import net.matsudamper.money.backend.feature.oidc.jwks
 import net.matsudamper.money.backend.feature.oidc.oidcDiscovery
@@ -59,15 +60,18 @@ class Main {
 
             // Initialize
             MoneyGraphQlSchema.graphql
+            val diContainer = MainDiContainer()
             if (System.getenv("CI")?.toBooleanStrictOrNull() != true) {
                 runCatching { DbConnectionImpl.warmup() }
+                    .onFailure { TraceLogger.impl().noticeThrowable(it, isError = true) }
+                runCatching { diContainer.warmup() }
                     .onFailure { TraceLogger.impl().noticeThrowable(it, isError = true) }
             }
 
             val engine = embeddedServer(
                 CIO,
                 port = ServerEnv.port,
-                module = Application::myApplicationModule,
+                module = { myApplicationModule(diContainer = diContainer) },
             )
             Runtime.getRuntime().addShutdownHook(
                 Thread {
@@ -79,7 +83,7 @@ class Main {
     }
 }
 
-fun Application.myApplicationModule() {
+fun Application.myApplicationModule(diContainer: DiContainer) {
     install(KtorServerTelemetry) {
         setOpenTelemetry(OpenTelemetryInitializer.get())
     }
@@ -151,7 +155,7 @@ fun Application.myApplicationModule() {
                     return@respondText withTimeout(5.seconds) {
                         GraphqlHandler(
                             cookieManager = KtorCookieManager(call = call),
-                            diContainer = MainDiContainer(),
+                            diContainer = diContainer,
                         ).handle(
                             requestText = call.receiveStream().bufferedReader().readText(),
                         )
@@ -162,7 +166,7 @@ fun Application.myApplicationModule() {
                 val apiKey = call.request.headers["Authorization"]
                 withTimeout(5.seconds) {
                     val result = RegisterMailHandler(
-                        diContainer = MainDiContainer(),
+                        diContainer = diContainer,
                     ).handle(
                         request = request,
                         apiKey = apiKey,
@@ -194,18 +198,17 @@ fun Application.myApplicationModule() {
                 }
             }
         }
-        val routingDiContainer = MainDiContainer()
         postImage(
-            diContainer = routingDiContainer,
+            diContainer = diContainer,
             config = ImageUploadConfig(
                 maxUploadBytes = ServerEnv.imageUploadMaxBytes,
             ),
         )
         getImage(
-            diContainer = routingDiContainer,
+            diContainer = diContainer,
         )
 
-        val oidcKeyManager = routingDiContainer.createOidcKeyManager()
+        val oidcKeyManager = diContainer.createOidcKeyManager()
         val s3 = ServerEnv.S3
         if (s3 != null && oidcKeyManager != null) {
             oidcDiscovery(issuer = s3.oidcIssuer)

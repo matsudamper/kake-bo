@@ -59,5 +59,9 @@ internal class RedisAdminSessionRepository(
         )
     }
 
+    override fun warmup() {
+        commands.ping()
+    }
+
     private fun sessionKey(sessionId: String): String = "admin_session:$sessionId"
 }

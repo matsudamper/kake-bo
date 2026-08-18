@@ -119,6 +119,9 @@ internal class LocalUserSessionRepository(
         )
     }
 
+    // プロセス内のみで完結するため事前に確立する接続を持たない
+    override fun warmup() = Unit
+
     private data class SessionData(
         val userId: UserId,
         val sessionRecordId: SessionRecordId,

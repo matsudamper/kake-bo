@@ -28,6 +28,9 @@ internal class LocalChallengeRepository(
         }
     }
 
+    // プロセス内のみで完結するため事前に確立する接続を持たない
+    override fun warmup() = Unit
+
     private fun deleteAfterExpire() {
         repository
             .filter { (_, value) -> value.expire.isBefore(LocalDateTime.now(clock)) }
