@@ -53,9 +53,10 @@ internal class LocalUserSessionRepository(
         sessionId: UserSessionId,
         expireDay: Long,
     ): UserSessionRepository.VerifySessionResult {
-        val sessionData = sessions[sessionId] ?: return UserSessionRepository.VerifySessionResult.Failure
-
-        sessions[sessionId] = sessionData.copy(lastAccess = Instant.now(clock))
+        // 読み取りと書き込みの間にclearSession()が走ると削除済みセッションが復活するためアトミックに更新する
+        val sessionData = sessions.computeIfPresent(sessionId) { _, current ->
+            current.copy(lastAccess = Instant.now(clock))
+        } ?: return UserSessionRepository.VerifySessionResult.Failure
 
         return UserSessionRepository.VerifySessionResult.Success(
             userId = sessionData.userId,
@@ -107,14 +108,18 @@ internal class LocalUserSessionRepository(
     ): UserSessionRepository.SessionInfo? {
         val currentUserId = sessions[currentSessionId]?.userId ?: return null
         val sessionId = sessionRecords[sessionRecordId] ?: return null
-        val sessionData = sessions[sessionId] ?: return null
+        val sessionData = sessions.computeIfPresent(sessionId) { _, current ->
+            if (current.userId == currentUserId) {
+                current.copy(name = sessionName)
+            } else {
+                current
+            }
+        } ?: return null
         if (sessionData.userId != currentUserId) return null
-
-        sessions[sessionId] = sessionData.copy(name = sessionName)
 
         return UserSessionRepository.SessionInfo(
             sessionRecordId = sessionRecordId,
-            name = sessionName,
+            name = sessionData.name,
             latestAccess = sessionData.lastAccess,
         )
     }
