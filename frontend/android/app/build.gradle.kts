@@ -15,7 +15,7 @@ val localProperties = Properties().also { properties ->
 }
 
 android {
-    compileSdk = 37
+    compileSdk = 36
     namespace = "net.matsudamper.money"
 
     buildFeatures {
@@ -55,7 +55,7 @@ android {
         applicationId = "net.matsudamper.money"
         resValue("string", "app_name", appName)
         minSdk = 34
-        targetSdk = 37
+        targetSdk = 36
         versionCode = 1
         versionName = "1.0"
         manifestPlaceholders["SERVER_HOST"] = System.getenv("ANDROID_SERVER_HOST")

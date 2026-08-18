@@ -10,7 +10,7 @@ plugins {
 kotlin {
     androidLibrary {
         namespace = "net.matsudamper.money.frontend.common.base.nav"
-        compileSdk = 37
+        compileSdk = 36
         minSdk = 34
     }
     js(IR) {

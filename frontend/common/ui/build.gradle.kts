@@ -16,7 +16,7 @@ compose.resources {
 kotlin {
     androidLibrary {
         namespace = "net.matsudamper.money.frontend.common.ui"
-        compileSdk = 37
+        compileSdk = 36
         minSdk = 34
         withHostTest {
             isIncludeAndroidResources = true

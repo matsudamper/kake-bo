@@ -46,7 +46,7 @@ val generateBuildConfig = tasks.register("generateBuildConfig") {
 kotlin {
     androidLibrary {
         namespace = "net.matsudamper.money.frontend.graphql"
-        compileSdk = 37
+        compileSdk = 36
         minSdk = 34
     }
     js(IR) {

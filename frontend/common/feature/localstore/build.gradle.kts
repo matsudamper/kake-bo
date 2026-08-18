@@ -43,7 +43,7 @@ val generateProto = tasks.register("generateProto", Exec::class) {
 kotlin {
     androidLibrary {
         namespace = "net.matsudamper.money.frontend.common.feature.localstore"
-        compileSdk = 37
+        compileSdk = 36
         minSdk = 34
         withJava()
     }
