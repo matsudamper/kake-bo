@@ -33,6 +33,8 @@ interface UserSessionRepository {
 
     fun warmup()
 
+    fun close()
+
     data class CreateSessionResult(
         val sessionId: UserSessionId,
         val latestAccess: LocalDateTime,

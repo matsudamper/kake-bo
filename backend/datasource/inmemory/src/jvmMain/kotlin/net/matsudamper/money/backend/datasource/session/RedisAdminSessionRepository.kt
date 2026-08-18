@@ -23,11 +23,11 @@ internal class RedisAdminSessionRepository(
     index: Int,
     private val clock: Clock,
 ) : AdminSessionRepository {
+    private val clientResources: ClientResources = ClientResources.builder()
+        .tracing(LettuceTelemetry.create(OpenTelemetryInitializer.get()).createTracing())
+        .build()
     private val redisClient: RedisClient = run {
         val uri = RedisURI.Builder.redis(host, port).withDatabase(index).build()
-        val clientResources = ClientResources.builder()
-            .tracing(LettuceTelemetry.create(OpenTelemetryInitializer.get()).createTracing())
-            .build()
         RedisClient.create(clientResources, uri).apply {
             setOptions(
                 ClientOptions.builder()
@@ -61,6 +61,12 @@ internal class RedisAdminSessionRepository(
 
     override fun warmup() {
         commands.ping()
+    }
+
+    // 外部で生成したClientResourcesはRedisClient.shutdown()では止まらないため個別に終了する
+    override fun close() {
+        redisClient.shutdown()
+        clientResources.shutdown()
     }
 
     private fun sessionKey(sessionId: String): String = "admin_session:$sessionId"

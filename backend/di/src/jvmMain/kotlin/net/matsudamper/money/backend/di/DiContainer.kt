@@ -391,6 +391,12 @@ class MainDiContainer : DiContainer {
         adminSessionRepository.warmup()
     }
 
+    fun close() {
+        userSessionRepository.close()
+        challengeRepository.close()
+        adminSessionRepository.close()
+    }
+
     init {
         if (ServerEnv.enableS3) {
             validateS3Config()

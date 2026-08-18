@@ -76,6 +76,7 @@ class Main {
             Runtime.getRuntime().addShutdownHook(
                 Thread {
                     engine.stop(1000, 1000)
+                    diContainer.close()
                 },
             )
             engine.start(wait = true)

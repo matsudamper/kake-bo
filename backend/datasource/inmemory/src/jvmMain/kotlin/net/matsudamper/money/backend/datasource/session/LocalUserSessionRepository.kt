@@ -8,6 +8,7 @@ import java.util.UUID
 import java.util.concurrent.ConcurrentHashMap
 import net.matsudamper.money.backend.app.interfaces.UserSessionRepository
 import net.matsudamper.money.backend.app.interfaces.element.UserSessionId
+import net.matsudamper.money.backend.base.ServerVariables
 import net.matsudamper.money.element.SessionRecordId
 import net.matsudamper.money.element.UserId
 
@@ -97,6 +98,7 @@ internal class LocalUserSessionRepository(
     }
 
     override fun getSessions(userId: UserId): List<UserSessionRepository.SessionInfo> {
+        deleteExpiredSessions()
         val recordIds = userSessions[userId] ?: return listOf()
 
         return recordIds.mapNotNull { recordId ->
@@ -146,8 +148,19 @@ internal class LocalUserSessionRepository(
         )
     }
 
-    // プロセス内のみで完結するため事前に確立する接続を持たない
+    // プロセス内のみで完結するため事前に確立する接続も解放する資源も持たない
     override fun warmup() = Unit
+
+    override fun close() = Unit
+
+    // verifySession()を通らないセッションはどこからも削除されず溜まり続けるため、一覧取得を機に除去する
+    private fun deleteExpiredSessions() {
+        val expireThreshold = Instant.now(clock)
+            .minus(ServerVariables.USER_SESSION_EXPIRE_DAY, ChronoUnit.DAYS)
+        sessions
+            .filter { (_, value) -> value.lastAccess.isBefore(expireThreshold) }
+            .forEach { (sessionId, _) -> clearSession(sessionId) }
+    }
 
     private data class SessionData(
         val userId: UserId,

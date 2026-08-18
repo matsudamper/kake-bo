@@ -8,4 +8,6 @@ interface AdminSessionRepository {
     fun createSession(): AdminSession
 
     fun warmup()
+
+    fun close()
 }

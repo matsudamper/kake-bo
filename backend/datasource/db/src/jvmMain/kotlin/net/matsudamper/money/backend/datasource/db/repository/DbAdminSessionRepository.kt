@@ -94,8 +94,10 @@ class DbAdminSessionRepository(
         return sessionId.toResponse()
     }
 
-    // コネクションプールの暖機は DbConnectionImpl.warmup() が行う
+    // コネクションプールの暖機と解放は DbConnectionImpl が行う
     override fun warmup() = Unit
+
+    override fun close() = Unit
 
     private fun JAdminSessionsRecord.toResponse(): AdminSession {
         return AdminSession(

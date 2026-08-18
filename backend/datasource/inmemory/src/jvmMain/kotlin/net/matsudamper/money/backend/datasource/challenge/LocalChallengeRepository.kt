@@ -10,7 +10,7 @@ internal class LocalChallengeRepository(
     private val clock: Clock,
 ) : ChallengeRepository {
     // DiContainerがSingletonになり複数リクエストから同時に触られる
-    private val repository: MutableMap<String, Data> = ConcurrentHashMap()
+    private val repository = ConcurrentHashMap<String, Data>()
 
     override fun set(
         key: String,
@@ -26,13 +26,17 @@ internal class LocalChallengeRepository(
         return repository.remove(key) != null
     }
 
-    // プロセス内のみで完結するため事前に確立する接続を持たない
+    // プロセス内のみで完結するため事前に確立する接続も解放する資源も持たない
     override fun warmup() = Unit
 
+    override fun close() = Unit
+
     private fun deleteAfterExpire() {
+        val now = LocalDateTime.now(clock)
+        // キーだけで削除すると、走査後にset()が書いた新しいチャレンジまで消えてしまう
         repository
-            .filter { (_, value) -> value.expire.isBefore(LocalDateTime.now(clock)) }
-            .forEach { (key, _) -> repository.remove(key) }
+            .filter { (_, value) -> value.expire.isBefore(now) }
+            .forEach { (key, value) -> repository.remove(key, value) }
     }
 
     private data class Data(
