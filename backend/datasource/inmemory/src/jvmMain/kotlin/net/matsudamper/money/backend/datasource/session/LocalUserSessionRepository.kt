@@ -3,6 +3,7 @@ package net.matsudamper.money.backend.datasource.session
 import java.time.Clock
 import java.time.Instant
 import java.time.LocalDateTime
+import java.time.temporal.ChronoUnit
 import java.util.UUID
 import java.util.concurrent.ConcurrentHashMap
 import net.matsudamper.money.backend.app.interfaces.UserSessionRepository
@@ -62,10 +63,22 @@ internal class LocalUserSessionRepository(
         sessionId: UserSessionId,
         expireDay: Long,
     ): UserSessionRepository.VerifySessionResult {
+        val now = Instant.now(clock)
+        val expireThreshold = now.minus(expireDay, ChronoUnit.DAYS)
+
         // 読み取りと書き込みの間にclearSession()が走ると削除済みセッションが復活するためアトミックに更新する
         val sessionData = sessions.computeIfPresent(sessionId) { _, current ->
-            current.copy(lastAccess = Instant.now(clock))
+            if (current.lastAccess.isBefore(expireThreshold)) {
+                current
+            } else {
+                current.copy(lastAccess = now)
+            }
         } ?: return UserSessionRepository.VerifySessionResult.Failure
+
+        if (sessionData.lastAccess.isBefore(expireThreshold)) {
+            clearSession(sessionId)
+            return UserSessionRepository.VerifySessionResult.Failure
+        }
 
         return UserSessionRepository.VerifySessionResult.Success(
             userId = sessionData.userId,
