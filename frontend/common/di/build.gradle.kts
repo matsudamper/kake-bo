@@ -1,15 +1,19 @@
 plugins {
     alias(libs.plugins.kotlin.multiplatform)
     alias(libs.plugins.kotlin.serialization)
+    id("com.android.kotlin.multiplatform.library")
     id("net.matsudamper.money.buildlogic.compose")
-    id("net.matsudamper.money.buildlogic.androidLibrary")
 }
 
 kotlin {
+    androidLibrary {
+        namespace = "net.matsudamper.money.frontend.common.di"
+        compileSdk = 37
+        minSdk = 34
+    }
     js(IR) {
         browser()
     }
-    androidTarget()
     sourceSets {
         jvmToolchain(libs.versions.javaToolchain.get().toInt())
         val commonMain by getting {
@@ -38,8 +42,4 @@ kotlin {
 
 tasks.withType<Test>().configureEach {
     useJUnitPlatform()
-}
-
-android {
-    namespace = "net.matsudamper.money.frontend.common.di"
 }

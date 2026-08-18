@@ -2,20 +2,21 @@ plugins {
     alias(libs.plugins.kotlin.multiplatform)
     alias(libs.plugins.ksp)
     alias(libs.plugins.kotest)
+    id("com.android.kotlin.multiplatform.library")
     id("net.matsudamper.money.buildlogic.compose")
-    id("net.matsudamper.money.buildlogic.androidLibrary")
     alias(libs.plugins.kotlin.serialization)
-}
-android {
-    namespace = "net.matsudamper.money.frontend.common.base.nav"
 }
 
 kotlin {
+    androidLibrary {
+        namespace = "net.matsudamper.money.frontend.common.base.nav"
+        compileSdk = 37
+        minSdk = 34
+    }
     js(IR) {
         browser()
     }
     jvm { }
-    androidTarget()
     jvmToolchain(libs.versions.javaToolchain.get().toInt())
     sourceSets {
         val commonMain by getting {

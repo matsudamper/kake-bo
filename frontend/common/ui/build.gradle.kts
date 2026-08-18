@@ -2,8 +2,8 @@ import org.jetbrains.compose.resources.ResourcesExtension
 
 plugins {
     alias(libs.plugins.kotlin.multiplatform)
+    id("com.android.kotlin.multiplatform.library")
     id("net.matsudamper.money.buildlogic.compose")
-    id("net.matsudamper.money.buildlogic.androidLibrary")
     alias(libs.plugins.paparazzi)
 }
 
@@ -14,10 +14,17 @@ compose.resources {
 }
 
 kotlin {
+    androidLibrary {
+        namespace = "net.matsudamper.money.frontend.common.ui"
+        compileSdk = 37
+        minSdk = 34
+        withHostTest {
+            isIncludeAndroidResources = true
+        }
+    }
     js(IR) {
         browser()
     }
-    androidTarget()
     sourceSets {
         jvmToolchain(libs.versions.javaToolchain.get().toInt())
         val commonMain by getting {
@@ -62,7 +69,7 @@ kotlin {
                 implementation(kotlin("test"))
             }
         }
-        val androidUnitTest by getting {
+        val androidHostTest by getting {
             dependencies {
                 implementation(libs.paparazzi)
                 implementation(libs.composablePreviewScanner)
@@ -76,32 +83,27 @@ val byteBuddyAgent: Configuration by configurations.creating
 
 dependencies {
     byteBuddyAgent("net.bytebuddy:byte-buddy-agent:1.18.10")
-    debugImplementation(libs.composeUiTooling)
 }
 
-android {
-    namespace = "net.matsudamper.money.frontend.common.ui"
-    val paparazziTaskRequested = gradle.startParameter.taskNames.any { requestedTask ->
-        requestedTask.contains("paparazzi", ignoreCase = true)
-    }
-    testOptions {
-        unitTests.all {
-            it.useJUnit {
-                if (paparazziTaskRequested || it.name.contains("paparazzi", ignoreCase = true)) {
-                    includeCategories("net.matsudamper.money.frontend.common.ui.screenshot.PaparazziTestCategory")
-                    // 回避策: Gradle 9.3.1 では Paparazzi のHTMLレポーターが
-                    // NoSuchMethodError(TestResultsProvider.hasOutput) で落ちるため、
-                    // Paparazzi実行時のみ Gradle のテストHTMLレポート生成を無効化する。
-                    // https://github.com/cashapp/paparazzi/issues/2111
-                    it.reports.html.required.set(false)
-                } else {
-                    excludeCategories("net.matsudamper.money.frontend.common.ui.screenshot.PaparazziTestCategory")
-                }
-            }
-            it.jvmArgs(
-                "-javaagent:${byteBuddyAgent.asPath}",
-                "-Djdk.attach.allowAttachSelf=true",
-            )
+val paparazziTaskRequested = gradle.startParameter.taskNames.any { requestedTask ->
+    requestedTask.contains("paparazzi", ignoreCase = true)
+}
+
+tasks.withType<Test>().configureEach {
+    useJUnit {
+        if (paparazziTaskRequested || name.contains("paparazzi", ignoreCase = true)) {
+            includeCategories("net.matsudamper.money.frontend.common.ui.screenshot.PaparazziTestCategory")
+            // 回避策: Gradle 9.3.1 では Paparazzi のHTMLレポーターが
+            // NoSuchMethodError(TestResultsProvider.hasOutput) で落ちるため、
+            // Paparazzi実行時のみ Gradle のテストHTMLレポート生成を無効化する。
+            // https://github.com/cashapp/paparazzi/issues/2111
+            reports.html.required.set(false)
+        } else {
+            excludeCategories("net.matsudamper.money.frontend.common.ui.screenshot.PaparazziTestCategory")
         }
     }
+    jvmArgs(
+        "-javaagent:${byteBuddyAgent.asPath}",
+        "-Djdk.attach.allowAttachSelf=true",
+    )
 }

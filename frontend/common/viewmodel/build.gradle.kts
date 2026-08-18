@@ -1,14 +1,18 @@
 plugins {
     alias(libs.plugins.kotlin.multiplatform)
+    id("com.android.kotlin.multiplatform.library")
     id("net.matsudamper.money.buildlogic.compose")
-    id("net.matsudamper.money.buildlogic.androidLibrary")
 }
 
 kotlin {
+    androidLibrary {
+        namespace = "net.matsudamper.money.frontend.common.viewmodel"
+        compileSdk = 37
+        minSdk = 34
+    }
     js(IR) {
         browser()
     }
-    androidTarget()
     sourceSets {
         jvmToolchain(libs.versions.javaToolchain.get().toInt())
         val commonMain by getting {
@@ -47,8 +51,4 @@ kotlin {
         }
     }
     explicitApi()
-}
-
-android {
-    namespace = "net.matsudamper.money.frontend.common.viewmodel"
 }
