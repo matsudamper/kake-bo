@@ -18,9 +18,7 @@
     ],
     "deny": [
       "mcp__Claude_Code_Remote__send_later",
-      "mcp__Claude_Code_Remote__create_trigger",
-      "ScheduleWakeup",
-      "CronCreate"
+      "mcp__Claude_Code_Remote__create_trigger"
     ]
   }
 }
