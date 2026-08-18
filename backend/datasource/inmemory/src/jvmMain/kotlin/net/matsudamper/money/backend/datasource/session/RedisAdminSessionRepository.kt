@@ -59,6 +59,7 @@ internal class RedisAdminSessionRepository(
         )
     }
 
+    // TODO ここでやらない。RedisClientをDIでするようにしてそっちに書く
     override fun warmup() {
         commands.ping()
     }
