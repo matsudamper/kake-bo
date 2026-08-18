@@ -21,7 +21,7 @@ import graphql.schema.GraphQLScalarType
 import io.opentelemetry.instrumentation.graphql.v20_0.GraphQLTelemetry
 import net.matsudamper.money.backend.base.OpenTelemetryInitializer
 import net.matsudamper.money.backend.base.ServerEnv
-import net.matsudamper.money.backend.di.MainDiContainer
+import net.matsudamper.money.backend.base.TraceLogger
 import net.matsudamper.money.backend.graphql.resolver.AdminUnlinkedImagesConnectionResolverImpl
 import net.matsudamper.money.backend.graphql.resolver.ImageResolverImpl
 import net.matsudamper.money.backend.graphql.resolver.MoneyUsageCategoryResolverImpl
@@ -60,7 +60,6 @@ import net.matsudamper.money.element.SessionRecordId
 import net.matsudamper.money.graphql.model.GraphQlInputField
 
 object MoneyGraphQlSchema {
-    private val diContainer = MainDiContainer()
     private fun getSchemaFiles(): List<String> {
         val schemaFileNames = GraphqlSchemaModule::class.java.classLoader
             .getResourceAsStream("graphql/schema-list.txt")
@@ -224,7 +223,7 @@ object MoneyGraphQlSchema {
         .queryExecutionStrategy(AsyncExecutionStrategy())
         .instrumentation(
             ChainedInstrumentation(
-                IdLoggerInstrumentation(diContainer.traceLogger()),
+                IdLoggerInstrumentation(TraceLogger.impl()),
                 GraphQLTelemetry.builder(OpenTelemetryInitializer.get())
                     .setAddOperationNameToSpanName(true)
                     .setDataFetcherInstrumentationEnabled(true)
