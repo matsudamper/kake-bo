@@ -39,9 +39,12 @@ class ScreenshotTest(
                 .getPreviews()
     }
 
+    @OptIn(org.jetbrains.compose.resources.ExperimentalResourceApi::class)
     @Test
     fun snapshot() {
+        org.jetbrains.compose.resources.setResourceReaderAndroidContext(paparazzi.context)
         paparazzi.snapshot(name = preview.methodName) {
+            org.jetbrains.compose.resources.PreviewContextConfigurationEffect()
             preview()
         }
     }
