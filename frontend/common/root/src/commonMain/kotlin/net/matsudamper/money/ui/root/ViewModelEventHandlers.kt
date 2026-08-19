@@ -76,7 +76,7 @@ internal data class ViewModelEventHandlers(
                     }
 
                     override fun changeQuery(isLinked: Boolean?, text: String?) {
-                        navController.navigate(ScreenStructure.Root.Add.Imported(isLinked = isLinked, text = text))
+                        navController.navigateReplace(ScreenStructure.Root.Add.Imported(isLinked = isLinked, text = text))
                     }
 
                     override fun navigateToMailDetail(id: ImportedMailId) {
