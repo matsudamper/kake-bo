@@ -44,5 +44,9 @@ gradlePlugin {
             id = "net.matsudamper.money.buildlogic.androidLibrary"
             implementationClass = "net.matsudamper.money.buildlogic.AndroidLibraryPlugin"
         }
+        register("multiplatformLibrary") {
+            id = "net.matsudamper.money.buildlogic.multiplatform.library"
+            implementationClass = "net.matsudamper.money.buildlogic.MultiplatformLibraryPlugin"
+        }
     }
 }

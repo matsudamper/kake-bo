@@ -1,17 +1,18 @@
 plugins {
     alias(libs.plugins.kotlin.multiplatform)
     alias(libs.plugins.kotlin.serialization)
-    id("com.android.kotlin.multiplatform.library")
+    id("net.matsudamper.money.buildlogic.multiplatform.library")
 }
 
 val protocConfiguration: Configuration by configurations.creating
 
 val isWindows = System.getProperty("os.name").lowercase().contains("windows")
 val isMac = System.getProperty("os.name").lowercase().contains("mac")
+val isArm = System.getProperty("os.arch") == "aarch64"
 val osClassifier = when {
     isWindows -> "windows-x86_64"
-    isMac -> if (System.getProperty("os.arch") == "aarch64") "osx-aarch_64" else "osx-x86_64"
-    else -> "linux-x86_64"
+    isMac -> if (isArm) "osx-aarch_64" else "osx-x86_64"
+    else -> if (isArm) "linux-aarch_64" else "linux-x86_64"
 }
 
 dependencies {
@@ -43,8 +44,6 @@ val generateProto = tasks.register("generateProto", Exec::class) {
 kotlin {
     androidLibrary {
         namespace = "net.matsudamper.money.frontend.common.feature.localstore"
-        compileSdk = 36
-        minSdk = 34
         withJava()
     }
     js(IR) {

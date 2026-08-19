@@ -2,7 +2,7 @@ plugins {
     alias(libs.plugins.kotlin.multiplatform)
     alias(libs.plugins.ksp)
     alias(libs.plugins.kotest)
-    id("com.android.kotlin.multiplatform.library")
+    id("net.matsudamper.money.buildlogic.multiplatform.library")
     id("net.matsudamper.money.buildlogic.compose")
     alias(libs.plugins.kotlin.serialization)
 }
@@ -10,8 +10,6 @@ plugins {
 kotlin {
     androidLibrary {
         namespace = "net.matsudamper.money.frontend.common.base.nav"
-        compileSdk = 36
-        minSdk = 34
     }
     js(IR) {
         browser()

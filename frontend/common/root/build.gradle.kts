@@ -5,15 +5,13 @@ plugins {
     alias(libs.plugins.kotlin.serialization)
     alias(libs.plugins.composeCompiler)
     alias(libs.plugins.jetbrainsCompose)
-    id("com.android.kotlin.multiplatform.library")
+    id("net.matsudamper.money.buildlogic.multiplatform.library")
     id("net.matsudamper.money.buildlogic.compose")
 }
 
 kotlin {
     androidLibrary {
         namespace = "net.matsudamper.money.ui.root"
-        compileSdk = 36
-        minSdk = 34
     }
     js(IR) {
         browser()

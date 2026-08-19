@@ -1,14 +1,12 @@
 plugins {
     alias(libs.plugins.kotlin.multiplatform)
-    id("com.android.kotlin.multiplatform.library")
+    id("net.matsudamper.money.buildlogic.multiplatform.library")
     alias(libs.plugins.ksp)
 }
 
 kotlin {
     androidLibrary {
         namespace = "net.matsudamper.money.frontend.common.feature.uploader"
-        compileSdk = 36
-        minSdk = 34
     }
     js(IR) {
         browser()

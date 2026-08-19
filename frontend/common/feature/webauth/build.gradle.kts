@@ -1,15 +1,13 @@
 plugins {
     alias(libs.plugins.kotlin.multiplatform)
     alias(libs.plugins.kotlin.serialization)
-    id("com.android.kotlin.multiplatform.library")
+    id("net.matsudamper.money.buildlogic.multiplatform.library")
     id("net.matsudamper.money.buildlogic.compose")
 }
 
 kotlin {
     androidLibrary {
         namespace = "net.matsudamper.money.frontend.common.feature.webauth"
-        compileSdk = 36
-        minSdk = 34
     }
     js(IR) {
         browser()

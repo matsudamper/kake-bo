@@ -2,7 +2,7 @@ import org.jetbrains.compose.resources.ResourcesExtension
 
 plugins {
     alias(libs.plugins.kotlin.multiplatform)
-    id("com.android.kotlin.multiplatform.library")
+    id("net.matsudamper.money.buildlogic.multiplatform.library")
     id("net.matsudamper.money.buildlogic.compose")
     alias(libs.plugins.paparazzi)
 }
@@ -16,8 +16,6 @@ compose.resources {
 kotlin {
     androidLibrary {
         namespace = "net.matsudamper.money.frontend.common.ui"
-        compileSdk = 36
-        minSdk = 34
         // Android KMP Library Pluginはandroidリソースが既定で無効で、無効だとCompose Resourcesがassetsに含まれない
         androidResources {
             enable = true

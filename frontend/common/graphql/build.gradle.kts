@@ -3,7 +3,7 @@ import com.codingfeline.buildkonfig.compiler.FieldSpec.Type.STRING
 
 plugins {
     alias(libs.plugins.kotlin.multiplatform)
-    id("com.android.kotlin.multiplatform.library")
+    id("net.matsudamper.money.buildlogic.multiplatform.library")
     alias(libs.plugins.buildkonfig)
 }
 
@@ -42,8 +42,6 @@ buildkonfig {
 kotlin {
     androidLibrary {
         namespace = "net.matsudamper.money.frontend.graphql"
-        compileSdk = 36
-        minSdk = 34
     }
     js(IR) {
         browser()
