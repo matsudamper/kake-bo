@@ -97,7 +97,7 @@ ApolloのPagingは`updateOperation()`を使用し、最初のOperationに連結�
 - モジュール個別のビルドは禁止
 
 ```sh
-./gradlew :backend:assemble :frontend:app:jsBrowserDevelopmentWebpack :frontend:app:assembleDebug --quiet
+./gradlew :backend:assemble :frontend:app:jsBrowserDevelopmentWebpack :frontend:android:app:assembleDebug --quiet
 ```
 
 ビルドができたらFormatする
@@ -122,7 +122,7 @@ ApolloのPagingは`updateOperation()`を使用し、最初のOperationに連結�
 ./gradlew :backend:build
 
 // Frontend - Android App
-./gradlew :frontend:app:assembleDebug
+./gradlew :frontend:android:app:assembleDebug
 
 // Frontend - JS
 ./gradlew :frontend:app:jsBrowserDevelopmentWebpack

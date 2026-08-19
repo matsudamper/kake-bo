@@ -11,7 +11,6 @@ import sergio.sastre.composable.preview.scanner.android.AndroidComposablePreview
 import sergio.sastre.composable.preview.scanner.android.AndroidPreviewInfo
 import sergio.sastre.composable.preview.scanner.core.preview.ComposablePreview
 import sergio.sastre.composable.preview.scanner.core.scanner.config.classpath.Classpath
-import sergio.sastre.composable.preview.scanner.core.scanner.config.classpath.SourceSet
 
 @RunWith(Parameterized::class)
 @Category(PaparazziTestCategory::class)
@@ -29,10 +28,8 @@ class ScreenshotTest(
         fun previews(): List<ComposablePreview<AndroidPreviewInfo>> =
             AndroidComposablePreviewScanner()
                 .setTargetSourceSet(
-                    sourceSetClasspath = Classpath(
-                        sourceSet = SourceSet.MAIN,
-                        variantName = "debug",
-                    ),
+                    // Android KMP Library Pluginにはvariantが無く、コンパイル結果がbuild/tmp/kotlin-classes/debugに出ない
+                    sourceSetClasspath = Classpath(packagePath = "classes/kotlin/android/main"),
                 )
                 .scanPackageTrees("net.matsudamper.money.frontend.common.ui")
                 .includePrivatePreviews()
