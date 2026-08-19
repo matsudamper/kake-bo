@@ -14,7 +14,7 @@ compose.resources {
 }
 
 kotlin {
-    androidLibrary {
+    android {
         namespace = "net.matsudamper.money.frontend.common.ui"
         // Android KMP Library Pluginはandroidリソースが既定で無効で、無効だとCompose Resourcesがassetsに含まれない
         androidResources {

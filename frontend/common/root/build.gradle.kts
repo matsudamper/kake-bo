@@ -10,7 +10,7 @@ plugins {
 }
 
 kotlin {
-    androidLibrary {
+    android {
         namespace = "net.matsudamper.money.ui.root"
     }
     js(IR) {

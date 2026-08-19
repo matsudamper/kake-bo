@@ -40,7 +40,7 @@ buildkonfig {
 }
 
 kotlin {
-    androidLibrary {
+    android {
         namespace = "net.matsudamper.money.frontend.graphql"
     }
     js(IR) {

@@ -26,6 +26,7 @@ val generateProto = tasks.register("generateProto", Exec::class) {
     val outDir = generatedProtoDir.get().asFile
 
     inputs.file(protoFile)
+    inputs.files(protocConfiguration.incoming.files)
     outputs.dir(outDir)
 
     doFirst {
@@ -42,7 +43,7 @@ val generateProto = tasks.register("generateProto", Exec::class) {
 }
 
 kotlin {
-    androidLibrary {
+    android {
         namespace = "net.matsudamper.money.frontend.common.feature.localstore"
         withJava()
     }
@@ -64,7 +65,7 @@ kotlin {
                 api(libs.androidxDatastoreDatastore)
                 api(libs.protobufProtobufJavalite)
             }
-            kotlin.srcDir(generatedProtoDir)
+            kotlin.srcDir(generateProto)
         }
         val jsTest by getting {
             dependencies {
@@ -73,10 +74,6 @@ kotlin {
         }
     }
     explicitApi()
-}
-
-tasks.matching { (it.name.contains("compile", ignoreCase = true) || it.name.contains("ktlint", ignoreCase = true)) && it.name.contains("Android", ignoreCase = true) }.configureEach {
-    dependsOn(generateProto)
 }
 
 tasks.withType<Test>().configureEach {
