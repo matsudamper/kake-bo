@@ -69,6 +69,7 @@ public class ImportedMailListViewModel(
                 override fun refresh() {
                     viewModelStateFlow.update {
                         it.copy(
+                            isLoading = false,
                             mailState = it.mailState.copy(
                                 cursor = null,
                                 finishLoadingToEnd = false,
@@ -163,6 +164,7 @@ public class ImportedMailListViewModel(
         }
         viewModelStateFlow.update {
             it.copy(
+                isLoading = false,
                 mailState = ViewModelState.MailState(
                     query = newQuery,
                 ),
@@ -185,6 +187,7 @@ public class ImportedMailListViewModel(
         }
         viewModelStateFlow.update {
             it.copy(
+                isLoading = false,
                 mailState = ViewModelState.MailState(
                     query = newQuery,
                 ),
@@ -213,6 +216,7 @@ public class ImportedMailListViewModel(
         }
         viewModelStateFlow.update {
             it.copy(
+                isLoading = false,
                 mailState = ViewModelState.MailState(
                     query = newQuery,
                 ),
@@ -244,6 +248,7 @@ public class ImportedMailListViewModel(
     private fun fetch() {
         val mailState = viewModelStateFlow.value.mailState
         if (mailState.finishLoadingToEnd == true) return
+        if (viewModelStateFlow.value.isLoading) return
         fetchJob.cancel()
         viewModelScope.launch(
             Job().also { fetchJob = it },
@@ -293,7 +298,7 @@ public class ImportedMailListViewModel(
     }
 
     private data class ViewModelState(
-        val isLoading: Boolean = true,
+        val isLoading: Boolean = false,
         val mailState: MailState = MailState(),
     ) {
         data class MailState(

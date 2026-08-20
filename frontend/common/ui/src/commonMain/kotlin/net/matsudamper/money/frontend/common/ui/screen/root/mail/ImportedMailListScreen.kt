@@ -219,10 +219,6 @@ private fun MainContent(
                         item {
                             LaunchedEffect(Unit) {
                                 moreLoading()
-                                while (isActive) {
-                                    delay(500)
-                                    moreLoading()
-                                }
                             }
                             Box(
                                 modifier = Modifier.fillMaxWidth()
