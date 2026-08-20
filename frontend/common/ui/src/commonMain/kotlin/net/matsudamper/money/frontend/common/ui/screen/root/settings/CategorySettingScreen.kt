@@ -825,7 +825,6 @@ private fun SubCategoryRow(
 }
 
 @Composable
-@Preview
 private fun CategorySettingScreenPreviewContent(
     heroMode: SettingCategoryScreenUiState.HeroMode = SettingCategoryScreenUiState.HeroMode.Base,
     isAddingSubCategory: Boolean = false,
@@ -894,4 +893,10 @@ private fun CategorySettingScreenPreviewContent(
             windowInsets = PaddingValues(0.dp),
         )
     }
+}
+
+@Composable
+@Preview
+private fun CategorySettingScreenPreview() {
+    CategorySettingScreenPreviewContent()
 }

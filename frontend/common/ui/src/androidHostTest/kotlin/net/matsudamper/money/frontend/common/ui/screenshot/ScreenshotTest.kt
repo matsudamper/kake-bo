@@ -39,6 +39,7 @@ class ScreenshotTest(
     @Test
     fun snapshot() {
         paparazzi.snapshot(name = preview.methodName) {
+            org.jetbrains.compose.resources.PreviewContextConfigurationEffect()
             preview()
         }
     }
