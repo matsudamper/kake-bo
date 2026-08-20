@@ -7,6 +7,7 @@ import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import com.apollographql.apollo.api.ApolloResponse
+import net.matsudamper.money.element.ImportedMailCategoryFilterConditionId
 import net.matsudamper.money.element.ImportedMailCategoryFilterId
 import net.matsudamper.money.frontend.common.base.ImmutableList.Companion.toImmutableList
 import net.matsudamper.money.frontend.common.base.nav.ScopedObjectFeature
@@ -214,22 +215,8 @@ public class ImportedMailFilterCategoryViewModel(
                                     viewModelState.copy(
                                         textInput = ImportedMailFilterCategoryScreenUiState.TextInput(
                                             title = "条件のテキストを編集",
-                                            onCompleted = { text ->
-                                                viewModelScope.launch {
-                                                    api.updateCondition(
-                                                        id = condition.id,
-                                                        text = text,
-                                                    ).onFailure {
-                                                        eventSender.send {
-                                                            it.showNativeAlert("更新に失敗しました")
-                                                        }
-                                                    }.onSuccess {
-                                                        dismissTextInput()
-                                                    }
-                                                }
-                                            },
                                             default = condition.text,
-                                            dismiss = { dismissTextInput() },
+                                            event = ConditionTextInputEvent(conditionId = condition.id),
                                         ),
                                     )
                                 }
@@ -321,21 +308,8 @@ public class ImportedMailFilterCategoryViewModel(
                         viewModelState.copy(
                             textInput = ImportedMailFilterCategoryScreenUiState.TextInput(
                                 title = "タイトルを変更",
-                                onCompleted = {
-                                    viewModelScope.launch {
-                                        api.updateFilter(id = id, title = it)
-                                            .onSuccess {
-                                                dismissTextInput()
-                                            }
-                                            .onFailure {
-                                                eventSender.send {
-                                                    it.showNativeAlert("更新に失敗しました。")
-                                                }
-                                            }
-                                    }
-                                },
                                 default = filter.importedMailCategoryFilterScreenItem.title,
-                                dismiss = { dismissTextInput() },
+                                event = TitleTextInputEvent(),
                             ),
                         )
                     }
@@ -364,21 +338,8 @@ public class ImportedMailFilterCategoryViewModel(
                         viewModelState.copy(
                             textInput = ImportedMailFilterCategoryScreenUiState.TextInput(
                                 title = "説明の末尾に追加するテキストを変更",
-                                onCompleted = { text ->
-                                    viewModelScope.launch {
-                                        api.updateFilter(id = id, descriptionSuffix = text)
-                                            .onSuccess {
-                                                dismissTextInput()
-                                            }
-                                            .onFailure {
-                                                eventSender.send {
-                                                    it.showNativeAlert("更新に失敗しました。")
-                                                }
-                                            }
-                                    }
-                                },
                                 default = filter.importedMailCategoryFilterScreenItem.descriptionSuffix,
-                                dismiss = { dismissTextInput() },
+                                event = DescriptionSuffixTextInputEvent(),
                             ),
                         )
                     }
@@ -398,6 +359,69 @@ public class ImportedMailFilterCategoryViewModel(
                 }
             },
         )
+    }
+
+    private inner class ConditionTextInputEvent(
+        private val conditionId: ImportedMailCategoryFilterConditionId,
+    ) : ImportedMailFilterCategoryScreenUiState.TextInputEvent {
+        override fun onCompleted(text: String) {
+            viewModelScope.launch {
+                api.updateCondition(
+                    id = conditionId,
+                    text = text,
+                ).onFailure {
+                    eventSender.send {
+                        it.showNativeAlert("更新に失敗しました")
+                    }
+                }.onSuccess {
+                    dismissTextInput()
+                }
+            }
+        }
+
+        override fun onDismiss() {
+            dismissTextInput()
+        }
+    }
+
+    private inner class TitleTextInputEvent : ImportedMailFilterCategoryScreenUiState.TextInputEvent {
+        override fun onCompleted(text: String) {
+            viewModelScope.launch {
+                api.updateFilter(id = id, title = text)
+                    .onSuccess {
+                        dismissTextInput()
+                    }
+                    .onFailure {
+                        eventSender.send {
+                            it.showNativeAlert("更新に失敗しました。")
+                        }
+                    }
+            }
+        }
+
+        override fun onDismiss() {
+            dismissTextInput()
+        }
+    }
+
+    private inner class DescriptionSuffixTextInputEvent : ImportedMailFilterCategoryScreenUiState.TextInputEvent {
+        override fun onCompleted(text: String) {
+            viewModelScope.launch {
+                api.updateFilter(id = id, descriptionSuffix = text)
+                    .onSuccess {
+                        dismissTextInput()
+                    }
+                    .onFailure {
+                        eventSender.send {
+                            it.showNativeAlert("更新に失敗しました。")
+                        }
+                    }
+            }
+        }
+
+        override fun onDismiss() {
+            dismissTextInput()
+        }
     }
 
     private fun dismissTextInput() {

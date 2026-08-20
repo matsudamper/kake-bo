@@ -1,6 +1,7 @@
 package net.matsudamper.money.categoryfilter
 
 import io.kotest.core.spec.style.DescribeSpec
+import io.kotest.matchers.nulls.shouldNotBeNull
 import io.kotest.matchers.shouldBe
 import net.matsudamper.money.element.MoneyUsageSubCategoryId
 
@@ -342,7 +343,8 @@ class CategoryFilterEvaluatorTest : DescribeSpec(
                             else -> null
                         }
                     }
-                    result?.subCategoryId.shouldBe(null)
+                    result.shouldNotBeNull()
+                    result.subCategoryId.shouldBe(null)
                 }
 
                 it("orderNumber が小さいフィルターが優先される") {
@@ -380,6 +382,31 @@ class CategoryFilterEvaluatorTest : DescribeSpec(
                     ) { null }
                     result.shouldBe(null)
                 }
+            }
+        }
+
+        describe("descriptionSuffix") {
+            it("マッチしたフィルターの説明の末尾に追加するテキストを保持する") {
+                val result = evaluateCategoryFilters(
+                    filters = listOf(
+                        CategoryFilter(
+                            orderNumber = 1,
+                            operator = CategoryFilterOperator.AND,
+                            subCategoryId = subCategoryId1,
+                            descriptionSuffix = "追加テキスト",
+                            conditions = listOf(
+                                condition("コンビニ", CategoryFilterDataSourceType.Title, CategoryFilterConditionType.Include),
+                            ),
+                        ),
+                    ),
+                ) { type ->
+                    when (type) {
+                        CategoryFilterDataSourceType.Title -> "コンビニで購入"
+                        else -> null
+                    }
+                }
+                result.shouldNotBeNull()
+                result.descriptionSuffix.shouldBe("追加テキスト")
             }
         }
 

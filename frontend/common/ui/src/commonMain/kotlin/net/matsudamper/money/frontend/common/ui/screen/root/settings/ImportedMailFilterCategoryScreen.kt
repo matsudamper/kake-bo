@@ -170,10 +170,16 @@ public data class ImportedMailFilterCategoryScreenUiState(
 
     public data class TextInput(
         val title: String,
-        val onCompleted: (String) -> Unit,
         val default: String,
-        val dismiss: () -> Unit,
+        val event: TextInputEvent,
     )
+
+    @Immutable
+    public interface TextInputEvent {
+        public fun onCompleted(text: String)
+
+        public fun onDismiss()
+    }
 
     @Immutable
     public interface ConditionEvent {
@@ -253,8 +259,8 @@ public fun ImportedMailFilterCategoryScreen(
     uiState.textInput?.also { textInput ->
         FullScreenTextInput(
             title = textInput.title,
-            onComplete = { textInput.onCompleted(it) },
-            canceled = { textInput.dismiss() },
+            onComplete = { textInput.event.onCompleted(it) },
+            canceled = { textInput.event.onDismiss() },
             default = textInput.default,
             isMultiline = false,
         )
