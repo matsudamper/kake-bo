@@ -33,6 +33,8 @@ ksp = "2.3.9"
 [plugins]
 apollo = { id = "com.apollographql.apollo", version.ref = "apollo" }
 androidApplication = { id = "com.android.application", version.ref = "agp" }
+androidLibrary = { id = "com.android.library", version.ref = "agp" }
+androidKotlinMultiplatformLibrary = { id = "com.android.kotlin.multiplatform.library", version.ref = "agp" }
 composeCompiler = { id = "org.jetbrains.kotlin.plugin.compose", version.ref = "kotlin" }
 kotlin-multiplatform = { id = "org.jetbrains.kotlin.multiplatform", version.ref = "kotlin" }
 kotlin-serialization = { id = "org.jetbrains.kotlin.plugin.serialization", version.ref = "kotlin" }
@@ -46,6 +48,7 @@ protobuf = { id = "com.google.protobuf", version.require = "0.10.0" }
 paparazzi = { id = "app.cash.paparazzi", version.ref = "paparazzi" }
 graalvmNative = { id = "org.graalvm.buildtools.native", version.ref = "graalvmNative" }
 ksp = { id = "com.google.devtools.ksp", version.ref = "ksp" }
+buildkonfig = { id = "com.codingfeline.buildkonfig", version.require = "0.22.0" }
 
 [libraries]
 awsS3 = { module = "software.amazon.awssdk:s3", version.ref = "awsSdk" }

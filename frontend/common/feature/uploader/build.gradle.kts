@@ -1,14 +1,16 @@
 plugins {
     alias(libs.plugins.kotlin.multiplatform)
-    id("net.matsudamper.money.buildlogic.androidLibrary")
+    id("net.matsudamper.money.buildlogic.multiplatform.library")
     alias(libs.plugins.ksp)
 }
 
 kotlin {
+    android {
+        namespace = "net.matsudamper.money.frontend.common.feature.uploader"
+    }
     js(IR) {
         browser()
     }
-    androidTarget()
     sourceSets {
         jvmToolchain(libs.versions.javaToolchain.get().toInt())
         val commonMain by getting {
@@ -59,8 +61,4 @@ afterEvaluate {
 
 tasks.withType<Test>().configureEach {
     useJUnitPlatform()
-}
-
-android {
-    namespace = "net.matsudamper.money.frontend.common.feature.uploader"
 }
