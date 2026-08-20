@@ -186,6 +186,7 @@ public class ImportedMailFilterCategoryViewModel(
                     subCategory = subCategory.name,
                 )
             },
+            descriptionSuffix = filter.importedMailCategoryFilterScreenItem.descriptionSuffix.takeIf { it.isNotEmpty() },
             conditions = filter.importedMailCategoryFilterScreenItem.conditions.orEmpty()
                 .map { it.importedMailCategoryConditionScreenItem }
                 .map { condition ->
@@ -355,6 +356,31 @@ public class ImportedMailFilterCategoryViewModel(
                                 ),
                             )
                         }
+                    }
+                }
+
+                override fun onClickDescriptionSuffixChange() {
+                    viewModelStateFlow.update { viewModelState ->
+                        viewModelState.copy(
+                            textInput = ImportedMailFilterCategoryScreenUiState.TextInput(
+                                title = "説明の末尾に追加するテキストを変更",
+                                onCompleted = { text ->
+                                    viewModelScope.launch {
+                                        api.updateFilter(id = id, descriptionSuffix = text)
+                                            .onSuccess {
+                                                dismissTextInput()
+                                            }
+                                            .onFailure {
+                                                eventSender.send {
+                                                    it.showNativeAlert("更新に失敗しました。")
+                                                }
+                                            }
+                                    }
+                                },
+                                default = filter.importedMailCategoryFilterScreenItem.descriptionSuffix,
+                                dismiss = { dismissTextInput() },
+                            ),
+                        )
                     }
                 }
 

@@ -92,6 +92,7 @@ public data class ImportedMailFilterCategoryScreenUiState(
         public data class Loaded(
             val title: String,
             val category: Category?,
+            val descriptionSuffix: String?,
             val conditions: ImmutableList<Condition>,
             val operator: Operator,
             val event: LoadedEvent,
@@ -194,6 +195,8 @@ public data class ImportedMailFilterCategoryScreenUiState(
         public fun onSelectedOperator(operator: Operator)
 
         public fun onClickCategoryChange()
+
+        public fun onClickDescriptionSuffixChange()
     }
 
     @Immutable
@@ -433,6 +436,30 @@ private fun LoadedContent(
                         OutlinedButton(
                             modifier = Modifier.padding(8.dp),
                             onClick = { uiState.event.onClickCategoryChange() },
+                        ) {
+                            Text("変更")
+                        }
+                    }
+                }
+                Spacer(modifier = Modifier.height(16.dp))
+                Column {
+                    Text(
+                        modifier = Modifier.padding(8.dp),
+                        text = "説明の末尾に追加する",
+                        style = MaterialTheme.typography.titleMedium,
+                    )
+                    HorizontalDivider(modifier = Modifier.fillMaxWidth().height(1.dp))
+                    Row(
+                        verticalAlignment = Alignment.CenterVertically,
+                    ) {
+                        Text(
+                            modifier = Modifier.weight(1f).padding(8.dp),
+                            text = uiState.descriptionSuffix ?: "未設定",
+                            style = MaterialTheme.typography.bodyMedium,
+                        )
+                        OutlinedButton(
+                            modifier = Modifier.padding(8.dp),
+                            onClick = { uiState.event.onClickDescriptionSuffixChange() },
                         ) {
                             Text("変更")
                         }
