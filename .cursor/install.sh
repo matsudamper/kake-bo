@@ -1,13 +1,14 @@
 #!/usr/bin/env bash
-# Cloud Agent 環境のセットアップ (スナップショット作成時に実行される)。
-# 秘密情報 (GPR_USER / GPR_KEY) はここでは永続ファイルに書き込まない。
-# 認証情報の gradle.properties への反映は start.sh (起動毎) で行う。
+# Cloud Agent 環境のツールチェーンをセットアップする汎用スクリプト。
+# アカウント固有の認証情報 (GitHub Packages の資格情報など) はここでは扱わない。
+# それらは環境設定 (Web UI) 側の install/start コマンドで注入する。
 set -euo pipefail
 
 JDK_VERSION=24
 JDK_DIR="${HOME}/jdks"
 ANDROID_HOME="${HOME}/android-sdk"
 GRADLE_HOME="${HOME}/.gradle"
+REPO_ROOT="$(cd "$(dirname "$0")/.." && pwd)"
 
 echo "==> JDK ${JDK_VERSION} をセットアップ"
 mkdir -p "${JDK_DIR}"
@@ -59,45 +60,6 @@ echo "    必要な SDK パッケージをインストール"
   "platform-tools" "platforms;android-36" "build-tools;36.0.0"
 
 echo "==> local.properties を書き込み"
-echo "sdk.dir=${ANDROID_HOME}" > "$(dirname "$0")/../local.properties"
-
-echo "==> 依存関係のウォームアップ"
-# 認証情報はコマンド実行時のみ環境変数として渡し、永続ファイルには書き込まない。
-# settings.gradle.kts は gpr.user/gpr.key が無い場合 GITHUB_ACTOR/GITHUB_TOKEN にフォールバックする。
-if [ -n "${GPR_USER:-}" ] && [ -n "${GPR_KEY:-}" ]; then
-  ( cd "$(dirname "$0")/.." \
-    && GITHUB_ACTOR="${GPR_USER}" GITHUB_TOKEN="${GPR_KEY}" \
-       ./gradlew help --quiet ) || echo "    warmup skipped (non-fatal)"
-else
-  echo "    GPR_USER/GPR_KEY 未設定のため warmup をスキップ"
-fi
-
-echo "==> gradle.properties から認証情報を除去"
-# 認証情報はスナップショットへ焼き込まない。gpr.user/gpr.key は start.sh が
-# 起動毎に環境変数から書き込む。ここでは念のため既存の行を除去しておく。
-grep -v -E '^(gpr\.user|gpr\.key)=' "${GRADLE_PROPS}" > "${GRADLE_PROPS}.tmp" || true
-mv "${GRADLE_PROPS}.tmp" "${GRADLE_PROPS}"
-
-echo "==> シェルプロファイルに認証情報のマッピングを設定"
-# start.sh はデタッチ実行される可能性があり、エージェント起動直後に間に合わない
-# 場合がある。settings.gradle.kts は gpr.user/gpr.key が無い場合に GITHUB_ACTOR /
-# GITHUB_TOKEN 環境変数へフォールバックするため、注入された Secret (GPR_USER /
-# GPR_KEY) をこれらへマップしておく。ここで書き込むのは環境変数への参照のみで、
-# 秘密値そのものは含まないためスナップショットに焼き込んでも安全。
-MARKER="# >>> kake-bo GitHub Packages 認証マッピング >>>"
-MAPPING_LINES=$(cat <<'PROFILE'
-# >>> kake-bo GitHub Packages 認証マッピング >>>
-export GITHUB_ACTOR="${GITHUB_ACTOR:-${GPR_USER:-}}"
-export GITHUB_TOKEN="${GITHUB_TOKEN:-${GPR_KEY:-}}"
-# <<< kake-bo GitHub Packages 認証マッピング <<<
-PROFILE
-)
-for profile in "${HOME}/.bashrc" "${HOME}/.profile"; do
-  touch "${profile}"
-  if ! grep -qF "${MARKER}" "${profile}"; then
-    printf '\n%s\n' "${MAPPING_LINES}" >> "${profile}"
-    echo "    ${profile} に追記"
-  fi
-done
+echo "sdk.dir=${ANDROID_HOME}" > "${REPO_ROOT}/local.properties"
 
 echo "==> install 完了"
