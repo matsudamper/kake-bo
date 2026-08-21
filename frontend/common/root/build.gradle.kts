@@ -5,15 +5,17 @@ plugins {
     alias(libs.plugins.kotlin.serialization)
     alias(libs.plugins.composeCompiler)
     alias(libs.plugins.jetbrainsCompose)
+    id("net.matsudamper.money.buildlogic.multiplatform.library")
     id("net.matsudamper.money.buildlogic.compose")
-    id("net.matsudamper.money.buildlogic.androidLibrary")
 }
 
 kotlin {
+    android {
+        namespace = "net.matsudamper.money.ui.root"
+    }
     js(IR) {
         browser()
     }
-    androidTarget()
     sourceSets {
         jvmToolchain(libs.versions.javaToolchain.get().toInt())
         val commonMain by getting {
@@ -48,8 +50,4 @@ kotlin {
         }
         explicitApi()
     }
-}
-
-android {
-    namespace = "net.matsudamper.money.ui.root"
 }

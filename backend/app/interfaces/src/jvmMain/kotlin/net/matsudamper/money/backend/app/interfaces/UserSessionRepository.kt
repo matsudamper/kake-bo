@@ -31,6 +31,10 @@ interface UserSessionRepository {
         expireDay: Long,
     ): VerifySessionResult
 
+    fun warmup()
+
+    fun close()
+
     data class CreateSessionResult(
         val sessionId: UserSessionId,
         val latestAccess: LocalDateTime,
