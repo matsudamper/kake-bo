@@ -72,4 +72,10 @@ else
   echo "    GPR_USER/GPR_KEY 未設定のため warmup をスキップ"
 fi
 
+echo "==> gradle.properties から認証情報を除去"
+# 認証情報はスナップショットへ焼き込まない。gpr.user/gpr.key は start.sh が
+# 起動毎に環境変数から書き込む。ここでは念のため既存の行を除去しておく。
+grep -v -E '^(gpr\.user|gpr\.key)=' "${GRADLE_PROPS}" > "${GRADLE_PROPS}.tmp" || true
+mv "${GRADLE_PROPS}.tmp" "${GRADLE_PROPS}"
+
 echo "==> install 完了"
