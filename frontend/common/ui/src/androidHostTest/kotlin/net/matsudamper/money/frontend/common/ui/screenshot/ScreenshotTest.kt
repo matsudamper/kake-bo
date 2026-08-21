@@ -2,6 +2,9 @@ package net.matsudamper.money.frontend.common.ui.screenshot
 
 import app.cash.paparazzi.DeviceConfig
 import app.cash.paparazzi.Paparazzi
+import org.jetbrains.compose.resources.ExperimentalResourceApi
+import org.jetbrains.compose.resources.PreviewContextConfigurationEffect
+import org.jetbrains.compose.resources.setResourceReaderAndroidContext
 import org.junit.Rule
 import org.junit.Test
 import org.junit.experimental.categories.Category
@@ -36,12 +39,12 @@ class ScreenshotTest(
                 .getPreviews()
     }
 
-    @OptIn(org.jetbrains.compose.resources.ExperimentalResourceApi::class)
+    @OptIn(ExperimentalResourceApi::class)
     @Test
     fun snapshot() {
-        org.jetbrains.compose.resources.setResourceReaderAndroidContext(paparazzi.context)
+        setResourceReaderAndroidContext(paparazzi.context)
         paparazzi.snapshot(name = preview.methodName) {
-            org.jetbrains.compose.resources.PreviewContextConfigurationEffect()
+            PreviewContextConfigurationEffect()
             preview()
         }
     }
