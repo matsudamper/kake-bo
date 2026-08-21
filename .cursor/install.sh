@@ -78,4 +78,26 @@ echo "==> gradle.properties から認証情報を除去"
 grep -v -E '^(gpr\.user|gpr\.key)=' "${GRADLE_PROPS}" > "${GRADLE_PROPS}.tmp" || true
 mv "${GRADLE_PROPS}.tmp" "${GRADLE_PROPS}"
 
+echo "==> シェルプロファイルに認証情報のマッピングを設定"
+# start.sh はデタッチ実行される可能性があり、エージェント起動直後に間に合わない
+# 場合がある。settings.gradle.kts は gpr.user/gpr.key が無い場合に GITHUB_ACTOR /
+# GITHUB_TOKEN 環境変数へフォールバックするため、注入された Secret (GPR_USER /
+# GPR_KEY) をこれらへマップしておく。ここで書き込むのは環境変数への参照のみで、
+# 秘密値そのものは含まないためスナップショットに焼き込んでも安全。
+MARKER="# >>> kake-bo GitHub Packages 認証マッピング >>>"
+MAPPING_LINES=$(cat <<'PROFILE'
+# >>> kake-bo GitHub Packages 認証マッピング >>>
+export GITHUB_ACTOR="${GITHUB_ACTOR:-${GPR_USER:-}}"
+export GITHUB_TOKEN="${GITHUB_TOKEN:-${GPR_KEY:-}}"
+# <<< kake-bo GitHub Packages 認証マッピング <<<
+PROFILE
+)
+for profile in "${HOME}/.bashrc" "${HOME}/.profile"; do
+  touch "${profile}"
+  if ! grep -qF "${MARKER}" "${profile}"; then
+    printf '\n%s\n' "${MAPPING_LINES}" >> "${profile}"
+    echo "    ${profile} に追記"
+  fi
+done
+
 echo "==> install 完了"
