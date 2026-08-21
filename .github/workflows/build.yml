@@ -107,6 +107,7 @@ jobs:
           mkdir -p backend-server
           tar -xf backend/build/distributions/backend.tar -C backend-server --strip-components=1
           export $(grep -v '^#' schema_update_local.env | xargs)
+          export CI=true
           export PORT=8080
 
           SERVER_LOG=backend-server/server.log
