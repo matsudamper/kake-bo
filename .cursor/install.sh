@@ -1,7 +1,5 @@
 #!/usr/bin/env bash
 # Cloud Agent 環境のツールチェーンをセットアップする汎用スクリプト。
-# アカウント固有の認証情報 (GitHub Packages の資格情報など) はここでは扱わない。
-# それらは環境設定 (Web UI) 側の install/start コマンドで注入する。
 set -euo pipefail
 
 JDK_VERSION=24
