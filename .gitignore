@@ -54,6 +54,3 @@ bin/
 ### Mac OS ###
 .DS_Store
 .codex/config.toml
-
-### Claude Code ###
-.claude/settings.local.json
