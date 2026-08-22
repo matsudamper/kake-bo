@@ -4,13 +4,13 @@ import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Spacer
-import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.ExperimentalComposeUiApi
@@ -27,7 +27,6 @@ import kotlinx.browser.document
 import androidx.compose.material3.TextFieldDefaults as MaterialTextFieldDefaults
 import org.w3c.dom.HTMLFormElement
 import org.w3c.dom.HTMLInputElement
-import org.w3c.dom.HTMLLabelElement
 import org.w3c.dom.events.Event
 
 @OptIn(ExperimentalComposeUiApi::class, ExperimentalMaterial3Api::class)
@@ -44,11 +43,11 @@ public actual fun LoginCredentialsFields(
     modifier: Modifier,
     enabled: Boolean,
 ) {
+    HiddenLoginForm(
+        onSubmit = onSubmit,
+        enabled = enabled,
+    )
     Column(modifier = modifier) {
-        HiddenLoginForm(
-            onSubmit = onSubmit,
-            enabled = enabled,
-        )
         HtmlCredentialField(
             label = usernameLabel,
             value = username,
@@ -77,37 +76,31 @@ public actual fun LoginCredentialsFields(
     }
 }
 
-@OptIn(ExperimentalComposeUiApi::class)
 @Composable
 private fun HiddenLoginForm(
     onSubmit: () -> Unit,
     enabled: Boolean,
 ) {
-    HtmlElementView(
-        modifier = Modifier
-            .fillMaxWidth()
-            .height(0.dp),
-        factory = {
-            val form = document.createElement("form") as HTMLFormElement
-            form.id = FORM_ID
-            form.setAttribute("autocomplete", "on")
-            form.style.apply {
-                display = "none"
-                margin = "0"
-                padding = "0"
-                border = "none"
+    DisposableEffect(enabled) {
+        val form = document.getElementById(FORM_ID) as HTMLFormElement?
+            ?: run {
+                val created = document.createElement("form") as HTMLFormElement
+                created.id = FORM_ID
+                created.setAttribute("autocomplete", "on")
+                created.style.display = "none"
+                document.body?.appendChild(created)
+                created
             }
-            form
-        },
-        update = { form ->
-            form.onsubmit = { event ->
-                event.preventDefault()
-                if (enabled) {
-                    onSubmit()
-                }
+        form.onsubmit = { event ->
+            event.preventDefault()
+            if (enabled) {
+                onSubmit()
             }
-        },
-    )
+        }
+        onDispose {
+            form.onsubmit = null
+        }
+    }
 }
 
 @OptIn(ExperimentalComposeUiApi::class, ExperimentalMaterial3Api::class)
@@ -132,110 +125,83 @@ private fun HtmlCredentialField(
         VisualTransformation.None
     }
     val displayText = visualTransformation.filter(AnnotatedString(value)).text
+    val inputMinHeight = remember(textStyle) {
+        (textStyle.fontSize.value + 8).dp
+    }
 
-    Box(
-        modifier = Modifier.fillMaxWidth(),
-        contentAlignment = Alignment.CenterStart,
-    ) {
-        MaterialTextFieldDefaults.DecorationBox(
-            value = value,
-            visualTransformation = visualTransformation,
-            innerTextField = {
+    MaterialTextFieldDefaults.DecorationBox(
+        value = value,
+        visualTransformation = visualTransformation,
+        innerTextField = {
+            Box(
+                modifier = Modifier.fillMaxWidth(),
+                contentAlignment = Alignment.CenterStart,
+            ) {
                 Text(
                     modifier = Modifier.fillMaxWidth(),
                     text = displayText,
                     style = textStyle,
                     maxLines = 1,
                 )
-            },
-            label = {
-                Text(label)
-            },
-            placeholder = null,
-            leadingIcon = null,
-            trailingIcon = null,
-            prefix = null,
-            suffix = null,
-            supportingText = null,
-            shape = MaterialTextFieldDefaults.shape,
-            singleLine = true,
-            enabled = enabled,
-            isError = false,
-            interactionSource = interactionSource,
-            colors = TextFieldDefaults.colors(),
-        )
+                HtmlElementView(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .height(inputMinHeight),
+                    factory = {
+                        val input = document.createElement("input") as HTMLInputElement
+                        input.id = inputId
+                        input.name = inputName
+                        input.type = inputType
+                        input.autocomplete = autocomplete
+                        input.setAttribute("form", FORM_ID)
+                        input.setAttribute("aria-label", label)
+                        input.required = true
+                        input
+                    },
+                    update = { input ->
+                        input.disabled = !enabled
+                        applyMinimalInputStyle(
+                            input = input,
+                            textStyle = textStyle,
+                            caretColor = colors.onSurface,
+                        )
 
-        HtmlElementView(
-            modifier = Modifier.fillMaxSize(),
-            factory = {
-                val container = document.createElement("div") as org.w3c.dom.HTMLElement
-                container.style.apply {
-                    position = "relative"
-                    width = "100%"
-                    height = "100%"
-                    margin = "0"
-                    padding = "0"
-                    border = "none"
-                }
+                        if (input.value != value) {
+                            input.value = value
+                        }
 
-                val labelElement = document.createElement("label") as HTMLLabelElement
-                labelElement.htmlFor = inputId
-                labelElement.textContent = label
-                applyVisuallyHiddenStyle(labelElement)
-
-                val input = document.createElement("input") as HTMLInputElement
-                input.id = inputId
-                input.name = inputName
-                input.type = inputType
-                input.autocomplete = autocomplete
-                input.setAttribute("form", FORM_ID)
-                input.required = true
-
-                container.append(labelElement, input)
-                container
-            },
-            update = { container ->
-                val input = container.querySelector("#$inputId") as HTMLInputElement
-
-                input.disabled = !enabled
-                applyMinimalInputStyle(
-                    input = input,
-                    textStyle = textStyle,
-                    caretColor = colors.onSurface,
+                        input.oninput = { event ->
+                            val newValue = readInputValue(event)
+                            if (newValue != value) {
+                                onValueChange(newValue)
+                            }
+                        }
+                        input.onchange = { event ->
+                            val newValue = readInputValue(event)
+                            if (newValue != value) {
+                                onValueChange(newValue)
+                            }
+                        }
+                    },
                 )
-
-                if (input.value != value) {
-                    input.value = value
-                }
-
-                input.oninput = { event ->
-                    val newValue = readInputValue(event)
-                    if (newValue != value) {
-                        onValueChange(newValue)
-                    }
-                }
-                input.onchange = { event ->
-                    val newValue = readInputValue(event)
-                    if (newValue != value) {
-                        onValueChange(newValue)
-                    }
-                }
-            },
-        )
-    }
-}
-
-private fun applyVisuallyHiddenStyle(labelElement: HTMLLabelElement) {
-    labelElement.style.apply {
-        position = "absolute"
-        width = "1px"
-        height = "1px"
-        padding = "0"
-        margin = "-1px"
-        setProperty("overflow", "hidden")
-        clip = "rect(0, 0, 0, 0)"
-        border = "0"
-    }
+            }
+        },
+        label = {
+            Text(label)
+        },
+        placeholder = null,
+        leadingIcon = null,
+        trailingIcon = null,
+        prefix = null,
+        suffix = null,
+        supportingText = null,
+        shape = MaterialTextFieldDefaults.shape,
+        singleLine = true,
+        enabled = enabled,
+        isError = false,
+        interactionSource = interactionSource,
+        colors = TextFieldDefaults.colors(),
+    )
 }
 
 private fun applyMinimalInputStyle(
@@ -245,9 +211,6 @@ private fun applyMinimalInputStyle(
 ) {
     input.style.apply {
         boxSizing = "border-box"
-        position = "absolute"
-        top = "0"
-        left = "0"
         width = "100%"
         height = "100%"
         margin = "0"
@@ -256,6 +219,8 @@ private fun applyMinimalInputStyle(
         outline = "none"
         backgroundColor = "transparent"
         color = "transparent"
+        setProperty("appearance", "none")
+        setProperty("-webkit-appearance", "none")
         setProperty("caret-color", caretColor.toCssColor())
         fontSize = "${textStyle.fontSize.value}px"
         fontFamily = textStyle.fontFamily?.toString() ?: "inherit"
