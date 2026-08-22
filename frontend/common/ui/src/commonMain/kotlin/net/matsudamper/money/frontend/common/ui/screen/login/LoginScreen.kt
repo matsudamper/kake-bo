@@ -60,7 +60,7 @@ public fun LoginScreen(
                     .widthIn(max = 400.dp)
                     .fillMaxWidth(),
             ) {
-                val textFieldTextStyle = MaterialTheme.typography.bodyMedium
+                val textFieldTextStyle = MaterialTheme.typography.bodySmall
                     .merge(
                         TextStyle(
                             fontFamily = rememberCustomFontFamily(),

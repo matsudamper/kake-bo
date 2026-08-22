@@ -2,6 +2,7 @@ package net.matsudamper.money.frontend.common.ui.layout
 
 import androidx.compose.foundation.interaction.FocusInteraction
 import androidx.compose.foundation.interaction.MutableInteractionSource
+import androidx.compose.foundation.interaction.collectIsFocusedAsState
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.defaultMinSize
@@ -13,6 +14,7 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.DisposableEffect
+import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
 import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.Modifier
@@ -34,6 +36,9 @@ import org.w3c.dom.events.Event
 
 private val CredentialFieldMinHeight = 56.dp
 private val CredentialFieldHorizontalPadding = 16.dp
+private val CredentialFieldExpandedTopPadding = 24.dp
+private val CredentialFieldExpandedBottomPadding = 8.dp
+private val CredentialFieldCollapsedVerticalPadding = 16.dp
 
 private class FocusInteractionHolder {
     var focus: FocusInteraction.Focus? = null
@@ -136,12 +141,30 @@ private fun HtmlCredentialField(
         VisualTransformation.None
     }
     val textFieldColors = TextFieldDefaults.colors()
+    val focused by interactionSource.collectIsFocusedAsState()
+    val labelExpanded = focused || value.isNotEmpty()
 
     SubcomposeLayout(
         modifier = Modifier
             .fillMaxWidth()
             .defaultMinSize(minHeight = CredentialFieldMinHeight),
     ) { constraints ->
+        val expandedTopPaddingPx = CredentialFieldExpandedTopPadding.roundToPx()
+        val expandedBottomPaddingPx = CredentialFieldExpandedBottomPadding.roundToPx()
+        val topPaddingPx = if (labelExpanded) {
+            expandedTopPaddingPx
+        } else {
+            CredentialFieldCollapsedVerticalPadding.roundToPx()
+        }
+        val bottomPaddingPx = if (labelExpanded) {
+            expandedBottomPaddingPx
+        } else {
+            CredentialFieldCollapsedVerticalPadding.roundToPx()
+        }
+        val horizontalPaddingPx = CredentialFieldHorizontalPadding.roundToPx()
+        val fontSizePx = textStyle.fontSize.toPx()
+        val letterSpacingPx = textStyle.letterSpacing.toPx()
+
         val decorationPlaceable = subcompose("decoration") {
             MaterialTextFieldDefaults.DecorationBox(
                 value = value,
@@ -171,9 +194,6 @@ private fun HtmlCredentialField(
         val overlayHeight = decorationPlaceable.height
         val overlayWidthDp = overlayWidth.toDp()
         val overlayHeightDp = overlayHeight.toDp()
-        val horizontalPaddingPx = CredentialFieldHorizontalPadding.roundToPx()
-        val fontSizePx = textStyle.fontSize.toPx()
-        val letterSpacingPx = textStyle.letterSpacing.toPx()
 
         val overlayPlaceable = subcompose("overlay") {
             HtmlElementView(
@@ -199,6 +219,8 @@ private fun HtmlCredentialField(
                         textColor = colors.onSurface,
                         caretColor = colors.onSurface,
                         horizontalPaddingPx = horizontalPaddingPx,
+                        topPaddingPx = topPaddingPx,
+                        bottomPaddingPx = bottomPaddingPx,
                         fontSizePx = fontSizePx,
                         letterSpacingPx = letterSpacingPx,
                     )
@@ -206,6 +228,19 @@ private fun HtmlCredentialField(
                         input = input,
                         interactionSource = interactionSource,
                         focusInteractionHolder = focusInteractionHolder,
+                        onFocusStyle = {
+                            applyInputStyle(
+                                input = input,
+                                textStyle = textStyle,
+                                textColor = colors.onSurface,
+                                caretColor = colors.onSurface,
+                                horizontalPaddingPx = horizontalPaddingPx,
+                                topPaddingPx = expandedTopPaddingPx,
+                                bottomPaddingPx = expandedBottomPaddingPx,
+                                fontSizePx = fontSizePx,
+                                letterSpacingPx = letterSpacingPx,
+                            )
+                        },
                     )
 
                     if (input.value != value) {
@@ -246,6 +281,7 @@ private fun bindFocusHandlers(
     input: HTMLInputElement,
     interactionSource: MutableInteractionSource,
     focusInteractionHolder: FocusInteractionHolder,
+    onFocusStyle: () -> Unit,
 ) {
     input.onfocus = {
         if (focusInteractionHolder.focus == null) {
@@ -253,6 +289,7 @@ private fun bindFocusHandlers(
             focusInteractionHolder.focus = focus
             interactionSource.tryEmit(focus)
         }
+        onFocusStyle()
     }
     input.onblur = {
         val focus = focusInteractionHolder.focus
@@ -269,22 +306,18 @@ private fun applyInputStyle(
     textColor: Color,
     caretColor: Color,
     horizontalPaddingPx: Int,
+    topPaddingPx: Int,
+    bottomPaddingPx: Int,
     fontSizePx: Float,
     letterSpacingPx: Float,
 ) {
-    val clientHeight = input.clientHeight
-    val verticalPaddingPx = if (clientHeight > 0) {
-        ((clientHeight - fontSizePx) / 2f).coerceAtLeast(0f)
-    } else {
-        0f
-    }
     input.style.apply {
         boxSizing = "border-box"
         width = "100%"
         height = "100%"
         margin = "0"
-        paddingTop = "${verticalPaddingPx}px"
-        paddingBottom = "${verticalPaddingPx}px"
+        paddingTop = "${topPaddingPx}px"
+        paddingBottom = "${bottomPaddingPx}px"
         paddingLeft = "${horizontalPaddingPx}px"
         paddingRight = "${horizontalPaddingPx}px"
         border = "none"
