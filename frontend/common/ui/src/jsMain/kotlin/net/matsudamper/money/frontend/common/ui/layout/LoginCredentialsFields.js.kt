@@ -36,8 +36,7 @@ import org.w3c.dom.events.Event
 
 private val CredentialFieldMinHeight = 56.dp
 private val CredentialFieldHorizontalPadding = 16.dp
-private val CredentialFieldExpandedTopPadding = 24.dp
-private val CredentialFieldExpandedBottomPadding = 8.dp
+private val CredentialFieldExpandedVerticalPadding = 24.dp
 private val CredentialFieldCollapsedVerticalPadding = 16.dp
 
 private class FocusInteractionHolder {
@@ -149,15 +148,14 @@ private fun HtmlCredentialField(
             .fillMaxWidth()
             .defaultMinSize(minHeight = CredentialFieldMinHeight),
     ) { constraints ->
-        val expandedTopPaddingPx = CredentialFieldExpandedTopPadding.roundToPx()
-        val expandedBottomPaddingPx = CredentialFieldExpandedBottomPadding.roundToPx()
+        val expandedVerticalPaddingPx = CredentialFieldExpandedVerticalPadding.roundToPx()
         val topPaddingPx = if (labelExpanded) {
-            expandedTopPaddingPx
+            expandedVerticalPaddingPx
         } else {
             CredentialFieldCollapsedVerticalPadding.roundToPx()
         }
         val bottomPaddingPx = if (labelExpanded) {
-            expandedBottomPaddingPx
+            expandedVerticalPaddingPx
         } else {
             CredentialFieldCollapsedVerticalPadding.roundToPx()
         }
@@ -235,8 +233,8 @@ private fun HtmlCredentialField(
                                 textColor = colors.onSurface,
                                 caretColor = colors.onSurface,
                                 horizontalPaddingPx = horizontalPaddingPx,
-                                topPaddingPx = expandedTopPaddingPx,
-                                bottomPaddingPx = expandedBottomPaddingPx,
+                                topPaddingPx = expandedVerticalPaddingPx,
+                                bottomPaddingPx = expandedVerticalPaddingPx,
                                 fontSizePx = fontSizePx,
                                 letterSpacingPx = letterSpacingPx,
                             )
