@@ -4,8 +4,12 @@ import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.defaultMinSize
+import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.width
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
@@ -17,10 +21,12 @@ import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.toArgb
+import androidx.compose.ui.layout.SubcomposeLayout
 import androidx.compose.ui.text.AnnotatedString
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.input.PasswordVisualTransformation
 import androidx.compose.ui.text.input.VisualTransformation
+import androidx.compose.ui.unit.Constraints
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.viewinterop.HtmlElementView
 import kotlinx.browser.document
@@ -28,6 +34,9 @@ import androidx.compose.material3.TextFieldDefaults as MaterialTextFieldDefaults
 import org.w3c.dom.HTMLFormElement
 import org.w3c.dom.HTMLInputElement
 import org.w3c.dom.events.Event
+
+private val CredentialFieldMinHeight = 56.dp
+private val CredentialFieldHorizontalPadding = 16.dp
 
 @OptIn(ExperimentalComposeUiApi::class, ExperimentalMaterial3Api::class)
 @Composable
@@ -125,28 +134,60 @@ private fun HtmlCredentialField(
         VisualTransformation.None
     }
     val displayText = visualTransformation.filter(AnnotatedString(value)).text
-    val inputMinHeight = remember(textStyle) {
-        (textStyle.fontSize.value + 8).dp
-    }
+    val textFieldColors = TextFieldDefaults.colors()
 
-    MaterialTextFieldDefaults.DecorationBox(
-        value = value,
-        visualTransformation = visualTransformation,
-        innerTextField = {
+    SubcomposeLayout(
+        modifier = Modifier
+            .fillMaxWidth()
+            .defaultMinSize(minHeight = CredentialFieldMinHeight),
+    ) { constraints ->
+        val decorationPlaceable = subcompose("decoration") {
+            MaterialTextFieldDefaults.DecorationBox(
+                value = value,
+                visualTransformation = visualTransformation,
+                innerTextField = {},
+                label = {
+                    Text(label)
+                },
+                placeholder = null,
+                leadingIcon = null,
+                trailingIcon = null,
+                prefix = null,
+                suffix = null,
+                supportingText = null,
+                shape = MaterialTextFieldDefaults.shape,
+                singleLine = true,
+                enabled = enabled,
+                isError = false,
+                interactionSource = interactionSource,
+                colors = textFieldColors,
+            )
+        }.map { measurable ->
+            measurable.measure(constraints)
+        }.first()
+
+        val overlayWidth = decorationPlaceable.width
+        val overlayHeight = decorationPlaceable.height
+        val overlayWidthDp = overlayWidth.toDp()
+        val overlayHeightDp = overlayHeight.toDp()
+
+        val overlayPlaceable = subcompose("overlay") {
             Box(
-                modifier = Modifier.fillMaxWidth(),
+                modifier = Modifier
+                    .width(overlayWidthDp)
+                    .height(overlayHeightDp),
                 contentAlignment = Alignment.CenterStart,
             ) {
                 Text(
-                    modifier = Modifier.fillMaxWidth(),
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(horizontal = CredentialFieldHorizontalPadding),
                     text = displayText,
                     style = textStyle,
                     maxLines = 1,
                 )
                 HtmlElementView(
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .height(inputMinHeight),
+                    modifier = Modifier.fillMaxSize(),
                     factory = {
                         val input = document.createElement("input") as HTMLInputElement
                         input.id = inputId
@@ -164,6 +205,9 @@ private fun HtmlCredentialField(
                             input = input,
                             textStyle = textStyle,
                             caretColor = colors.onSurface,
+                            horizontalPaddingPx = with(density) {
+                                CredentialFieldHorizontalPadding.roundToPx()
+                            },
                         )
 
                         if (input.value != value) {
@@ -185,36 +229,35 @@ private fun HtmlCredentialField(
                     },
                 )
             }
-        },
-        label = {
-            Text(label)
-        },
-        placeholder = null,
-        leadingIcon = null,
-        trailingIcon = null,
-        prefix = null,
-        suffix = null,
-        supportingText = null,
-        shape = MaterialTextFieldDefaults.shape,
-        singleLine = true,
-        enabled = enabled,
-        isError = false,
-        interactionSource = interactionSource,
-        colors = TextFieldDefaults.colors(),
-    )
+        }.map { measurable ->
+            measurable.measure(
+                Constraints.fixed(
+                    width = overlayWidth,
+                    height = overlayHeight,
+                ),
+            )
+        }.first()
+
+        layout(overlayWidth, overlayHeight) {
+            decorationPlaceable.placeRelative(0, 0)
+            overlayPlaceable.placeRelative(0, 0)
+        }
+    }
 }
 
 private fun applyMinimalInputStyle(
     input: HTMLInputElement,
     textStyle: TextStyle,
     caretColor: Color,
+    horizontalPaddingPx: Int,
 ) {
+    val clientHeight = input.clientHeight
     input.style.apply {
         boxSizing = "border-box"
         width = "100%"
         height = "100%"
         margin = "0"
-        padding = "0"
+        padding = "0 ${horizontalPaddingPx}px"
         border = "none"
         outline = "none"
         backgroundColor = "transparent"
@@ -224,7 +267,11 @@ private fun applyMinimalInputStyle(
         setProperty("caret-color", caretColor.toCssColor())
         fontSize = "${textStyle.fontSize.value}px"
         fontFamily = textStyle.fontFamily?.toString() ?: "inherit"
-        lineHeight = textStyle.lineHeight.toString()
+        if (clientHeight > 0) {
+            lineHeight = "${clientHeight}px"
+        } else {
+            lineHeight = textStyle.lineHeight.toString()
+        }
         setProperty("-webkit-text-fill-color", "transparent")
     }
 }
