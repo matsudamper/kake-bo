@@ -1,14 +1,12 @@
 package net.matsudamper.money.frontend.common.ui.layout
 
+import androidx.compose.foundation.interaction.FocusInteraction
 import androidx.compose.foundation.interaction.MutableInteractionSource
-import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.defaultMinSize
-import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
-import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.width
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.MaterialTheme
@@ -16,14 +14,13 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.remember
-import androidx.compose.ui.Alignment
 import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.toArgb
 import androidx.compose.ui.layout.SubcomposeLayout
-import androidx.compose.ui.text.AnnotatedString
 import androidx.compose.ui.text.TextStyle
+import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.PasswordVisualTransformation
 import androidx.compose.ui.text.input.VisualTransformation
 import androidx.compose.ui.unit.Constraints
@@ -37,6 +34,10 @@ import org.w3c.dom.events.Event
 
 private val CredentialFieldMinHeight = 56.dp
 private val CredentialFieldHorizontalPadding = 16.dp
+
+private class FocusInteractionHolder {
+    var focus: FocusInteraction.Focus? = null
+}
 
 @OptIn(ExperimentalComposeUiApi::class, ExperimentalMaterial3Api::class)
 @Composable
@@ -128,12 +129,12 @@ private fun HtmlCredentialField(
 ) {
     val colors = MaterialTheme.colorScheme
     val interactionSource = remember { MutableInteractionSource() }
+    val focusInteractionHolder = remember { FocusInteractionHolder() }
     val visualTransformation = if (isPassword) {
         PasswordVisualTransformation()
     } else {
         VisualTransformation.None
     }
-    val displayText = visualTransformation.filter(AnnotatedString(value)).text
     val textFieldColors = TextFieldDefaults.colors()
 
     SubcomposeLayout(
@@ -170,65 +171,61 @@ private fun HtmlCredentialField(
         val overlayHeight = decorationPlaceable.height
         val overlayWidthDp = overlayWidth.toDp()
         val overlayHeightDp = overlayHeight.toDp()
+        val horizontalPaddingPx = CredentialFieldHorizontalPadding.roundToPx()
+        val fontSizePx = textStyle.fontSize.toPx()
+        val letterSpacingPx = textStyle.letterSpacing.toPx()
 
         val overlayPlaceable = subcompose("overlay") {
-            Box(
+            HtmlElementView(
                 modifier = Modifier
                     .width(overlayWidthDp)
                     .height(overlayHeightDp),
-                contentAlignment = Alignment.CenterStart,
-            ) {
-                Text(
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .padding(horizontal = CredentialFieldHorizontalPadding),
-                    text = displayText,
-                    style = textStyle,
-                    maxLines = 1,
-                )
-                HtmlElementView(
-                    modifier = Modifier.fillMaxSize(),
-                    factory = {
-                        val input = document.createElement("input") as HTMLInputElement
-                        input.id = inputId
-                        input.name = inputName
-                        input.type = inputType
-                        input.autocomplete = autocomplete
-                        input.setAttribute("form", FORM_ID)
-                        input.setAttribute("aria-label", label)
-                        input.required = true
-                        input
-                    },
-                    update = { input ->
-                        input.disabled = !enabled
-                        applyMinimalInputStyle(
-                            input = input,
-                            textStyle = textStyle,
-                            caretColor = colors.onSurface,
-                            horizontalPaddingPx = with(density) {
-                                CredentialFieldHorizontalPadding.roundToPx()
-                            },
-                        )
+                factory = {
+                    val input = document.createElement("input") as HTMLInputElement
+                    input.id = inputId
+                    input.name = inputName
+                    input.type = inputType
+                    input.autocomplete = autocomplete
+                    input.setAttribute("form", FORM_ID)
+                    input.setAttribute("aria-label", label)
+                    input.required = true
+                    input
+                },
+                update = { input ->
+                    input.disabled = !enabled
+                    applyInputStyle(
+                        input = input,
+                        textStyle = textStyle,
+                        textColor = colors.onSurface,
+                        caretColor = colors.onSurface,
+                        horizontalPaddingPx = horizontalPaddingPx,
+                        fontSizePx = fontSizePx,
+                        letterSpacingPx = letterSpacingPx,
+                    )
+                    bindFocusHandlers(
+                        input = input,
+                        interactionSource = interactionSource,
+                        focusInteractionHolder = focusInteractionHolder,
+                    )
 
-                        if (input.value != value) {
-                            input.value = value
-                        }
+                    if (input.value != value) {
+                        input.value = value
+                    }
 
-                        input.oninput = { event ->
-                            val newValue = readInputValue(event)
-                            if (newValue != value) {
-                                onValueChange(newValue)
-                            }
+                    input.oninput = { event ->
+                        val newValue = readInputValue(event)
+                        if (newValue != value) {
+                            onValueChange(newValue)
                         }
-                        input.onchange = { event ->
-                            val newValue = readInputValue(event)
-                            if (newValue != value) {
-                                onValueChange(newValue)
-                            }
+                    }
+                    input.onchange = { event ->
+                        val newValue = readInputValue(event)
+                        if (newValue != value) {
+                            onValueChange(newValue)
                         }
-                    },
-                )
-            }
+                    }
+                },
+            )
         }.map { measurable ->
             measurable.measure(
                 Constraints.fixed(
@@ -245,34 +242,78 @@ private fun HtmlCredentialField(
     }
 }
 
-private fun applyMinimalInputStyle(
+private fun bindFocusHandlers(
+    input: HTMLInputElement,
+    interactionSource: MutableInteractionSource,
+    focusInteractionHolder: FocusInteractionHolder,
+) {
+    input.onfocus = {
+        if (focusInteractionHolder.focus == null) {
+            val focus = FocusInteraction.Focus()
+            focusInteractionHolder.focus = focus
+            interactionSource.tryEmit(focus)
+        }
+    }
+    input.onblur = {
+        val focus = focusInteractionHolder.focus
+        if (focus != null) {
+            interactionSource.tryEmit(FocusInteraction.Unfocus(focus))
+            focusInteractionHolder.focus = null
+        }
+    }
+}
+
+private fun applyInputStyle(
     input: HTMLInputElement,
     textStyle: TextStyle,
+    textColor: Color,
     caretColor: Color,
     horizontalPaddingPx: Int,
+    fontSizePx: Float,
+    letterSpacingPx: Float,
 ) {
     val clientHeight = input.clientHeight
+    val verticalPaddingPx = if (clientHeight > 0) {
+        ((clientHeight - fontSizePx) / 2f).coerceAtLeast(0f)
+    } else {
+        0f
+    }
     input.style.apply {
         boxSizing = "border-box"
         width = "100%"
         height = "100%"
         margin = "0"
-        padding = "0 ${horizontalPaddingPx}px"
+        paddingTop = "${verticalPaddingPx}px"
+        paddingBottom = "${verticalPaddingPx}px"
+        paddingLeft = "${horizontalPaddingPx}px"
+        paddingRight = "${horizontalPaddingPx}px"
         border = "none"
         outline = "none"
         backgroundColor = "transparent"
-        color = "transparent"
+        color = textColor.toCssColor()
         setProperty("appearance", "none")
         setProperty("-webkit-appearance", "none")
         setProperty("caret-color", caretColor.toCssColor())
-        fontSize = "${textStyle.fontSize.value}px"
+        fontSize = "${fontSizePx}px"
         fontFamily = textStyle.fontFamily?.toString() ?: "inherit"
-        if (clientHeight > 0) {
-            lineHeight = "${clientHeight}px"
-        } else {
-            lineHeight = textStyle.lineHeight.toString()
-        }
-        setProperty("-webkit-text-fill-color", "transparent")
+        lineHeight = "${fontSizePx}px"
+        letterSpacing = "${letterSpacingPx}px"
+        fontWeight = textStyle.fontWeight?.toCssFontWeight() ?: "normal"
+    }
+}
+
+private fun FontWeight.toCssFontWeight(): String {
+    return when (this) {
+        FontWeight.W100 -> "100"
+        FontWeight.W200 -> "200"
+        FontWeight.W300 -> "300"
+        FontWeight.W400, FontWeight.Normal -> "400"
+        FontWeight.W500, FontWeight.Medium -> "500"
+        FontWeight.W600, FontWeight.SemiBold -> "600"
+        FontWeight.W700, FontWeight.Bold -> "700"
+        FontWeight.W800 -> "800"
+        FontWeight.W900 -> "900"
+        else -> "400"
     }
 }
 
