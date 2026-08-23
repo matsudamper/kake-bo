@@ -33,8 +33,7 @@ import androidx.compose.ui.unit.dp
 import net.matsudamper.money.frontend.common.ui.AppRoot
 import net.matsudamper.money.frontend.common.ui.generated.resources.Res
 import net.matsudamper.money.frontend.common.ui.generated.resources.ic_settings
-import net.matsudamper.money.frontend.common.ui.layout.TextField
-import net.matsudamper.money.frontend.common.ui.layout.TextFieldType
+import net.matsudamper.money.frontend.common.ui.layout.LoginCredentialsFields
 import net.matsudamper.money.frontend.common.ui.rememberCustomFontFamily
 import org.jetbrains.compose.resources.painterResource
 
@@ -75,25 +74,16 @@ public fun LoginScreen(
                     text = "ログイン",
                 )
                 Spacer(modifier = Modifier.height(16.dp))
-                TextField(
+                LoginCredentialsFields(
                     modifier = Modifier.fillMaxWidth(),
-                    onValueChange = { uiState.listener.onUserIdChanged(it) },
-                    text = uiState.userName.text,
+                    username = uiState.userName.text,
+                    password = uiState.password.text,
+                    onUsernameChange = { uiState.listener.onUserIdChanged(it) },
+                    onPasswordChange = { uiState.listener.onPasswordChanged(it) },
+                    onSubmit = { uiState.listener.onClickLogin() },
+                    usernameLabel = "User Name",
+                    passwordLabel = "Password",
                     textStyle = textFieldTextStyle,
-                    label = "User Name",
-                    maxLines = 1,
-                    autocomplete = "username",
-                )
-                Spacer(modifier = Modifier.height(8.dp))
-                TextField(
-                    modifier = Modifier.fillMaxWidth(),
-                    onValueChange = { uiState.listener.onPasswordChanged(it) },
-                    text = uiState.password.text,
-                    textStyle = textFieldTextStyle,
-                    label = "Password",
-                    maxLines = 1,
-                    type = TextFieldType.Password,
-                    autocomplete = "current-password",
                 )
                 Spacer(modifier = Modifier.height(16.dp))
                 Button(
