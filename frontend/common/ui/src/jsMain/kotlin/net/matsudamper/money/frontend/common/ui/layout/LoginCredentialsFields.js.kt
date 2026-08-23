@@ -2,7 +2,6 @@ package net.matsudamper.money.frontend.common.ui.layout
 
 import androidx.compose.foundation.interaction.FocusInteraction
 import androidx.compose.foundation.interaction.MutableInteractionSource
-import androidx.compose.foundation.interaction.collectIsFocusedAsState
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.defaultMinSize
@@ -36,8 +35,6 @@ import org.w3c.dom.events.Event
 
 private val CredentialFieldMinHeight = 56.dp
 private val CredentialFieldHorizontalPadding = 16.dp
-private val CredentialFieldExpandedVerticalPadding = 24.dp
-private val CredentialFieldCollapsedVerticalPadding = 16.dp
 
 private class FocusInteractionHolder {
     var focus: FocusInteraction.Focus? = null
@@ -140,26 +137,19 @@ private fun HtmlCredentialField(
         VisualTransformation.None
     }
     val textFieldColors = TextFieldDefaults.colors()
-    val focused by interactionSource.collectIsFocusedAsState()
-    val labelExpanded = focused || value.isNotEmpty()
+    val contentPadding = MaterialTextFieldDefaults.contentPaddingWithLabel(
+        start = CredentialFieldHorizontalPadding,
+        end = CredentialFieldHorizontalPadding,
+    )
 
     SubcomposeLayout(
         modifier = Modifier
             .fillMaxWidth()
             .defaultMinSize(minHeight = CredentialFieldMinHeight),
     ) { constraints ->
-        val expandedVerticalPaddingPx = CredentialFieldExpandedVerticalPadding.roundToPx()
-        val topPaddingPx = if (labelExpanded) {
-            expandedVerticalPaddingPx
-        } else {
-            CredentialFieldCollapsedVerticalPadding.roundToPx()
-        }
-        val bottomPaddingPx = if (labelExpanded) {
-            expandedVerticalPaddingPx
-        } else {
-            CredentialFieldCollapsedVerticalPadding.roundToPx()
-        }
-        val horizontalPaddingPx = CredentialFieldHorizontalPadding.roundToPx()
+        val horizontalPaddingPx = contentPadding
+            .calculateLeftPadding(layoutDirection)
+            .roundToPx()
         val fontSizePx = textStyle.fontSize.toPx()
         val letterSpacingPx = textStyle.letterSpacing.toPx()
 
@@ -183,6 +173,7 @@ private fun HtmlCredentialField(
                 isError = false,
                 interactionSource = interactionSource,
                 colors = textFieldColors,
+                contentPadding = contentPadding,
             )
         }.map { measurable ->
             measurable.measure(constraints)
@@ -192,6 +183,10 @@ private fun HtmlCredentialField(
         val overlayHeight = decorationPlaceable.height
         val overlayWidthDp = overlayWidth.toDp()
         val overlayHeightDp = overlayHeight.toDp()
+        val verticalPaddingPx = calculateVerticalPaddingPx(
+            fieldHeightPx = overlayHeight,
+            fontSizePx = fontSizePx,
+        )
 
         val overlayPlaceable = subcompose("overlay") {
             HtmlElementView(
@@ -217,8 +212,8 @@ private fun HtmlCredentialField(
                         textColor = colors.onSurface,
                         caretColor = colors.onSurface,
                         horizontalPaddingPx = horizontalPaddingPx,
-                        topPaddingPx = topPaddingPx,
-                        bottomPaddingPx = bottomPaddingPx,
+                        topPaddingPx = verticalPaddingPx,
+                        bottomPaddingPx = verticalPaddingPx,
                         fontSizePx = fontSizePx,
                         letterSpacingPx = letterSpacingPx,
                     )
@@ -233,8 +228,14 @@ private fun HtmlCredentialField(
                                 textColor = colors.onSurface,
                                 caretColor = colors.onSurface,
                                 horizontalPaddingPx = horizontalPaddingPx,
-                                topPaddingPx = expandedVerticalPaddingPx,
-                                bottomPaddingPx = expandedVerticalPaddingPx,
+                                topPaddingPx = calculateVerticalPaddingPx(
+                                    fieldHeightPx = overlayHeight,
+                                    fontSizePx = fontSizePx,
+                                ),
+                                bottomPaddingPx = calculateVerticalPaddingPx(
+                                    fieldHeightPx = overlayHeight,
+                                    fontSizePx = fontSizePx,
+                                ),
                                 fontSizePx = fontSizePx,
                                 letterSpacingPx = letterSpacingPx,
                             )
@@ -273,6 +274,13 @@ private fun HtmlCredentialField(
             overlayPlaceable.placeRelative(0, 0)
         }
     }
+}
+
+private fun calculateVerticalPaddingPx(
+    fieldHeightPx: Int,
+    fontSizePx: Float,
+): Int {
+    return ((fieldHeightPx - fontSizePx) / 2f).toInt().coerceAtLeast(0)
 }
 
 private fun bindFocusHandlers(
@@ -328,7 +336,11 @@ private fun applyInputStyle(
         fontSize = "${fontSizePx}px"
         fontFamily = textStyle.fontFamily?.toString() ?: "inherit"
         lineHeight = "${fontSizePx}px"
-        letterSpacing = "${letterSpacingPx}px"
+        if (letterSpacingPx != 0f) {
+            letterSpacing = "${letterSpacingPx}px"
+        } else {
+            letterSpacing = "0"
+        }
         fontWeight = textStyle.fontWeight?.toCssFontWeight() ?: "normal"
     }
 }
