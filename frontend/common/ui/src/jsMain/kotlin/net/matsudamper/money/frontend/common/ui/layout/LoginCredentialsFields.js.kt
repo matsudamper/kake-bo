@@ -1,43 +1,34 @@
 package net.matsudamper.money.frontend.common.ui.layout
 
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.interaction.FocusInteraction
 import androidx.compose.foundation.interaction.MutableInteractionSource
-import androidx.compose.foundation.interaction.collectIsFocusedAsState
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Spacer
-import androidx.compose.foundation.layout.defaultMinSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
-import androidx.compose.foundation.layout.width
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.DisposableEffect
-import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
 import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.toArgb
-import androidx.compose.ui.layout.SubcomposeLayout
 import androidx.compose.ui.text.TextStyle
-import androidx.compose.ui.text.font.FontWeight
-import androidx.compose.ui.text.input.PasswordVisualTransformation
 import androidx.compose.ui.text.input.VisualTransformation
-import androidx.compose.ui.unit.Constraints
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.viewinterop.HtmlElementView
-import kotlin.math.roundToInt
 import kotlinx.browser.document
 import androidx.compose.material3.TextFieldDefaults as MaterialTextFieldDefaults
 import org.w3c.dom.HTMLFormElement
 import org.w3c.dom.HTMLInputElement
 import org.w3c.dom.events.Event
 
-private val CredentialFieldMinHeight = 56.dp
-private val CredentialFieldHorizontalPadding = 16.dp
-private val CredentialFieldHintTopGap = 16.dp
+private val InputLineHeight = 24.dp
 
 private class FocusInteractionHolder {
     var focus: FocusInteraction.Focus? = null
@@ -72,7 +63,6 @@ public actual fun LoginCredentialsFields(
             autocomplete = "username",
             textStyle = textStyle,
             enabled = enabled,
-            isPassword = false,
         )
         Spacer(modifier = Modifier.height(8.dp))
         HtmlCredentialField(
@@ -85,7 +75,6 @@ public actual fun LoginCredentialsFields(
             autocomplete = "current-password",
             textStyle = textStyle,
             enabled = enabled,
-            isPassword = true,
         )
     }
 }
@@ -129,193 +118,95 @@ private fun HtmlCredentialField(
     autocomplete: String,
     textStyle: TextStyle,
     enabled: Boolean,
-    isPassword: Boolean,
 ) {
     val colors = MaterialTheme.colorScheme
     val interactionSource = remember { MutableInteractionSource() }
     val focusInteractionHolder = remember { FocusInteractionHolder() }
-    val visualTransformation = if (isPassword) {
-        PasswordVisualTransformation()
-    } else {
-        VisualTransformation.None
-    }
-    val textFieldColors = TextFieldDefaults.colors()
-    val contentPadding = MaterialTextFieldDefaults.contentPaddingWithLabel(
-        start = CredentialFieldHorizontalPadding,
-        end = CredentialFieldHorizontalPadding,
-    )
-    val focused by interactionSource.collectIsFocusedAsState()
-    val labelExpanded = focused || value.isNotEmpty()
+    val clickInteractionSource = remember { MutableInteractionSource() }
 
-    SubcomposeLayout(
+    Box(
         modifier = Modifier
             .fillMaxWidth()
-            .defaultMinSize(minHeight = CredentialFieldMinHeight),
-    ) { constraints ->
-        val horizontalPaddingPx = contentPadding
-            .calculateLeftPadding(layoutDirection)
-            .roundToPx()
-        val fontSizePx = textStyle.fontSize.toPx()
-        val letterSpacingPx = textStyle.letterSpacing.toPx()
-
-        val decorationPlaceable = subcompose("decoration") {
-            MaterialTextFieldDefaults.DecorationBox(
-                value = value,
-                visualTransformation = visualTransformation,
-                innerTextField = {},
-                label = {
-                    Text(label)
-                },
-                placeholder = null,
-                leadingIcon = null,
-                trailingIcon = null,
-                prefix = null,
-                suffix = null,
-                supportingText = null,
-                shape = MaterialTextFieldDefaults.shape,
-                singleLine = true,
+            .clickable(
+                interactionSource = clickInteractionSource,
+                indication = null,
                 enabled = enabled,
-                isError = false,
-                interactionSource = interactionSource,
-                colors = textFieldColors,
-                contentPadding = contentPadding,
-            )
-        }.map { measurable ->
-            measurable.measure(constraints)
-        }.first()
-
-        val overlayWidth = decorationPlaceable.width
-        val overlayHeight = decorationPlaceable.height
-        val overlayWidthDp = overlayWidth.toDp()
-        val overlayHeightDp = overlayHeight.toDp()
-        val hintTopGapPx = CredentialFieldHintTopGap.roundToPx()
-        val inputVerticalPaddingPx = calculateInputVerticalPaddingPx(
-            fieldHeightPx = overlayHeight,
-            fontSizePx = fontSizePx,
-            labelExpanded = labelExpanded,
-            hintTopGapPx = hintTopGapPx,
+            ) {
+                (document.getElementById(inputId) as? HTMLInputElement)?.focus()
+            },
+    ) {
+        MaterialTextFieldDefaults.DecorationBox(
+            value = value,
+            visualTransformation = VisualTransformation.None,
+            innerTextField = {
+                HtmlElementView(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .height(InputLineHeight),
+                    factory = {
+                        val input = document.createElement("input") as HTMLInputElement
+                        input.id = inputId
+                        input.name = inputName
+                        input.type = inputType
+                        input.autocomplete = autocomplete
+                        input.setAttribute("form", FORM_ID)
+                        input.setAttribute("aria-label", label)
+                        input.required = true
+                        input
+                    },
+                    update = { input ->
+                        input.disabled = !enabled
+                        applyInputStyle(
+                            input = input,
+                            fontSizeSp = textStyle.fontSize.value,
+                            textColor = colors.onSurface,
+                        )
+                        bindFocusHandlers(
+                            input = input,
+                            interactionSource = interactionSource,
+                            focusInteractionHolder = focusInteractionHolder,
+                        )
+                        if (input.value != value) {
+                            input.value = value
+                        }
+                        input.oninput = { event ->
+                            val newValue = readInputValue(event)
+                            if (newValue != value) {
+                                onValueChange(newValue)
+                            }
+                        }
+                        input.onchange = { event ->
+                            val newValue = readInputValue(event)
+                            if (newValue != value) {
+                                onValueChange(newValue)
+                            }
+                        }
+                    },
+                )
+            },
+            label = {
+                Text(label)
+            },
+            placeholder = null,
+            leadingIcon = null,
+            trailingIcon = null,
+            prefix = null,
+            suffix = null,
+            supportingText = null,
+            shape = MaterialTextFieldDefaults.shape,
+            singleLine = true,
+            enabled = enabled,
+            isError = false,
+            interactionSource = interactionSource,
+            colors = TextFieldDefaults.colors(),
         )
-
-        val overlayPlaceable = subcompose("overlay") {
-            HtmlElementView(
-                modifier = Modifier
-                    .width(overlayWidthDp)
-                    .height(overlayHeightDp),
-                factory = {
-                    val input = document.createElement("input") as HTMLInputElement
-                    input.id = inputId
-                    input.name = inputName
-                    input.type = inputType
-                    input.autocomplete = autocomplete
-                    input.setAttribute("form", FORM_ID)
-                    input.setAttribute("aria-label", label)
-                    input.required = true
-                    input
-                },
-                update = { input ->
-                    input.disabled = !enabled
-                    applyInputStyle(
-                        input = input,
-                        textStyle = textStyle,
-                        textColor = colors.onSurface,
-                        caretColor = colors.onSurface,
-                        horizontalPaddingPx = horizontalPaddingPx,
-                        topPaddingPx = inputVerticalPaddingPx.first,
-                        bottomPaddingPx = inputVerticalPaddingPx.second,
-                        fontSizePx = fontSizePx,
-                        letterSpacingPx = letterSpacingPx,
-                    )
-                    bindFocusHandlers(
-                        input = input,
-                        interactionSource = interactionSource,
-                        focusInteractionHolder = focusInteractionHolder,
-                        onFocusStyle = {
-                            val focusedPaddingPx = calculateInputVerticalPaddingPx(
-                                fieldHeightPx = overlayHeight,
-                                fontSizePx = fontSizePx,
-                                labelExpanded = true,
-                                hintTopGapPx = hintTopGapPx,
-                            )
-                            applyInputStyle(
-                                input = input,
-                                textStyle = textStyle,
-                                textColor = colors.onSurface,
-                                caretColor = colors.onSurface,
-                                horizontalPaddingPx = horizontalPaddingPx,
-                                topPaddingPx = focusedPaddingPx.first,
-                                bottomPaddingPx = focusedPaddingPx.second,
-                                fontSizePx = fontSizePx,
-                                letterSpacingPx = letterSpacingPx,
-                            )
-                        },
-                    )
-
-                    if (input.value != value) {
-                        input.value = value
-                    }
-
-                    input.oninput = { event ->
-                        val newValue = readInputValue(event)
-                        if (newValue != value) {
-                            onValueChange(newValue)
-                        }
-                    }
-                    input.onchange = { event ->
-                        val newValue = readInputValue(event)
-                        if (newValue != value) {
-                            onValueChange(newValue)
-                        }
-                    }
-                },
-            )
-        }.map { measurable ->
-            measurable.measure(
-                Constraints.fixed(
-                    width = overlayWidth,
-                    height = overlayHeight,
-                ),
-            )
-        }.first()
-
-        layout(overlayWidth, overlayHeight) {
-            decorationPlaceable.placeRelative(0, 0)
-            overlayPlaceable.placeRelative(0, 0)
-        }
     }
-}
-
-private fun calculateInputVerticalPaddingPx(
-    fieldHeightPx: Int,
-    fontSizePx: Float,
-    labelExpanded: Boolean,
-    hintTopGapPx: Int,
-): Pair<Int, Int> {
-    if (labelExpanded) {
-        val textHeightPx = (fontSizePx * 1.15f).roundToInt()
-        val bottomPaddingPx = hintTopGapPx
-        val topPaddingPx = (fieldHeightPx - textHeightPx - bottomPaddingPx)
-            .coerceAtLeast(hintTopGapPx)
-        return topPaddingPx to bottomPaddingPx
-    }
-    val verticalPaddingPx = calculateVerticalPaddingPx(
-        fieldHeightPx = fieldHeightPx,
-        fontSizePx = fontSizePx,
-    )
-    return verticalPaddingPx to verticalPaddingPx
-}
-
-private fun calculateVerticalPaddingPx(
-    fieldHeightPx: Int,
-    fontSizePx: Float,
-): Int {
-    return ((fieldHeightPx - fontSizePx) / 2f).toInt().coerceAtLeast(0)
 }
 
 private fun bindFocusHandlers(
     input: HTMLInputElement,
     interactionSource: MutableInteractionSource,
     focusInteractionHolder: FocusInteractionHolder,
-    onFocusStyle: () -> Unit,
 ) {
     input.onfocus = {
         if (focusInteractionHolder.focus == null) {
@@ -323,7 +214,6 @@ private fun bindFocusHandlers(
             focusInteractionHolder.focus = focus
             interactionSource.tryEmit(focus)
         }
-        onFocusStyle()
     }
     input.onblur = {
         val focus = focusInteractionHolder.focus
@@ -336,55 +226,26 @@ private fun bindFocusHandlers(
 
 private fun applyInputStyle(
     input: HTMLInputElement,
-    textStyle: TextStyle,
+    fontSizeSp: Float,
     textColor: Color,
-    caretColor: Color,
-    horizontalPaddingPx: Int,
-    topPaddingPx: Int,
-    bottomPaddingPx: Int,
-    fontSizePx: Float,
-    letterSpacingPx: Float,
 ) {
     input.style.apply {
         boxSizing = "border-box"
+        display = "block"
         width = "100%"
         height = "100%"
         margin = "0"
-        paddingTop = "${topPaddingPx}px"
-        paddingBottom = "${bottomPaddingPx}px"
-        paddingLeft = "${horizontalPaddingPx}px"
-        paddingRight = "${horizontalPaddingPx}px"
+        padding = "0"
         border = "none"
         outline = "none"
         backgroundColor = "transparent"
         color = textColor.toCssColor()
         setProperty("appearance", "none")
         setProperty("-webkit-appearance", "none")
-        setProperty("caret-color", caretColor.toCssColor())
-        fontSize = "${fontSizePx}px"
-        fontFamily = textStyle.fontFamily?.toString() ?: "inherit"
-        lineHeight = "${(fontSizePx * 1.15f).roundToInt()}px"
-        if (letterSpacingPx != 0f) {
-            letterSpacing = "${letterSpacingPx}px"
-        } else {
-            letterSpacing = "0"
-        }
-        fontWeight = textStyle.fontWeight?.toCssFontWeight() ?: "normal"
-    }
-}
-
-private fun FontWeight.toCssFontWeight(): String {
-    return when (this) {
-        FontWeight.W100 -> "100"
-        FontWeight.W200 -> "200"
-        FontWeight.W300 -> "300"
-        FontWeight.W400, FontWeight.Normal -> "400"
-        FontWeight.W500, FontWeight.Medium -> "500"
-        FontWeight.W600, FontWeight.SemiBold -> "600"
-        FontWeight.W700, FontWeight.Bold -> "700"
-        FontWeight.W800 -> "800"
-        FontWeight.W900 -> "900"
-        else -> "400"
+        fontSize = "${fontSizeSp}px"
+        lineHeight = "normal"
+        fontFamily = "inherit"
+        letterSpacing = "normal"
     }
 }
 
