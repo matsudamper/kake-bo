@@ -4,6 +4,7 @@ import androidx.compose.foundation.gestures.awaitEachGesture
 import androidx.compose.foundation.gestures.detectTapGestures
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.size
 import androidx.compose.material3.DropdownMenu
 import androidx.compose.material3.DropdownMenuItem
 import androidx.compose.material3.Text
@@ -17,7 +18,10 @@ import androidx.compose.ui.input.pointer.PointerEventType
 import androidx.compose.ui.input.pointer.isSecondaryPressed
 import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.tooling.preview.Preview
+import androidx.compose.ui.unit.dp
 import coil3.compose.SubcomposeAsyncImage
+import net.matsudamper.money.frontend.common.ui.AppRoot
 import net.matsudamper.money.frontend.common.ui.layout.AlertDialog
 
 @Composable
@@ -92,6 +96,35 @@ public fun MoneyUsageImageThumbnail(
                 onClickNegative = { showDeleteDialog = false },
                 onDismissRequest = { showDeleteDialog = false },
             )
+        }
+    }
+}
+
+@Composable
+@Preview
+private fun MoneyUsageImageThumbnailMenuPreview() {
+    AppRoot(isDarkTheme = false) {
+        Box(modifier = Modifier.size(120.dp)) {
+            SubcomposeAsyncImage(
+                model = "https://picsum.photos/seed/kakebo-preview/240/240",
+                contentDescription = null,
+                contentScale = ContentScale.Crop,
+                modifier = Modifier.fillMaxSize(),
+                loading = { ImageLoadingPlaceholder() },
+            )
+            DropdownMenu(
+                expanded = true,
+                onDismissRequest = {},
+            ) {
+                DropdownMenuItem(
+                    text = { Text("入れ替え") },
+                    onClick = {},
+                )
+                DropdownMenuItem(
+                    text = { Text("削除") },
+                    onClick = {},
+                )
+            }
         }
     }
 }
