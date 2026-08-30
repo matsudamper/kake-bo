@@ -91,6 +91,7 @@ jobs:
         uses: marocchino/sticky-pull-request-comment@v3
         with:
           header: apk-download
+          recreate: true
           message: |
             ✅ **Debug APK is ready!**
 
