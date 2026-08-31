@@ -28,6 +28,7 @@ public class SettingCategoryViewModel(
     private val categoryId: MoneyUsageCategoryId,
     scopedObjectFeature: ScopedObjectFeature,
     private val api: SettingScreenCategoryApi,
+    private val pagingModel: SettingCategoriesScreenPagingModel,
     navController: ScreenNavController,
 ) : CommonViewModel(scopedObjectFeature) {
     private val viewModelStateFlow: MutableStateFlow<ViewModelState> = MutableStateFlow(
@@ -169,6 +170,7 @@ public class SettingCategoryViewModel(
                                             state.copy(confirmDialog = null)
                                         }
                                         if (isSuccess) {
+                                            pagingModel.removeCategoryFromCache(categoryId)
                                             launch {
                                                 globalEventSender.send {
                                                     it.showSnackBar("削除しました")

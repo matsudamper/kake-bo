@@ -12,7 +12,6 @@ import net.matsudamper.money.element.MoneyUsageSubCategoryId
 import net.matsudamper.money.frontend.common.base.Logger
 import net.matsudamper.money.frontend.graphql.AddCategoryMutation
 import net.matsudamper.money.frontend.graphql.AddSubCategoryMutation
-import net.matsudamper.money.frontend.graphql.CategoriesSettingScreenCategoriesPagingQuery
 import net.matsudamper.money.frontend.graphql.CategorySettingScreenQuery
 import net.matsudamper.money.frontend.graphql.CategorySettingScreenSubCategoriesPagingQuery
 import net.matsudamper.money.frontend.graphql.DeleteCategoryMutation
@@ -21,7 +20,6 @@ import net.matsudamper.money.frontend.graphql.UpdateCategoryMutation
 import net.matsudamper.money.frontend.graphql.UpdateSubCategoryMutation
 import net.matsudamper.money.frontend.graphql.type.AddCategoryInput
 import net.matsudamper.money.frontend.graphql.type.AddSubCategoryInput
-import net.matsudamper.money.frontend.graphql.type.MoneyUsageCategoriesInput
 import net.matsudamper.money.frontend.graphql.type.MoneyUsageSubCategoryQuery
 import net.matsudamper.money.frontend.graphql.type.UpdateCategoryQuery
 import net.matsudamper.money.frontend.graphql.type.UpdateSubCategoryQuery
@@ -32,24 +30,6 @@ private const val TAG = "SettingScreenCategoryApi"
 public class SettingScreenCategoryApi(
     private val apolloClient: ApolloClient,
 ) {
-    public suspend fun getCategories(): ApolloResponse<CategoriesSettingScreenCategoriesPagingQuery.Data>? {
-        return runCatching {
-            apolloClient
-                .query(
-                    CategoriesSettingScreenCategoriesPagingQuery(
-                        MoneyUsageCategoriesInput(
-                            cursor = Optional.present(null),
-                            size = 100,
-                        ),
-                    ),
-                )
-                .fetchPolicy(FetchPolicy.NetworkOnly)
-                .execute()
-        }.onFailure {
-            Logger.e(TAG, it)
-        }.getOrNull()
-    }
-
     public suspend fun addCategory(name: String): ApolloResponse<AddCategoryMutation.Data>? {
         return runCatching {
             apolloClient
