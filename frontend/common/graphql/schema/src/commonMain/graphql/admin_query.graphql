@@ -21,6 +21,22 @@ query AdminUnlinkedImagesTotalCount {
     }
 }
 
+query AdminImageDirectoryMonths {
+    adminImageDirectoryMonths {
+        yearMonth
+        count
+    }
+}
+
+query AdminUnlinkedImagesByMonth($yearMonth: String!) {
+    adminUnlinkedImagesByMonth(yearMonth: $yearMonth) {
+        id
+        url
+        userId
+        userName
+    }
+}
+
 query AdminSearchUsers($query: String!, $size: Int!, $cursor: String) {
     adminSearchUsers(input: {query: $query, size: $size, cursor: $cursor}) {
         nodes {
