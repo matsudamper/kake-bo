@@ -4,9 +4,6 @@ import java.util.concurrent.CompletableFuture
 import java.util.concurrent.CompletionStage
 import graphql.execution.DataFetcherResult
 import graphql.schema.DataFetchingEnvironment
-import net.matsudamper.money.backend.app.interfaces.element.ImportedMailCategoryFilterConditionType
-import net.matsudamper.money.backend.app.interfaces.element.ImportedMailCategoryFilterDatasourceType
-import net.matsudamper.money.backend.app.interfaces.element.ImportedMailFilterCategoryConditionOperator
 import net.matsudamper.money.backend.dataloader.ImportedMailDataLoaderDefine
 import net.matsudamper.money.backend.dataloader.primeChildDataLoader
 import net.matsudamper.money.backend.graphql.GraphQlContext
@@ -14,11 +11,7 @@ import net.matsudamper.money.backend.graphql.localcontext.MoneyUsageSuggestLocal
 import net.matsudamper.money.backend.graphql.otelThenApplyAsync
 import net.matsudamper.money.backend.graphql.requireLocalContext
 import net.matsudamper.money.backend.graphql.toDataFetcher
-import net.matsudamper.money.categoryfilter.CategoryFilter
-import net.matsudamper.money.categoryfilter.CategoryFilterCondition
-import net.matsudamper.money.categoryfilter.CategoryFilterConditionType
 import net.matsudamper.money.categoryfilter.CategoryFilterDataSourceType
-import net.matsudamper.money.categoryfilter.CategoryFilterOperator
 import net.matsudamper.money.categoryfilter.evaluateCategoryFilters
 import net.matsudamper.money.graphql.model.MoneyUsageSuggestResolver
 import net.matsudamper.money.graphql.model.QlMoneyUsageSubCategory
@@ -54,23 +47,11 @@ class MoneyUsageSuggestResolverImpl : MoneyUsageSuggestResolver {
             conditionsFuture,
         ).otelThenApplyAsync {
             val importedMail = importedMailFuture.get()
-            val filters = filtersFuture.get()
-            val conditionsMap = conditionsFuture.get().groupBy { it.filterId }
 
-            val sharedFilters = filters.map { filter ->
-                CategoryFilter(
-                    orderNumber = filter.orderNumber,
-                    operator = filter.operator.toShared(),
-                    subCategoryId = filter.moneyUsageSubCategoryId,
-                    conditions = conditionsMap[filter.importedMailCategoryFilterId].orEmpty().map { c ->
-                        CategoryFilterCondition(
-                            text = c.text,
-                            dataSourceType = c.dataSourceType.toShared(),
-                            conditionType = c.conditionType.toShared(),
-                        )
-                    },
-                )
-            }
+            val sharedFilters = CategoryFilterFactory.create(
+                filters = filtersFuture.get(),
+                conditions = conditionsFuture.get(),
+            )
 
             val subCategoryId = evaluateCategoryFilters(sharedFilters) { dataSourceType ->
                 when (dataSourceType) {
@@ -81,7 +62,7 @@ class MoneyUsageSuggestResolverImpl : MoneyUsageSuggestResolver {
                     CategoryFilterDataSourceType.Title -> moneyUsageSuggest.title
                     CategoryFilterDataSourceType.ServiceName -> moneyUsageSuggest.serviceName
                 }
-            }
+            }?.subCategoryId
 
             if (subCategoryId == null) {
                 null
@@ -91,32 +72,5 @@ class MoneyUsageSuggestResolverImpl : MoneyUsageSuggestResolver {
                 )
             }
         }.toDataFetcher()
-    }
-
-    private fun ImportedMailFilterCategoryConditionOperator.toShared(): CategoryFilterOperator {
-        return when (this) {
-            ImportedMailFilterCategoryConditionOperator.AND -> CategoryFilterOperator.AND
-            ImportedMailFilterCategoryConditionOperator.OR -> CategoryFilterOperator.OR
-        }
-    }
-
-    private fun ImportedMailCategoryFilterDatasourceType.toShared(): CategoryFilterDataSourceType {
-        return when (this) {
-            ImportedMailCategoryFilterDatasourceType.MailTitle -> CategoryFilterDataSourceType.MailTitle
-            ImportedMailCategoryFilterDatasourceType.MailFrom -> CategoryFilterDataSourceType.MailFrom
-            ImportedMailCategoryFilterDatasourceType.MailHTML -> CategoryFilterDataSourceType.MailHtml
-            ImportedMailCategoryFilterDatasourceType.MailPlain -> CategoryFilterDataSourceType.MailPlain
-            ImportedMailCategoryFilterDatasourceType.Title -> CategoryFilterDataSourceType.Title
-            ImportedMailCategoryFilterDatasourceType.ServiceName -> CategoryFilterDataSourceType.ServiceName
-        }
-    }
-
-    private fun ImportedMailCategoryFilterConditionType.toShared(): CategoryFilterConditionType {
-        return when (this) {
-            ImportedMailCategoryFilterConditionType.Include -> CategoryFilterConditionType.Include
-            ImportedMailCategoryFilterConditionType.NotInclude -> CategoryFilterConditionType.NotInclude
-            ImportedMailCategoryFilterConditionType.Equal -> CategoryFilterConditionType.Equal
-            ImportedMailCategoryFilterConditionType.NotEqual -> CategoryFilterConditionType.NotEqual
-        }
     }
 }

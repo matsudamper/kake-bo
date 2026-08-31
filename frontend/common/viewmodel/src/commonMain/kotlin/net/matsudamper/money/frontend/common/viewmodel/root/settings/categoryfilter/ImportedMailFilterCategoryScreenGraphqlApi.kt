@@ -41,6 +41,7 @@ public class ImportedMailFilterCategoryScreenGraphqlApi(
         title: String? = null,
         subCategoryId: MoneyUsageSubCategoryId? = null,
         operator: ImportedMailFilterCategoryScreenUiState.Operator? = null,
+        descriptionSuffix: String? = null,
     ): Result<ApolloResponse<ImportedMailCategoryFilterUpdateMutation.Data>> {
         return runCatching {
             apolloClient
@@ -58,6 +59,7 @@ public class ImportedMailFilterCategoryScreenGraphqlApi(
                                     null -> null
                                 },
                             ),
+                            descriptionSuffix = Optional.present(descriptionSuffix),
                         ),
                     ),
                 ).execute()

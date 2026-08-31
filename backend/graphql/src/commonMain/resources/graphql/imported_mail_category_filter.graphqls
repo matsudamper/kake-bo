@@ -27,6 +27,7 @@ type ImportedMailCategoryFilter {
     subCategory: MoneyUsageSubCategory @lazy
     orderNumber: Int! @lazy
     operator: ImportedMailFilterCategoryConditionOperator! @lazy
+    descriptionSuffix: String! @lazy
 
     conditions: [ImportedMailCategoryCondition!] @lazy
 }
