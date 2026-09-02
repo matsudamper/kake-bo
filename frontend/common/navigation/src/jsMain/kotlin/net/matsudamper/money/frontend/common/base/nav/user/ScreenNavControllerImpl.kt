@@ -87,6 +87,17 @@ internal class ScreenNavControllerImpl(
         }
     }
 
+    override fun navigateToLogin() {
+        navBackstack.navigateToLogin(ScreenStructure.Login)
+        backstackEntries = navBackstack.entries
+        currentHistoryIndex = 0
+        window.history.replaceState(
+            data = createHistoryState(0),
+            title = ScreenStructure.Login.direction.title,
+            url = ScreenStructure.Login.createUrl(),
+        )
+    }
+
     override fun back() {
         window.history.back()
     }

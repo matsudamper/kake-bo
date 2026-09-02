@@ -106,6 +106,7 @@ val graphqlCodegen = tasks.named<GraphQLCodegenGradleTask>("graphqlCodegen") {
         "MailId" to "net.matsudamper.money.element.MailId",
         "FidoId" to "net.matsudamper.money.element.FidoId",
         "ApiTokenId" to "net.matsudamper.money.element.ApiTokenId",
+        "SessionRecordId" to "net.matsudamper.money.element.SessionRecordId",
         "MoneyUsageCategoryId" to "net.matsudamper.money.element.MoneyUsageCategoryId",
         "MoneyUsageSubCategoryId" to "net.matsudamper.money.element.MoneyUsageSubCategoryId",
         "ImportedMailId" to "net.matsudamper.money.element.ImportedMailId",

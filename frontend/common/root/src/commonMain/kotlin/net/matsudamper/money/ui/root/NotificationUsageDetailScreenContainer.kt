@@ -9,6 +9,7 @@ import androidx.compose.ui.Modifier
 import net.matsudamper.money.frontend.common.base.lifecycle.LocalScopedObjectStore
 import net.matsudamper.money.frontend.common.base.nav.user.ScreenStructure
 import net.matsudamper.money.frontend.common.base.notification.NotificationUsageRepository
+import net.matsudamper.money.frontend.common.di.LocalKoin
 import net.matsudamper.money.frontend.common.viewmodel.lib.EventHandler
 import net.matsudamper.money.frontend.feature.notification.ui.NotificationUsageDetailScreen
 import net.matsudamper.money.frontend.feature.notification.viewmodel.NotificationUsageDetailViewModel

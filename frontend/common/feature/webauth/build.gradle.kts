@@ -1,15 +1,17 @@
 plugins {
     alias(libs.plugins.kotlin.multiplatform)
     alias(libs.plugins.kotlin.serialization)
+    id("net.matsudamper.money.buildlogic.multiplatform.library")
     id("net.matsudamper.money.buildlogic.compose")
-    id("net.matsudamper.money.buildlogic.androidLibrary")
 }
 
 kotlin {
+    android {
+        namespace = "net.matsudamper.money.frontend.common.feature.webauth"
+    }
     js(IR) {
         browser()
     }
-    androidTarget()
     sourceSets {
         jvmToolchain(libs.versions.javaToolchain.get().toInt())
         val commonMain by getting {
@@ -32,7 +34,7 @@ kotlin {
                 implementation(libs.composeRuntime)
                 implementation(libs.composeUi)
 
-                implementation("io.ktor:ktor-client-logging-js:3.4.3")
+                implementation("io.ktor:ktor-client-logging-js:3.5.0")
                 implementation(libs.ktorClientCore)
                 implementation(libs.ktorClientJs)
             }
@@ -59,11 +61,4 @@ kotlin {
 
 tasks.withType<Test>().configureEach {
     useJUnitPlatform()
-}
-
-android {
-    namespace = "net.matsudamper.money.frontend.common.feature.webauth"
-    buildFeatures {
-        buildConfig = true
-    }
 }

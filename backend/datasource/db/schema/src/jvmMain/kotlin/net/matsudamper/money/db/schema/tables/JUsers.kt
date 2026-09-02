@@ -27,13 +27,14 @@ import org.jooq.QueryPart
 import org.jooq.Record
 import org.jooq.SQL
 import org.jooq.Schema
-import org.jooq.Select
 import org.jooq.Stringly
 import org.jooq.Table
 import org.jooq.TableField
+import org.jooq.TableLike
 import org.jooq.TableOptions
 import org.jooq.UniqueKey
 import org.jooq.impl.DSL
+import org.jooq.impl.Internal
 import org.jooq.impl.SQLDataType
 import org.jooq.impl.TableImpl
 
@@ -78,7 +79,7 @@ open class JUsers(
     /**
      * The column <code>money.users.user_id</code>.
      */
-    val USER_ID: TableField<JUsersRecord, Int?> = createField(DSL.name("user_id"), SQLDataType.INTEGER.nullable(false).identity(true), this, "")
+    val USER_ID: TableField<JUsersRecord, Int?> = createField(DSL.name("user_id"), SQLDataType.INTEGER.nullable(false).generatedByDefaultAsIdentity(), this, "")
 
     /**
      * The column <code>money.users.user_name</code>.
@@ -135,7 +136,7 @@ open class JUsers(
     /**
      * Create an inline derived table from this table
      */
-    override fun where(condition: Condition?): JUsers = JUsers(qualifiedName, if (aliased()) this else null, condition)
+    override fun where(condition: Condition?): JUsers = JUsers(qualifiedName, if (aliased()) this else null, Internal.condition(this, condition))
 
     /**
      * Create an inline derived table from this table
@@ -175,10 +176,10 @@ open class JUsers(
     /**
      * Create an inline derived table from this table
      */
-    override fun whereExists(select: Select<*>): JUsers = where(DSL.exists(select))
+    override fun whereExists(select: TableLike<*>): JUsers = where(DSL.exists(select))
 
     /**
      * Create an inline derived table from this table
      */
-    override fun whereNotExists(select: Select<*>): JUsers = where(DSL.notExists(select))
+    override fun whereNotExists(select: TableLike<*>): JUsers = where(DSL.notExists(select))
 }

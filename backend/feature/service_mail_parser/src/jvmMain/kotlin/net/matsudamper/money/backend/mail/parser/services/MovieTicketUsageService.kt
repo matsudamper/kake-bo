@@ -6,6 +6,7 @@ import java.time.LocalTime
 import net.matsudamper.money.backend.base.element.MoneyUsageServiceType
 import net.matsudamper.money.backend.mail.parser.MoneyUsage
 import net.matsudamper.money.backend.mail.parser.MoneyUsageServices
+import net.matsudamper.money.backend.mail.parser.lib.ParseUtil
 
 public object MovieTicketUsageService : MoneyUsageServices {
     override val displayName: String = "ムビチケ"
@@ -17,9 +18,10 @@ public object MovieTicketUsageService : MoneyUsageServices {
         plain: String,
         date: LocalDateTime,
     ): List<MoneyUsage> {
+        val forwardedInfo = ParseUtil.parseForwarded(plain)
         val canHandle = sequence {
-            yield(canHandledWithFrom(from))
-            yield(canHandledWithSubject(subject))
+            yield(canHandledWithFrom(forwardedInfo?.from ?: from))
+            yield(canHandledWithSubject(forwardedInfo?.subject ?: subject))
             yield(canHandledWithPlain(plain))
         }
         if (canHandle.any { it }.not()) return listOf()
@@ -60,7 +62,7 @@ public object MovieTicketUsageService : MoneyUsageServices {
                 price = price,
                 description = "",
                 service = MoneyUsageServiceType.MovieTicket,
-                dateTime = parsedDate ?: date,
+                dateTime = parsedDate ?: forwardedInfo?.date ?: date,
             ),
         )
     }

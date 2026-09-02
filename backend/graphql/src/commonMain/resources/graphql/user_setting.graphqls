@@ -4,6 +4,8 @@ type UserSettings {
     registeredFidoList: [RegisteredFidoInfo!]! @lazy
     sessionAttributes: SessionAttributes!
     apiTokenAttributes: ApiTokenAttributes!
+    hasPassword: Boolean! @lazy
+    timezoneOffsetMinutes: Int! @lazy
 }
 
 type ApiTokenAttributes {
@@ -22,6 +24,7 @@ type SessionAttributes {
 }
 
 type Session {
+    id: SessionRecordId!
     name: String!
     lastAccess: OffsetDateTime!
 }

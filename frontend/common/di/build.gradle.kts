@@ -1,14 +1,17 @@
 plugins {
     alias(libs.plugins.kotlin.multiplatform)
     alias(libs.plugins.kotlin.serialization)
-    id("net.matsudamper.money.buildlogic.androidLibrary")
+    id("net.matsudamper.money.buildlogic.multiplatform.library")
+    id("net.matsudamper.money.buildlogic.compose")
 }
 
 kotlin {
+    android {
+        namespace = "net.matsudamper.money.frontend.common.di"
+    }
     js(IR) {
         browser()
     }
-    androidTarget()
     sourceSets {
         jvmToolchain(libs.versions.javaToolchain.get().toInt())
         val commonMain by getting {
@@ -22,6 +25,7 @@ kotlin {
                 implementation(projects.frontend.common.usecase)
 
                 implementation(libs.koinCore)
+                implementation(libs.composeRuntime)
                 implementation(libs.kotlin.serialization.json)
             }
         }
@@ -36,8 +40,4 @@ kotlin {
 
 tasks.withType<Test>().configureEach {
     useJUnitPlatform()
-}
-
-android {
-    namespace = "net.matsudamper.money.frontend.common.di"
 }

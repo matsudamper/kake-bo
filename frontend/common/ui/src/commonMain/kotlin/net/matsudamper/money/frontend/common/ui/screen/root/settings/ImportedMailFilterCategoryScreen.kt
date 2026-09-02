@@ -20,11 +20,6 @@ import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.lazy.rememberLazyListState
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.automirrored.filled.ArrowBack
-import androidx.compose.material.icons.filled.Add
-import androidx.compose.material.icons.filled.ArrowDropDown
-import androidx.compose.material.icons.filled.MoreVert
 import androidx.compose.material3.Card
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.DropdownMenu
@@ -62,9 +57,15 @@ import net.matsudamper.money.frontend.common.ui.base.KakeBoTopAppBar
 import net.matsudamper.money.frontend.common.ui.base.KakeboScaffoldListener
 import net.matsudamper.money.frontend.common.ui.base.LoadingErrorContent
 import net.matsudamper.money.frontend.common.ui.base.RootScreenScaffold
+import net.matsudamper.money.frontend.common.ui.generated.resources.Res
+import net.matsudamper.money.frontend.common.ui.generated.resources.ic_add
+import net.matsudamper.money.frontend.common.ui.generated.resources.ic_arrow_back
+import net.matsudamper.money.frontend.common.ui.generated.resources.ic_arrow_drop_down
+import net.matsudamper.money.frontend.common.ui.generated.resources.ic_more_vert
 import net.matsudamper.money.frontend.common.ui.layout.AlertDialog
 import net.matsudamper.money.frontend.common.ui.layout.SnackbarEventState
 import net.matsudamper.money.frontend.common.ui.layout.html.text.fullscreen.FullScreenTextInput
+import org.jetbrains.compose.resources.painterResource
 
 public data class ImportedMailFilterCategoryScreenUiState(
     val loadingState: LoadingState,
@@ -261,7 +262,7 @@ public fun ImportedMailFilterCategoryScreen(
             KakeBoTopAppBar(
                 navigation = {
                     IconButton(onClick = { uiState.event.onClickBack() }) {
-                        Icon(Icons.AutoMirrored.Filled.ArrowBack, contentDescription = null)
+                        Icon(painter = painterResource(Res.drawable.ic_arrow_back), contentDescription = null)
                     }
                 },
                 title = {
@@ -348,7 +349,7 @@ private fun Menu(
         },
     ) {
         Icon(
-            imageVector = Icons.Default.MoreVert,
+            painter = painterResource(Res.drawable.ic_more_vert),
             contentDescription = "メニューを開く",
         )
 
@@ -488,7 +489,7 @@ private fun LoadedContent(
                         modifier = Modifier.padding(8.dp),
                         onClick = { uiState.event.onClickAddCondition() },
                     ) {
-                        Icon(Icons.Default.Add, contentDescription = null)
+                        Icon(painter = painterResource(Res.drawable.ic_add), contentDescription = null)
                         Text("追加")
                     }
                 }
@@ -650,7 +651,7 @@ private fun ConditionCard(
                     },
                 ) {
                     Icon(
-                        imageVector = Icons.Default.MoreVert,
+                        painter = painterResource(Res.drawable.ic_more_vert),
                         contentDescription = "メニューを開く",
                     )
 
@@ -702,7 +703,7 @@ private fun DropDownButton(
             },
         ) {
             item()
-            Icon(Icons.Default.ArrowDropDown, contentDescription)
+            Icon(painter = painterResource(Res.drawable.ic_arrow_drop_down), contentDescription = contentDescription)
         }
         DropdownMenu(
             expanded = visibleDropDown,

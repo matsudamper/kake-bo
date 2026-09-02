@@ -19,25 +19,27 @@ internal object AmazonCoJpUsageServices : MoneyUsageServices {
         plain: String,
         date: LocalDateTime,
     ): List<MoneyUsage> {
+        val forwardedInfo = ParseUtil.parseForwarded(plain)
         val canHandle = sequence {
-            yield(canHandledWithFrom(from))
-            yield(canHandledWithSubject(subject))
+            yield(canHandledWithFrom(forwardedInfo?.from ?: from))
+            yield(canHandledWithSubject(forwardedInfo?.subject ?: subject))
             yield(canHandledWithPlain(plain))
         }
         if (canHandle.any { it }.not()) return listOf()
 
+        val resolvedDate = forwardedInfo?.date ?: date
         return buildList {
             addAll(
                 parseA(
                     plain = plain,
                     html = html,
-                    date = date,
+                    date = resolvedDate,
                 ),
             )
             addAll(
                 parseB(
                     plain = plain,
-                    date = date,
+                    date = resolvedDate,
                 ),
             )
             if (isEmpty()) {
@@ -47,7 +49,7 @@ internal object AmazonCoJpUsageServices : MoneyUsageServices {
                         price = null,
                         description = "パースできませんでした",
                         service = MoneyUsageServiceType.Amazon,
-                        dateTime = date,
+                        dateTime = resolvedDate,
                     ),
                 )
             }

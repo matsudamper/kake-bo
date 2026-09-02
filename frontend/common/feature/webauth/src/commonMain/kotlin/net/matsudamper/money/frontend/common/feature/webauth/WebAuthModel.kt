@@ -4,7 +4,6 @@ public interface WebAuthModel {
     public suspend fun create(
         id: String,
         name: String,
-        type: WebAuthModelType,
         challenge: String,
         domain: String,
         base64ExcludeCredentialIdList: List<String>,

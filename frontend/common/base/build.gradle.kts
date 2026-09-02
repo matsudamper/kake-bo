@@ -1,14 +1,16 @@
 plugins {
     alias(libs.plugins.kotlin.multiplatform)
+    id("net.matsudamper.money.buildlogic.multiplatform.library")
     id("net.matsudamper.money.buildlogic.compose")
-    id("net.matsudamper.money.buildlogic.androidLibrary")
 }
 
 kotlin {
+    android {
+        namespace = "net.matsudamper.money.frontend.common.base"
+    }
     js(IR) {
         browser()
     }
-    androidTarget()
     jvm { }
     sourceSets {
         jvmToolchain(libs.versions.javaToolchain.get().toInt())
@@ -33,7 +35,7 @@ kotlin {
                 implementation(libs.composeRuntime)
                 implementation(libs.composeUi)
 
-                implementation("io.ktor:ktor-client-logging-js:3.4.3")
+                implementation("io.ktor:ktor-client-logging-js:3.5.0")
                 implementation(libs.ktorClientCore)
                 implementation(libs.ktorClientJs)
             }
@@ -74,8 +76,4 @@ kotlin {
 
 tasks.withType<Test>().configureEach {
     useJUnitPlatform()
-}
-
-android {
-    namespace = "net.matsudamper.money.frontend.common.base"
 }

@@ -18,9 +18,6 @@ import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.lazy.rememberLazyListState
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.automirrored.filled.ArrowBack
-import androidx.compose.material.icons.filled.Add
 import androidx.compose.material3.Card
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.ExperimentalMaterial3Api
@@ -55,9 +52,13 @@ import net.matsudamper.money.frontend.common.base.ImmutableList
 import net.matsudamper.money.frontend.common.ui.base.KakeBoTopAppBar
 import net.matsudamper.money.frontend.common.ui.base.KakeboScaffold
 import net.matsudamper.money.frontend.common.ui.base.KakeboScaffoldListener
+import net.matsudamper.money.frontend.common.ui.generated.resources.Res
+import net.matsudamper.money.frontend.common.ui.generated.resources.ic_add
+import net.matsudamper.money.frontend.common.ui.generated.resources.ic_arrow_back
 import net.matsudamper.money.frontend.common.ui.layout.GridColumn
 import net.matsudamper.money.frontend.common.ui.layout.image.ImageLoadingPlaceholder
 import net.matsudamper.money.frontend.common.ui.layout.image.ZoomableImageDialog
+import org.jetbrains.compose.resources.painterResource
 
 public data class CalendarDateListScreenUiState(
     val title: String,
@@ -130,14 +131,14 @@ public fun CalendarDateListScreen(
                 },
                 onClick = { uiState.event.onClickAdd() },
             ) {
-                Icon(Icons.Default.Add, contentDescription = "使用用途を追加")
+                Icon(painter = painterResource(Res.drawable.ic_add), contentDescription = "使用用途を追加")
             }
         },
         topBar = {
             KakeBoTopAppBar(
                 navigation = {
                     IconButton(onClick = { uiState.event.onClickBack() }) {
-                        Icon(Icons.AutoMirrored.Filled.ArrowBack, "戻る")
+                        Icon(painter = painterResource(Res.drawable.ic_arrow_back), contentDescription = "戻る")
                     }
                 },
                 title = {

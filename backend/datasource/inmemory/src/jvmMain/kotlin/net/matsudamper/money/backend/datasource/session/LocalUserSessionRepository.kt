@@ -1,12 +1,15 @@
 package net.matsudamper.money.backend.datasource.session
 
 import java.time.Clock
+import java.time.Instant
 import java.time.LocalDateTime
+import java.time.temporal.ChronoUnit
 import java.util.UUID
 import java.util.concurrent.ConcurrentHashMap
 import net.matsudamper.money.backend.app.interfaces.UserSessionRepository
 import net.matsudamper.money.backend.app.interfaces.element.UserSessionId
-import net.matsudamper.money.backend.base.TraceLogger
+import net.matsudamper.money.backend.base.ServerVariables
+import net.matsudamper.money.element.SessionRecordId
 import net.matsudamper.money.element.UserId
 
 internal class LocalUserSessionRepository(
@@ -14,39 +17,46 @@ internal class LocalUserSessionRepository(
 ) : UserSessionRepository {
 
     private val sessions = ConcurrentHashMap<UserSessionId, SessionData>()
-    private val userSessions = ConcurrentHashMap<UserId, MutableSet<UserSessionId>>()
-    private val userSessionNames = ConcurrentHashMap<Pair<UserId, String>, UserSessionId>()
+    private val sessionRecords = ConcurrentHashMap<SessionRecordId, UserSessionId>()
+    private val userSessions = ConcurrentHashMap<UserId, MutableSet<SessionRecordId>>()
 
     override fun clearSession(sessionId: UserSessionId) {
         val sessionData = sessions.remove(sessionId) ?: return
 
-        val userId = UserId(sessionData.userId)
-        userSessions[userId]?.remove(sessionId)
-        if (userSessions[userId]?.isEmpty() == true) {
-            userSessions.remove(userId)
+        // 空判定と削除の間にcreateSession()が追加すると新しいセッションごとSetが消えるためアトミックに更新する
+        userSessions.computeIfPresent(sessionData.userId) { _, recordIds ->
+            recordIds.remove(sessionData.sessionRecordId)
+            if (recordIds.isEmpty()) {
+                null
+            } else {
+                recordIds
+            }
         }
-
-        if (sessionData.sessionName.isNotEmpty()) {
-            userSessionNames.remove(userId to sessionData.sessionName)
-        }
+        sessionRecords.remove(sessionData.sessionRecordId)
     }
 
     override fun createSession(userId: UserId): UserSessionRepository.CreateSessionResult {
         val sessionId = UserSessionId(UUID.randomUUID().toString().replace("-", ""))
-        val now = LocalDateTime.now(clock)
+        val sessionRecordId = SessionRecordId(UUID.randomUUID().toString())
+        val now = Instant.now(clock)
 
-        val sessionData = SessionData(
-            userId = userId.value,
-            latestAccess = now.toString(),
-            sessionId = sessionId.id,
+        sessions[sessionId] = SessionData(
+            userId = userId,
+            sessionRecordId = sessionRecordId,
+            createdAt = now,
+            lastAccess = now,
+            name = UUID.randomUUID().toString().replace("-", ""),
         )
-        sessions[sessionId] = sessionData
-
-        userSessions.computeIfAbsent(userId) { ConcurrentHashMap.newKeySet() }.add(sessionId)
+        sessionRecords[sessionRecordId] = sessionId
+        userSessions.compute(userId) { _, recordIds ->
+            val newRecordIds = recordIds ?: ConcurrentHashMap.newKeySet()
+            newRecordIds.add(sessionRecordId)
+            newRecordIds
+        }
 
         return UserSessionRepository.CreateSessionResult(
             sessionId = sessionId,
-            latestAccess = now,
+            latestAccess = LocalDateTime.now(clock),
         )
     }
 
@@ -54,102 +64,109 @@ internal class LocalUserSessionRepository(
         sessionId: UserSessionId,
         expireDay: Long,
     ): UserSessionRepository.VerifySessionResult {
-        val sessionData = sessions[sessionId] ?: return UserSessionRepository.VerifySessionResult.Failure
+        val now = Instant.now(clock)
+        val expireThreshold = now.minus(expireDay, ChronoUnit.DAYS)
 
-        val now = LocalDateTime.now(clock)
-        sessions[sessionId] = sessionData.copy(latestAccess = now.toString())
+        // 読み取りと書き込みの間にclearSession()が走ると削除済みセッションが復活するためアトミックに更新する
+        val sessionData = sessions.computeIfPresent(sessionId) { _, current ->
+            if (current.lastAccess.isBefore(expireThreshold)) {
+                current
+            } else {
+                current.copy(lastAccess = now)
+            }
+        } ?: return UserSessionRepository.VerifySessionResult.Failure
+
+        if (sessionData.lastAccess.isBefore(expireThreshold)) {
+            clearSession(sessionId)
+            return UserSessionRepository.VerifySessionResult.Failure
+        }
 
         return UserSessionRepository.VerifySessionResult.Success(
-            userId = UserId(sessionData.userId),
+            userId = sessionData.userId,
             sessionId = sessionId,
-            latestAccess = now,
+            latestAccess = LocalDateTime.now(clock),
         )
     }
 
     override fun getSessionInfo(sessionId: UserSessionId): UserSessionRepository.SessionInfo? {
         val sessionData = sessions[sessionId] ?: return null
-        val latestAccess = try {
-            LocalDateTime.parse(sessionData.latestAccess)
-        } catch (e: Throwable) {
-            TraceLogger.impl().noticeThrowable(e, true)
-            TraceLogger.impl().setAttribute("jsonData", sessionData.toString())
-            LocalDateTime.now(clock)
-        }
         return UserSessionRepository.SessionInfo(
-            name = sessionData.sessionName,
-            latestAccess = latestAccess,
+            sessionRecordId = sessionData.sessionRecordId,
+            name = sessionData.name,
+            latestAccess = sessionData.lastAccess,
         )
     }
 
     override fun getSessions(userId: UserId): List<UserSessionRepository.SessionInfo> {
-        val sessionIds = userSessions[userId] ?: return emptyList()
+        deleteExpiredSessions()
+        val recordIds = userSessions[userId] ?: return listOf()
 
-        return sessionIds.mapNotNull { sessionId ->
-            sessions[sessionId]?.let { data ->
-                val latestAccess = try {
-                    LocalDateTime.parse(data.latestAccess)
-                } catch (e: Throwable) {
-                    TraceLogger.impl().noticeThrowable(e, true)
-                    TraceLogger.impl().setAttribute("latestAccess", data.latestAccess)
-                    LocalDateTime.now(clock)
-                }
-                UserSessionRepository.SessionInfo(
-                    name = data.sessionName,
-                    latestAccess = latestAccess,
-                )
-            }
+        return recordIds.mapNotNull { recordId ->
+            val sessionId = sessionRecords[recordId] ?: return@mapNotNull null
+            val sessionData = sessions[sessionId] ?: return@mapNotNull null
+            UserSessionRepository.SessionInfo(
+                sessionRecordId = recordId,
+                name = sessionData.name,
+                latestAccess = sessionData.lastAccess,
+            )
         }
     }
 
     override fun deleteSession(
-        userId: UserId,
-        sessionName: String,
-        currentSessionName: String,
+        currentSessionId: UserSessionId,
+        targetSessionRecordId: SessionRecordId,
     ): Boolean {
-        if (sessionName == currentSessionName) {
-            return false
-        }
+        val currentUserId = sessions[currentSessionId]?.userId ?: return false
+        val sessionId = sessionRecords[targetSessionRecordId] ?: return false
+        val targetSessionData = sessions[sessionId] ?: return false
+        if (currentUserId != targetSessionData.userId) return false
 
-        val sessionId = userSessionNames[userId to sessionName] ?: return false
         clearSession(sessionId)
         return true
     }
 
     override fun changeSessionName(
-        sessionId: UserSessionId,
-        name: String,
+        currentSessionId: UserSessionId,
+        sessionRecordId: SessionRecordId,
+        sessionName: String,
     ): UserSessionRepository.SessionInfo? {
-        val sessionData = sessions[sessionId] ?: return null
-
-        val userId = UserId(sessionData.userId)
-
-        if (sessionData.sessionName.isNotEmpty()) {
-            userSessionNames.remove(userId to sessionData.sessionName)
-        }
-
-        userSessionNames[userId to name] = sessionId
-
-        val updatedSessionData = sessionData.copy(sessionName = name)
-        sessions[sessionId] = updatedSessionData
-
-        val latestAccess = try {
-            LocalDateTime.parse(updatedSessionData.latestAccess)
-        } catch (e: Throwable) {
-            TraceLogger.impl().noticeThrowable(e, true)
-            TraceLogger.impl().setAttribute("latestAccess", updatedSessionData.latestAccess)
-            LocalDateTime.now(clock)
-        }
+        val currentUserId = sessions[currentSessionId]?.userId ?: return null
+        val sessionId = sessionRecords[sessionRecordId] ?: return null
+        val sessionData = sessions.computeIfPresent(sessionId) { _, current ->
+            if (current.userId == currentUserId) {
+                current.copy(name = sessionName)
+            } else {
+                current
+            }
+        } ?: return null
+        if (sessionData.userId != currentUserId) return null
 
         return UserSessionRepository.SessionInfo(
-            name = name,
-            latestAccess = latestAccess,
+            sessionRecordId = sessionRecordId,
+            name = sessionData.name,
+            latestAccess = sessionData.lastAccess,
         )
     }
 
+    // プロセス内のみで完結するため事前に確立する接続も解放する資源も持たない
+    override fun warmup() = Unit
+
+    override fun close() = Unit
+
+    // verifySession()を通らないセッションはどこからも削除されず溜まり続けるため、一覧取得を機に除去する
+    private fun deleteExpiredSessions() {
+        val expireThreshold = Instant.now(clock)
+            .minus(ServerVariables.USER_SESSION_EXPIRE_DAY, ChronoUnit.DAYS)
+        sessions
+            .filter { (_, value) -> value.lastAccess.isBefore(expireThreshold) }
+            .forEach { (sessionId, _) -> clearSession(sessionId) }
+    }
+
     private data class SessionData(
-        val userId: Int,
-        val sessionName: String = "",
-        val latestAccess: String,
-        val sessionId: String,
+        val userId: UserId,
+        val sessionRecordId: SessionRecordId,
+        val createdAt: Instant,
+        val lastAccess: Instant,
+        val name: String,
     )
 }

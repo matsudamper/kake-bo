@@ -27,13 +27,14 @@ import org.jooq.QueryPart
 import org.jooq.Record
 import org.jooq.SQL
 import org.jooq.Schema
-import org.jooq.Select
 import org.jooq.Stringly
 import org.jooq.Table
 import org.jooq.TableField
+import org.jooq.TableLike
 import org.jooq.TableOptions
 import org.jooq.UniqueKey
 import org.jooq.impl.DSL
+import org.jooq.impl.Internal
 import org.jooq.impl.SQLDataType
 import org.jooq.impl.TableImpl
 
@@ -80,7 +81,7 @@ open class JCategoryMailFilterConditions(
      * The column
      * <code>money.category_mail_filter_conditions.category_mail_filter_condition_id</code>.
      */
-    val CATEGORY_MAIL_FILTER_CONDITION_ID: TableField<JCategoryMailFilterConditionsRecord, Int?> = createField(DSL.name("category_mail_filter_condition_id"), SQLDataType.INTEGER.nullable(false).identity(true), this, "")
+    val CATEGORY_MAIL_FILTER_CONDITION_ID: TableField<JCategoryMailFilterConditionsRecord, Int?> = createField(DSL.name("category_mail_filter_condition_id"), SQLDataType.INTEGER.nullable(false).generatedByDefaultAsIdentity(), this, "")
 
     /**
      * The column
@@ -169,7 +170,7 @@ open class JCategoryMailFilterConditions(
     /**
      * Create an inline derived table from this table
      */
-    override fun where(condition: Condition?): JCategoryMailFilterConditions = JCategoryMailFilterConditions(qualifiedName, if (aliased()) this else null, condition)
+    override fun where(condition: Condition?): JCategoryMailFilterConditions = JCategoryMailFilterConditions(qualifiedName, if (aliased()) this else null, Internal.condition(this, condition))
 
     /**
      * Create an inline derived table from this table
@@ -209,10 +210,10 @@ open class JCategoryMailFilterConditions(
     /**
      * Create an inline derived table from this table
      */
-    override fun whereExists(select: Select<*>): JCategoryMailFilterConditions = where(DSL.exists(select))
+    override fun whereExists(select: TableLike<*>): JCategoryMailFilterConditions = where(DSL.exists(select))
 
     /**
      * Create an inline derived table from this table
      */
-    override fun whereNotExists(select: Select<*>): JCategoryMailFilterConditions = where(DSL.notExists(select))
+    override fun whereNotExists(select: TableLike<*>): JCategoryMailFilterConditions = where(DSL.notExists(select))
 }

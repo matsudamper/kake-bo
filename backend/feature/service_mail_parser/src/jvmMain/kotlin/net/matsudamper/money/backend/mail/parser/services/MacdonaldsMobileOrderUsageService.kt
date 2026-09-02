@@ -4,6 +4,7 @@ import java.time.LocalDateTime
 import net.matsudamper.money.backend.base.element.MoneyUsageServiceType
 import net.matsudamper.money.backend.mail.parser.MoneyUsage
 import net.matsudamper.money.backend.mail.parser.MoneyUsageServices
+import net.matsudamper.money.backend.mail.parser.lib.ParseUtil
 
 internal object MacdonaldsMobileOrderUsageService : MoneyUsageServices {
     override val displayName: String = "マクドナルド"
@@ -15,8 +16,9 @@ internal object MacdonaldsMobileOrderUsageService : MoneyUsageServices {
         plain: String,
         date: LocalDateTime,
     ): List<MoneyUsage> {
+        val forwardedInfo = ParseUtil.parseForwarded(plain)
         val canHandle = sequence {
-            yield(canHandledWithFrom(from))
+            yield(canHandledWithFrom(forwardedInfo?.from ?: from))
             yield(canHandledWithPlain(plain))
         }
         if (canHandle.any { it }.not()) return listOf()
@@ -48,7 +50,7 @@ internal object MacdonaldsMobileOrderUsageService : MoneyUsageServices {
         return listOf(
             MoneyUsage(
                 title = displayName,
-                dateTime = date,
+                dateTime = forwardedInfo?.date ?: date,
                 price = price,
                 service = MoneyUsageServiceType.Macdonalds,
                 description = description.orEmpty(),

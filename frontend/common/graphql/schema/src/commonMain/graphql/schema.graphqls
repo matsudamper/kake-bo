@@ -92,6 +92,30 @@ type AdminMutation {
   addUser(name: String!, password: String!): AdminAddUserResult!
 
   deleteImages(imageIds: [ImageId!]!): Boolean!
+
+  replacePassword(userId: UserId!, password: String): AdminReplacePasswordResult!
+}
+
+enum AdminReplacePasswordErrorType {
+  Unknown
+
+  UserNotFound
+
+  PasswordLength
+
+  PasswordInvalidChar
+}
+
+type AdminReplacePasswordResult {
+  isSuccess: Boolean!
+
+  errorType: AdminReplacePasswordErrorType
+}
+
+type AdminSearchedUser {
+  userId: UserId!
+
+  name: String!
 }
 
 type AdminUnlinkedImage {
@@ -120,6 +144,22 @@ input AdminUnlinkedImagesInput {
   cursor: String
 }
 
+input AdminUserSearchInput {
+  query: String!
+
+  size: Int!
+
+  cursor: String
+}
+
+type AdminUserSearchUsersConnection {
+  nodes: [AdminSearchedUser!]!
+
+  cursor: String
+
+  hasMore: Boolean!
+}
+
 type ApiToken {
   id: ApiTokenId!
 
@@ -138,6 +178,22 @@ scalar ApiTokenId
 Built-in Boolean
 """
 scalar Boolean
+
+enum ChangePasswordErrorType {
+  Unknown
+
+  UserNotFound
+
+  PasswordLength
+
+  PasswordInvalidChar
+}
+
+type ChangePasswordResult {
+  isSuccess: Boolean!
+
+  errorType: ChangePasswordErrorType
+}
 
 type ChangeSessionNameResult {
   isSuccess: Boolean!
@@ -549,6 +605,8 @@ type Query {
 
   adminUnlinkedImages(input: AdminUnlinkedImagesInput!): AdminUnlinkedImagesConnection!
 
+  adminSearchUsers(input: AdminUserSearchInput!): AdminUserSearchUsersConnection!
+
   user: User
 
   fidoLoginInfo: FidoLoginInfo!
@@ -583,6 +641,8 @@ type RegisteredFidoResult {
 }
 
 type Session {
+  id: SessionRecordId!
+
   name: String!
 
   lastAccess: OffsetDateTime!
@@ -594,8 +654,14 @@ type SessionAttributes {
   sessions: [Session!]!
 }
 
+scalar SessionRecordId
+
 type SettingsMutation {
   updateImapConfig(config: UpdateUserImapConfigInput!): UserImapConfig
+
+  changePassword(password: String): ChangePasswordResult!
+
+  updateTimezoneOffset(offsetMinutes: Int!): Int
 }
 
 """
@@ -832,9 +898,9 @@ type UserMutation {
 
   deleteFido(id: FidoId!): DeleteFidoResult!
 
-  deleteSession(name: String!): DeleteSessionResult!
+  deleteSession(id: SessionRecordId!): DeleteSessionResult!
 
-  changeSessionName(name: String!): ChangeSessionNameResult!
+  changeSessionName(id: SessionRecordId!, name: String!): ChangeSessionNameResult!
 
   registerApiToken(name: String!): RegisterApiTokenResult!
 
@@ -857,6 +923,10 @@ type UserSettings {
   sessionAttributes: SessionAttributes!
 
   apiTokenAttributes: ApiTokenAttributes!
+
+  hasPassword: Boolean!
+
+  timezoneOffsetMinutes: Int!
 }
 
 type __Directive {
@@ -1129,8 +1199,6 @@ Directs the executor to skip this field or fragment when the `if` argument is tr
 directive @skip ("Skipped when true." if: Boolean!) on FIELD|FRAGMENT_SPREAD|INLINE_FRAGMENT
 
 directive @lazy on FIELD_DEFINITION
-
-directive @optional on INPUT_FIELD_DEFINITION
 
 """
 Marks the field, argument, input field or enum value as deprecated

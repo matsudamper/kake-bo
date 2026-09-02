@@ -19,6 +19,7 @@ import net.matsudamper.money.backend.mail.parser.services.EkiNetUsageServices
 import net.matsudamper.money.backend.mail.parser.services.FFXIVUsageServices
 import net.matsudamper.money.backend.mail.parser.services.FanzaDojinUsageServices
 import net.matsudamper.money.backend.mail.parser.services.GooglePlayUsageService
+import net.matsudamper.money.backend.mail.parser.services.HighwayBusUsageServices
 import net.matsudamper.money.backend.mail.parser.services.JapanTsushinUsageServices
 import net.matsudamper.money.backend.mail.parser.services.KaldiCoffeeFarmUsageServices
 import net.matsudamper.money.backend.mail.parser.services.KeurigOnlineStoreUsageServices
@@ -48,6 +49,7 @@ import net.matsudamper.money.backend.mail.parser.services.SteamUsageService
 import net.matsudamper.money.backend.mail.parser.services.TakaraTomyMallUsageServices
 import net.matsudamper.money.backend.mail.parser.services.TixplusTradeUsageServices
 import net.matsudamper.money.backend.mail.parser.services.UberEatsUsageService
+import net.matsudamper.money.backend.mail.parser.services.ViewCardUsageServices
 import net.matsudamper.money.backend.mail.parser.services.VpassUsageServices
 import net.matsudamper.money.backend.mail.parser.services.YMobileUsageServices
 import net.matsudamper.money.backend.mail.parser.services.YahooShoppingUsageServices
@@ -116,6 +118,8 @@ public object MailParser {
             KeurigOnlineStoreUsageServices,
             TixplusTradeUsageServices,
             CinecittaUsageServices,
+            ViewCardUsageServices,
+            HighwayBusUsageServices,
         )
             .mapNotNull {
                 runCatching {

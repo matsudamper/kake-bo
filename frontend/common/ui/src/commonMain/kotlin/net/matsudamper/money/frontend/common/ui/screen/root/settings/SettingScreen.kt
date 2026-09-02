@@ -10,24 +10,17 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.widthIn
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.automirrored.filled.OpenInNew
 import androidx.compose.material3.Icon
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.LaunchedEffect
-import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
-import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.layout.onSizeChanged
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
@@ -37,6 +30,9 @@ import net.matsudamper.money.frontend.common.ui.base.KakeBoTopAppBar
 import net.matsudamper.money.frontend.common.ui.base.KakeboScaffoldListener
 import net.matsudamper.money.frontend.common.ui.base.LocalScrollToTopHandler
 import net.matsudamper.money.frontend.common.ui.base.RootScreenScaffold
+import net.matsudamper.money.frontend.common.ui.generated.resources.Res
+import net.matsudamper.money.frontend.common.ui.generated.resources.ic_open_in_new
+import org.jetbrains.compose.resources.painterResource
 
 public data class RootSettingScreenUiState(
     val kotlinVersion: String,
@@ -58,6 +54,7 @@ public data class RootSettingScreenUiState(
         public fun onClickApiSetting()
         public fun onClickTextFieldTest()
         public fun onClickUploadQueueDebug()
+        public fun onClickTimezoneSetting()
     }
 }
 
@@ -84,7 +81,7 @@ public fun SettingRootScreen(
                         ) {
                             uiState.kakeboScaffoldListener.onClickTitle()
                         },
-                        text = "家計簿",
+                        text = "設定",
                     )
                 },
                 windowInsets = windowInsets,
@@ -93,12 +90,10 @@ public fun SettingRootScreen(
         content = {
             SettingScaffold(
                 modifier = Modifier.fillMaxSize(),
-                title = {
-                    Text(text = "設定")
-                },
-            ) {
+            ) { paddingValues ->
                 MainContent(
                     modifier = Modifier.fillMaxSize(),
+                    contentPadding = paddingValues,
                     uiState = uiState,
                 )
             }
@@ -109,104 +104,95 @@ public fun SettingRootScreen(
 @Composable
 private fun MainContent(
     modifier: Modifier = Modifier,
+    contentPadding: PaddingValues,
     uiState: RootSettingScreenUiState,
 ) {
-    Column(
+    Box(
         modifier = modifier,
     ) {
-        val settingPaddingModifier = Modifier.padding(horizontal = 24.dp)
-        Spacer(modifier = Modifier.height(32.dp))
-        Box(
-            modifier = Modifier
-                .weight(1f)
-                .fillMaxWidth(),
-        ) {
-            val scrollState = rememberScrollState()
-            val coroutineScope = rememberCoroutineScope()
-            val scrollToTopHandler = LocalScrollToTopHandler.current
-            DisposableEffect(scrollToTopHandler, scrollState) {
-                val handler = {
-                    if (scrollState.value > 0) {
-                        coroutineScope.launch { scrollState.animateScrollTo(0) }
-                        true
-                    } else {
-                        false
-                    }
+        val scrollState = rememberScrollState()
+        val coroutineScope = rememberCoroutineScope()
+        val scrollToTopHandler = LocalScrollToTopHandler.current
+        DisposableEffect(scrollToTopHandler, scrollState) {
+            val handler = {
+                if (scrollState.value > 0) {
+                    coroutineScope.launch { scrollState.animateScrollTo(0) }
+                    true
+                } else {
+                    false
                 }
-                scrollToTopHandler.register(handler)
-                onDispose { scrollToTopHandler.unregister() }
             }
-            var scrollContainerHeightPx by remember { mutableIntStateOf(0) }
+            scrollToTopHandler.register(handler)
+            onDispose { scrollToTopHandler.unregister() }
+        }
+        Column(
+            modifier = Modifier
+                .fillMaxSize()
+                .padding(contentPadding)
+                .verticalScroll(scrollState),
+            horizontalAlignment = Alignment.CenterHorizontally,
+        ) {
+            Spacer(modifier = Modifier.height(24.dp))
             Column(
-                Modifier
-                    .then(settingPaddingModifier)
-                    .padding(horizontal = 8.dp)
-                    .fillMaxSize()
-                    .onSizeChanged {
-                        scrollContainerHeightPx = it.height
-                    }
-                    .verticalScroll(scrollState),
-                horizontalAlignment = Alignment.CenterHorizontally,
+                modifier = Modifier.fillMaxWidth(),
             ) {
-                Column(
-                    modifier = Modifier.widthIn(max = 700.dp),
+                SettingListMenuItemButton(
+                    onClick = { uiState.event.onClickImapButton() },
                 ) {
-                    SettingListMenuItemButton(
-                        onClick = { uiState.event.onClickImapButton() },
-                    ) {
-                        Text("IMAP接続設定")
-                    }
-                    SettingListMenuItemButton(
-                        onClick = { uiState.event.onClickCategoryButton() },
-                    ) {
-                        Text("カテゴリ編集")
-                    }
-                    SettingListMenuItemButton(
-                        onClick = { uiState.event.onClickMailFilter() },
-                    ) {
-                        Text("メールフィルター")
-                    }
-                    SettingListMenuItemButton(
-                        onClick = { uiState.event.onClickLoginSetting() },
-                    ) {
-                        Text("ログイン設定")
-                    }
-                    SettingListMenuItemButton(
-                        onClick = { uiState.event.onClickApiSetting() },
-                    ) {
-                        Text("API設定")
-                    }
-                    SettingListMenuItemButton(
-                        onClick = { uiState.event.onClickGitHub() },
-                        trailingContent = {
-                            Icon(
-                                imageVector = Icons.AutoMirrored.Filled.OpenInNew,
-                                contentDescription = "外部アプリで開く",
-                            )
-                        },
-                    ) {
-                        Text("GitHub")
-                    }
-                    SettingListMenuItemButton(
-                        onClick = { uiState.event.onClickTextFieldTest() },
-                    ) {
-                        Text("TextFieldテスト")
-                    }
-                    SettingListMenuItemButton(
-                        onClick = { uiState.event.onClickUploadQueueDebug() },
-                    ) {
-                        Text("画像アップロードキュー")
-                    }
-                    Column(
-                        modifier = Modifier.fillMaxWidth(),
-                    ) {
-                        Text(
-                            modifier = Modifier.fillMaxWidth(),
-                            text = "Kotlin version: ${uiState.kotlinVersion}",
-                            textAlign = TextAlign.End,
-                        )
-                    }
+                    Text("IMAP接続設定")
                 }
+                SettingListMenuItemButton(
+                    onClick = { uiState.event.onClickCategoryButton() },
+                ) {
+                    Text("カテゴリ編集")
+                }
+                SettingListMenuItemButton(
+                    onClick = { uiState.event.onClickMailFilter() },
+                ) {
+                    Text("メールフィルター")
+                }
+                SettingListMenuItemButton(
+                    onClick = { uiState.event.onClickTimezoneSetting() },
+                ) {
+                    Text("タイムゾーン")
+                }
+                SettingListMenuItemButton(
+                    onClick = { uiState.event.onClickLoginSetting() },
+                ) {
+                    Text("ログイン設定")
+                }
+                SettingListMenuItemButton(
+                    onClick = { uiState.event.onClickApiSetting() },
+                ) {
+                    Text("API設定")
+                }
+                SettingListMenuItemButton(
+                    onClick = { uiState.event.onClickGitHub() },
+                    trailingContent = {
+                        Icon(
+                            painter = painterResource(Res.drawable.ic_open_in_new),
+                            contentDescription = "外部アプリで開く",
+                        )
+                    },
+                ) {
+                    Text("GitHub")
+                }
+                SettingListMenuItemButton(
+                    onClick = { uiState.event.onClickTextFieldTest() },
+                ) {
+                    Text("TextFieldテスト")
+                }
+                SettingListMenuItemButton(
+                    onClick = { uiState.event.onClickUploadQueueDebug() },
+                ) {
+                    Text("画像アップロードキュー")
+                }
+                Spacer(modifier = Modifier.height(24.dp))
+                Text(
+                    modifier = Modifier.fillMaxWidth(),
+                    text = "Kotlin version: ${uiState.kotlinVersion}",
+                    textAlign = TextAlign.End,
+                )
             }
         }
     }
@@ -232,6 +218,7 @@ private fun Preview() {
                     override fun onClickApiSetting() {}
                     override fun onClickTextFieldTest() {}
                     override fun onClickUploadQueueDebug() {}
+                    override fun onClickTimezoneSetting() {}
                 },
             ),
             windowInsets = PaddingValues(),

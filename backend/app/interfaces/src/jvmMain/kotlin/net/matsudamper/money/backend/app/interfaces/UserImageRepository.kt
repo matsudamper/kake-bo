@@ -4,9 +4,12 @@ import net.matsudamper.money.element.ImageId
 import net.matsudamper.money.element.UserId
 
 interface UserImageRepository {
+    enum class StorageType { LOCAL, S3; }
+
     data class ImageData(
         val relativePath: String,
         val contentType: String,
+        val storageType: StorageType,
     )
 
     fun saveImage(
@@ -14,6 +17,7 @@ interface UserImageRepository {
         displayId: String,
         relativePath: String,
         contentType: String,
+        storageType: StorageType,
     ): ImageId?
 
     fun markImageAsUploaded(

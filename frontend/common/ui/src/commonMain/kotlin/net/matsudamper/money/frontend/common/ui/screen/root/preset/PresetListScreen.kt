@@ -13,8 +13,6 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.Add
 import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Card
 import androidx.compose.material3.CircularProgressIndicator
@@ -45,7 +43,10 @@ import androidx.compose.ui.unit.dp
 import kotlinx.coroutines.launch
 import net.matsudamper.money.frontend.common.ui.base.KakeBoTopAppBar
 import net.matsudamper.money.frontend.common.ui.base.RootScreenScaffold
+import net.matsudamper.money.frontend.common.ui.generated.resources.Res
+import net.matsudamper.money.frontend.common.ui.generated.resources.ic_add
 import net.matsudamper.money.frontend.common.ui.layout.html.text.fullscreen.FullScreenTextInput
+import org.jetbrains.compose.resources.painterResource
 
 @Composable
 public fun PresetListScreen(
@@ -249,7 +250,7 @@ public fun PresetListScreen(
                                 ),
                             onClick = { uiState.event.onClickAddButton() },
                         ) {
-                            Icon(Icons.Default.Add, contentDescription = "プリセットを追加")
+                            Icon(painter = painterResource(Res.drawable.ic_add), contentDescription = "プリセットを追加")
                         }
                     }
                 }

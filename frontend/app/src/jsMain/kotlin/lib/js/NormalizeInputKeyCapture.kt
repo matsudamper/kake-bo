@@ -15,6 +15,8 @@ import androidx.compose.ui.focus.focusRequester
 import androidx.compose.ui.focus.focusTarget
 import androidx.compose.ui.focus.onFocusChanged
 import kotlinx.browser.document
+import kotlinx.coroutines.delay
+import org.w3c.dom.HTMLCanvasElement
 import org.w3c.dom.events.KeyboardEvent
 
 @Composable
@@ -23,7 +25,7 @@ public fun NormalizeInputKeyCapture(content: @Composable () -> Unit) {
         mutableStateOf(false)
     }
     LaunchedEffect(Unit) {
-        val target = document.getElementById("ComposeTarget")!!
+        val target = awaitComposeCanvas()
         target.addEventListener(
             type = "keydown",
             callback = { event ->
@@ -51,4 +53,30 @@ public fun NormalizeInputKeyCapture(content: @Composable () -> Unit) {
     ) {
         content()
     }
+}
+
+// ComposeViewportはviewportContainer配下のShadow DOM内にidの無いcanvasを生成するため、走査して取得する
+private suspend fun awaitComposeCanvas(): HTMLCanvasElement {
+    while (true) {
+        val canvas = findComposeCanvas()
+        if (canvas != null) {
+            return canvas
+        }
+        delay(50)
+    }
+}
+
+private fun findComposeCanvas(): HTMLCanvasElement? {
+    val container = document.getElementById("ComposeTargetContainer") ?: return null
+    val divs = container.getElementsByTagName("div")
+    for (index in 0 until divs.length) {
+        val shadowRoot = divs.item(index)?.asDynamic()?.shadowRoot
+        if (shadowRoot != null) {
+            val canvas = shadowRoot.querySelector("canvas")
+            if (canvas != null) {
+                return canvas.unsafeCast<HTMLCanvasElement>()
+            }
+        }
+    }
+    return null
 }

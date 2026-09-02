@@ -1,7 +1,9 @@
 package net.matsudamper.money.backend.app.interfaces
 
+import java.time.Instant
 import java.time.LocalDateTime
 import net.matsudamper.money.backend.app.interfaces.element.UserSessionId
+import net.matsudamper.money.element.SessionRecordId
 import net.matsudamper.money.element.UserId
 
 interface UserSessionRepository {
@@ -10,14 +12,14 @@ interface UserSessionRepository {
     fun clearSession(sessionId: UserSessionId)
 
     fun changeSessionName(
-        sessionId: UserSessionId,
-        name: String,
+        currentSessionId: UserSessionId,
+        sessionRecordId: SessionRecordId,
+        sessionName: String,
     ): SessionInfo?
 
     fun deleteSession(
-        userId: UserId,
-        sessionName: String,
-        currentSessionName: String,
+        currentSessionId: UserSessionId,
+        targetSessionRecordId: SessionRecordId,
     ): Boolean
 
     fun getSessions(userId: UserId): List<SessionInfo>
@@ -29,14 +31,19 @@ interface UserSessionRepository {
         expireDay: Long,
     ): VerifySessionResult
 
+    fun warmup()
+
+    fun close()
+
     data class CreateSessionResult(
         val sessionId: UserSessionId,
         val latestAccess: LocalDateTime,
     )
 
     data class SessionInfo(
+        val sessionRecordId: SessionRecordId,
         val name: String,
-        val latestAccess: LocalDateTime,
+        val latestAccess: Instant,
     )
 
     sealed interface VerifySessionResult {

@@ -16,9 +16,10 @@ internal object ShunsuguUsageService : MoneyUsageServices {
         plain: String,
         date: LocalDateTime,
     ): List<MoneyUsage> {
+        val forwardedInfo = ParseUtil.parseForwarded(plain)
         val canHandle = sequence {
-            yield(canHandledWithFrom(from))
-            yield(canHandledWithSubject(subject))
+            yield(canHandledWithFrom(forwardedInfo?.from ?: from))
+            yield(canHandledWithSubject(forwardedInfo?.subject ?: subject))
             yield(canHandledWithPlain(plain))
         }
         if (canHandle.any { it }.not()) return listOf()
@@ -51,7 +52,7 @@ internal object ShunsuguUsageService : MoneyUsageServices {
                 price = price,
                 description = description,
                 service = MoneyUsageServiceType.Shunsugu,
-                dateTime = date,
+                dateTime = forwardedInfo?.date ?: date,
             ),
         )
     }

@@ -5,8 +5,10 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.ui.Modifier
+import net.matsudamper.money.frontend.common.base.DeviceNameProvider
 import net.matsudamper.money.frontend.common.base.lifecycle.LocalScopedObjectStore
 import net.matsudamper.money.frontend.common.base.nav.user.ScreenNavController
+import net.matsudamper.money.frontend.common.di.LocalKoin
 import net.matsudamper.money.frontend.common.feature.webauth.WebAuthModel
 import net.matsudamper.money.frontend.common.ui.screen.login.LoginScreen
 import net.matsudamper.money.frontend.common.ui.screen.login.LoginScreenUiState
@@ -40,6 +42,7 @@ internal fun LoginScreenContainer(
             webAuthModel = koin.get<WebAuthModel>(),
             graphqlClient = graphqlClient,
             serverHostConfig = koin.getOrNull<ServerHostConfig>(),
+            deviceNameProvider = koin.get<DeviceNameProvider>(),
         )
     }
     val uiState: LoginScreenUiState = viewModel.uiStateFlow.collectAsState().value

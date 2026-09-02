@@ -5,15 +5,17 @@ plugins {
     alias(libs.plugins.kotlin.serialization)
     alias(libs.plugins.composeCompiler)
     alias(libs.plugins.jetbrainsCompose)
+    id("net.matsudamper.money.buildlogic.multiplatform.library")
     id("net.matsudamper.money.buildlogic.compose")
-    id("net.matsudamper.money.buildlogic.androidLibrary")
 }
 
 kotlin {
+    android {
+        namespace = "net.matsudamper.money.ui.root"
+    }
     js(IR) {
         browser()
     }
-    androidTarget()
     sourceSets {
         jvmToolchain(libs.versions.javaToolchain.get().toInt())
         val commonMain by getting {
@@ -25,7 +27,9 @@ kotlin {
                 implementation(projects.frontend.common.viewmodel)
                 implementation(projects.frontend.common.usecase)
                 implementation(projects.frontend.common.graphql)
+                implementation(projects.frontend.common.di)
                 implementation(projects.frontend.featureNotification)
+                implementation(projects.frontend.featureAdmin)
 
                 implementation(kotlin("stdlib"))
                 implementation(kotlin("reflect"))
@@ -46,11 +50,4 @@ kotlin {
         }
         explicitApi()
     }
-}
-
-android {
-    namespace = "net.matsudamper.money.ui.root"
-}
-dependencies {
-    implementation(project(":frontend:common:di"))
 }

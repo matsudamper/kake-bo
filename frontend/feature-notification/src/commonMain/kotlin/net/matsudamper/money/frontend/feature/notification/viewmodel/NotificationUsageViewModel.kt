@@ -7,7 +7,6 @@ import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.flow.distinctUntilChanged
-import kotlinx.coroutines.flow.flatMapLatest
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
@@ -45,7 +44,7 @@ public class NotificationUsageViewModel(
         ViewModelState(
             status = initialStatus(mode),
             accessState = NotificationAccessState.NotGranted,
-            items = listOf(),
+            itemsLoadingState = ViewModelState.ItemsLoadingState.Loading,
         ),
     )
     private val copyJsonFormatter = Json {
@@ -55,10 +54,9 @@ public class NotificationUsageViewModel(
     public val uiStateFlow: StateFlow<NotificationUsageListScreenUiState> = MutableStateFlow(
         NotificationUsageListScreenUiState(
             title = modeTitle(mode),
-            items = listOf<NotificationUsageListScreenUiState.Item>().toImmutableList(),
+            itemsState = NotificationUsageListScreenUiState.ItemsState.Loading,
             filters = createStatusFilters(initialStatus(mode)).toImmutableList(),
             searchListener = createSearchListener(mode),
-            emptyText = emptyText(mode, initialStatus(mode)),
             accessSection = null,
             topBarActions = createTopBarActions(mode).toImmutableList(),
             kakeboScaffoldListener = object : KakeboScaffoldListener {
@@ -71,15 +69,25 @@ public class NotificationUsageViewModel(
         viewModelScope.launch {
             viewModelStateFlow.collectLatest { viewModelState ->
                 uiStateFlow.update { uiState ->
-                    val filteredItems = if (mode == Mode.NotificationList) {
-                        filterByQuery(viewModelState.items, viewModelState.searchQuery)
-                    } else {
-                        viewModelState.items
+                    val itemsState = when (val loadingState = viewModelState.itemsLoadingState) {
+                        ViewModelState.ItemsLoadingState.Loading -> {
+                            NotificationUsageListScreenUiState.ItemsState.Loading
+                        }
+                        is ViewModelState.ItemsLoadingState.Loaded -> {
+                            val filteredItems = if (mode == Mode.NotificationList) {
+                                filterByQuery(loadingState.items, viewModelState.searchQuery)
+                            } else {
+                                loadingState.items
+                            }
+                            NotificationUsageListScreenUiState.ItemsState.Loaded(
+                                items = filteredItems.map { createUiItem(it) }.toImmutableList(),
+                                emptyText = emptyText(mode, viewModelState.status),
+                            )
+                        }
                     }
                     uiState.copy(
-                        items = filteredItems.map { createUiItem(it) }.toImmutableList(),
+                        itemsState = itemsState,
                         filters = createStatusFilters(viewModelState.status).toImmutableList(),
-                        emptyText = emptyText(mode, viewModelState.status),
                         accessSection = createAccessSection(viewModelState.accessState),
                     )
                 }
@@ -97,9 +105,13 @@ public class NotificationUsageViewModel(
             viewModelStateFlow
                 .map { it.status }
                 .distinctUntilChanged()
-                .flatMapLatest { status -> itemsFlow(status) }
-                .collectLatest { items ->
-                    viewModelStateFlow.update { it.copy(items = items) }
+                .collectLatest { status ->
+                    viewModelStateFlow.update { it.copy(itemsLoadingState = ViewModelState.ItemsLoadingState.Loading) }
+                    itemsFlow(status).collectLatest { items ->
+                        viewModelStateFlow.update {
+                            it.copy(itemsLoadingState = ViewModelState.ItemsLoadingState.Loaded(items))
+                        }
+                    }
                 }
         }
     }
@@ -377,8 +389,14 @@ public class NotificationUsageViewModel(
         val status: Status,
         val searchQuery: String = "",
         val accessState: NotificationAccessState,
-        val items: List<ItemSource>,
+        val itemsLoadingState: ItemsLoadingState,
     ) {
+        sealed interface ItemsLoadingState {
+            data object Loading : ItemsLoadingState
+
+            data class Loaded(val items: List<ItemSource>) : ItemsLoadingState
+        }
+
         sealed interface ItemSource {
             data class Matched(val record: NotificationUsageMatchedRecord) : ItemSource
 

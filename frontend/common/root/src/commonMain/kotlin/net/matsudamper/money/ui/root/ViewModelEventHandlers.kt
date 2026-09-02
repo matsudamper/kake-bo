@@ -76,7 +76,7 @@ internal data class ViewModelEventHandlers(
                     }
 
                     override fun changeQuery(isLinked: Boolean?, text: String?) {
-                        navController.navigate(ScreenStructure.Root.Add.Imported(isLinked = isLinked, text = text))
+                        navController.navigateReplace(ScreenStructure.Root.Add.Imported(isLinked = isLinked, text = text))
                     }
 
                     override fun navigateToMailDetail(id: ImportedMailId) {
@@ -267,7 +267,11 @@ internal data class ViewModelEventHandlers(
                     }
 
                     override fun back() {
-                        navController.back()
+                        if (navController.canGoBack) {
+                            navController.back()
+                        } else {
+                            platformToolsProvider().backPressDispatcher.onBackPressed()
+                        }
                     }
                 },
             )
@@ -510,6 +514,10 @@ internal data class ViewModelEventHandlers(
                 object : LoginSettingViewModel.Event {
                     override fun navigate(structure: ScreenStructure) {
                         navController.navigate(structure)
+                    }
+
+                    override fun navigateToLogin() {
+                        navController.navigateToLogin()
                     }
 
                     override fun showToast(text: String) {

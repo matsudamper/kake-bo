@@ -2,6 +2,7 @@ package net.matsudamper.money.backend.datasource.db.repository
 
 import net.matsudamper.money.backend.app.interfaces.UserImageRepository
 import net.matsudamper.money.backend.datasource.db.DbConnectionImpl
+import net.matsudamper.money.backend.datasource.db.element.DbStorageType
 import net.matsudamper.money.db.schema.tables.JMoneyUsageImagesRelation
 import net.matsudamper.money.db.schema.tables.JUserImages
 import net.matsudamper.money.element.ImageId
@@ -17,7 +18,13 @@ class DbUserImageRepository : UserImageRepository {
         displayId: String,
         relativePath: String,
         contentType: String,
+        storageType: UserImageRepository.StorageType,
     ): ImageId? {
+        val storageTypeDbValue = when (storageType) {
+            UserImageRepository.StorageType.LOCAL -> DbStorageType.LOCAL
+            UserImageRepository.StorageType.S3 -> DbStorageType.S3
+        }.dbValue
+
         return runCatching<ImageId?> {
             DbConnectionImpl.use { connection ->
                 val context = DSL.using(connection)
@@ -27,6 +34,7 @@ class DbUserImageRepository : UserImageRepository {
                     .set(jUserImages.DISPLAY_ID, displayId)
                     .set(jUserImages.IMAGE_PATH, relativePath)
                     .set(jUserImages.CONTENT_TYPE, contentType)
+                    .set(jUserImages.STORAGE_TYPE, storageTypeDbValue)
                     .set(jUserImages.UPLOADED, false)
                     .returningResult(jUserImages.USER_IMAGE_ID)
                     .fetchOne()
@@ -70,6 +78,7 @@ class DbUserImageRepository : UserImageRepository {
                 .select(
                     jUserImages.IMAGE_PATH,
                     jUserImages.CONTENT_TYPE,
+                    jUserImages.STORAGE_TYPE,
                 )
                 .from(jUserImages)
                 .where(
@@ -79,9 +88,16 @@ class DbUserImageRepository : UserImageRepository {
                 .limit(1)
                 .fetchOne()
                 ?.let { record ->
+                    val storageTypeValue = record.get(jUserImages.STORAGE_TYPE)
+                    val storageType = when (storageTypeValue) {
+                        DbStorageType.LOCAL.dbValue -> UserImageRepository.StorageType.LOCAL
+                        DbStorageType.S3.dbValue -> UserImageRepository.StorageType.S3
+                        else -> throw IllegalStateException("Unknown storage_type: $storageTypeValue")
+                    }
                     UserImageRepository.ImageData(
                         relativePath = record.get(jUserImages.IMAGE_PATH)!!,
                         contentType = record.get(jUserImages.CONTENT_TYPE)!!,
+                        storageType = storageType,
                     )
                 }
         }
