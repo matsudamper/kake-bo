@@ -1,11 +1,14 @@
+import org.gradle.api.tasks.testing.logging.TestExceptionFormat
+import org.gradle.api.tasks.testing.logging.TestLogEvent
 import org.jetbrains.kotlin.gradle.dsl.KotlinMultiplatformExtension
 import org.jetbrains.kotlin.gradle.plugin.KotlinPlatformType
 
 plugins {
     alias(libs.plugins.kotlinJvm) apply false
     alias(libs.plugins.kotlin.multiplatform) apply false
-    alias(libs.plugins.kotlinAndroid) apply false
     alias(libs.plugins.androidApplication) apply false
+    alias(libs.plugins.androidLibrary) apply false
+    alias(libs.plugins.androidKotlinMultiplatformLibrary) apply false
     alias(libs.plugins.kotlin.serialization) apply false
     alias(libs.plugins.composeCompiler) apply false
     alias(libs.plugins.jetbrainsCompose) apply false
@@ -49,6 +52,15 @@ allprojects {
             exclude { currentProjectPath == ":backend:graphql" }
             exclude { currentProjectPath == ":frontend:common:graphql:schema" }
             exclude { it.file.path.contains("generated") }
+        }
+    }
+
+    tasks.withType<Test>().configureEach {
+        testLogging {
+            events(TestLogEvent.FAILED)
+            exceptionFormat = TestExceptionFormat.FULL
+            showStackTraces = true
+            showCauses = true
         }
     }
 }

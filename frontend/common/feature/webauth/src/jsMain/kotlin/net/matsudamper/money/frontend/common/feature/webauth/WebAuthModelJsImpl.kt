@@ -15,26 +15,42 @@ public class WebAuthModelJsImpl : WebAuthModel {
     public override suspend fun create(
         id: String,
         name: String,
-        type: WebAuthModel.WebAuthModelType,
         challenge: String,
         domain: String,
         base64ExcludeCredentialIdList: List<String>,
     ): WebAuthModel.WebAuthCreateResult? {
-        val options = createOption(
-            type = type,
-            challenge = challenge,
-            domain = domain,
-            user = User(
-                id = Uint8Array(id.encodeToByteArray().toTypedArray()),
-                name = name,
-                displayName = name,
+        val options = CredentialsContainerCreateOptions(
+            publicKey = CredentialsContainerCreatePublicKeyOptions(
+                challenge = Uint8Array(challenge.encodeToByteArray().toTypedArray()),
+                user = User(
+                    id = Uint8Array(id.encodeToByteArray().toTypedArray()),
+                    name = name,
+                    displayName = name,
+                ),
+                pubKeyCredParams = arrayOf(
+                    // ES256
+                    CredentialsContainerCreatePublicKeyOptions.PubKeyCredParams("public-key", -7),
+                    // RS256
+                    CredentialsContainerCreatePublicKeyOptions.PubKeyCredParams("public-key", -257),
+                    // Ed25519
+                    CredentialsContainerCreatePublicKeyOptions.PubKeyCredParams("public-key", -8),
+                ),
+                excludeCredentials = base64ExcludeCredentialIdList.map {
+                    CredentialsContainerCreatePublicKeyOptions.ExcludeCredential(
+                        id = it.decodeBase64Bytes(),
+                        type = "public-key",
+                    )
+                }.toTypedArray(),
+                authenticatorSelection = CredentialsContainerCreatePublicKeyOptions.AuthenticatorSelection(
+                    authenticatorAttachment = null,
+                    userVerification = "required",
+                    residentKey = "required",
+                ),
+                rp = CredentialsContainerCreatePublicKeyOptions.Rp(
+                    name = domain,
+                    id = domain,
+                ),
             ),
-            excludeCredentials = base64ExcludeCredentialIdList.map {
-                CredentialsContainerCreatePublicKeyOptions.ExcludeCredential(
-                    id = it.decodeBase64Bytes(),
-                    type = "public-key",
-                )
-            },
         )
         val result = runCatching {
             navigator.credentials.create(
@@ -58,11 +74,32 @@ public class WebAuthModelJsImpl : WebAuthModel {
         challenge: String,
         domain: String,
     ): WebAuthModel.WebAuthGetResult? {
-        val options = createOption(
-            type = type,
-            challenge = challenge,
-            domain = domain,
-            excludeCredentials = emptyList(),
+        val options = CredentialsContainerCreateOptions(
+            publicKey = CredentialsContainerCreatePublicKeyOptions(
+                challenge = Uint8Array(challenge.encodeToByteArray().toTypedArray()),
+                user = null,
+                pubKeyCredParams = arrayOf(
+                    // ES256
+                    CredentialsContainerCreatePublicKeyOptions.PubKeyCredParams("public-key", -7),
+                    // RS256
+                    CredentialsContainerCreatePublicKeyOptions.PubKeyCredParams("public-key", -257),
+                    // Ed25519
+                    CredentialsContainerCreatePublicKeyOptions.PubKeyCredParams("public-key", -8),
+                ),
+                excludeCredentials = arrayOf(),
+                authenticatorSelection = CredentialsContainerCreatePublicKeyOptions.AuthenticatorSelection(
+                    authenticatorAttachment = when (type) {
+                        WebAuthModel.WebAuthModelType.PLATFORM -> CredentialsContainerCreatePublicKeyOptions.AuthenticatorSelection.AUTH_TYPE_PLATFORM
+                        WebAuthModel.WebAuthModelType.CROSS_PLATFORM -> CredentialsContainerCreatePublicKeyOptions.AuthenticatorSelection.AUTH_TYPE_CROSS_PLATFORM
+                    },
+                    userVerification = "required",
+                    residentKey = "required",
+                ),
+                rp = CredentialsContainerCreatePublicKeyOptions.Rp(
+                    name = domain,
+                    id = domain,
+                ),
+            ),
         )
 
         val result = runCatching {
@@ -79,42 +116,6 @@ public class WebAuthModelJsImpl : WebAuthModel {
             base64Signature = result.response.signature.toBase64(),
             base64UserHandle = result.response.userHandle.toBase64(),
             base64AuthenticatorData = result.response.authenticatorData.toBase64(),
-        )
-    }
-
-    private fun createOption(
-        user: User? = null,
-        type: WebAuthModel.WebAuthModelType,
-        challenge: String,
-        domain: String,
-        excludeCredentials: List<CredentialsContainerCreatePublicKeyOptions.ExcludeCredential>,
-    ): CredentialsContainerCreateOptions {
-        return CredentialsContainerCreateOptions(
-            publicKey = CredentialsContainerCreatePublicKeyOptions(
-                challenge = Uint8Array(challenge.encodeToByteArray().toTypedArray()),
-                user = user,
-                pubKeyCredParams = arrayOf(
-                    // ES256
-                    CredentialsContainerCreatePublicKeyOptions.PubKeyCredParams("public-key", -7),
-                    // RS256
-                    CredentialsContainerCreatePublicKeyOptions.PubKeyCredParams("public-key", -257),
-                    // Ed25519
-                    CredentialsContainerCreatePublicKeyOptions.PubKeyCredParams("public-key", -8),
-                ),
-                excludeCredentials = excludeCredentials.toTypedArray(),
-                authenticatorSelection = CredentialsContainerCreatePublicKeyOptions.AuthenticatorSelection(
-                    authenticatorAttachment = when (type) {
-                        WebAuthModel.WebAuthModelType.PLATFORM -> CredentialsContainerCreatePublicKeyOptions.AuthenticatorSelection.AUTH_TYPE_PLATFORM
-                        WebAuthModel.WebAuthModelType.CROSS_PLATFORM -> CredentialsContainerCreatePublicKeyOptions.AuthenticatorSelection.AUTH_TYPE_CROSS_PLATFORM
-                    },
-                    userVerification = "required",
-                    residentKey = "required",
-                ),
-                rp = CredentialsContainerCreatePublicKeyOptions.Rp(
-                    name = domain,
-                    id = domain,
-                ),
-            ),
         )
     }
 

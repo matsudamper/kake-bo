@@ -2,6 +2,8 @@ package net.matsudamper.money.frontend.common.di
 
 import net.matsudamper.money.frontend.common.base.AppSettingsRepository
 import net.matsudamper.money.frontend.common.base.AppSettingsRepositoryJsImpl
+import net.matsudamper.money.frontend.common.base.DeviceNameProvider
+import net.matsudamper.money.frontend.common.base.DeviceNameProviderJsImpl
 import net.matsudamper.money.frontend.common.base.ImageUploadClient
 import net.matsudamper.money.frontend.common.base.notification.EmptyNotificationUsageAccessGateway
 import net.matsudamper.money.frontend.common.base.notification.EmptyNotificationUsageRepository
@@ -43,6 +45,10 @@ internal actual val factory: Factory = object : Factory() {
 
     override fun createAppSettingsRepository(scope: Scope): AppSettingsRepository {
         return AppSettingsRepositoryJsImpl()
+    }
+
+    override fun createDeviceNameProvider(scope: Scope): DeviceNameProvider {
+        return DeviceNameProviderJsImpl()
     }
 
     override fun createImageUploadQueue(scope: Scope): ImageUploadQueue {

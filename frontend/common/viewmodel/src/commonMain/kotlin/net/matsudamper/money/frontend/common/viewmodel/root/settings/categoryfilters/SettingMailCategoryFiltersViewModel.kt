@@ -39,7 +39,7 @@ public class SettingMailCategoryFiltersViewModel(
         override fun onPullToRefresh() {
             viewModelScope.launch {
                 viewModelStateFlow.update { it.copy(isRefreshing = true) }
-                val result = pagingModel.refresh()
+                val result = pagingModel.fetch(isForceRefresh = true)
                 viewModelStateFlow.update {
                     it.copy(lastLoadingState = result, isRefreshing = false)
                 }
@@ -62,7 +62,7 @@ public class SettingMailCategoryFiltersViewModel(
                         runCatching {
                             api.addFilter(text)
                         }.onSuccess {
-                            val result = pagingModel.refresh()
+                            val result = pagingModel.fetch(isForceRefresh = true)
                             viewModelStateFlow.update {
                                 it.copy(lastLoadingState = result)
                             }

@@ -2,7 +2,6 @@ package net.matsudamper.money.backend.mail.parser.services
 
 import java.time.LocalDate
 import java.time.LocalDateTime
-import java.time.LocalTime
 import net.matsudamper.money.backend.base.element.MoneyUsageServiceType
 import net.matsudamper.money.backend.mail.parser.MoneyUsage
 import net.matsudamper.money.backend.mail.parser.MoneyUsageServices
@@ -25,10 +24,10 @@ internal object SonyBankUsageServices : MoneyUsageServices {
         }
         if (canHandle.all { it }.not()) return listOf()
 
-        return parsePlain(plain)
+        return parsePlain(plain, date)
     }
 
-    private fun parsePlain(plain: String): List<MoneyUsage> {
+    private fun parsePlain(plain: String, date: LocalDateTime): List<MoneyUsage> {
         val lines = ParseUtil.splitByNewLine(plain)
 
         val dateLineIndex = lines.indexOfFirst { it.startsWith("カード利用日：") }
@@ -68,7 +67,7 @@ internal object SonyBankUsageServices : MoneyUsageServices {
                 service = MoneyUsageServiceType.SonyBank,
                 dateTime = LocalDateTime.of(
                     LocalDate.of(year, month, day),
-                    LocalTime.of(0, 0),
+                    date.toLocalTime(),
                 ),
             ),
         )

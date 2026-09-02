@@ -14,6 +14,7 @@ import net.matsudamper.money.frontend.common.ui.AppRoot
 import net.matsudamper.money.frontend.common.viewmodel.lib.EventSender
 import net.matsudamper.money.frontend.common.viewmodel.root.GlobalEvent
 import net.matsudamper.money.ui.root.Content
+import org.jetbrains.compose.resources.configureWebResources
 import org.koin.core.context.startKoin
 import platform.PlatformToolsProvider
 
@@ -21,6 +22,9 @@ import platform.PlatformToolsProvider
 fun main(
     @Suppress("UNUSED_PARAMETER") args: Array<String>,
 ) {
+    configureWebResources {
+        resourcePathMapping { path -> "/$path" }
+    }
     val koin = startKoin {
         modules(DefaultModule.module)
     }.koin

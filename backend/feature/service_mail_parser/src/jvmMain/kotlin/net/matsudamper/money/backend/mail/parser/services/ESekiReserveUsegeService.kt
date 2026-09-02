@@ -6,6 +6,7 @@ import java.time.LocalTime
 import net.matsudamper.money.backend.base.element.MoneyUsageServiceType
 import net.matsudamper.money.backend.mail.parser.MoneyUsage
 import net.matsudamper.money.backend.mail.parser.MoneyUsageServices
+import net.matsudamper.money.backend.mail.parser.lib.ParseUtil
 
 internal object ESekiReserveUsegeService : MoneyUsageServices {
     override val displayName: String = "e席リザーブ"
@@ -17,9 +18,10 @@ internal object ESekiReserveUsegeService : MoneyUsageServices {
         plain: String,
         date: LocalDateTime,
     ): List<MoneyUsage> {
+        val forwardedInfo = ParseUtil.parseForwarded(plain)
         val canHandle = sequence {
-            yield(canHandledWithFrom(from))
-            yield(canHandledWithSubject(subject))
+            yield(canHandledWithFrom(forwardedInfo?.from ?: from))
+            yield(canHandledWithSubject(forwardedInfo?.subject ?: subject))
             yield(canHandledWithPlain(plain))
         }
         if (canHandle.any { it }.not()) return listOf()
@@ -102,7 +104,7 @@ internal object ESekiReserveUsegeService : MoneyUsageServices {
                 price = price,
                 description = description,
                 service = MoneyUsageServiceType.ESekiReserve,
-                dateTime = parsedDate ?: date,
+                dateTime = parsedDate ?: forwardedInfo?.date ?: date,
             ),
         )
     }

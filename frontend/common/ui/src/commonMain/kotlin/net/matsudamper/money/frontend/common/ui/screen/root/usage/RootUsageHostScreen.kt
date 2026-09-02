@@ -23,12 +23,6 @@ import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.automirrored.filled.KeyboardArrowLeft
-import androidx.compose.material.icons.automirrored.filled.KeyboardArrowRight
-import androidx.compose.material.icons.filled.Add
-import androidx.compose.material.icons.filled.Clear
-import androidx.compose.material.icons.filled.Search
 import androidx.compose.material3.DropdownMenu
 import androidx.compose.material3.DropdownMenuItem
 import androidx.compose.material3.FloatingActionButton
@@ -57,9 +51,16 @@ import net.matsudamper.money.frontend.common.ui.base.DropDownMenuButton
 import net.matsudamper.money.frontend.common.ui.base.KakeBoTopAppBar
 import net.matsudamper.money.frontend.common.ui.base.KakeboScaffoldListener
 import net.matsudamper.money.frontend.common.ui.base.RootScreenScaffold
+import net.matsudamper.money.frontend.common.ui.generated.resources.Res
+import net.matsudamper.money.frontend.common.ui.generated.resources.ic_add
+import net.matsudamper.money.frontend.common.ui.generated.resources.ic_clear
+import net.matsudamper.money.frontend.common.ui.generated.resources.ic_keyboard_arrow_left
+import net.matsudamper.money.frontend.common.ui.generated.resources.ic_keyboard_arrow_right
+import net.matsudamper.money.frontend.common.ui.generated.resources.ic_search
 import net.matsudamper.money.frontend.common.ui.layout.TextFieldType
 import net.matsudamper.money.frontend.common.ui.layout.html.text.fullscreen.FullScreenTextInput
 import net.matsudamper.money.frontend.common.ui.stickyHeader
+import org.jetbrains.compose.resources.painterResource
 
 public data class RootUsageHostScreenUiState(
     val type: Type,
@@ -248,7 +249,7 @@ public fun RootUsageHostScreen(
                             ),
                         ) {
                             Icon(
-                                imageVector = Icons.Default.Add,
+                                painter = painterResource(Res.drawable.ic_add),
                                 contentDescription = "add money usage",
                             )
                         }
@@ -293,7 +294,7 @@ private fun SearchBox(
                 verticalAlignment = Alignment.CenterVertically,
             ) {
                 Icon(
-                    imageVector = Icons.Default.Search,
+                    painter = painterResource(Res.drawable.ic_search),
                     contentDescription = "search",
                 )
                 Spacer(modifier = Modifier.width(8.dp))
@@ -310,7 +311,7 @@ private fun SearchBox(
                         .padding(8.dp),
                 ) {
                     Icon(
-                        imageVector = Icons.Default.Clear,
+                        painter = painterResource(Res.drawable.ic_clear),
                         contentDescription = "clear",
                     )
                 }
@@ -416,7 +417,10 @@ private fun TitleBar(
                             .clickable { header.event.onClickPrevMonth() }
                             .padding(8.dp),
                     ) {
-                        Icon(Icons.AutoMirrored.Filled.KeyboardArrowLeft, contentDescription = "前の月")
+                        Icon(
+                            painter = painterResource(Res.drawable.ic_keyboard_arrow_left),
+                            contentDescription = "前の月",
+                        )
                     }
                     Box(
                         modifier = Modifier
@@ -424,7 +428,10 @@ private fun TitleBar(
                             .clickable { header.event.onClickNextMonth() }
                             .padding(8.dp),
                     ) {
-                        Icon(Icons.AutoMirrored.Filled.KeyboardArrowRight, contentDescription = "次の月")
+                        Icon(
+                            painter = painterResource(Res.drawable.ic_keyboard_arrow_right),
+                            contentDescription = "次の月",
+                        )
                     }
                     Row(
                         modifier = Modifier

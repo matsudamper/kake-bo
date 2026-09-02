@@ -34,8 +34,7 @@ internal class MobileSuicaNotificationUsageParser : NotificationUsageParser {
     }
 
     private fun parseAmount(text: String): Int? {
-        // "-555円" や "-1,234円" のような利用金額を抽出する
-        // チャージ（プラスの値）や支払いなしの場合はマッチしない
+        // マイナス値のみマッチし、チャージ（プラス）・支払いなしは対象外
         val match = Regex("-([0-9,]+)円").find(text) ?: return null
         return match.groupValues[1].replace(",", "").toIntOrNull()
     }

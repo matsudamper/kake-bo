@@ -106,7 +106,13 @@ public class RootHomeTabPeriodScreenViewModel(
                         },
                         categoryTypes = createCategoryTypes(categories = viewModelState.categories).toImmutableList(),
                         between = "${displayPeriods.first().year}/${displayPeriods.first().month} - ${displayPeriods.last().year}/${displayPeriods.last().month}",
-                        rangeText = "${viewModelState.displayPeriod.monthCount}ヶ月",
+                        rangeText = viewModelState.displayPeriod.monthCount.let { monthCount ->
+                            if (monthCount == 24) {
+                                "2年"
+                            } else {
+                                "${monthCount}ヶ月"
+                            }
+                        },
                     )
                 }
 

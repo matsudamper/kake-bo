@@ -2,20 +2,19 @@ plugins {
     alias(libs.plugins.kotlin.multiplatform)
     alias(libs.plugins.ksp)
     alias(libs.plugins.kotest)
+    id("net.matsudamper.money.buildlogic.multiplatform.library")
     id("net.matsudamper.money.buildlogic.compose")
-    id("net.matsudamper.money.buildlogic.androidLibrary")
     alias(libs.plugins.kotlin.serialization)
-}
-android {
-    namespace = "net.matsudamper.money.frontend.common.base.nav"
 }
 
 kotlin {
+    android {
+        namespace = "net.matsudamper.money.frontend.common.base.nav"
+    }
     js(IR) {
         browser()
     }
     jvm { }
-    androidTarget()
     jvmToolchain(libs.versions.javaToolchain.get().toInt())
     sourceSets {
         val commonMain by getting {
@@ -42,7 +41,7 @@ kotlin {
                 implementation(libs.composeRuntime)
                 implementation(libs.composeUi)
 
-                implementation("io.ktor:ktor-client-logging-js:3.4.3")
+                implementation("io.ktor:ktor-client-logging-js:3.5.0")
                 implementation(libs.ktorClientCore)
                 implementation(libs.ktorClientJs)
             }

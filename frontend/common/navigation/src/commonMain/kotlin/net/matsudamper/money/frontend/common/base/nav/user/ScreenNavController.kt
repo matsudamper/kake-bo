@@ -28,6 +28,8 @@ public interface ScreenNavController {
 
     public fun navigateToHome()
 
+    public fun navigateToLogin()
+
     public interface RemovedBackstackEntryListener {
         public fun onRemoved(entry: IScreenStructure)
     }

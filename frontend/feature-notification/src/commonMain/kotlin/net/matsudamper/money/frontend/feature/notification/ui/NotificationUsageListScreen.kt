@@ -18,6 +18,7 @@ import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.material3.Card
+import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.DropdownMenu
 import androidx.compose.material3.DropdownMenuItem
 import androidx.compose.material3.FilterChip
@@ -146,83 +147,97 @@ public fun NotificationUsageListScreen(
                     )
                 }
             }
-            if (uiState.items.isEmpty()) {
-                item {
-                    Text(
-                        text = uiState.emptyText,
-                        style = MaterialTheme.typography.bodyMedium,
-                    )
+            when (val itemsState = uiState.itemsState) {
+                NotificationUsageListScreenUiState.ItemsState.Loading -> {
+                    item {
+                        Box(
+                            modifier = Modifier.fillMaxWidth(),
+                            contentAlignment = Alignment.Center,
+                        ) {
+                            CircularProgressIndicator()
+                        }
+                    }
                 }
-            } else {
-                items(uiState.items) { item ->
-                    var showMenu by remember(item) { mutableStateOf(false) }
-                    Box(
-                        modifier = Modifier.fillMaxWidth(),
-                    ) {
-                        // Jetbrains Compose に combinedClickable がないため、clickable + semantics(customActions) での修正が必要。
-                        Card(
-                            modifier = Modifier
-                                .fillMaxWidth()
-                                .then(
-                                    if (item.listener != null) {
-                                        Modifier.pointerInput(item) {
-                                            detectTapGestures(
-                                                onTap = {
-                                                    item.listener.onClick()
-                                                },
-                                                onLongPress = {
-                                                    showMenu = true
-                                                },
+                is NotificationUsageListScreenUiState.ItemsState.Loaded -> {
+                    if (itemsState.items.isEmpty()) {
+                        item {
+                            Text(
+                                text = itemsState.emptyText,
+                                style = MaterialTheme.typography.bodyMedium,
+                            )
+                        }
+                    } else {
+                        items(itemsState.items) { item ->
+                            var showMenu by remember(item) { mutableStateOf(false) }
+                            Box(
+                                modifier = Modifier.fillMaxWidth(),
+                            ) {
+                                // Jetbrains Compose に combinedClickable がないため、clickable + semantics(customActions) での修正が必要。
+                                Card(
+                                    modifier = Modifier
+                                        .fillMaxWidth()
+                                        .then(
+                                            if (item.listener != null) {
+                                                Modifier.pointerInput(item) {
+                                                    detectTapGestures(
+                                                        onTap = {
+                                                            item.listener.onClick()
+                                                        },
+                                                        onLongPress = {
+                                                            showMenu = true
+                                                        },
+                                                    )
+                                                }
+                                            } else {
+                                                Modifier
+                                            },
+                                        ),
+                                ) {
+                                    Column(
+                                        modifier = Modifier
+                                            .fillMaxWidth()
+                                            .padding(16.dp),
+                                    ) {
+                                        Row(
+                                            verticalAlignment = Alignment.CenterVertically,
+                                        ) {
+                                            Text(
+                                                modifier = Modifier.weight(1f),
+                                                text = item.title,
+                                                style = MaterialTheme.typography.titleSmall,
+                                            )
+                                            Spacer(modifier = Modifier.width(4.dp))
+                                            Text(
+                                                text = item.receivedAt,
+                                                style = MaterialTheme.typography.labelMedium,
+                                            )
+                                            Spacer(modifier = Modifier.width(8.dp))
+                                            Text(
+                                                text = item.statusLabel,
+                                                style = MaterialTheme.typography.labelMedium,
+                                                color = MaterialTheme.colorScheme.primary,
                                             )
                                         }
-                                    } else {
-                                        Modifier
-                                    },
-                                ),
-                        ) {
-                            Column(
-                                modifier = Modifier
-                                    .fillMaxWidth()
-                                    .padding(16.dp),
-                            ) {
-                                Row(
-                                    verticalAlignment = Alignment.CenterVertically,
+                                        Spacer(modifier = Modifier.height(8.dp))
+                                        Text(
+                                            text = item.description,
+                                            style = MaterialTheme.typography.bodyMedium,
+                                        )
+                                    }
+                                }
+                                DropdownMenu(
+                                    expanded = showMenu,
+                                    onDismissRequest = { showMenu = false },
                                 ) {
-                                    Text(
-                                        modifier = Modifier.weight(1f),
-                                        text = item.title,
-                                        style = MaterialTheme.typography.titleSmall,
-                                    )
-                                    Spacer(modifier = Modifier.width(4.dp))
-                                    Text(
-                                        text = item.receivedAt,
-                                        style = MaterialTheme.typography.labelMedium,
-                                    )
-                                    Spacer(modifier = Modifier.width(8.dp))
-                                    Text(
-                                        text = item.statusLabel,
-                                        style = MaterialTheme.typography.labelMedium,
-                                        color = MaterialTheme.colorScheme.primary,
+                                    DropdownMenuItem(
+                                        text = { Text("JSONでコピー") },
+                                        onClick = {
+                                            showMenu = false
+                                            item.listener?.onClickCopyJson()
+                                        },
                                     )
                                 }
-                                Spacer(modifier = Modifier.height(8.dp))
-                                Text(
-                                    text = item.description,
-                                    style = MaterialTheme.typography.bodyMedium,
-                                )
                             }
-                        }
-                        DropdownMenu(
-                            expanded = showMenu,
-                            onDismissRequest = { showMenu = false },
-                        ) {
-                            DropdownMenuItem(
-                                text = { Text("JSONでコピー") },
-                                onClick = {
-                                    showMenu = false
-                                    item.listener?.onClickCopyJson()
-                                },
-                            )
                         }
                     }
                 }

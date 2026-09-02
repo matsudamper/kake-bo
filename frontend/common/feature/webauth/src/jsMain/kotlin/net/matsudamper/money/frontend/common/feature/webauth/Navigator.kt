@@ -87,7 +87,7 @@ public class CredentialsContainerCreatePublicKeyOptions(
     )
 
     public data class AuthenticatorSelection(
-        val authenticatorAttachment: String,
+        val authenticatorAttachment: String?,
         val requireResidentKey: Boolean = true,
         val userVerification: String,
         val residentKey: String,

@@ -1,9 +1,11 @@
 package net.matsudamper.money.backend.datasource.db.repository
 
+import java.time.ZoneOffset
 import net.matsudamper.money.backend.app.interfaces.UserConfigRepository
 import net.matsudamper.money.backend.app.interfaces.element.ImapConfig
 import net.matsudamper.money.backend.datasource.db.DbConnectionImpl
 import net.matsudamper.money.db.schema.tables.JUserImapSettings
+import net.matsudamper.money.db.schema.tables.JUserTimezoneSetting
 import net.matsudamper.money.element.UserId
 import org.jooq.impl.DSL
 
@@ -53,6 +55,44 @@ class DbUserConfigRepository : UserConfigRepository {
                         .set(userImap.USE_NAME, userName)
                         .execute()
                 }
+            }
+        }.fold(
+            onSuccess = { true },
+            onFailure = { false },
+        )
+    }
+
+    override fun getTimezoneOffset(userId: UserId): ZoneOffset? {
+        return runCatching {
+            val userSetting = JUserTimezoneSetting.USER_TIMEZONE_SETTING
+            DbConnectionImpl.use {
+                DSL.using(it)
+                    .select(userSetting.TIMEZONE_OFFSET_MINUTES)
+                    .from(userSetting)
+                    .where(userSetting.USER_ID.eq(userId.value))
+                    .fetchOne()
+            }
+        }.fold(
+            onSuccess = { record ->
+                val minutes = record?.value1() ?: return null
+                ZoneOffset.ofTotalSeconds(minutes * 60)
+            },
+            onFailure = { throw it },
+        )
+    }
+
+    override fun updateTimezoneOffset(userId: UserId, offset: ZoneOffset): Boolean {
+        val offsetMinutes = offset.totalSeconds / 60
+        return runCatching {
+            val userSetting = JUserTimezoneSetting.USER_TIMEZONE_SETTING
+            DbConnectionImpl.use {
+                DSL.using(it)
+                    .insertInto(userSetting)
+                    .set(userSetting.USER_ID, userId.value)
+                    .set(userSetting.TIMEZONE_OFFSET_MINUTES, offsetMinutes)
+                    .onDuplicateKeyUpdate()
+                    .set(userSetting.TIMEZONE_OFFSET_MINUTES, offsetMinutes)
+                    .execute()
             }
         }.fold(
             onSuccess = { true },

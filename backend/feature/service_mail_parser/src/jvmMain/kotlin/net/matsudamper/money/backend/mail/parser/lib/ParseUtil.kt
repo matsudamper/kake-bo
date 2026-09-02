@@ -1,5 +1,6 @@
 package net.matsudamper.money.backend.mail.parser.lib
 
+import java.text.Normalizer
 import java.time.LocalDate
 import java.time.LocalDateTime
 import java.time.LocalTime
@@ -14,6 +15,26 @@ internal object ParseUtil {
             .mapNotNull { it.toString().toIntOrNull() }
             .joinToString("")
             .toIntOrNull()
+    }
+
+    fun normalizeHalfWidthKatakana(value: String): String {
+        val builder = StringBuilder()
+        var index = 0
+        while (index < value.length) {
+            val start = index
+            while (index < value.length && value[index].code in 0xFF61..0xFF9F) {
+                index++
+            }
+            if (index > start) {
+                builder.append(
+                    Normalizer.normalize(value.substring(start, index), Normalizer.Form.NFKC),
+                )
+            } else {
+                builder.append(value[index])
+                index++
+            }
+        }
+        return builder.toString()
     }
 
     fun removeHtmlTag(value: String): String {
@@ -31,9 +52,10 @@ internal object ParseUtil {
         val forwardedStartIndex = lines.indexOf("---------- Forwarded message ---------")
             .takeIf { it >= 0 } ?: return null
 
-        val forwardedEndIndex = lines.subList(forwardedStartIndex, lines.size)
+        val relativeForwardedEndIndex = lines.subList(forwardedStartIndex, lines.size)
             .indexOf("")
             .takeIf { it >= 0 } ?: return null
+        val forwardedEndIndex = forwardedStartIndex + relativeForwardedEndIndex
 
         val forwardedMetadata = lines.subList(forwardedStartIndex, forwardedEndIndex)
             .associate {

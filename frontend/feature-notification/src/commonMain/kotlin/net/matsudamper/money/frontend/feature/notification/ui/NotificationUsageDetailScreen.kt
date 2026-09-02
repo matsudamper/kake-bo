@@ -16,10 +16,6 @@ import androidx.compose.foundation.layout.widthIn
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.automirrored.filled.ArrowBack
-import androidx.compose.material.icons.filled.Add
-import androidx.compose.material.icons.filled.MoreVert
 import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Card
 import androidx.compose.material3.CircularProgressIndicator
@@ -45,7 +41,12 @@ import androidx.compose.ui.text.AnnotatedString
 import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.unit.dp
 import net.matsudamper.money.frontend.common.ui.base.KakeBoTopAppBar
+import net.matsudamper.money.frontend.common.ui.generated.resources.Res
+import net.matsudamper.money.frontend.common.ui.generated.resources.ic_add
+import net.matsudamper.money.frontend.common.ui.generated.resources.ic_arrow_back
+import net.matsudamper.money.frontend.common.ui.generated.resources.ic_more_vert
 import net.matsudamper.money.frontend.common.ui.layout.GridColumn
+import org.jetbrains.compose.resources.painterResource
 
 @Composable
 public fun NotificationUsageDetailScreen(
@@ -75,14 +76,14 @@ public fun NotificationUsageDetailScreen(
             KakeBoTopAppBar(
                 navigation = {
                     IconButton(onClick = { uiState.event.onClickBack() }) {
-                        Icon(Icons.AutoMirrored.Filled.ArrowBack, contentDescription = "戻る")
+                        Icon(painter = painterResource(Res.drawable.ic_arrow_back), contentDescription = "戻る")
                     }
                 },
                 menu = {
                     var isMenuExpanded by remember { mutableStateOf(false) }
                     Box {
                         IconButton(onClick = { isMenuExpanded = !isMenuExpanded }) {
-                            Icon(Icons.Default.MoreVert, contentDescription = "メニュー")
+                            Icon(painter = painterResource(Res.drawable.ic_more_vert), contentDescription = "メニュー")
                         }
                         DropdownMenu(
                             expanded = isMenuExpanded,
@@ -221,7 +222,7 @@ private fun LoadedContent(
                         OutlinedButton(
                             onClick = { uiState.event.onClickRegister() },
                         ) {
-                            Icon(Icons.Default.Add, contentDescription = null)
+                            Icon(painter = painterResource(Res.drawable.ic_add), contentDescription = null)
                             Text("登録")
                         }
                     }

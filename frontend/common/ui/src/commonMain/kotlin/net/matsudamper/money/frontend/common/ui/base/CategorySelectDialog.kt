@@ -11,9 +11,6 @@ import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.automirrored.filled.ArrowBack
-import androidx.compose.material.icons.filled.ArrowDropDown
 import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.HorizontalDivider
@@ -30,6 +27,10 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.unit.dp
 import net.matsudamper.money.frontend.common.base.ImmutableList
+import net.matsudamper.money.frontend.common.ui.generated.resources.Res
+import net.matsudamper.money.frontend.common.ui.generated.resources.ic_arrow_back
+import net.matsudamper.money.frontend.common.ui.generated.resources.ic_arrow_drop_down
+import org.jetbrains.compose.resources.painterResource
 
 @Composable
 internal fun CategorySelectDialog(uiState: CategorySelectDialogUiState) {
@@ -125,7 +126,7 @@ private fun CategoryPage(
             IconButton(
                 onClick = { onBackRequest() },
             ) {
-                Icon(imageVector = Icons.AutoMirrored.Filled.ArrowBack, contentDescription = "戻る")
+                Icon(painter = painterResource(Res.drawable.ic_arrow_back), contentDescription = "戻る")
             }
             ProvideTextStyle(MaterialTheme.typography.titleLarge) {
                 title()
@@ -193,7 +194,7 @@ private fun SelectedSection(
             }
         }
         Icon(
-            imageVector = Icons.Default.ArrowDropDown,
+            painter = painterResource(Res.drawable.ic_arrow_drop_down),
             contentDescription = null,
         )
     }

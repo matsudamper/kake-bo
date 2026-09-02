@@ -19,6 +19,16 @@ class DbUserLoginRepository(
     private val userPasswordExtendData = JUserPasswordExtendData.USER_PASSWORD_EXTEND_DATA
     private val bases64Encoder = Base64.getEncoder()
 
+    override fun hasPassword(userId: UserId): Boolean {
+        return dbConnection.use {
+            DSL.using(it)
+                .selectCount()
+                .from(userPasswords)
+                .where(userPasswords.USER_ID.eq(userId.value))
+                .fetchOne(0, Int::class.java)
+        }?.let { it > 0 } ?: false
+    }
+
     override fun getLoginEncryptInfo(userName: String): UserLoginRepository.LoginEncryptInfo? {
         val result = dbConnection.use {
             DSL.using(it)
