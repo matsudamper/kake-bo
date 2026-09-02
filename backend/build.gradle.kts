@@ -35,6 +35,7 @@ val nativeBuildArgs = listOf(
     // null を返すため、reflect-config.json に jOOQ カスタム型の配列クラスを登録している。
     "--initialize-at-run-time=org.jooq",
     "-H:+AddAllCharsets",
+    "-H:+CompatibilityMode",
     "--initialize-at-run-time=io.opentelemetry.sdk",
     "--initialize-at-run-time=io.opentelemetry.exporter",
     "--initialize-at-run-time=io.opentelemetry.instrumentation",
