@@ -14,7 +14,7 @@ plugins {
 base.archivesName.set("money")
 group = "net.matsudamper.money.backend"
 
-val graalVmLanguageVersion = JavaLanguageVersion.of(24)
+val graalVmLanguageVersion = JavaLanguageVersion.of(25)
 val graalVmLauncher = javaToolchains.launcherFor {
     languageVersion = graalVmLanguageVersion
     vendor = JvmVendorSpec.GRAAL_VM
@@ -108,7 +108,7 @@ dependencies {
     implementation(libs.opentelemetryKtor3)
     implementation(libs.opentelemetryKotlinExtension)
 
-    compileOnly("org.graalvm.sdk:nativeimage:24.2.2")
+    compileOnly("org.graalvm.sdk:nativeimage:25.0.2")
 
     testImplementation(kotlin("test"))
     testImplementation(libs.kotestRunnerJunit5)
