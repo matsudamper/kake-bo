@@ -1,9 +1,8 @@
 package net.matsudamper.money.buildlogic
 
+import com.android.build.api.dsl.ApplicationExtension
 import com.android.build.api.dsl.CommonExtension
-import com.android.build.api.dsl.TestedExtension
-import com.android.build.gradle.LibraryExtension
-import com.android.build.gradle.internal.dsl.BaseAppModuleExtension
+import com.android.build.api.dsl.LibraryExtension
 import org.gradle.api.Project
 import org.gradle.kotlin.dsl.DependencyHandlerScope
 import org.gradle.kotlin.dsl.configure
@@ -42,19 +41,10 @@ fun DependencyHandlerScope.debugImplementation(
     add("debugImplementation", artifact)
 }
 
-fun Project.android(action: TestedExtension.() -> Unit) {
-    extensions.configure(action)
-}
-
-fun Project.androidApplication(action: BaseAppModuleExtension.() -> Unit) {
+fun Project.androidApplication(action: ApplicationExtension.() -> Unit) {
     extensions.configure(action)
 }
 
 fun Project.androidLibrary(action: LibraryExtension.() -> Unit) {
     extensions.configure(action)
-}
-
-fun Project.androidCommon(action: CommonExtension<*, *, *, *, *, *>.() -> Unit) {
-    val extension = extensions.findByName("android") as CommonExtension<*, *, *, *, *, *>
-    action(extension)
 }
