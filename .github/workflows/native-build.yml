@@ -28,7 +28,7 @@ jobs:
       - name: GraalVM のセットアップ
         uses: graalvm/setup-graalvm@v1
         with:
-          java-version: '24'
+          java-version: '25'
           distribution: 'graalvm-community'
           native-image-job-reports: 'true'
 
@@ -47,7 +47,8 @@ jobs:
           mkdir -p /tmp/html
           echo '<html></html>' > /tmp/html/index.html
 
-          ./backend/build/native/nativeCompile/backend &
+          SERVER_LOG=/tmp/backend-native.log
+          ./backend/build/native/nativeCompile/backend > "$SERVER_LOG" 2>&1 &
           SERVER_PID=$!
 
           TIMEOUT=60
@@ -55,6 +56,10 @@ jobs:
           until curl -sf --max-time 5 http://localhost:${PORT}/healthz > /dev/null 2>&1; do
             if [ $ELAPSED -ge $TIMEOUT ]; then
               echo "サーバー起動がタイムアウトしました (${TIMEOUT}秒)"
+              echo "--- サーバーログ ---"
+              cat "$SERVER_LOG" || true
+              echo "--- プロセス状態 ---"
+              ps -p "$SERVER_PID" 2>/dev/null || echo "プロセスはすでに終了しています"
               kill $SERVER_PID 2>/dev/null || true
               exit 1
             fi
