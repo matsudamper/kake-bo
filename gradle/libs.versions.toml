@@ -62,6 +62,8 @@ kotlin-serialization-json = { module = "org.jetbrains.kotlinx:kotlinx-serializat
 
 # Plugin
 androidGradlePlugin = { module = "com.android.application:com.android.application.gradle.plugin", version.ref = "agp" }
+androidLibraryGradlePlugin = { module = "com.android.library:com.android.library.gradle.plugin", version.ref = "agp" }
+androidKotlinMultiplatformLibraryGradlePlugin = { module = "com.android.kotlin.multiplatform.library:com.android.kotlin.multiplatform.library.gradle.plugin", version.ref = "agp" }
 
 # Jooq
 jooq = { module = "org.jooq:jooq", version.ref = "jooq" }
