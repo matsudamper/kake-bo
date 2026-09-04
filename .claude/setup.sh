@@ -18,14 +18,7 @@ if [ -z "${compile_sdk}" ]; then
   exit 1
 fi
 
-if [ ! -f "${ANDROID_SDK_ROOT}/platforms/android-${compile_sdk}/android.jar" ] &&
-  [ ! -f "${ANDROID_SDK_ROOT}/platforms/android-${compile_sdk}.0/android.jar" ]; then
-  platform_missing=true
-else
-  platform_missing=false
-fi
-
-if [ "${platform_missing}" = true ] ||
+if [ ! -f "${ANDROID_SDK_ROOT}/platforms/android-${compile_sdk}/android.jar" ] ||
   [ ! -d "${ANDROID_SDK_ROOT}/build-tools/${BUILD_TOOLS_VERSION}" ] ||
   [ ! -x "${ANDROID_SDK_ROOT}/platform-tools/adb" ]; then
   if [ ! -x "${SDKMANAGER}" ]; then
