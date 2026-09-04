@@ -24,7 +24,7 @@ description: Guide for updating the frontend GraphQL schema by downloading it fr
 ## 前提条件
 
 - `IS_DEBUG=true` が必須：バックエンドの `MoneyGraphQlSchema` はこのフラグが `true` の場合のみイントロスペクションを有効化する
-- `schema_update_local.env` はダミー値でDBへの接続を設定しているが、イントロスペクションに DB 接続は不要なため問題ない
+- `schema_update_local.env` はダミー値でDBへの接続を設定しているが、`CI=true` により warmup をスキップするため、イントロスペクションに DB 接続は不要
 - バックエンドは `PORT=80`（`localhost` のポート80）で起動するため、**ルート権限が必要**
 
 ---
@@ -56,6 +56,7 @@ echo "PID: $BACKEND_PID"
 | `PORT` | `80` | Ktorがリッスンするポート     |
 | `DOMAIN` | `localhost` | CORSホスト設定          |
 | `IS_DEBUG` | `true` | イントロスペクションを有効化（必須） |
+| `CI` | `true` | warmup をスキップ（DB 接続不要） |
 | `DB_*` | ダミー値 | DBには接続しないが変数が必要    |
 
 ### 3. バックエンドの起動を確認する
