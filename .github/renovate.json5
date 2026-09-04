@@ -19,7 +19,7 @@
     {
       "matchPackageNames": [
         "kotlin",
-        "/^org\\.jetbrains\\.kotlin/",
+        "/^org\\.jetbrains\\.kotlin[:.]/",
         "org.gradle.kotlin:gradle-kotlin-dsl-plugins",
         "net.bytebuddy:byte-buddy-agent",
         "org.jetbrains.compose:compose-gradle-plugin",
@@ -33,6 +33,9 @@
         "com.android.application",
         "com.android.library",
         "com.android.kotlin.multiplatform.library",
+        "com.android.application:com.android.application.gradle.plugin",
+        "com.android.library:com.android.library.gradle.plugin",
+        "com.android.kotlin.multiplatform.library:com.android.kotlin.multiplatform.library.gradle.plugin",
       ],
       "prBodyNotes": [
         "> [!NOTE]\n> IntelliJ IDEAのサポート状況を確認する",
