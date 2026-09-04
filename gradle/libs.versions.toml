@@ -196,7 +196,7 @@ timber = { module = "com.jakewharton.timber:timber", version.ref = "timber" }
 
 # Other
 lettuce = { module = "io.lettuce:lettuce-core", version.require = "7.6.0.RELEASE" }
-jsoup = { module = "org.jsoup:jsoup", version.require = "1.22.2" }
+jsoup = { module = "org.jsoup:jsoup", version.require = "1.23.2" }
 hikariCP = { module = "com.zaxxer:HikariCP", version.require = "7.1.0" }
 mariadbClient = { module = "org.mariadb.jdbc:mariadb-java-client", version.require = "3.5.8" }
 
