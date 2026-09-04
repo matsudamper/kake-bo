@@ -1,13 +1,15 @@
 plugins {
     alias(libs.plugins.kotlin.multiplatform)
-    id("net.matsudamper.money.buildlogic.androidLibrary")
+    id("net.matsudamper.money.buildlogic.multiplatform.library")
 }
 
 kotlin {
+    android {
+        namespace = "net.matsudamper.money.frontend.common.feature.logging"
+    }
     js(IR) {
         browser()
     }
-    androidTarget()
     jvm { }
     sourceSets {
         jvmToolchain(libs.versions.javaToolchain.get().toInt())
@@ -18,8 +20,4 @@ kotlin {
         }
     }
     explicitApi()
-}
-
-android {
-    namespace = "net.matsudamper.money.frontend.common.feature.logging"
 }

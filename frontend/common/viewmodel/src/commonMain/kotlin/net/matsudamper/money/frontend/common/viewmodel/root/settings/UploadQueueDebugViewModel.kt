@@ -43,6 +43,23 @@ public class UploadQueueDebugViewModel(
         override fun onDismissErrorDialog() {
             viewModelState.update { it.copy(errorDialogItem = null) }
         }
+
+        override fun onClickClearAll() {
+            viewModelState.update { it.copy(showClearAllDialog = true) }
+        }
+
+        override fun onConfirmClearAll() {
+            viewModelState.update { it.copy(showClearAllDialog = false) }
+            viewModelScope.launch {
+                runCatching {
+                    imageUploadQueue.clearAll()
+                }
+            }
+        }
+
+        override fun onDismissClearAllDialog() {
+            viewModelState.update { it.copy(showClearAllDialog = false) }
+        }
     }
 
     public val uiStateFlow: StateFlow<UploadQueueDebugScreenUiState> = MutableStateFlow(
@@ -51,6 +68,7 @@ public class UploadQueueDebugViewModel(
             selectedStatusFilter = UploadQueueDebugScreenUiState.StatusFilter.All,
             statusFilterExpanded = false,
             errorDialogItem = null,
+            showClearAllDialog = false,
             event = event,
         ),
     ).also { stateFlow ->
@@ -89,6 +107,7 @@ public class UploadQueueDebugViewModel(
                         selectedStatusFilter = state.selectedStatusFilter,
                         statusFilterExpanded = state.statusFilterExpanded,
                         errorDialogItem = state.errorDialogItem,
+                        showClearAllDialog = state.showClearAllDialog,
                     )
                 }
             }
@@ -100,5 +119,6 @@ public class UploadQueueDebugViewModel(
         val selectedStatusFilter: UploadQueueDebugScreenUiState.StatusFilter = UploadQueueDebugScreenUiState.StatusFilter.All,
         val statusFilterExpanded: Boolean = false,
         val errorDialogItem: UploadQueueDebugScreenUiState.Item? = null,
+        val showClearAllDialog: Boolean = false,
     )
 }

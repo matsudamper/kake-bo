@@ -1,17 +1,55 @@
-import com.google.protobuf.gradle.proto
-
 plugins {
     alias(libs.plugins.kotlin.multiplatform)
     alias(libs.plugins.kotlin.serialization)
-    alias(libs.plugins.protobuf)
-    id("net.matsudamper.money.buildlogic.androidLibrary")
+    id("net.matsudamper.money.buildlogic.multiplatform.library")
+}
+
+val protocConfiguration: Configuration by configurations.creating
+
+val isWindows = System.getProperty("os.name").lowercase().contains("windows")
+val isMac = System.getProperty("os.name").lowercase().contains("mac")
+val isArm = System.getProperty("os.arch") == "aarch64"
+val osClassifier = when {
+    isWindows -> "windows-x86_64"
+    isMac -> if (isArm) "osx-aarch_64" else "osx-x86_64"
+    else -> if (isArm) "linux-aarch_64" else "linux-x86_64"
+}
+
+dependencies {
+    protocConfiguration("com.google.protobuf:protoc:${libs.versions.protoBuf.get()}:$osClassifier@exe")
+}
+
+val generatedProtoDir = layout.buildDirectory.dir("generated/source/proto/androidMain/java")
+
+val generateProto = tasks.register("generateProto", Exec::class) {
+    val protoFile = file("src/androidMain/proto/session.proto")
+    val outDir = generatedProtoDir.get().asFile
+
+    inputs.file(protoFile)
+    inputs.files(protocConfiguration.incoming.files)
+    outputs.dir(outDir)
+
+    doFirst {
+        outDir.mkdirs()
+        val protocExe = protocConfiguration.singleFile
+        protocExe.setExecutable(true)
+        executable(protocExe.absolutePath)
+        args(
+            "--java_out=lite:${outDir.absolutePath}",
+            "-I${protoFile.parentFile.absolutePath}",
+            protoFile.absolutePath,
+        )
+    }
 }
 
 kotlin {
+    android {
+        namespace = "net.matsudamper.money.frontend.common.feature.localstore"
+        withJava()
+    }
     js(IR) {
         browser()
     }
-    androidTarget()
     sourceSets {
         jvmToolchain(libs.versions.javaToolchain.get().toInt())
         val commonMain by getting {
@@ -27,6 +65,7 @@ kotlin {
                 api(libs.androidxDatastoreDatastore)
                 api(libs.protobufProtobufJavalite)
             }
+            kotlin.srcDir(generateProto)
         }
         val jsTest by getting {
             dependencies {
@@ -39,30 +78,4 @@ kotlin {
 
 tasks.withType<Test>().configureEach {
     useJUnitPlatform()
-}
-
-android {
-    namespace = "net.matsudamper.money.frontend.common.feature.localstore"
-    buildFeatures {
-        buildConfig = true
-    }
-    sourceSets["main"].proto {
-        srcDir("src/androidMain/proto")
-    }
-}
-
-protobuf {
-    protoc {
-        artifact = libs.protobufProtoc.get().toString()
-    }
-
-    generateProtoTasks {
-        all().configureEach {
-            builtins {
-                create("java") {
-                    option("lite")
-                }
-            }
-        }
-    }
 }

@@ -28,8 +28,10 @@ java {
 dependencies {
     compileOnly("org.jetbrains.kotlin:kotlin-gradle-plugin")
     compileOnly("org.jetbrains.compose:compose-gradle-plugin:1.11.1")
-    compileOnly("org.gradle.kotlin:gradle-kotlin-dsl-plugins:6.7.2")
-    implementation("com.android.application:com.android.application.gradle.plugin:8.13.2")
+    compileOnly("org.gradle.kotlin:gradle-kotlin-dsl-plugins:6.7.3")
+    implementation("com.android.application:com.android.application.gradle.plugin:9.2.1")
+    implementation("com.android.library:com.android.library.gradle.plugin:9.2.1")
+    implementation("com.android.kotlin.multiplatform.library:com.android.kotlin.multiplatform.library.gradle.plugin:9.2.1")
 }
 
 gradlePlugin {
@@ -41,6 +43,10 @@ gradlePlugin {
         register("androidLibrary") {
             id = "net.matsudamper.money.buildlogic.androidLibrary"
             implementationClass = "net.matsudamper.money.buildlogic.AndroidLibraryPlugin"
+        }
+        register("multiplatformLibrary") {
+            id = "net.matsudamper.money.buildlogic.multiplatform.library"
+            implementationClass = "net.matsudamper.money.buildlogic.MultiplatformLibraryPlugin"
         }
     }
 }

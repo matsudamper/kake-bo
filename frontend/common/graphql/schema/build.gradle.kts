@@ -1,5 +1,4 @@
 import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
-import com.apollographql.apollo.gradle.internal.ApolloDownloadSchemaTask
 
 plugins {
     alias(libs.plugins.kotlin.multiplatform)
@@ -7,7 +6,7 @@ plugins {
 }
 
 kotlin {
-    js(IR) {
+    js {
         browser()
 
     }
@@ -47,15 +46,13 @@ apollo {
         mapScalar("SessionRecordId", "net.matsudamper.money.element.SessionRecordId")
         mapScalar("LocalDateTime", "kotlinx.datetime.LocalDateTime", "com.apollographql.adapter.datetime.KotlinxLocalDateTimeAdapter")
         mapScalar("OffsetDateTime", "kotlin.time.Instant", "com.apollographql.adapter.core.KotlinInstantAdapter")
+        introspection {
+            endpointUrl.set("http://localhost/query")
+            schemaFile.set(file("src/commonMain/graphql/schema.graphqls"))
+        }
     }
 }
 
 tasks.withType<KotlinCompile> {
     dependsOn("generateApolloSources")
-}
-
-tasks.register("downloadSchema", ApolloDownloadSchemaTask::class.java) {
-    endpoint.set("http://localhost/query")
-    outputFile.set(file("src/commonMain/graphql/schema.graphqls"))
-    schema.set("money")
 }

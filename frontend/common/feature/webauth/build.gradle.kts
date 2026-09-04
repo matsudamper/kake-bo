@@ -1,15 +1,17 @@
 plugins {
     alias(libs.plugins.kotlin.multiplatform)
     alias(libs.plugins.kotlin.serialization)
+    id("net.matsudamper.money.buildlogic.multiplatform.library")
     id("net.matsudamper.money.buildlogic.compose")
-    id("net.matsudamper.money.buildlogic.androidLibrary")
 }
 
 kotlin {
+    android {
+        namespace = "net.matsudamper.money.frontend.common.feature.webauth"
+    }
     js(IR) {
         browser()
     }
-    androidTarget()
     sourceSets {
         jvmToolchain(libs.versions.javaToolchain.get().toInt())
         val commonMain by getting {
@@ -59,11 +61,4 @@ kotlin {
 
 tasks.withType<Test>().configureEach {
     useJUnitPlatform()
-}
-
-android {
-    namespace = "net.matsudamper.money.frontend.common.feature.webauth"
-    buildFeatures {
-        buildConfig = true
-    }
 }

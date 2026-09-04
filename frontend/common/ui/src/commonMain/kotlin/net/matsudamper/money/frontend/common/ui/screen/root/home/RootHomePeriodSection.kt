@@ -96,6 +96,15 @@ internal fun RootHomePeriodSection(
                         Text("12ヶ月")
                     },
                 )
+                DropdownMenuItem(
+                    onClick = {
+                        expanded = false
+                        onClickRange(24)
+                    },
+                    text = {
+                        Text("2年")
+                    },
+                )
             }
         }
     }

@@ -81,7 +81,12 @@ public class AddMoneyUsageViewModel(
                         discardConfirmDialog = AddMoneyUsageScreenUiState.DiscardConfirmDialog(
                             listener = object : AddMoneyUsageScreenUiState.DiscardConfirmDialog.Listener {
                                 override fun onClickDiscard() {
-                                    viewModelStateFlow.update { it.copy(discardConfirmDialog = null) }
+                                    viewModelStateFlow.update {
+                                        it.copy(
+                                            discardConfirmDialog = null,
+                                            hasInputChanges = false,
+                                        )
+                                    }
                                     viewModelScope.launch { eventSender.send { it.back() } }
                                 }
 
@@ -487,6 +492,7 @@ public class AddMoneyUsageViewModel(
             amount = "",
             images = immutableListOf(),
             addButtonEnabled = true,
+            handleBackPress = false,
             fullScreenTextInputDialog = null,
             categorySelectDialog = null,
             discardConfirmDialog = null,
@@ -528,6 +534,7 @@ public class AddMoneyUsageViewModel(
                             repeat(viewModelState.uploadingImageCount) { add(ImageItem.Uploading) }
                         }.toImmutableList(),
                         addButtonEnabled = viewModelState.uploadingImageCount == 0,
+                        handleBackPress = viewModelState.hasInputChanges,
                         categorySelectDialog = viewModelState.categorySelectDialog,
                         discardConfirmDialog = viewModelState.discardConfirmDialog,
                     )
