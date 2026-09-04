@@ -1,15 +1,51 @@
 import java.util.Properties
+import com.codingfeline.buildkonfig.compiler.FieldSpec.Type.STRING
 
 plugins {
     alias(libs.plugins.kotlin.multiplatform)
-    id("net.matsudamper.money.buildlogic.androidLibrary")
+    id("net.matsudamper.money.buildlogic.multiplatform.library")
+    alias(libs.plugins.buildkonfig)
+}
+
+val localProperties = Properties().also { properties ->
+    val propertiesFile = File("$rootDir/local.properties")
+    if (propertiesFile.exists()) {
+        properties.load(propertiesFile.inputStream())
+    }
+}
+
+// Android KMP Library Pluginはvariantを持たずBuildConfigを生成しないため、公式が代替として案内しているBuildKonfigを使用する
+buildkonfig {
+    packageName = "net.matsudamper.money.frontend.graphql"
+    defaultConfigs {
+        buildConfigField(STRING, "SERVER_PROTOCOL", "https")
+        buildConfigField(STRING, "SERVER_HOST", "")
+    }
+    targetConfigs {
+        create("android") {
+            buildConfigField(
+                STRING,
+                "SERVER_PROTOCOL",
+                localProperties["net.matsudamper.money.android.serverProtocol"] as? String ?: "https",
+            )
+            buildConfigField(
+                STRING,
+                "SERVER_HOST",
+                System.getenv("ANDROID_SERVER_HOST")
+                    ?: localProperties["net.matsudamper.money.android.serverHost"] as? String
+                    ?: "",
+            )
+        }
+    }
 }
 
 kotlin {
+    android {
+        namespace = "net.matsudamper.money.frontend.graphql"
+    }
     js(IR) {
         browser()
     }
-    androidTarget()
     sourceSets {
         jvmToolchain(libs.versions.javaToolchain.get().toInt())
         val commonMain by getting {
@@ -25,24 +61,5 @@ kotlin {
                 implementation(libs.apolloAdaptersCore)
             }
         }
-        val androidMain by getting {
-        }
-    }
-}
-
-val localProperties = Properties().also { properties ->
-    val propertiesFile = File("$rootDir/local.properties")
-    if (propertiesFile.exists()) {
-        properties.load(propertiesFile.inputStream())
-    }
-}
-android {
-    namespace = "net.matsudamper.money.frontend.graphql"
-    defaultConfig {
-        buildConfigField("String", "SERVER_PROTOCOL", "\"${localProperties["net.matsudamper.money.android.serverProtocol"] ?: "https"}\"")
-        buildConfigField("String", "SERVER_HOST", "\"${System.getenv("ANDROID_SERVER_HOST") ?: localProperties["net.matsudamper.money.android.serverHost"] ?: ""}\"")
-    }
-    buildFeatures {
-        buildConfig = true
     }
 }

@@ -35,7 +35,7 @@ jobs:
       - run: ./gradlew ktlintCheck --continue
       - env:
           CI: true
-        run: ./gradlew :frontend:app:assembleDebug
+        run: ./gradlew :frontend:android:app:assembleDebug
       - name: Rename APK with branch and short hash
         env:
           BRANCH_NAME: ${{ github.head_ref }}
@@ -45,10 +45,10 @@ jobs:
           SAFE_REPO="${REPOSITORY##*/}"
           SAFE_BRANCH="${BRANCH_NAME//\//-}"
           APK_NAME="app-${SAFE_REPO}-${SAFE_BRANCH}-${SHORT_SHA}.apk"
-          mv frontend/app/build/outputs/apk/debug/app-debug.apk \
-             "frontend/app/build/outputs/apk/debug/${APK_NAME}"
+          mv frontend/android/app/build/outputs/apk/debug/app-debug.apk \
+             "frontend/android/app/build/outputs/apk/debug/${APK_NAME}"
           echo "APK_NAME=${APK_NAME}" >> "$GITHUB_ENV"
-          echo "APK_PATH=frontend/app/build/outputs/apk/debug/${APK_NAME}" >> "$GITHUB_ENV"
+          echo "APK_PATH=frontend/android/app/build/outputs/apk/debug/${APK_NAME}" >> "$GITHUB_ENV"
       - id: upload_apk
         uses: actions/upload-artifact@v7
         with:
@@ -91,6 +91,7 @@ jobs:
         uses: marocchino/sticky-pull-request-comment@v3
         with:
           header: apk-download
+          recreate: true
           message: |
             ✅ **Debug APK is ready!**
 

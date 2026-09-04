@@ -22,6 +22,7 @@ include(":backend:feature:object-storage")
 include(":backend:feature:image-storage-local")
 
 include(":frontend:app")
+include(":frontend:android:app")
 include(":frontend:feature-notification")
 include(":frontend:feature-admin")
 include(":frontend:android:feature-notification-usage")
