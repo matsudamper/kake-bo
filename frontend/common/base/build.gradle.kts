@@ -1,14 +1,16 @@
 plugins {
     alias(libs.plugins.kotlin.multiplatform)
+    id("net.matsudamper.money.buildlogic.multiplatform.library")
     id("net.matsudamper.money.buildlogic.compose")
-    id("net.matsudamper.money.buildlogic.androidLibrary")
 }
 
 kotlin {
+    android {
+        namespace = "net.matsudamper.money.frontend.common.base"
+    }
     js(IR) {
         browser()
     }
-    androidTarget()
     jvm { }
     sourceSets {
         jvmToolchain(libs.versions.javaToolchain.get().toInt())
@@ -74,8 +76,4 @@ kotlin {
 
 tasks.withType<Test>().configureEach {
     useJUnitPlatform()
-}
-
-android {
-    namespace = "net.matsudamper.money.frontend.common.base"
 }

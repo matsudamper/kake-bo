@@ -4,35 +4,37 @@ nimbusJoseJwt = "10.9.1"
 java = "24"
 javaToolchain = "24"
 kotlin = "2.4.0"
-apollo = "4.4.3"
+apollo = "5.1.0"
 ktor = "3.5.0"
 activity = "1.13.0"
 appcompat = "1.7.1"
-agp = "8.13.2"
+agp = "9.0.0"
 jackson = "2.22.0"
 compose = "1.11.1"
-protoBuf = "4.35.0"
+protoBuf = "4.35.1"
 lifecycle = "2.10.0"
 jooq = "3.21.4"
-nav3 = "1.1.2"
+nav3 = "1.1.4"
 jetbrainsNav3 = "1.1.1"
-coil3 = "3.4.0"
+coil3 = "3.5.0"
 zoomable = "2.12.0"
-okhttp = "5.3.2"
-graalvmNative = "0.10.6"
+okhttp = "5.4.0"
+graalvmNative = "1.1.0"
 opentelemetry = "1.62.0"
 paparazzi = "2.0.0-alpha05"
-composablePreviewScanner = "0.9.0"
+composablePreviewScanner = "0.9.3"
 room = "2.8.4"
 room3 = "3.0.0-alpha05"
 sqlite = "2.7.0-alpha05"
 workmanager = "2.11.2"
 timber = "5.0.1"
-ksp = "2.3.9"
+ksp = "2.3.11"
 
 [plugins]
 apollo = { id = "com.apollographql.apollo", version.ref = "apollo" }
 androidApplication = { id = "com.android.application", version.ref = "agp" }
+androidLibrary = { id = "com.android.library", version.ref = "agp" }
+androidKotlinMultiplatformLibrary = { id = "com.android.kotlin.multiplatform.library", version.ref = "agp" }
 composeCompiler = { id = "org.jetbrains.kotlin.plugin.compose", version.ref = "kotlin" }
 kotlin-multiplatform = { id = "org.jetbrains.kotlin.multiplatform", version.ref = "kotlin" }
 kotlin-serialization = { id = "org.jetbrains.kotlin.plugin.serialization", version.ref = "kotlin" }
@@ -46,6 +48,7 @@ protobuf = { id = "com.google.protobuf", version.require = "0.10.0" }
 paparazzi = { id = "app.cash.paparazzi", version.ref = "paparazzi" }
 graalvmNative = { id = "org.graalvm.buildtools.native", version.ref = "graalvmNative" }
 ksp = { id = "com.google.devtools.ksp", version.ref = "ksp" }
+buildkonfig = { id = "com.codingfeline.buildkonfig", version.require = "0.22.0" }
 
 [libraries]
 awsS3 = { module = "software.amazon.awssdk:s3", version.ref = "awsSdk" }
@@ -131,7 +134,7 @@ androidxLifecycleRuntimeCompose = { module = "androidx.lifecycle:lifecycle-runti
 androidxNavigation3Runtime = { module = "androidx.navigation3:navigation3-runtime", version.ref = "nav3" }
 androidxNavigation3Ui = { module = "androidx.navigation3:navigation3-ui", version.ref = "nav3" }
 jetbrainsNavigation3Ui = { module = "org.jetbrains.androidx.navigation3:navigation3-ui", version.ref = "jetbrainsNav3" }
-androidxComposeSaveable = { module = "androidx.compose.runtime:runtime-saveable", version = "1.11.2" }
+androidxComposeSaveable = { module = "androidx.compose.runtime:runtime-saveable", version = "1.12.0" }
 composeUiToolingPreview = { module = "org.jetbrains.compose.ui:ui-tooling-preview", version = "1.11.1" }
 composeUiTooling = { module = "org.jetbrains.compose.ui:ui-tooling", version.ref = "compose" }
 
@@ -149,8 +152,8 @@ angus-mail = { module = "org.eclipse.angus:angus-mail", version.require = "2.0.5
 jakarta-activation-api = { module = "jakarta.activation:jakarta.activation-api", version.require = "2.1.4" }
 
 # Koin
-koinCore = { module = "io.insert-koin:koin-core", version.require = "4.2.1" }
-koinCompose = { module = "io.insert-koin:koin-compose", version = "4.2.1" }
+koinCore = { module = "io.insert-koin:koin-core", version.require = "4.2.2" }
+koinCompose = { module = "io.insert-koin:koin-compose", version = "4.2.2" }
 
 # Coil
 coilRuntime = { module = "io.coil-kt.coil3:coil", version.ref = "coil3" }
@@ -162,12 +165,12 @@ zoomable = { module = "net.engawapg.lib:zoomable", version.ref = "zoomable" }
 
 # Log
 log4j-api = { module = "org.slf4j:slf4j-api", version.require = "2.0.18" }
-logback-classic = { module = "ch.qos.logback:logback-classic", version.require = "1.5.34" }
+logback-classic = { module = "ch.qos.logback:logback-classic", version.require = "1.5.35" }
 logstashLogbackEncoder = { module = "net.logstash.logback:logstash-logback-encoder", version.require = "9.0" }
 
 # Graphql
 graphqlJava-extendedScalars = { module = "com.graphql-java:graphql-java-extended-scalars", version.require = "2023-01-24T02-11-56-babda5f" }
-graphqlJava = { module = "com.graphql-java:graphql-java", version.require = "25.0" }
+graphqlJava = { module = "com.graphql-java:graphql-java", version.require = "26.1" }
 graphqlJavaKickstart-JavaTools = { module = "com.graphql-java-kickstart:graphql-java-tools", version.require = "14.0.1" }
 
 # DataStore

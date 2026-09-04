@@ -11,6 +11,7 @@ link.schema.graphqls
 .graphqlconfig
 foward.config.yml
 **/src/test/snapshots/images/**
+**/src/androidHostTest/snapshots/images/**
 
 .gradle
 .kotlin

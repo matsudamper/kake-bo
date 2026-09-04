@@ -111,6 +111,10 @@ interface DiContainer {
     fun createReadImageStorageGateway(storageType: UserImageRepository.StorageType): ImageStorageGateway
 }
 
+/**
+ * Singletonで保持する前提。
+ * RedisやDBへのコネクションを保持するため、リクエストごとに生成するとコネクションとスレッドがリークする。
+ */
 class MainDiContainer : DiContainer {
     override fun createAdminRepository(): AdminRepository {
         return AdminRepositoryImpl()
@@ -378,6 +382,19 @@ class MainDiContainer : DiContainer {
                 s3ImageStorageGateway
                     ?: throw IllegalStateException("Cannot read S3 image without S3 config.")
         }
+    }
+
+    // 起動時にRedisへの疎通を確認し、初回リクエストより前にコネクションを確立しておく
+    fun warmup() {
+        userSessionRepository.warmup()
+        challengeRepository.warmup()
+        adminSessionRepository.warmup()
+    }
+
+    fun close() {
+        userSessionRepository.close()
+        challengeRepository.close()
+        adminSessionRepository.close()
     }
 
     init {
