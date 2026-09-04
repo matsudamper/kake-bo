@@ -1,5 +1,4 @@
 plugins {
-    alias(libs.plugins.kotlinAndroid)
     id("net.matsudamper.money.buildlogic.androidLibrary")
     alias(libs.plugins.ksp)
 }

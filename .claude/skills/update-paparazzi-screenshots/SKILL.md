@@ -17,8 +17,8 @@ description: Guide for updating existing README screenshot images and keeping th
 
 | ファイル | 役割 |
 |---|---|
-| `frontend/common/ui/src/androidUnitTest/kotlin/.../screenshot/ScreenshotTest.kt` | テストクラス（Parameterized + ComposablePreviewScanner） |
-| `frontend/common/ui/src/test/snapshots/images/` | Paparazzi 参照画像の出力先 |
+| `frontend/common/ui/src/androidHostTest/kotlin/.../screenshot/ScreenshotTest.kt` | テストクラス（Parameterized + ComposablePreviewScanner） |
+| `frontend/common/ui/src/androidHostTest/snapshots/images/` | Paparazzi 参照画像の出力先 |
 | `README/` | README.md 表示用の画像 |
 
 ---
@@ -28,10 +28,10 @@ description: Guide for updating existing README screenshot images and keeping th
 ### 1. スナップショットを生成
 
 ```shell
-./gradlew :frontend:common:ui:recordPaparazziDebug
+./gradlew :frontend:common:ui:recordPaparazziAndroidMain
 ```
 
-生成された画像は `frontend/common/ui/src/test/snapshots/images/` に出力される。
+生成された画像は `frontend/common/ui/src/androidHostTest/snapshots/images/` に出力される。
 
 ### 2. README 画像を同期
 

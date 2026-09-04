@@ -20,6 +20,7 @@ import net.matsudamper.money.frontend.common.viewmodel.CommonViewModel
 import net.matsudamper.money.frontend.common.viewmodel.layout.CategorySelectDialogViewModel
 import net.matsudamper.money.frontend.common.viewmodel.lib.EventHandler
 import net.matsudamper.money.frontend.common.viewmodel.lib.EventSender
+import net.matsudamper.money.frontend.common.viewmodel.root.settings.categoryfilters.ImportedMailCategoryFilterScreenPagingModel
 import net.matsudamper.money.frontend.graphql.GraphqlClient
 import net.matsudamper.money.frontend.graphql.ImportedMailCategoryFilterScreenQuery
 import net.matsudamper.money.frontend.graphql.lib.ApolloResponseCollector
@@ -33,6 +34,7 @@ public class ImportedMailFilterCategoryViewModel(
     private val graphqlClient: GraphqlClient,
     private val id: ImportedMailCategoryFilterId,
     private val api: ImportedMailFilterCategoryScreenGraphqlApi,
+    private val pagingModel: ImportedMailCategoryFilterScreenPagingModel,
     navController: ScreenNavController,
 ) : CommonViewModel(scopedObjectFeature) {
     private val viewModelStateFlow = MutableStateFlow(ViewModelState())
@@ -94,6 +96,7 @@ public class ImportedMailFilterCategoryViewModel(
                                         val isSuccess = api.deleteFilter(id = id)
                                         dismissConfirmDialog()
                                         if (isSuccess) {
+                                            pagingModel.removeFilterFromCache(id)
                                             eventSender.send {
                                                 it.navigateBack()
                                             }
