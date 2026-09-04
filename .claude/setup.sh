@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 set -euo pipefail
 
-cd "${CLAUDE_PROJECT_DIR:-$(cd "$(dirname "$0")/.." && pwd)}"
+cd "$(cd "$(dirname "$0")/.." && pwd)"
 
 sdk_dir_in_local_properties=""
 if [ -f local.properties ]; then
@@ -83,10 +83,6 @@ GitHub Packages(read:packages)の資格情報が揃っていない。無いと G
   gpr.user: $(describe_source GPR_USER GITHUB_ACTOR) / ${gradle_properties}: $([ -n "$(read_property 'gpr\.user')" ] && echo 有り || echo 無し)
   gpr.key : $(describe_source GPR_KEY GITHUB_TOKEN) / ${gradle_properties}: $([ -n "$(read_property 'gpr\.key')" ] && echo 有り || echo 無し)
 MSG
-  if [ -z "${CLAUDE_PROJECT_DIR:-}" ]; then
-    echo "[setup] 資格情報はセッション開始時に書き直す" >&2
-    exit 0
-  fi
   exit 1
 fi
 
