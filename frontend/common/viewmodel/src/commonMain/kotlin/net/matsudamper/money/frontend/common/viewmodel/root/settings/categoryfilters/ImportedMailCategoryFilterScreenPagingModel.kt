@@ -9,6 +9,7 @@ import com.apollographql.apollo.api.Optional
 import com.apollographql.apollo.cache.normalized.FetchPolicy
 import com.apollographql.apollo.cache.normalized.fetchPolicy
 import com.apollographql.apollo.cache.normalized.watch
+import net.matsudamper.money.element.ImportedMailCategoryFilterId
 import net.matsudamper.money.frontend.common.base.IO
 import net.matsudamper.money.frontend.common.base.nav.ScopedObjectFeature
 import net.matsudamper.money.frontend.common.viewmodel.CommonViewModel
@@ -61,6 +62,33 @@ public class ImportedMailCategoryFilterScreenPagingModel(
                                         nodes = beforeFilters.nodes + newFilters.nodes,
                                     )
                                 },
+                            ),
+                        ),
+                    )
+                    .build(),
+            )
+        }
+    }
+
+    public suspend fun removeFilterFromCache(filterId: ImportedMailCategoryFilterId) {
+        graphqlClient.apolloClient.updateOperation(firstQuery) update@{ before ->
+            if (before == null) return@update error()
+            val connection = before.user?.importedMailCategoryFilters ?: return@update error()
+            val filteredNodes = connection.nodes.filterNot { node ->
+                node.id == filterId
+            }
+            if (filteredNodes.size == connection.nodes.size) return@update error()
+            val cached = graphqlClient.apolloClient.query(firstQuery)
+                .fetchPolicy(FetchPolicy.CacheOnly)
+                .execute()
+            success(
+                cached.newBuilder()
+                    .data(
+                        data = before.copy(
+                            user = before.user?.copy(
+                                importedMailCategoryFilters = connection.copy(
+                                    nodes = filteredNodes,
+                                ),
                             ),
                         ),
                     )
