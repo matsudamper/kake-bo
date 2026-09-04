@@ -10,6 +10,25 @@
     },
     {
       "matchPackageNames": [
+        "ktor",
+        "/^io\\.ktor/",
+      ],
+      "groupName": "ktor",
+      "automerge": true,
+    },
+    {
+      "matchPackageNames": [
+        "kotlin",
+        "/^org\\.jetbrains\\.kotlin/",
+        "org.gradle.kotlin:gradle-kotlin-dsl-plugins",
+        "net.bytebuddy:byte-buddy-agent",
+        "org.jetbrains.compose:compose-gradle-plugin",
+        "androidx.core:core-ktx",
+      ],
+      "automerge": true,
+    },
+    {
+      "matchPackageNames": [
         "agp",
         "com.android.application",
         "com.android.library",
