@@ -95,7 +95,7 @@ ktorClientLogging = { module = "io.ktor:ktor-client-logging", version.ref = "kto
 # Apollo
 apolloRuntime = { module = "com.apollographql.apollo:apollo-runtime", version.ref = "apollo" }
 apolloNormalizedCache = { module = "com.apollographql.apollo:apollo-normalized-cache", version.ref = "apollo" }
-apolloAdapters = { module = "com.apollographql.adapters:apollo-adapters-kotlinx-datetime", version = "0.7.0" }
+apolloAdapters = { module = "com.apollographql.adapters:apollo-adapters-kotlinx-datetime", version = "0.8.0" }
 apolloAdaptersCore = { module = "com.apollographql.adapters:apollo-adapters-core", version = "0.7.0" }
 
 # Jackson
