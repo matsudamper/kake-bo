@@ -31,6 +31,15 @@
     },
     {
       "matchPackageNames": [
+        "io.kotest",
+        "/^io\\.kotest:/",
+      ],
+      "groupName": "kotest",
+      "matchUpdateTypes": ["minor", "patch"],
+      "automerge": true,
+    },
+    {
+      "matchPackageNames": [
         "agp",
         "com.android.application",
         "com.android.library",
