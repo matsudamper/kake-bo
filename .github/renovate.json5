@@ -49,7 +49,7 @@
       "matchPackageNames": [
         "app.cash.paparazzi",
         "/^app\\.cash\\.paparazzi:/",
-        "io.github.sergio-sastre.ComposablePreviewScanner",
+        "/^io\\.github\\.sergio-sastre\\.ComposablePreviewScanner:/",
       ],
       "groupName": "paparazzi",
       "matchUpdateTypes": ["minor", "patch"],
