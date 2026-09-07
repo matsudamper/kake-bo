@@ -19,6 +19,7 @@ kotlin {
                 implementation(libs.jackson.kotlin)
                 implementation(libs.log4j.api)
                 implementation(libs.opentelemetryApi)
+                implementation("io.opentelemetry:opentelemetry-api-incubator:${libs.versions.opentelemetry.get()}-alpha")
                 implementation(libs.opentelemetrySdk)
                 implementation(libs.opentelemetryExporterOtlp)
                 implementation(libs.opentelemetrySdkAutoconfigure)
