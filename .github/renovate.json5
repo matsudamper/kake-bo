@@ -56,6 +56,49 @@
       "automerge": true,
     },
     {
+      "matchManagers": ["github-actions"],
+      "matchPackageNames": ["/^actions\\//"],
+      "groupName": "github official actions",
+      "automerge": true,
+    },
+    {
+      "matchPackageNames": ["org.graalvm.sdk:nativeimage"],
+      "matchUpdateTypes": ["minor", "patch"],
+      "automerge": true,
+    },
+    {
+      "matchPackageNames": ["org.jetbrains.compose.ui:ui-tooling-preview"],
+      "matchUpdateTypes": ["minor", "patch"],
+      "automerge": true,
+    },
+    {
+      "matchPackageNames": [
+        "lifecycle",
+        "/^androidx\\.lifecycle:/",
+      ],
+      "groupName": "lifecycle",
+      "matchUpdateTypes": ["minor", "patch"],
+      "automerge": true,
+    },
+    {
+      "matchPackageNames": [
+        "okhttp",
+        "/^com\\.squareup\\.okhttp3:/",
+      ],
+      "groupName": "okhttp",
+      "matchUpdateTypes": ["minor", "patch"],
+      "automerge": true,
+    },
+    {
+      "matchPackageNames": [
+        "coil3",
+        "/^io\\.coil-kt\\.coil3:/",
+      ],
+      "groupName": "coil3",
+      "matchUpdateTypes": ["minor", "patch"],
+      "automerge": true,
+    },
+    {
       "matchPackageNames": [
         "agp",
         "com.android.application",
@@ -67,7 +110,7 @@
       ],
       "groupName": "agp",
       "prBodyNotes": [
-        "> [!NOTE]\n> IntelliJ IDEAのサポート状況を確認する",
+        "> [!NOTE]\n> IntelliJ IDEAの互換性を確認してからマージする",
       ],
     },
     {
