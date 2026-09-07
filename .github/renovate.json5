@@ -31,6 +31,32 @@
     },
     {
       "matchPackageNames": [
+        "io.kotest",
+        "/^io\\.kotest:/",
+      ],
+      "groupName": "kotest",
+      "matchUpdateTypes": ["minor", "patch"],
+      "automerge": true,
+    },
+    {
+      "matchPackageNames": [
+        "/^io\\.mockk:/",
+      ],
+      "matchUpdateTypes": ["minor", "patch"],
+      "automerge": true,
+    },
+    {
+      "matchPackageNames": [
+        "app.cash.paparazzi",
+        "/^app\\.cash\\.paparazzi:/",
+        "/^io\\.github\\.sergio-sastre\\.ComposablePreviewScanner:/",
+      ],
+      "groupName": "paparazzi",
+      "matchUpdateTypes": ["minor", "patch"],
+      "automerge": true,
+    },
+    {
+      "matchPackageNames": [
         "agp",
         "com.android.application",
         "com.android.library",
