@@ -22,6 +22,7 @@ kotlin {
                 implementation(projects.frontend.common.viewmodel)
                 implementation(projects.frontend.common.graphql)
                 implementation(projects.frontend.common.di)
+                implementation(projects.frontend.common.feature.webauth)
 
                 implementation(libs.apolloRuntime)
                 implementation(libs.composeFoundation)

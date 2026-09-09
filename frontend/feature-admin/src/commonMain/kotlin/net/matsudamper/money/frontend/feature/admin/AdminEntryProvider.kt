@@ -32,6 +32,7 @@ import net.matsudamper.money.frontend.feature.admin.viewmodel.AdminRootScreenVie
 import net.matsudamper.money.frontend.feature.admin.viewmodel.AdminUnlinkedImagesScreenViewModel
 import net.matsudamper.money.frontend.feature.admin.viewmodel.AdminUserSearchPagingModel
 import net.matsudamper.money.frontend.feature.admin.viewmodel.AdminUserSearchScreenViewModel
+import net.matsudamper.money.frontend.common.feature.webauth.WebAuthModel
 import net.matsudamper.money.frontend.graphql.GraphqlAdminQuery
 import net.matsudamper.money.frontend.graphql.GraphqlClient
 
@@ -65,6 +66,7 @@ public object AdminEntryProvider {
                     navController = navController,
                     adminQuery = GraphqlAdminQuery(koin.get<GraphqlClient>()),
                     globalEventSender = globalEventSender,
+                    webAuthModel = koin.get<WebAuthModel>(),
                 )
             }
             AdminLoginScreen(
