@@ -50,6 +50,10 @@ open class JCategoryMailFiltersRecord() : UpdatableRecordImpl<JCategoryMailFilte
         set(value): Unit = set(7, value)
         get(): Int? = get(7) as Int?
 
+    open var descriptionSuffix: String?
+        set(value): Unit = set(8, value)
+        get(): String? = get(8) as String?
+
     // -------------------------------------------------------------------------
     // Primary key information
     // -------------------------------------------------------------------------
@@ -59,7 +63,7 @@ open class JCategoryMailFiltersRecord() : UpdatableRecordImpl<JCategoryMailFilte
     /**
      * Create a detached, initialised JCategoryMailFiltersRecord
      */
-    constructor(categoryMailFilterId: Int? = null, userId: Int? = null, title: String? = null, moneyUsageSubCategoryId: Int? = null, categoryMailFilterConditionOperatorTypeId: Int? = null, createdDatetime: LocalDateTime? = null, updateDatetime: LocalDateTime? = null, orderNumber: Int? = null): this() {
+    constructor(categoryMailFilterId: Int? = null, userId: Int? = null, title: String? = null, moneyUsageSubCategoryId: Int? = null, categoryMailFilterConditionOperatorTypeId: Int? = null, createdDatetime: LocalDateTime? = null, updateDatetime: LocalDateTime? = null, orderNumber: Int? = null, descriptionSuffix: String? = null): this() {
         this.categoryMailFilterId = categoryMailFilterId
         this.userId = userId
         this.title = title
@@ -68,6 +72,7 @@ open class JCategoryMailFiltersRecord() : UpdatableRecordImpl<JCategoryMailFilte
         this.createdDatetime = createdDatetime
         this.updateDatetime = updateDatetime
         this.orderNumber = orderNumber
+        this.descriptionSuffix = descriptionSuffix
         resetTouchedOnNotNull()
     }
 }

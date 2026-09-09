@@ -1,11 +1,9 @@
 package net.matsudamper.money.categoryfilter
 
-import net.matsudamper.money.element.MoneyUsageSubCategoryId
-
 fun evaluateCategoryFilters(
     filters: List<CategoryFilter>,
     dataExtractor: (CategoryFilterDataSourceType) -> String?,
-): MoneyUsageSubCategoryId? {
+): CategoryFilter? {
     return filters
         .sortedBy { it.orderNumber }
         .firstOrNull { filter ->
@@ -24,5 +22,16 @@ fun evaluateCategoryFilters(
                 CategoryFilterOperator.OR -> results.any { it }
             }
         }
-        ?.subCategoryId
+}
+
+fun appendCategoryFilterDescription(
+    description: String,
+    descriptionSuffix: String?,
+): String {
+    return when {
+        descriptionSuffix.isNullOrEmpty() -> description
+        description.isEmpty() -> descriptionSuffix
+        // 元の説明と繋がって読めなくならないように改行で区切る
+        else -> "$description\n$descriptionSuffix"
+    }
 }

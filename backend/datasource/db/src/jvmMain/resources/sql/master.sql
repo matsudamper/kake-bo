@@ -126,6 +126,7 @@ CREATE TABLE category_mail_filters
     created_datetime                                DATETIME DEFAULT CURRENT_TIMESTAMP not null,
     update_datetime                                 DATETIME DEFAULT CURRENT_TIMESTAMP not null ON UPDATE CURRENT_TIMESTAMP,
     order_number                                    INT                                not null,
+    description_suffix                              VARCHAR(500)                       not null DEFAULT '',
     index user_category_mail_filter_id (user_id, category_mail_filter_id, order_number)
 );
 

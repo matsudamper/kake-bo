@@ -75,6 +75,7 @@ fragment ImportedMailCategoryFilterScreenItem on ImportedMailCategoryFilter {
     id
     title
     operator
+    descriptionSuffix
     subCategory {
         id
         name

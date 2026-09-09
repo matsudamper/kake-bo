@@ -310,6 +310,8 @@ type ImportedMailCategoryFilter {
 
   operator: ImportedMailFilterCategoryConditionOperator!
 
+  descriptionSuffix: String!
+
   conditions: [ImportedMailCategoryCondition!]
 }
 
@@ -701,6 +703,8 @@ input UpdateImportedMailCategoryFilterInput {
   orderNumber: Int
 
   operator: ImportedMailFilterCategoryConditionOperator
+
+  descriptionSuffix: String
 }
 
 input UpdateMoneyUsagePresetInput {

@@ -7,11 +7,16 @@ import graphql.execution.DataFetcherResult
 import graphql.schema.DataFetchingEnvironment
 import net.matsudamper.money.backend.dataloader.ImportedMailDataLoaderDefine
 import net.matsudamper.money.backend.dataloader.MoneyUsageDataLoaderDefine
+import net.matsudamper.money.backend.dataloader.primeChildDataLoader
 import net.matsudamper.money.backend.graphql.GraphQlContext
 import net.matsudamper.money.backend.graphql.localcontext.MoneyUsageSuggestLocalContext
 import net.matsudamper.money.backend.graphql.otelThenApplyAsync
+import net.matsudamper.money.backend.graphql.resolver.CategoryFilterFactory
 import net.matsudamper.money.backend.graphql.toDataFetcher
 import net.matsudamper.money.backend.mail.parser.MailParser
+import net.matsudamper.money.categoryfilter.CategoryFilterDataSourceType
+import net.matsudamper.money.categoryfilter.appendCategoryFilterDescription
+import net.matsudamper.money.categoryfilter.evaluateCategoryFilters
 import net.matsudamper.money.graphql.model.ImportedMailResolver
 import net.matsudamper.money.graphql.model.QlImportedMail
 import net.matsudamper.money.graphql.model.QlImportedMailForwardedInfo
@@ -160,8 +165,14 @@ class ImportedMailResolverImpl : ImportedMailResolver {
             ),
         )
         val timezoneFuture = context.dataLoaders.userTimezoneDataLoader.get(env).load(userId)
+        val filtersFuture = context.dataLoaders.importedMailCategoryFiltersDataLoader.get(env)
+            .load(userId)
+            .primeChildDataLoader(env)
+        val conditionsFuture = context.dataLoaders.importedMailCategoryFilterConditionsDataLoader.get(env)
+            .load(userId)
+            .primeChildDataLoader(env)
 
-        return CompletableFuture.allOf(mailFuture, timezoneFuture).otelThenApplyAsync {
+        return CompletableFuture.allOf(mailFuture, timezoneFuture, filtersFuture, conditionsFuture).otelThenApplyAsync {
             val targetMail = mailFuture.join() ?: return@otelThenApplyAsync run {
                 DataFetcherResult.newResult<List<QlMoneyUsageSuggest>>()
                     .data(listOf())
@@ -179,13 +190,31 @@ class ImportedMailResolverImpl : ImportedMailResolver {
                 date = adjustedDate,
             )
 
+            val categoryFilters = CategoryFilterFactory.create(
+                filters = filtersFuture.get(),
+                conditions = conditionsFuture.get(),
+            )
+
             DataFetcherResult.newResult<List<QlMoneyUsageSuggest>>()
                 .data(
                     results.map { result ->
+                        val matchedFilter = evaluateCategoryFilters(categoryFilters) { dataSourceType ->
+                            when (dataSourceType) {
+                                CategoryFilterDataSourceType.MailTitle -> targetMail.subject
+                                CategoryFilterDataSourceType.MailFrom -> targetMail.from
+                                CategoryFilterDataSourceType.MailHtml -> targetMail.html
+                                CategoryFilterDataSourceType.MailPlain -> targetMail.plain
+                                CategoryFilterDataSourceType.Title -> result.title
+                                CategoryFilterDataSourceType.ServiceName -> result.service.displayName
+                            }
+                        }
                         QlMoneyUsageSuggest(
                             title = result.title,
                             amount = result.price,
-                            description = result.description,
+                            description = appendCategoryFilterDescription(
+                                description = result.description,
+                                descriptionSuffix = matchedFilter?.descriptionSuffix,
+                            ),
                             dateTime = result.dateTime,
                             serviceName = result.service.displayName,
                         )
