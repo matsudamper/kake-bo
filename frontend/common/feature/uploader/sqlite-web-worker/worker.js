@@ -29,7 +29,13 @@ let nextStatementId = 0;
 function openRequest(id, requestData) {
     try {
         const newDatabaseId = nextDatabaseId++;
-        const newDatabase = new sqlite3.oo1.DB(requestData.fileName, 'ct');
+        let newDatabase;
+        const fileName = requestData.fileName;
+        if (fileName && fileName !== ':memory:' && sqlite3.oo1.OpfsDb) {
+            newDatabase = new sqlite3.oo1.OpfsDb(fileName, 'ct');
+        } else {
+            newDatabase = new sqlite3.oo1.DB(fileName, 'ct');
+        }
         databases.set(newDatabaseId, newDatabase);
         postMessage({'id': id, data: {'databaseId': newDatabaseId}});
     } catch (error) {
@@ -157,8 +163,18 @@ onmessage = (e) => {
     }
 };
 
-sqlite3InitModule().then(instance => {
+sqlite3InitModule().then(async instance => {
     sqlite3 = instance;
+    // bundler環境ではinstallOpfsVfsがプロキシURLの解決に失敗しOpfsDbが未定義になる。
+    // プロキシ不要のSAH Pool VFSを使ってOPFS永続化をリカバリする。
+    if (!sqlite3.oo1.OpfsDb) {
+        try {
+            const sahPool = await sqlite3.installOpfsSAHPoolVfs();
+            sqlite3.oo1.OpfsDb = sahPool.OpfsSAHPoolDb;
+        } catch (e) {
+            console.warn('OPFS SAH Pool VFS unavailable, falling back to in-memory:', e.message);
+        }
+    }
     while (messageQueue.length > 0) {
         handleMessage(messageQueue.shift());
     }
