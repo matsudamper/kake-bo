@@ -85,6 +85,8 @@ tasks.register("generateDbCode") {
                             Database()
                                 .withName("org.jooq.meta.mariadb.MariaDBDatabase")
                                 .withInputSchema("money")
+                                // 主キーなしのためjOOQコード生成対象外
+                                .withExcludes("user_received_mails")
                                 .withForcedTypes(
                                     ForcedType()
                                         .withName("BOOLEAN")
