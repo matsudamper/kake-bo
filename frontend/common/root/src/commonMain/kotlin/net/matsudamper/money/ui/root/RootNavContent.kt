@@ -284,6 +284,7 @@ internal fun RootNavContent(
                             RootUsageCalendarPagerHostScreen(
                                 modifier = Modifier.fillMaxSize(),
                                 uiState = uiState,
+                                userScrollEnabled = navController.currentBackstackEntry is ScreenStructure.Root,
                                 stickyHeaderState = stickyHeaderState,
                                 uiStateProvider = { navigation ->
                                     usageCalendarUiStateProvider(navigation.yearMonth)
