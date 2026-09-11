@@ -62,10 +62,8 @@ class Main {
             MoneyGraphQlSchema.graphql
             val diContainer = MainDiContainer()
             if (System.getenv("CI")?.toBooleanStrictOrNull() != true) {
-                runCatching { DbConnectionImpl.warmup() }
-                    .onFailure { TraceLogger.impl().noticeThrowable(it, isError = true) }
-                runCatching { diContainer.warmup() }
-                    .onFailure { TraceLogger.impl().noticeThrowable(it, isError = true) }
+                DbConnectionImpl.warmup()
+                diContainer.warmup()
             }
 
             val engine = embeddedServer(
