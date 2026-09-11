@@ -2,7 +2,6 @@ package net.matsudamper.money.frontend.common.ui.screen.moneyusage
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
-import androidx.compose.foundation.gestures.awaitEachGesture
 import androidx.compose.foundation.gestures.detectTapGestures
 import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.layout.Arrangement
@@ -26,8 +25,6 @@ import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.CircularProgressIndicator
-import androidx.compose.material3.DropdownMenu
-import androidx.compose.material3.DropdownMenuItem
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
@@ -46,8 +43,6 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.SolidColor
-import androidx.compose.ui.input.pointer.PointerEventType
-import androidx.compose.ui.input.pointer.isSecondaryPressed
 import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.unit.dp
@@ -57,7 +52,6 @@ import androidx.compose.ui.window.PopupProperties
 import kotlinx.datetime.LocalDate
 import kotlinx.datetime.LocalTime
 import coil3.compose.AsyncImage
-import coil3.compose.SubcomposeAsyncImage
 import net.matsudamper.money.frontend.common.base.ImmutableList
 import net.matsudamper.money.frontend.common.ui.LocalIsLargeScreen
 import net.matsudamper.money.frontend.common.ui.base.CategorySelectDialog
@@ -79,8 +73,8 @@ import net.matsudamper.money.frontend.common.ui.layout.TimePickerDialog
 import net.matsudamper.money.frontend.common.ui.layout.UrlClickableText
 import net.matsudamper.money.frontend.common.ui.layout.UrlMenuDialog
 import net.matsudamper.money.frontend.common.ui.layout.html.text.fullscreen.FullScreenTextInput
-import net.matsudamper.money.frontend.common.ui.layout.image.ImageLoadingPlaceholder
 import net.matsudamper.money.frontend.common.ui.layout.image.ImageUploadButton
+import net.matsudamper.money.frontend.common.ui.layout.image.MoneyUsageImageThumbnail
 import net.matsudamper.money.frontend.common.ui.layout.image.ZoomableImageDialog
 import org.jetbrains.compose.resources.painterResource
 
@@ -169,6 +163,8 @@ public data class MoneyUsageScreenUiState(
 
     @Immutable
     public interface ImageItemEvent {
+        public fun onClickReplace()
+
         public fun onClickDelete()
     }
 
@@ -675,66 +671,13 @@ private fun ImageItemContent(
     imageItem: MoneyUsageScreenUiState.ImageItem,
     onClick: () -> Unit,
 ) {
-    var showDeleteDialog by remember { mutableStateOf(false) }
-    var showPopupMenu by remember { mutableStateOf(false) }
-
-    Box(modifier = Modifier.fillMaxSize()) {
-        SubcomposeAsyncImage(
-            model = imageItem.url,
-            contentDescription = null,
-            contentScale = ContentScale.Crop,
-            modifier = Modifier
-                .fillMaxSize()
-                .clickable { onClick() }
-                .pointerInput(Unit) {
-                    detectTapGestures(
-                        onTap = { onClick() },
-                        onLongPress = { showPopupMenu = true },
-                    )
-                }
-                .pointerInput(Unit) {
-                    awaitEachGesture {
-                        val pressEvent = awaitPointerEvent()
-                        if (pressEvent.type != PointerEventType.Press) return@awaitEachGesture
-                        if (pressEvent.buttons.isSecondaryPressed.not()) return@awaitEachGesture
-
-                        while (true) {
-                            val releaseEvent = awaitPointerEvent()
-                            if (releaseEvent.type != PointerEventType.Release) continue
-                            showPopupMenu = true
-                            break
-                        }
-                    }
-                },
-            loading = { ImageLoadingPlaceholder() },
-        )
-        DropdownMenu(
-            expanded = showPopupMenu,
-            onDismissRequest = { showPopupMenu = false },
-        ) {
-            DropdownMenuItem(
-                text = { Text("削除") },
-                onClick = {
-                    showPopupMenu = false
-                    showDeleteDialog = true
-                },
-            )
-        }
-        if (showDeleteDialog) {
-            AlertDialog(
-                title = { Text("画像を削除しますか？") },
-                description = { Text("この操作は取り消せません。") },
-                positiveButton = { Text("削除") },
-                negativeButton = { Text("キャンセル") },
-                onClickPositive = {
-                    showDeleteDialog = false
-                    imageItem.event.onClickDelete()
-                },
-                onClickNegative = { showDeleteDialog = false },
-                onDismissRequest = { showDeleteDialog = false },
-            )
-        }
-    }
+    MoneyUsageImageThumbnail(
+        url = imageItem.url,
+        modifier = Modifier.fillMaxSize(),
+        onClick = onClick,
+        onClickReplace = { imageItem.event.onClickReplace() },
+        onClickDelete = { imageItem.event.onClickDelete() },
+    )
 }
 
 @Composable
