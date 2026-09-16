@@ -50,6 +50,7 @@ interface MailFilterRepository {
         val moneyUsageSubCategoryId: MoneyUsageSubCategoryId?,
         val operator: ImportedMailFilterCategoryConditionOperator,
         val orderNumber: Int,
+        val descriptionSuffix: String,
     )
 
     data class Condition(
@@ -83,6 +84,7 @@ interface MailFilterRepository {
         orderNum: Int? = null,
         subCategory: MoneyUsageSubCategoryId? = null,
         operator: ImportedMailFilterCategoryConditionOperator? = null,
+        descriptionSuffix: String? = null,
     ): Boolean
 
     fun deleteFilter(

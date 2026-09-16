@@ -98,6 +98,24 @@ class ImportedMailCategoryFilterResolverImpl : ImportedMailCategoryFilterResolve
         }.toDataFetcher()
     }
 
+    override fun descriptionSuffix(
+        importedMailCategoryFilter: QlImportedMailCategoryFilter,
+        env: DataFetchingEnvironment,
+    ): CompletionStage<DataFetcherResult<String>> {
+        val context = env.graphQlContext.get<GraphQlContext>(GraphQlContext::class.java.name)
+        val userId = context.verifyUserSessionAndGetUserId()
+        val future = getImportedMailCategoryFilterFuture(
+            context = context,
+            userId = userId,
+            importedMailCategoryFilter = importedMailCategoryFilter,
+            env = env,
+        )
+
+        return CompletableFuture.allOf(future).otelThenApplyAsync {
+            future.get()!!.descriptionSuffix
+        }.toDataFetcher()
+    }
+
     override fun conditions(
         importedMailCategoryFilter: QlImportedMailCategoryFilter,
         env: DataFetchingEnvironment,

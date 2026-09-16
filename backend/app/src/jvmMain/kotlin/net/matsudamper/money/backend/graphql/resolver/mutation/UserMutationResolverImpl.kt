@@ -625,6 +625,7 @@ class UserMutationResolverImpl : UserMutationResolver {
                 orderNum = input.orderNumber,
                 subCategory = input.subCategoryId,
                 operator = input.operator?.toDBElement(),
+                descriptionSuffix = input.descriptionSuffix,
             )
             if (isSuccess) {
                 QlImportedMailCategoryFilter(
