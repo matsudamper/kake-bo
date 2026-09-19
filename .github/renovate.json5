@@ -30,6 +30,19 @@
       "automerge": true,
     },
     {
+      "matchPackageNames": ["com.codingfeline.buildkonfig"],
+      "matchUpdateTypes": ["minor", "patch"],
+      "automerge": true,
+    },
+    {
+      "matchPackageNames": [
+        "com.apollographql.apollo",
+        "/^com\\.apollographql\\.apollo:/",
+      ],
+      "matchUpdateTypes": ["minor", "patch"],
+      "automerge": true,
+    },
+    {
       "matchPackageNames": [
         "io.kotest",
         "/^io\\.kotest:/",
