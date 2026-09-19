@@ -4,7 +4,6 @@
     android:height="108dp"
     android:viewportWidth="108"
     android:viewportHeight="108">
-    <!-- 前景と同形状。単色で塗られるため枠・桁・玉を一体のシルエットにする -->
     <path
         android:fillColor="#FF000000"
         android:fillType="evenOdd"

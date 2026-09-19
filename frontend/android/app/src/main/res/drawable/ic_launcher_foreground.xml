@@ -4,16 +4,13 @@
     android:height="108dp"
     android:viewportWidth="108"
     android:viewportHeight="108">
-    <!-- そろばんの枠を封筒の外形に見立てる。evenOdd で内側を抜く -->
     <path
         android:fillColor="@color/ic_launcher_frame"
         android:fillType="evenOdd"
         android:pathData="M31,35 H77 A4,4 0 0 1 81,39 V69 A4,4 0 0 1 77,73 H31 A4,4 0 0 1 27,69 V39 A4,4 0 0 1 31,35 Z M31.5,38 H76.5 A1.5,1.5 0 0 1 78,39.5 V68.5 A1.5,1.5 0 0 1 76.5,70 H31.5 A1.5,1.5 0 0 1 30,68.5 V39.5 A1.5,1.5 0 0 1 31.5,38 Z" />
-    <!-- 桁 -->
     <path
         android:fillColor="@color/ic_launcher_frame"
         android:pathData="M33.6,38 H36 V70 H33.6 Z M43.2,38 H45.6 V70 H43.2 Z M52.8,38 H55.2 V70 H52.8 Z M62.4,38 H64.8 V70 H62.4 Z M72,38 H74.4 V70 H72 Z" />
-    <!-- 玉。左右から中央に向けて下がる並びで封筒のVを描く -->
     <path
         android:fillColor="@color/ic_launcher_bead"
         android:pathData="M29.2,41.8 L34.8,38.2 L40.4,41.8 L34.8,45.4 Z M38.8,49.4 L44.4,45.8 L50,49.4 L44.4,53 Z M48.4,57 L54,53.4 L59.6,57 L54,60.6 Z M58,49.4 L63.6,45.8 L69.2,49.4 L63.6,53 Z M67.6,41.8 L73.2,38.2 L78.8,41.8 L73.2,45.4 Z" />
