@@ -37,7 +37,8 @@
     {
       "matchPackageNames": [
         "com.apollographql.apollo",
-        "/^com\\.apollographql\\.apollo:/",
+        "com.apollographql.apollo:apollo-runtime",
+        "com.apollographql.apollo:apollo-normalized-cache",
       ],
       "matchUpdateTypes": ["minor", "patch"],
       "automerge": true,
