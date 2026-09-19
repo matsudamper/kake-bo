@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="utf-8"?>
+<vector xmlns:android="http://schemas.android.com/apk/res/android"
+    android:width="108dp"
+    android:height="108dp"
+    android:viewportWidth="108"
+    android:viewportHeight="108">
+    <!-- 前景と同形状。単色で塗られるため、バーと折り目は evenOdd の穴で表現する -->
+    <path
+        android:fillColor="#FF000000"
+        android:fillType="evenOdd"
+        android:pathData="M36,32 L38,30 L40,32 L42,30 L44,32 L46,30 L48,32 L50,30 L52,32 L54,30 L56,32 L58,30 L60,32 L62,30 L64,32 L66,30 L68,32 L70,30 L72,32 V50.5 H36 Z M41,41.5 H47 V46.5 H41 Z M51,38 H57 V46.5 H51 Z M61,34.5 H67 V46.5 H61 Z" />
+    <path
+        android:fillColor="#FF000000"
+        android:fillType="evenOdd"
+        android:pathData="M34,52 H74 A4,4 0 0 1 78,56 V74 A4,4 0 0 1 74,78 H34 A4,4 0 0 1 30,74 V56 A4,4 0 0 1 34,52 Z M35,74.2 L54,64.4 L54,67.4 L35,77.2 Z M73,74.2 L54,64.4 L54,67.4 L73,77.2 Z" />
+</vector>
