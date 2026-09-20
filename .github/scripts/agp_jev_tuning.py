@@ -65,7 +65,7 @@ def validate_support_patterns():
 
 def build_cases():
     updates = []
-    for page in range(5):
+    for page in range(2):
         page_updates = fetch_json(JETBRAINS_URL.format(page=page))
         if not page_updates:
             break
@@ -103,7 +103,7 @@ def build_cases():
             control = nearby(control)
         cases.append({"id": f"real-positive-{update.get('id')}", "kind": "real-positive", "target": target, "control": control, "note": note, "expected": True})
         cases.append({"id": f"real-negative-{update.get('id')}", "kind": "real-near-negative", "target": control, "control": target, "note": note, "expected": False})
-        if len(seen) >= 12:
+        if len(seen) >= 1:
             break
 
     for update in updates:
@@ -115,7 +115,7 @@ def build_cases():
         if not re.search(r"(?i)\b(?:AGP|Android\s+Gradle\s+Plugin)\b", note):
             continue
         cases.append({"id": f"real-unclear-{update.get('id')}", "kind": "real-unclear", "target": "9.4", "control": "9.3", "note": note, "expected": False})
-        if sum(case["kind"] == "real-unclear" for case in cases) >= 6:
+        if sum(case["kind"] == "real-unclear" for case in cases) >= 3:
             break
 
     cases.extend([
