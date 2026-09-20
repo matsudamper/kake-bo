@@ -143,6 +143,24 @@ def build_cases():
         {"id": "synthetic-negative-removed", "kind": "synthetic", "target": "9.4", "control": "9.3", "note": "Support for AGP 9.4 was removed from this release because of a compatibility regression.", "expected": False},
         {"id": "synthetic-negative-eap-only", "kind": "synthetic", "target": "9.4", "control": "9.3", "note": "AGP 9.4 support is available only in the EAP build; this stable release does not support AGP 9.4.", "expected": False},
         {"id": "synthetic-negative-similar-version", "kind": "synthetic", "target": "9.4", "control": "9.40", "note": "Added support for AGP 9.40 and improved Gradle sync performance.", "expected": False},
+        {"id": "stress-positive-now-supported", "kind": "stress", "target": "9.4", "control": "9.3", "note": "AGP 9.4 is now supported.", "expected": True},
+        {"id": "stress-positive-we-support", "kind": "stress", "target": "9.4", "control": "9.3", "note": "We now support AGP 9.4 in the stable Android plugin.", "expected": True},
+        {"id": "stress-positive-restored", "kind": "stress", "target": "9.4", "control": "9.3", "note": "Support for Android Gradle Plugin 9.4 has been restored.", "expected": True},
+        {"id": "stress-positive-compatible", "kind": "stress", "target": "9.4", "control": "9.3", "note": "Compatible with Android Gradle Plugin 9.4.2 and newer.", "expected": True},
+        {"id": "stress-positive-requires", "kind": "stress", "target": "9.4", "control": "9.3", "note": "This Android plugin requires AGP 9.4 or newer.", "expected": True},
+        {"id": "stress-positive-v-prefix", "kind": "stress", "target": "9.4", "control": "9.3", "note": "Added support for Android Gradle Plugin v9.4.", "expected": True},
+        {"id": "stress-positive-gte", "kind": "stress", "target": "9.4", "control": "9.3", "note": "The plugin supports AGP >= 9.4.", "expected": True},
+        {"id": "stress-positive-known-issue", "kind": "stress", "target": "9.4", "control": "9.3", "note": "AGP 9.4 is supported, although project sync has a known issue.", "expected": True},
+        {"id": "stress-negative-no-support", "kind": "stress", "target": "9.4", "control": "9.3", "note": "No support for AGP 9.4 is included in this release.", "expected": False},
+        {"id": "stress-negative-unsupported", "kind": "stress", "target": "9.4", "control": "9.3", "note": "Android Gradle Plugin 9.4 remains unsupported.", "expected": False},
+        {"id": "stress-negative-future", "kind": "stress", "target": "9.4", "control": "9.3", "note": "AGP 9.4 support will arrive in the next release.", "expected": False},
+        {"id": "stress-negative-eap", "kind": "stress", "target": "9.4", "control": "9.3", "note": "The EAP build supports AGP 9.4, but this stable release does not.", "expected": False},
+        {"id": "stress-negative-other-supported", "kind": "stress", "target": "9.4", "control": "9.3", "note": "AGP 9.3 is supported; AGP 9.4 remains unsupported.", "expected": False},
+        {"id": "stress-negative-docs", "kind": "stress", "target": "9.4", "control": "9.3", "note": "Added documentation for AGP 9.4 support and migration.", "expected": False},
+        {"id": "stress-negative-known-issue", "kind": "stress", "target": "9.4", "control": "9.3", "note": "Fixed a crash when opening projects that use AGP 9.4.", "expected": False},
+        {"id": "stress-negative-tests", "kind": "stress", "target": "9.4", "control": "9.3", "note": "Added test coverage for AGP 9.4 support.", "expected": False},
+        {"id": "stress-negative-removed", "kind": "stress", "target": "9.4", "control": "9.3", "note": "AGP 9.4 support has been removed from the stable plugin.", "expected": False},
+        {"id": "stress-negative-external-only", "kind": "stress", "target": "9.4", "control": "9.3", "note": "Android Studio supports AGP 9.4, but this IntelliJ Android plugin does not.", "expected": False},
     ])
     if sum(case["kind"] == "real-positive" for case in cases) < 1:
         raise RuntimeError("実リリースノートのpositive評価ケースがありません")
@@ -201,7 +219,7 @@ def semantic_context(note, target):
         return f"target dependency {marker}"
 
     context = re.sub(
-        r"(?i)\b(?:Android\s+Gradle\s+Plugin|AGP)\s+(\d+\.\d+(?:\.\d+)?)",
+        r"(?i)\b(?:Android\s+Gradle\s+Plugin|AGP)\s*(?:version\s+|v\s*)?(?:>=?\s*)?(\d+\.\d+(?:\.\d+)?)",
         replace_version,
         context,
     )
@@ -364,61 +382,15 @@ def main():
     cases = build_cases()
     engine = Engine()
     arms = [
-        "choice3_raw",
-        "choice3_relevant",
-        "choice3_relevant_short",
-        "choice3_relevant_reversed",
-        "choice3_versioned_raw",
-        "choice3_versioned_relevant",
-        "choice3_versioned_relevant_reversed",
-        "choice3_nli_versioned_relevant",
-        "choice3_nli_versioned_relevant_normalized",
-        "choice3_nli_versioned_relevant_normalized_reversed",
-        "choice2_nli_versioned_relevant_no_abstain",
-        "choice2_nli_versioned_relevant_normalized_no_abstain",
-        "choice2_nli_versioned_relevant_normalized_no_abstain_reversed",
-        "choice3_semantic",
-        "choice3_semantic_reversed",
         "choice2_semantic_no_abstain",
         "choice2_semantic_no_abstain_reversed",
         "choice2_semantic_simple_no_abstain",
         "choice2_semantic_simple_no_abstain_reversed",
         "choice_four_semantic",
-        "choice3_entailment_relevant",
-        "choice_four_relevant",
-        "choice_four_versioned_relevant",
-        "noul_raw",
-        "noul_relevant",
-        "noul_relevant_alternative",
     ]
     arm_reports = [evaluate_arm(engine, cases, arm) for arm in arms]
     by_arm = {report["arm"]: report for report in arm_reports}
     arm_reports.extend([
-        consensus_report(
-            by_arm["choice3_relevant"],
-            by_arm["choice3_relevant_reversed"],
-            "choice3_relevant_consensus",
-        ),
-        consensus_report(
-            by_arm["choice3_versioned_relevant"],
-            by_arm["choice3_versioned_relevant_reversed"],
-            "choice3_versioned_relevant_consensus",
-        ),
-        consensus_report(
-            by_arm["choice3_nli_versioned_relevant_normalized"],
-            by_arm["choice3_nli_versioned_relevant_normalized_reversed"],
-            "choice3_nli_versioned_relevant_normalized_consensus",
-        ),
-        consensus_report(
-            by_arm["choice2_nli_versioned_relevant_normalized_no_abstain"],
-            by_arm["choice2_nli_versioned_relevant_normalized_no_abstain_reversed"],
-            "choice2_nli_versioned_relevant_normalized_no_abstain_consensus",
-        ),
-        consensus_report(
-            by_arm["choice3_semantic"],
-            by_arm["choice3_semantic_reversed"],
-            "choice3_semantic_consensus",
-        ),
         consensus_report(
             by_arm["choice2_semantic_no_abstain"],
             by_arm["choice2_semantic_no_abstain_reversed"],
