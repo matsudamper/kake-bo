@@ -23,8 +23,8 @@ ABSTAIN = "__insufficient_evidence__"
 THRESHOLDS = [0.35, 0.5, 0.65, 0.8, 0.9, 0.95]
 MARGINS = [0.0, 0.1, 0.2, 0.3, 0.4]
 SUPPORT_PATTERNS = [
-    re.compile(r"(?i)\\bsupport(?:s|ed|ing)?\\s+(?:for\\s+)?(?:Android\\s+Gradle\\s+Plugin|AGP)(?:\\s+version)?\\s+(\\d+\\.\\d+(?:\\.\\d+)?)"),
-    re.compile(r"(?i)\\b(?:compatible|compatibility)\\s+with\\s+(?:Android\\s+Gradle\\s+Plugin|AGP)(?:\\s+version)?\\s+(\\d+\\.\\d+(?:\\.\\d+)?)"),
+    re.compile(r"(?i)\bsupport(?:s|ed|ing)?\s+(?:for\s+)?(?:Android\s+Gradle\s+Plugin|AGP)(?:\s+version)?\s+(\d+\.\d+(?:\.\d+)?)"),
+    re.compile(r"(?i)\b(?:compatible|compatibility)\s+with\s+(?:Android\s+Gradle\s+Plugin|AGP)(?:\s+version)?\s+(\d+\.\d+(?:\.\d+)?)"),
     re.compile(r"(?i)\\b(?:Android\\s+Gradle\\s+Plugin|AGP)(?:\\s+version)?\\s+(\\d+\\.\\d+(?:\\.\\d+)?)\\b[^.!?;]{0,80}\\bsupport(?:s|ed)?\\b"),
 ]
 
@@ -37,7 +37,7 @@ def strip_html(value):
     return " ".join(re.sub(r"<[^>]+>", " ", html.unescape(value or "")).split())
 
 def major_minor(version):
-    match = re.match(r"^(\\d+)\\.(\\d+)", version)
+    match = re.match(r"^(\d+)\.(\d+)", version)
     if not match:
         raise ValueError(version)
     return f"{int(match.group(1))}.{int(match.group(2))}"
@@ -95,7 +95,7 @@ def build_cases():
         note = strip_html(metadata.get("notes"))
         if not note or note in seen or supported_versions(note):
             continue
-        if not re.search(r"(?i)\\b(?:AGP|Android\\s+Gradle\\s+Plugin)\\b", note):
+        if not re.search(r"(?i)\b(?:AGP|Android\s+Gradle\s+Plugin)\b", note):
             continue
         cases.append({"id": f"real-unclear-{update.get('id')}", "kind": "real-unclear", "target": "9.4", "control": "9.3", "note": note, "expected": False})
         if sum(case["kind"] == "real-unclear" for case in cases) >= 6:
@@ -116,11 +116,11 @@ def build_cases():
     return cases
 
 def relevant_context(note, target):
-    units = [unit.strip() for unit in re.split(r"(?<=[.!?;])\\s+|\\n+", note) if unit.strip()]
-    target_units = [unit for unit in units if target in unit and re.search(r"(?i)\\b(?:AGP|Android\\s+Gradle\\s+Plugin)\\b", unit)]
+    units = [unit.strip() for unit in re.split(r"(?<=[.!?;])\s+|\n+", note) if unit.strip()]
+    target_units = [unit for unit in units if target in unit and re.search(r"(?i)\b(?:AGP|Android\s+Gradle\s+Plugin)\b", unit)]
     if target_units:
         return " ".join(target_units[:3])
-    agp_units = [unit for unit in units if re.search(r"(?i)\\b(?:AGP|Android\\s+Gradle\\s+Plugin)\\b", unit)]
+    agp_units = [unit for unit in units if re.search(r"(?i)\b(?:AGP|Android\s+Gradle\s+Plugin)\b", unit)]
     return " ".join(agp_units[:3]) if agp_units else note
 
 def softmax(logits, temperature):
