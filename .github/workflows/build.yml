@@ -158,3 +158,28 @@ jobs:
           name: reports
           path: .tmp/reports/
           retention-days: 7
+
+
+  agp_jev_tuning:
+    if: github.event_name == 'pull_request' && github.head_ref == 'agent/agp-compatibility-comment'
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v7
+      - uses: actions/setup-python@v6
+        with:
+          python-version: '3.12'
+      - name: Cache OpenJev model
+        uses: actions/cache@v5
+        with:
+          path: ~/.cache/huggingface
+          key: openjev-rlcd-modernbert-151m-fp16-v1-4
+      - name: Install tuning dependencies
+        run: python -m pip install --disable-pip-version-check 'onnxruntime>=1.18,<2' 'transformers>=4.40,<6' 'huggingface-hub>=0.24,<2' 'numpy>=1.24,<3'
+      - name: Evaluate OpenJev AGP judgment arms
+        run: python .github/scripts/agp_jev_tuning.py
+      - name: Upload tuning report
+        if: always()
+        uses: actions/upload-artifact@v7
+        with:
+          name: agp-jev-tuning-report
+          path: agp-jev-tuning-report.json
