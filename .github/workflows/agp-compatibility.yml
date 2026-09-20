@@ -29,7 +29,7 @@ jobs:
         run: python3 .github/scripts/agp_compatibility.py
       - name: AGP互換性をコメント
         if: steps.compatibility.outputs.should_comment == 'true'
-        uses: marocchino/sticky-pull-request-comment@v3
+        uses: marocchino/sticky-pull-request-comment@5770ad5eb8f42dd2c4f34da00c94c5381e49af88
         with:
           header: agp-compatibility-report
           path: agp-compatibility-comment.md
