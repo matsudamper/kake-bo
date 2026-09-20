@@ -25,7 +25,7 @@ MARGINS = [0.0, 0.1, 0.2, 0.3, 0.4]
 SUPPORT_PATTERNS = [
     re.compile(r"(?i)\bsupport(?:s|ed|ing)?\s+(?:for\s+)?(?:Android\s+Gradle\s+Plugin|AGP)(?:\s+version)?\s+(\d+\.\d+(?:\.\d+)?)"),
     re.compile(r"(?i)\b(?:compatible|compatibility)\s+with\s+(?:Android\s+Gradle\s+Plugin|AGP)(?:\s+version)?\s+(\d+\.\d+(?:\.\d+)?)"),
-    re.compile(r"(?i)\\b(?:Android\\s+Gradle\\s+Plugin|AGP)(?:\\s+version)?\\s+(\\d+\\.\\d+(?:\\.\\d+)?)\\b[^.!?;]{0,80}\\bsupport(?:s|ed)?\\b"),
+    re.compile(r"(?i)\b(?:Android\s+Gradle\s+Plugin|AGP)(?:\s+version)?\s+(\d+\.\d+(?:\.\d+)?)\b[^.!?;]{0,80}\bsupport(?:s|ed)?\b"),
 ]
 
 def fetch_json(url):
@@ -51,6 +51,17 @@ def supported_versions(note):
     for pattern in SUPPORT_PATTERNS:
         versions.extend(major_minor(match.group(1)) for match in pattern.finditer(note))
     return list(dict.fromkeys(versions))
+
+def validate_support_patterns():
+    samples = {
+        "Added support for Android Gradle Plugin 9.4.": "9.4",
+        "This release is compatible with AGP 9.4.1.": "9.4",
+        "Android Gradle Plugin 9.4 support is now available.": "9.4",
+    }
+    for note, expected in samples.items():
+        versions = supported_versions(note)
+        if expected not in versions:
+            raise RuntimeError(f"AGP対応表現を抽出できません: {note}: {versions}")
 
 def build_cases():
     updates = []
@@ -229,6 +240,7 @@ def evaluate_arm(engine, cases, arm):
     return {"arm": arm, "mean_inference_ms": sum(row["latency_ms"] + row["control_latency_ms"] for row in rows) / (2 * len(rows)), "direct": direct, "contrastive": contrastive, "best_safe": best_safe, "rows": rows}
 
 def main():
+    validate_support_patterns()
     cases = build_cases()
     engine = Engine()
     arms = ["choice3_raw", "choice3_relevant", "choice3_relevant_short", "choice3_relevant_reversed", "choice_four_raw", "choice_four_relevant", "noul_raw", "noul_relevant"]
