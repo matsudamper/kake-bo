@@ -167,7 +167,24 @@ class Engine:
 
 def choice_prompt(note, target, arm):
     context = relevant_context(note, target) if "relevant" in arm else note
-    if "short" in arm:
+    if "four_versioned" in arm:
+        descriptions = [
+            ("supported", f"the release explicitly confirms support for Android Gradle Plugin {target}"),
+            ("unsupported", f"the release explicitly says Android Gradle Plugin {target} is unsupported"),
+            ("different", f"the release discusses Android Gradle Plugin versions other than {target}"),
+            ("unclear", f"the release does not explicitly establish support for Android Gradle Plugin {target}"),
+        ]
+    elif "versioned" in arm:
+        descriptions = [
+            ("supported", f"the release explicitly confirms support for Android Gradle Plugin {target}"),
+            ("not_confirmed", f"the release does not explicitly confirm support for Android Gradle Plugin {target}"),
+        ]
+    elif "entailment" in arm:
+        descriptions = [
+            ("supported", f'the release notes entail the statement "Android Gradle Plugin {target} is supported"'),
+            ("not_confirmed", f'the release notes do not entail the statement "Android Gradle Plugin {target} is supported"'),
+        ]
+    elif "short" in arm:
         descriptions = [
             ("supported", "support for the target AGP version is explicitly confirmed"),
             ("not_confirmed", "support for the target AGP version is not explicitly confirmed"),
@@ -189,22 +206,23 @@ def choice_prompt(note, target, arm):
     ids = [candidate_id for candidate_id, _ in descriptions] + [ABSTAIN]
     labels = [f"It is {description}" for _, description in descriptions] + ["insufficient evidence"]
     question = f"Which statement best describes these release notes with respect to Android Gradle Plugin (AGP) {target}?"
-    text = f"Question: {question}\\n\\nContext:\\n{context}"
+    text = f"Question: {question}\n\nContext:\n{context}"
     return "".join(f"{LABEL}{value}" for value in labels) + SEP + text, ids
 
-def noul_prompt(note, target, relevant):
+def noul_prompt(note, target, relevant, alternative):
     context = relevant_context(note, target) if relevant else note
-    proposition = f"These release notes explicitly confirm support for Android Gradle Plugin (AGP) {target}."
+    if alternative:
+        proposition = f"Android Gradle Plugin {target} is supported by the Android Plugin release described in these notes."
+    else:
+        proposition = f"These release notes explicitly confirm support for Android Gradle Plugin (AGP) {target}."
     labels = [f"true: {proposition}", f"false: not {proposition}", "insufficient evidence"]
     ids = ["supported", "not_confirmed", ABSTAIN]
-    text = f"Context:\\n{context}\\n\\nEvaluate proposition: {proposition}"
+    text = f"Context:\n{context}\n\nEvaluate proposition: {proposition}"
     return "".join(f"{LABEL}{value}" for value in labels) + SEP + text, ids
 
 def prompt_for(arm, note, target):
-    if arm == "noul_raw":
-        return noul_prompt(note, target, False)
-    if arm == "noul_relevant":
-        return noul_prompt(note, target, True)
+    if arm.startswith("noul"):
+        return noul_prompt(note, target, "relevant" in arm, "alternative" in arm)
     return choice_prompt(note, target, arm)
 
 def metrics(rows, threshold, margin=None):
@@ -239,12 +257,65 @@ def evaluate_arm(engine, cases, arm):
     best_safe = max(safe, key=lambda item: (item["recall"], item["accuracy"], -item["threshold"], -item["margin"])) if safe else None
     return {"arm": arm, "mean_inference_ms": sum(row["latency_ms"] + row["control_latency_ms"] for row in rows) / (2 * len(rows)), "direct": direct, "contrastive": contrastive, "best_safe": best_safe, "rows": rows}
 
+def consensus_report(first, second, arm):
+    second_rows = {row["id"]: row for row in second["rows"]}
+    rows = []
+    for row in first["rows"]:
+        other = second_rows[row["id"]]
+        both_supported = row["selected"] == "supported" and other["selected"] == "supported"
+        rows.append({
+            **row,
+            "selected": "supported" if both_supported else "not_confirmed",
+            "p_supported": min(row["p_supported"], other["p_supported"]),
+            "control_p_supported": max(row["control_p_supported"], other["control_p_supported"]),
+            "consensus_probabilities": other["probabilities"],
+        })
+    direct = [metrics(rows, threshold) for threshold in THRESHOLDS]
+    contrastive = [metrics(rows, threshold, margin) for threshold in THRESHOLDS for margin in MARGINS]
+    safe = [item for item in contrastive if item["fp"] == 0]
+    best_safe = max(safe, key=lambda item: (item["recall"], item["accuracy"], -item["threshold"], -item["margin"])) if safe else None
+    return {
+        "arm": arm,
+        "mean_inference_ms": first["mean_inference_ms"] + second["mean_inference_ms"],
+        "direct": direct,
+        "contrastive": contrastive,
+        "best_safe": best_safe,
+        "rows": rows,
+    }
+
 def main():
     validate_support_patterns()
     cases = build_cases()
     engine = Engine()
-    arms = ["choice3_raw", "choice3_relevant", "choice3_relevant_short", "choice3_relevant_reversed", "choice_four_raw", "choice_four_relevant", "noul_raw", "noul_relevant"]
+    arms = [
+        "choice3_raw",
+        "choice3_relevant",
+        "choice3_relevant_short",
+        "choice3_relevant_reversed",
+        "choice3_versioned_raw",
+        "choice3_versioned_relevant",
+        "choice3_versioned_relevant_reversed",
+        "choice3_entailment_relevant",
+        "choice_four_relevant",
+        "choice_four_versioned_relevant",
+        "noul_raw",
+        "noul_relevant",
+        "noul_relevant_alternative",
+    ]
     arm_reports = [evaluate_arm(engine, cases, arm) for arm in arms]
+    by_arm = {report["arm"]: report for report in arm_reports}
+    arm_reports.extend([
+        consensus_report(
+            by_arm["choice3_relevant"],
+            by_arm["choice3_relevant_reversed"],
+            "choice3_relevant_consensus",
+        ),
+        consensus_report(
+            by_arm["choice3_versioned_relevant"],
+            by_arm["choice3_versioned_relevant_reversed"],
+            "choice3_versioned_relevant_consensus",
+        ),
+    ])
     ranked = sorted([report for report in arm_reports if report["best_safe"]], key=lambda report: (report["best_safe"]["recall"], report["best_safe"]["accuracy"]), reverse=True)
     report = {
         "model": MODEL_REPO,
