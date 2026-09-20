@@ -106,7 +106,7 @@ def build_cases():
         if len(seen) >= 1:
             break
 
-    for update in updates:
+    for update in updates[:20]:
         if (update.get("channel") or "stable").lower() != "stable" or update.get("hidden", False):
             continue
         note = release_note(update)
@@ -115,7 +115,19 @@ def build_cases():
         if not re.search(r"(?i)\b(?:AGP|Android\s+Gradle\s+Plugin)\b", note):
             continue
         cases.append({"id": f"real-unclear-{update.get('id')}", "kind": "real-unclear", "target": "9.4", "control": "9.3", "note": note, "expected": False})
-        if sum(case["kind"] == "real-unclear" for case in cases) >= 3:
+        if sum(case["kind"] == "real-unclear" for case in cases) >= 2:
+            break
+
+    for update in updates[:20]:
+        if (update.get("channel") or "stable").lower() != "stable" or update.get("hidden", False):
+            continue
+        note = release_note(update)
+        if not note or note in seen:
+            continue
+        if re.search(r"(?i)\b(?:AGP|Android\s+Gradle\s+Plugin)\b", note):
+            continue
+        cases.append({"id": f"real-neutral-{update.get('id')}", "kind": "real-neutral", "target": "9.4", "control": "9.3", "note": note, "expected": False})
+        if sum(case["kind"] == "real-neutral" for case in cases) >= 2:
             break
 
     cases.extend([
