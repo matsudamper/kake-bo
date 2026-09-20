@@ -15,6 +15,7 @@ MODEL_REPO = "heman10x/rlcd-modernbert-151m"
 MODEL_FILE = "model_fp16.onnx"
 CALIBRATOR_FILE = "calibrator.json"
 JETBRAINS_URL = "https://plugins.jetbrains.com/api/plugins/22989/updates?size=100&page={page}"
+JETBRAINS_META_URL = "https://plugins.jetbrains.com/files/22989/{update_id}/meta.json"
 REPORT_PATH = Path("agp-jev-tuning-report.json")
 LABEL = "<<LABEL>>"
 SEP = "<<SEP>>"
@@ -66,7 +67,11 @@ def build_cases():
     for update in updates:
         if (update.get("channel") or "stable").lower() != "stable" or update.get("hidden", False):
             continue
-        note = strip_html(update.get("notes"))
+        try:
+            metadata = fetch_json(JETBRAINS_META_URL.format(update_id=update.get("id")))
+        except Exception:
+            continue
+        note = strip_html(metadata.get("notes"))
         versions = supported_versions(note)
         if not note or note in seen or not versions:
             continue
@@ -83,7 +88,11 @@ def build_cases():
     for update in updates:
         if (update.get("channel") or "stable").lower() != "stable" or update.get("hidden", False):
             continue
-        note = strip_html(update.get("notes"))
+        try:
+            metadata = fetch_json(JETBRAINS_META_URL.format(update_id=update.get("id")))
+        except Exception:
+            continue
+        note = strip_html(metadata.get("notes"))
         if not note or note in seen or supported_versions(note):
             continue
         if not re.search(r"(?i)\\b(?:AGP|Android\\s+Gradle\\s+Plugin)\\b", note):
