@@ -48,7 +48,7 @@ class TableParser(HTMLParser):
             self.current_row = None
 
 
-def request(url, token=None, method="GET", body=None, accept="application/json"):
+def request(url, token=None, method="GET", body=None, accept="application/json", include_headers=False):
     headers = {
         "Accept": accept,
         "User-Agent": "kake-bo-agp-compatibility-check",
@@ -62,8 +62,10 @@ def request(url, token=None, method="GET", body=None, accept="application/json")
         try:
             req = urllib.request.Request(url, headers=headers, data=data, method=method)
             with urllib.request.urlopen(req, timeout=30) as response:
-                payload = response.read()
-                return payload.decode()
+                payload = response.read().decode()
+                if include_headers:
+                    return payload, dict(response.headers.items())
+                return payload
         except (urllib.error.URLError, TimeoutError) as error:
             last_error = error
             if attempt < 2:
@@ -71,8 +73,12 @@ def request(url, token=None, method="GET", body=None, accept="application/json")
     raise RuntimeError(f"取得に失敗しました: {url}: {last_error}")
 
 
-def request_json(url, token=None, method="GET", body=None):
-    return json.loads(request(url, token=token, method=method, body=body))
+def request_json(url, token=None, method="GET", body=None, include_headers=False):
+    result = request(url, token=token, method=method, body=body, include_headers=include_headers)
+    if include_headers:
+        payload, headers = result
+        return json.loads(payload), headers
+    return json.loads(result)
 
 
 def github_file(repo, ref, path, token):
@@ -141,9 +147,11 @@ def update_timestamp(update):
 def notes_support_agp(notes, target_version):
     major, minor = major_minor(target_version)
     text = strip_html(notes)
+    version = rf"{major}\.{minor}(?:\.\d+)?"
     patterns = [
-        rf"Android\s+Gradle\s+Plugin\s+{major}\.{minor}(?:\.\d+)?",
-        rf"\bAGP\s+{major}\.{minor}(?:\.\d+)?\b",
+        rf"\bsupport(?:s|ed|ing)?\s+(?:for\s+)?(?:Android\s+Gradle\s+Plugin|AGP)\s+{version}\b",
+        rf"\b(?:Android\s+Gradle\s+Plugin|AGP)\s+{version}\b[^.!?;]{{0,80}}\bsupport(?:s|ed)?\b",
+        rf"\b(?:compatible|compatibility)\s+with\s+(?:Android\s+Gradle\s+Plugin|AGP)\s+{version}\b",
     ]
     return any(re.search(pattern, text, re.IGNORECASE) for pattern in patterns)
 
@@ -173,14 +181,29 @@ def format_build_range(update):
 
 
 def find_jetbrains_android_plugin_support(target_version):
-    url = f"https://plugins.jetbrains.com/api/plugins/{JETBRAINS_ANDROID_PLUGIN_ID}/updates?size=100&page=1"
-    updates = request_json(url)
-    stable = sorted((item for item in updates if is_stable(item)), key=update_timestamp, reverse=True)
-    if not stable:
-        return None, None
-    latest = stable[0]
-    matched = next((item for item in stable if notes_support_agp(item.get("notes"), target_version)), None)
-    return matched, latest
+    latest = None
+    page = 0
+    while True:
+        url = f"https://plugins.jetbrains.com/api/plugins/{JETBRAINS_ANDROID_PLUGIN_ID}/updates?size=100&page={page}"
+        updates = request_json(url)
+        if not updates:
+            break
+        stable = [item for item in updates if is_stable(item)]
+        if stable:
+            page_latest = max(stable, key=update_timestamp)
+            if latest is None or update_timestamp(page_latest) > update_timestamp(latest):
+                latest = page_latest
+            matched = max(
+                (item for item in stable if notes_support_agp(item.get("notes"), target_version)),
+                key=update_timestamp,
+                default=None,
+            )
+            if matched:
+                return matched, latest
+        if len(updates) < 100:
+            break
+        page += 1
+    return None, latest
 
 
 def jetbrains_row(target_version, matched, latest):
@@ -237,10 +260,24 @@ def build_comment(old_version, new_version, studio, jetbrains_status, errors):
     return "\n".join(lines)
 
 
+def next_link(link_header):
+    for part in (link_header or "").split(","):
+        match = re.match(r'\s*<([^>]+)>;\s*rel="([^"]+)"', part)
+        if match and match.group(2) == "next":
+            return match.group(1)
+    return None
+
+
 def upsert_comment(repo, pr_number, token, body):
     comments_url = f"https://api.github.com/repos/{repo}/issues/{pr_number}/comments?per_page=100"
-    comments = request_json(comments_url, token=token)
-    existing = next((comment for comment in comments if COMMENT_MARKER in (comment.get("body") or "")), None)
+    existing = None
+    page_url = comments_url
+    while page_url:
+        comments, headers = request_json(page_url, token=token, include_headers=True)
+        existing = next((comment for comment in comments if COMMENT_MARKER in (comment.get("body") or "")), None)
+        if existing:
+            break
+        page_url = next_link(headers.get("Link") or headers.get("link"))
     if existing:
         request_json(
             f"https://api.github.com/repos/{repo}/issues/comments/{existing['id']}",
