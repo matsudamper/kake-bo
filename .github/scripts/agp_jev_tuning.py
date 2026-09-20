@@ -122,11 +122,15 @@ def build_cases():
         {"id": "synthetic-positive-support", "kind": "synthetic", "target": "9.4", "control": "9.3", "note": "Added support for Android Gradle Plugin 9.4.", "expected": True},
         {"id": "synthetic-positive-compatible", "kind": "synthetic", "target": "9.4", "control": "9.3", "note": "This Android Plugin release is compatible with AGP 9.4.1 and includes sync fixes.", "expected": True},
         {"id": "synthetic-positive-long", "kind": "synthetic", "target": "9.4", "control": "9.5", "note": "Fixed editor rendering. Android Gradle Plugin 9.4 support is now available in this release. Improved device discovery.", "expected": True},
+        {"id": "synthetic-positive-real-phrasing", "kind": "synthetic", "target": "9.1", "control": "9.3", "note": "This release contains partial updates from Android Studio Panda 2, including support for Android Gradle Plugin 9.1.0.", "expected": True},
         {"id": "synthetic-negative-explicit", "kind": "synthetic", "target": "9.4", "control": "9.3", "note": "AGP 9.4 is not supported in this release. Use AGP 9.3 instead.", "expected": False},
         {"id": "synthetic-negative-planned", "kind": "synthetic", "target": "9.4", "control": "9.3", "note": "Support for AGP 9.4 is planned for a future release and is not available yet.", "expected": False},
         {"id": "synthetic-negative-different", "kind": "synthetic", "target": "9.4", "control": "9.3", "note": "Added support for AGP 9.3 and improved Gradle sync performance.", "expected": False},
         {"id": "synthetic-negative-unrelated", "kind": "synthetic", "target": "9.4", "control": "9.3", "note": "Fixed the Android project wizard and improved device discovery.", "expected": False},
         {"id": "synthetic-negative-mention", "kind": "synthetic", "target": "9.4", "control": "9.3", "note": "AGP 9.4 projects may fail to sync due to a known issue being investigated.", "expected": False},
+        {"id": "synthetic-negative-removed", "kind": "synthetic", "target": "9.4", "control": "9.3", "note": "Support for AGP 9.4 was removed from this release because of a compatibility regression.", "expected": False},
+        {"id": "synthetic-negative-eap-only", "kind": "synthetic", "target": "9.4", "control": "9.3", "note": "AGP 9.4 support is available only in the EAP build; this stable release does not support AGP 9.4.", "expected": False},
+        {"id": "synthetic-negative-similar-version", "kind": "synthetic", "target": "9.4", "control": "9.40", "note": "Added support for AGP 9.40 and improved Gradle sync performance.", "expected": False},
     ])
     if sum(case["kind"] == "real-positive" for case in cases) < 1:
         raise RuntimeError("実リリースノートのpositive評価ケースがありません")
@@ -171,9 +175,21 @@ class Engine:
         by_id = {candidate_id: float(probs[index]) for index, candidate_id in enumerate(ids)}
         return {"selected": ids[int(np.argmax(probs))], "probabilities": by_id, "latency_ms": latency}
 
+def normalize_target_mentions(context, target):
+    escaped = re.escape(target)
+    return re.sub(rf"(?<!\\d){escaped}\\.\\d+(?!\\d)", target, context)
+
 def choice_prompt(note, target, arm):
     context = relevant_context(note, target) if "relevant" in arm else note
-    if "four_versioned" in arm:
+    if "normalized" in arm:
+        context = normalize_target_mentions(context, target)
+
+    if "nli_versioned" in arm:
+        descriptions = [
+            ("supported", f"an explicit confirmation that Android Gradle Plugin {target} is supported"),
+            ("not_confirmed", f"a release note without explicit confirmation that Android Gradle Plugin {target} is supported"),
+        ]
+    elif "four_versioned" in arm:
         descriptions = [
             ("supported", f"the release explicitly confirms support for Android Gradle Plugin {target}"),
             ("unsupported", f"the release explicitly says Android Gradle Plugin {target} is unsupported"),
@@ -207,10 +223,16 @@ def choice_prompt(note, target, arm):
             ("supported", "the release explicitly confirms support for the target Android Gradle Plugin version"),
             ("not_confirmed", "the release does not explicitly confirm support for the target Android Gradle Plugin version"),
         ]
+
     if "reversed" in arm:
         descriptions = list(reversed(descriptions))
-    ids = [candidate_id for candidate_id, _ in descriptions] + [ABSTAIN]
-    labels = [f"It is {description}" for _, description in descriptions] + ["insufficient evidence"]
+
+    ids = [candidate_id for candidate_id, _ in descriptions]
+    labels = [f"It is {description}" for _, description in descriptions]
+    if "no_abstain" not in arm:
+        ids.append(ABSTAIN)
+        labels.append("insufficient evidence")
+
     question = f"Which statement best describes these release notes with respect to Android Gradle Plugin (AGP) {target}?"
     text = f"Question: {question}\n\nContext:\n{context}"
     return "".join(f"{LABEL}{value}" for value in labels) + SEP + text, ids
@@ -301,6 +323,12 @@ def main():
         "choice3_versioned_raw",
         "choice3_versioned_relevant",
         "choice3_versioned_relevant_reversed",
+        "choice3_nli_versioned_relevant",
+        "choice3_nli_versioned_relevant_normalized",
+        "choice3_nli_versioned_relevant_normalized_reversed",
+        "choice2_nli_versioned_relevant_no_abstain",
+        "choice2_nli_versioned_relevant_normalized_no_abstain",
+        "choice2_nli_versioned_relevant_normalized_no_abstain_reversed",
         "choice3_entailment_relevant",
         "choice_four_relevant",
         "choice_four_versioned_relevant",
@@ -320,6 +348,16 @@ def main():
             by_arm["choice3_versioned_relevant"],
             by_arm["choice3_versioned_relevant_reversed"],
             "choice3_versioned_relevant_consensus",
+        ),
+        consensus_report(
+            by_arm["choice3_nli_versioned_relevant_normalized"],
+            by_arm["choice3_nli_versioned_relevant_normalized_reversed"],
+            "choice3_nli_versioned_relevant_normalized_consensus",
+        ),
+        consensus_report(
+            by_arm["choice2_nli_versioned_relevant_normalized_no_abstain"],
+            by_arm["choice2_nli_versioned_relevant_normalized_no_abstain_reversed"],
+            "choice2_nli_versioned_relevant_normalized_no_abstain_consensus",
         ),
     ])
     ranked = sorted([report for report in arm_reports if report["best_safe"]], key=lambda report: (report["best_safe"]["recall"], report["best_safe"]["accuracy"]), reverse=True)
