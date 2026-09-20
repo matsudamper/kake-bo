@@ -9,12 +9,13 @@ import urllib.error
 import urllib.parse
 import urllib.request
 from html.parser import HTMLParser
+from pathlib import Path
 
 AGP_FILE = "gradle/libs.versions.toml"
 ANDROID_STUDIO_COMPATIBILITY_URL = "https://developer.android.com/build/releases/about-agp"
 JETBRAINS_ANDROID_PLUGIN_ID = 22989
 JETBRAINS_ANDROID_PLUGIN_URL = "https://plugins.jetbrains.com/plugin/22989-android/versions/stable"
-COMMENT_MARKER = "<!-- agp-compatibility-report -->"
+COMMENT_PATH = Path("agp-compatibility-comment.md")
 
 
 class TableParser(HTMLParser):
@@ -48,7 +49,7 @@ class TableParser(HTMLParser):
             self.current_row = None
 
 
-def request(url, token=None, method="GET", body=None, accept="application/json", include_headers=False):
+def request(url, token=None, method="GET", body=None, accept="application/json"):
     headers = {
         "Accept": accept,
         "User-Agent": "kake-bo-agp-compatibility-check",
@@ -63,8 +64,6 @@ def request(url, token=None, method="GET", body=None, accept="application/json",
             req = urllib.request.Request(url, headers=headers, data=data, method=method)
             with urllib.request.urlopen(req, timeout=30) as response:
                 payload = response.read().decode()
-                if include_headers:
-                    return payload, dict(response.headers.items())
                 return payload
         except (urllib.error.URLError, TimeoutError) as error:
             last_error = error
@@ -73,12 +72,8 @@ def request(url, token=None, method="GET", body=None, accept="application/json",
     raise RuntimeError(f"取得に失敗しました: {url}: {last_error}")
 
 
-def request_json(url, token=None, method="GET", body=None, include_headers=False):
-    result = request(url, token=token, method=method, body=body, include_headers=include_headers)
-    if include_headers:
-        payload, headers = result
-        return json.loads(payload), headers
-    return json.loads(result)
+def request_json(url, token=None, method="GET", body=None):
+    return json.loads(request(url, token=token, method=method, body=body))
 
 
 def github_file(repo, ref, path, token):
@@ -243,7 +238,6 @@ def build_comment(old_version, new_version, studio, jetbrains_status, errors):
             f"公式表から確認できませんでした。 [公式互換表]({ANDROID_STUDIO_COMPATIBILITY_URL})"
         )
     lines = [
-        COMMENT_MARKER,
         "## AGP互換性確認",
         "",
         f"AGP `{old_version}` → `{new_version}` の更新について公式情報を確認しました。",
@@ -260,35 +254,6 @@ def build_comment(old_version, new_version, studio, jetbrains_status, errors):
     return "\n".join(lines)
 
 
-def next_link(link_header):
-    for part in (link_header or "").split(","):
-        match = re.match(r'\s*<([^>]+)>;\s*rel="([^"]+)"', part)
-        if match and match.group(2) == "next":
-            return match.group(1)
-    return None
-
-
-def upsert_comment(repo, pr_number, token, body):
-    comments_url = f"https://api.github.com/repos/{repo}/issues/{pr_number}/comments?per_page=100"
-    existing = None
-    page_url = comments_url
-    while page_url:
-        comments, headers = request_json(page_url, token=token, include_headers=True)
-        existing = next((comment for comment in comments if COMMENT_MARKER in (comment.get("body") or "")), None)
-        if existing:
-            break
-        page_url = next_link(headers.get("Link") or headers.get("link"))
-    if existing:
-        request_json(
-            f"https://api.github.com/repos/{repo}/issues/comments/{existing['id']}",
-            token=token,
-            method="PATCH",
-            body={"body": body},
-        )
-    else:
-        request_json(comments_url.split("?", 1)[0], token=token, method="POST", body={"body": body})
-
-
 def main():
     token = os.environ["GITHUB_TOKEN"]
     repo = os.environ["GITHUB_REPOSITORY"]
@@ -302,6 +267,8 @@ def main():
     old_version = agp_version(github_file(repo, base_sha, AGP_FILE, token))
     new_version = agp_version(github_file(repo, head_sha, AGP_FILE, token))
     if old_version == new_version:
+        with open(os.environ["GITHUB_OUTPUT"], "a", encoding="utf-8") as output_file:
+            output_file.write("should_comment=false\n")
         print("AGP バージョンに変更がないため終了します")
         return
 
@@ -320,8 +287,10 @@ def main():
 
     jetbrains_status = jetbrains_row(new_version, matched, latest)
     body = build_comment(old_version, new_version, studio, jetbrains_status, errors)
-    upsert_comment(repo, pr_number, token, body)
-    print(f"PR #{pr_number} の互換性コメントを更新しました")
+    COMMENT_PATH.write_text(body, encoding="utf-8")
+    with open(os.environ["GITHUB_OUTPUT"], "a", encoding="utf-8") as output_file:
+        output_file.write("should_comment=true\n")
+    print(f"PR #{pr_number} の互換性コメントを生成しました")
 
 
 if __name__ == "__main__":
