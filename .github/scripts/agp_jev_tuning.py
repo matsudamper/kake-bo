@@ -191,12 +191,48 @@ def normalize_target_mentions(context, target):
     escaped = re.escape(target)
     return re.sub(rf"(?<!\\d){escaped}\\.\\d+(?!\\d)", target, context)
 
+def semantic_context(note, target):
+    context = relevant_context(note, target)
+    target_major_minor = major_minor(target)
+
+    def replace_version(match):
+        version = major_minor(match.group(1))
+        marker = "TARGET_VERSION" if version == target_major_minor else "OTHER_VERSION"
+        return f"target dependency {marker}"
+
+    context = re.sub(
+        r"(?i)\b(?:Android\s+Gradle\s+Plugin|AGP)\s+(\d+\.\d+(?:\.\d+)?)",
+        replace_version,
+        context,
+    )
+    context = re.sub(r"(?i)\b(?:Android\s+Gradle\s+Plugin|AGP)\b", "target dependency", context)
+    return context
+
 def choice_prompt(note, target, arm):
     context = relevant_context(note, target) if "relevant" in arm else note
-    if "normalized" in arm:
+    if "semantic" in arm:
+        context = semantic_context(note, target)
+    elif "normalized" in arm:
         context = normalize_target_mentions(context, target)
 
-    if "nli_versioned" in arm:
+    if "four_semantic" in arm:
+        descriptions = [
+            ("supported", "an explicit statement that target dependency TARGET_VERSION is supported by this release"),
+            ("unsupported", "an explicit statement that target dependency TARGET_VERSION is not supported by this release"),
+            ("conditional", "a statement that support for target dependency TARGET_VERSION is only planned, conditional, or limited to another channel"),
+            ("not_confirmed", "a statement that does not establish support for target dependency TARGET_VERSION"),
+        ]
+    elif "semantic_simple" in arm:
+        descriptions = [
+            ("supported", "support for target dependency TARGET_VERSION is available in this release"),
+            ("not_confirmed", "support for target dependency TARGET_VERSION is not established by this release"),
+        ]
+    elif "semantic" in arm:
+        descriptions = [
+            ("supported", "an explicit confirmation of support for target dependency TARGET_VERSION"),
+            ("not_confirmed", "a statement without explicit confirmation of support for target dependency TARGET_VERSION"),
+        ]
+    elif "nli_versioned" in arm:
         descriptions = [
             ("supported", f"an explicit confirmation that Android Gradle Plugin {target} is supported"),
             ("not_confirmed", f"a release note without explicit confirmation that Android Gradle Plugin {target} is supported"),
@@ -341,6 +377,13 @@ def main():
         "choice2_nli_versioned_relevant_no_abstain",
         "choice2_nli_versioned_relevant_normalized_no_abstain",
         "choice2_nli_versioned_relevant_normalized_no_abstain_reversed",
+        "choice3_semantic",
+        "choice3_semantic_reversed",
+        "choice2_semantic_no_abstain",
+        "choice2_semantic_no_abstain_reversed",
+        "choice2_semantic_simple_no_abstain",
+        "choice2_semantic_simple_no_abstain_reversed",
+        "choice_four_semantic",
         "choice3_entailment_relevant",
         "choice_four_relevant",
         "choice_four_versioned_relevant",
@@ -370,6 +413,21 @@ def main():
             by_arm["choice2_nli_versioned_relevant_normalized_no_abstain"],
             by_arm["choice2_nli_versioned_relevant_normalized_no_abstain_reversed"],
             "choice2_nli_versioned_relevant_normalized_no_abstain_consensus",
+        ),
+        consensus_report(
+            by_arm["choice3_semantic"],
+            by_arm["choice3_semantic_reversed"],
+            "choice3_semantic_consensus",
+        ),
+        consensus_report(
+            by_arm["choice2_semantic_no_abstain"],
+            by_arm["choice2_semantic_no_abstain_reversed"],
+            "choice2_semantic_no_abstain_consensus",
+        ),
+        consensus_report(
+            by_arm["choice2_semantic_simple_no_abstain"],
+            by_arm["choice2_semantic_simple_no_abstain_reversed"],
+            "choice2_semantic_simple_no_abstain_consensus",
         ),
     ])
     ranked = sorted([report for report in arm_reports if report["best_safe"]], key=lambda report: (report["best_safe"]["recall"], report["best_safe"]["accuracy"]), reverse=True)
