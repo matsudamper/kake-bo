@@ -26,7 +26,7 @@ jobs:
         id: compatibility
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        run: python3 .github/scripts/agp_compatibility_comment.py
+        run: python3 .github/scripts/agp_compatibility.py
       - name: AGP互換性をコメント
         if: steps.compatibility.outputs.should_comment == 'true'
         uses: marocchino/sticky-pull-request-comment@v3
