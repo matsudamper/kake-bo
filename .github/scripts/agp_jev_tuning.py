@@ -24,6 +24,7 @@ MARGINS = [0.0, 0.1, 0.2, 0.3, 0.4]
 SUPPORT_PATTERNS = [
     re.compile(r"(?i)\\bsupport(?:s|ed|ing)?\\s+(?:for\\s+)?(?:Android\\s+Gradle\\s+Plugin|AGP)(?:\\s+version)?\\s+(\\d+\\.\\d+(?:\\.\\d+)?)"),
     re.compile(r"(?i)\\b(?:compatible|compatibility)\\s+with\\s+(?:Android\\s+Gradle\\s+Plugin|AGP)(?:\\s+version)?\\s+(\\d+\\.\\d+(?:\\.\\d+)?)"),
+    re.compile(r"(?i)\\b(?:Android\\s+Gradle\\s+Plugin|AGP)(?:\\s+version)?\\s+(\\d+\\.\\d+(?:\\.\\d+)?)\\b[^.!?;]{0,80}\\bsupport(?:s|ed)?\\b"),
 ]
 
 def fetch_json(url):
@@ -52,7 +53,7 @@ def supported_versions(note):
 
 def build_cases():
     updates = []
-    for page in range(5):
+    for page in range(20):
         page_updates = fetch_json(JETBRAINS_URL.format(page=page))
         if not page_updates:
             break
@@ -76,7 +77,7 @@ def build_cases():
             control = nearby(control)
         cases.append({"id": f"real-positive-{update.get('id')}", "kind": "real-positive", "target": target, "control": control, "note": note, "expected": True})
         cases.append({"id": f"real-negative-{update.get('id')}", "kind": "real-near-negative", "target": control, "control": target, "note": note, "expected": False})
-        if len(seen) >= 8:
+        if len(seen) >= 12:
             break
 
     for update in updates:
@@ -101,8 +102,8 @@ def build_cases():
         {"id": "synthetic-negative-unrelated", "kind": "synthetic", "target": "9.4", "control": "9.3", "note": "Fixed the Android project wizard and improved device discovery.", "expected": False},
         {"id": "synthetic-negative-mention", "kind": "synthetic", "target": "9.4", "control": "9.3", "note": "AGP 9.4 projects may fail to sync due to a known issue being investigated.", "expected": False},
     ])
-    if sum(case["kind"].startswith("real") for case in cases) < 12:
-        raise RuntimeError("実リリースノートの評価ケースが不足しています")
+    if sum(case["kind"] == "real-positive" for case in cases) < 2:
+        raise RuntimeError("実リリースノートのpositive評価ケースが不足しています")
     return cases
 
 def relevant_context(note, target):
