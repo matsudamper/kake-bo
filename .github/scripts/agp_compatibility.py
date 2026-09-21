@@ -16,6 +16,7 @@ ANDROID_STUDIO_COMPATIBILITY_URL = "https://developer.android.com/build/releases
 JETBRAINS_ANDROID_PLUGIN_ID = 22989
 JETBRAINS_ANDROID_PLUGIN_URL = "https://plugins.jetbrains.com/plugin/22989-android/versions/stable"
 COMMENT_PATH = Path("agp-compatibility-comment.md")
+JEV_CANDIDATE_LIMIT = 20
 
 
 class TableParser(HTMLParser):
@@ -163,6 +164,13 @@ def intellij_compatibility(update):
     return update.get("sinceUntil") or format_build_range(update)
 
 
+def release_url(update):
+    update_id = update.get("id")
+    if not update_id:
+        return JETBRAINS_ANDROID_PLUGIN_URL
+    return f"https://plugins.jetbrains.com/plugin/{JETBRAINS_ANDROID_PLUGIN_ID}-android/versions/stable/{update_id}"
+
+
 def format_build_range(update):
     since = update.get("since")
     until = update.get("until")
@@ -177,6 +185,7 @@ def format_build_range(update):
 
 def find_jetbrains_android_plugin_support(target_version):
     latest = None
+    collected = []
     page = 0
     while True:
         url = f"https://plugins.jetbrains.com/api/plugins/{JETBRAINS_ANDROID_PLUGIN_ID}/updates?size=100&page={page}"
@@ -184,6 +193,7 @@ def find_jetbrains_android_plugin_support(target_version):
         if not updates:
             break
         stable = [item for item in updates if is_stable(item)]
+        collected.extend(stable)
         if stable:
             page_latest = max(stable, key=update_timestamp)
             if latest is None or update_timestamp(page_latest) > update_timestamp(latest):
@@ -194,26 +204,52 @@ def find_jetbrains_android_plugin_support(target_version):
                 default=None,
             )
             if matched:
-                return matched, latest
+                return matched, latest, collected
         if len(updates) < 100:
             break
         page += 1
-    return None, latest
+    return None, latest, collected
 
 
-def jetbrains_row(target_version, matched, latest):
+def find_jev_support(stable_updates, target_version):
+    # 正規表現で取りこぼした対応表明を拾うためだけに使うので、モデル依存は必要になった時点で読み込む。
+    import agp_jev
+
+    candidates = []
+    for update in sorted(stable_updates, key=update_timestamp, reverse=True):
+        note = strip_html(update.get("notes"))
+        if note and agp_jev.mentions_agp(note):
+            candidates.append((update, note))
+        if len(candidates) >= JEV_CANDIDATE_LIMIT:
+            break
+    if not candidates:
+        return None, None
+
+    engine = agp_jev.Engine()
+    for update, note in candidates:
+        verdict = engine.judge(note, target_version)
+        if verdict["supported"]:
+            return update, verdict
+    return None, None
+
+
+def jetbrains_row(target_version, matched, latest, jev_matched=None, jev_verdict=None):
     if matched:
         version = matched.get("version") or "不明"
         compatibility = intellij_compatibility(matched)
-        update_id = matched.get("id")
-        detail_url = (
-            f"https://plugins.jetbrains.com/plugin/{JETBRAINS_ANDROID_PLUGIN_ID}-android/versions/stable/{update_id}"
-            if update_id
-            else JETBRAINS_ANDROID_PLUGIN_URL
-        )
         return (
             f"✅ Android Plugin {version} で AGP {'.'.join(map(str, major_minor(target_version)))} の対応を明記。"
-            f" IntelliJ IDEA互換: {compatibility}。 [リリース]({detail_url})"
+            f" IntelliJ IDEA互換: {compatibility}。 [リリース]({release_url(matched)})"
+        )
+    if jev_matched:
+        version = jev_matched.get("version") or "不明"
+        compatibility = intellij_compatibility(jev_matched)
+        return (
+            f"🤖 Android Plugin {version} のリリースノートを OpenJev が"
+            f" AGP {'.'.join(map(str, major_minor(target_version)))} 対応と判定（参考値、"
+            f"p={jev_verdict['probability']:.2f} / 対照 AGP {jev_verdict['control_version']}"
+            f" p={jev_verdict['control_probability']:.2f}）。"
+            f" IntelliJ IDEA互換: {compatibility}。 [リリース]({release_url(jev_matched)})"
         )
     if latest:
         version = latest.get("version") or "不明"
@@ -226,7 +262,7 @@ def jetbrains_row(target_version, matched, latest):
     return f"⚠️ JetBrains Marketplace から Android Plugin のStable版を取得できませんでした。"
 
 
-def build_comment(old_version, new_version, studio, jetbrains_status, errors):
+def build_comment(old_version, new_version, studio, jetbrains_status, errors, jev_verdict):
     if studio:
         studio_status = (
             f"✅ {studio['name']} ({studio['version']}) が AGP {studio['range']} をサポート。 "
@@ -247,6 +283,13 @@ def build_comment(old_version, new_version, studio, jetbrains_status, errors):
         f"| Android Studio | {studio_status} |",
         f"| IntelliJ IDEA / Android Plugin | {jetbrains_status} |",
     ]
+    if jev_verdict:
+        lines.extend([
+            "",
+            "🤖 の行はリリースノートの記述を "
+            f"{jev_verdict['model']} で機械判定した参考値です。"
+            "誤検知ゼロを保証できていないため、最終判断はリリースノート本文で確認してください。",
+        ])
     if errors:
         lines.extend(["", "### 取得時の警告"])
         lines.extend(f"- {error}" for error in errors)
@@ -276,17 +319,25 @@ def main():
     studio = None
     matched = None
     latest = None
+    stable_updates = []
+    jev_matched = None
+    jev_verdict = None
     try:
         studio = find_android_studio_support(new_version)
     except Exception as error:
         errors.append(f"Android Studio互換表: {error}")
     try:
-        matched, latest = find_jetbrains_android_plugin_support(new_version)
+        matched, latest, stable_updates = find_jetbrains_android_plugin_support(new_version)
     except Exception as error:
         errors.append(f"JetBrains Marketplace: {error}")
+    if not matched and stable_updates:
+        try:
+            jev_matched, jev_verdict = find_jev_support(stable_updates, new_version)
+        except Exception as error:
+            errors.append(f"OpenJev判定: {error}")
 
-    jetbrains_status = jetbrains_row(new_version, matched, latest)
-    body = build_comment(old_version, new_version, studio, jetbrains_status, errors)
+    jetbrains_status = jetbrains_row(new_version, matched, latest, jev_matched, jev_verdict)
+    body = build_comment(old_version, new_version, studio, jetbrains_status, errors, jev_verdict)
     COMMENT_PATH.write_text(body, encoding="utf-8")
     with open(os.environ["GITHUB_OUTPUT"], "a", encoding="utf-8") as output_file:
         output_file.write("should_comment=true\n")
