@@ -1,15 +1,10 @@
 #!/usr/bin/env python3
-# プロンプトと閾値は agp_jev_tuning.py の choice2_semantic_simple_no_abstain アームに揃える。
+# プロンプトと温度は agp_jev_tuning.py の choice2_semantic_simple_no_abstain アームに揃える。
 # 揃えていないと agp_jev_tuning.py の評価結果が本番判定の根拠にならない。
 import json
+import math
 import re
-import time
 from pathlib import Path
-
-import numpy as np
-import onnxruntime as ort
-from huggingface_hub import hf_hub_download
-from transformers import AutoTokenizer
 
 MODEL_REPO = "heman10x/rlcd-modernbert-151m"
 MODEL_FILE = "model_fp16.onnx"
@@ -19,7 +14,6 @@ SEP = "<<SEP>>"
 SUPPORTED = "supported"
 NOT_CONFIRMED = "not_confirmed"
 # choice2_semantic_simple_no_abstain の positive ケースは p=0.64〜0.87 / 対照差 0.04〜0.13 に収まる。
-# 対照差はどの設定でも僅差で、誤検知ゼロにできる設定では recall が 0 になるため、この判定は参考値に留める。
 SUPPORT_PROBABILITY_THRESHOLD = 0.65
 CONTROL_MARGIN = 0.05
 AGP_MENTION_PATTERN = re.compile(r"(?i)\b(?:AGP|Android\s+Gradle\s+Plugin)\b")
@@ -82,15 +76,20 @@ def build_prompt(note, target):
 
 
 def softmax(logits, temperature):
-    scaled = np.asarray(logits, dtype=np.float64) / temperature
-    scaled -= np.max(scaled)
-    values = np.exp(scaled)
-    return values / np.sum(values)
+    scaled = [value / temperature for value in logits]
+    largest = max(scaled)
+    values = [math.exp(value - largest) for value in scaled]
+    total = sum(values)
+    return [value / total for value in values]
 
 
 class Engine:
     def __init__(self):
-        started = time.monotonic()
+        # AGPバージョンが変わらないPRではモデルを使わないので、依存はここで読み込む。
+        import onnxruntime as ort
+        from huggingface_hub import hf_hub_download
+        from transformers import AutoTokenizer
+
         model = hf_hub_download(repo_id=MODEL_REPO, filename=MODEL_FILE)
         calibrator = hf_hub_download(repo_id=MODEL_REPO, filename=CALIBRATOR_FILE)
         self.tokenizer = AutoTokenizer.from_pretrained(MODEL_REPO)
@@ -100,20 +99,19 @@ class Engine:
         options.graph_optimization_level = ort.GraphOptimizationLevel.ORT_ENABLE_ALL
         self.session = ort.InferenceSession(model, options, providers=["CPUExecutionProvider"])
         self.calibrator = json.loads(Path(calibrator).read_text(encoding="utf-8"))
-        self.load_seconds = time.monotonic() - started
 
     def support_probability(self, note, target):
         prompt, ids = build_prompt(note, target)
         tokens = self.tokenizer(prompt, truncation=True, max_length=512, return_tensors="np")
         feeds = {
-            "input_ids": tokens["input_ids"].astype(np.int64),
-            "attention_mask": tokens["attention_mask"].astype(np.int64),
+            "input_ids": tokens["input_ids"].astype("int64"),
+            "attention_mask": tokens["attention_mask"].astype("int64"),
         }
-        output = self.session.run(None, feeds)[0][0][:len(ids)]
+        logits = self.session.run(None, feeds)[0][0][:len(ids)].tolist()
         temperature = float(self.calibrator.get("per_k", {}).get(str(len(ids)), self.calibrator["temperature"]))
-        probabilities = softmax(output, temperature)
-        selected = ids[int(np.argmax(probabilities))]
-        return selected, float(probabilities[ids.index(SUPPORTED)])
+        probabilities = softmax(logits, temperature)
+        selected = ids[max(range(len(ids)), key=lambda index: probabilities[index])]
+        return selected, probabilities[ids.index(SUPPORTED)]
 
     def judge(self, note, target):
         control = control_version(note, target)
@@ -125,7 +123,6 @@ class Engine:
             and probability - control_probability >= CONTROL_MARGIN
         )
         return {
-            "model": MODEL_REPO,
             "supported": supported,
             "probability": probability,
             "control_version": control,
