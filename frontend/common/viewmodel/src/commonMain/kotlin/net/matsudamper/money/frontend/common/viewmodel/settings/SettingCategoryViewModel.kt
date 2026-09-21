@@ -265,7 +265,7 @@ public class SettingCategoryViewModel(
                         val items = viewModelState.responseList.map { it.nodes }.flatten()
                         SettingCategoryScreenUiState.LoadingState.Loaded(
                             item = items.map { item ->
-                                createItemUiState(item, item.id == viewModelState.editingSubCategoryId)
+                                createItemUiState(item)
                             }.toImmutableList(),
                         )
                     }
@@ -335,50 +335,16 @@ public class SettingCategoryViewModel(
 
     private fun createItemUiState(
         item: CategorySettingScreenSubCategoriesPagingQuery.Node,
-        isEditing: Boolean,
     ): SettingCategoryScreenUiState.SubCategoryItem {
         return SettingCategoryScreenUiState.SubCategoryItem(
             id = item.id,
             name = item.name,
-            isEditing = isEditing,
             event = object : SettingCategoryScreenUiState.SubCategoryItem.Event {
                 override fun onClick() {
-                }
-
-                override fun onClickEdit() {
-                    viewModelStateFlow.update { viewModelState ->
-                        viewModelState.copy(editingSubCategoryId = item.id)
-                    }
-                }
-
-                override fun onEditComplete(text: String) {
                     viewModelScope.launch {
-                        val result = api.updateSubCategory(
-                            id = item.id,
-                            name = text,
-                        )?.data?.userMutation?.updateSubCategory
-                        if (result == null) {
-                            launch {
-                                globalEventSender.send {
-                                    it.showNativeNotification("サブカテゴリ名の変更に失敗しました")
-                                }
-                            }
-                        } else {
-                            launch {
-                                globalEventSender.send {
-                                    it.showSnackBar("サブカテゴリ名を変更しました")
-                                }
-                            }
+                        viewModelEventSender.send {
+                            it.navigateToSubCategory(item.id)
                         }
-                        viewModelStateFlow.update { viewModelState ->
-                            viewModelState.copy(editingSubCategoryId = null)
-                        }
-                    }
-                }
-
-                override fun onEditDismiss() {
-                    viewModelStateFlow.update { viewModelState ->
-                        viewModelState.copy(editingSubCategoryId = null)
                     }
                 }
 
@@ -453,16 +419,12 @@ public class SettingCategoryViewModel(
     }
 
     private fun clearEditModeIfNeeded(): Boolean {
-        val viewModelState = viewModelStateFlow.value
-        if (!viewModelState.isEditingCategoryName && viewModelState.editingSubCategoryId == null) {
+        if (!viewModelStateFlow.value.isEditingCategoryName) {
             return false
         }
 
         viewModelStateFlow.update {
-            it.copy(
-                isEditingCategoryName = false,
-                editingSubCategoryId = null,
-            )
+            it.copy(isEditingCategoryName = false)
         }
         return true
     }
@@ -473,7 +435,6 @@ public class SettingCategoryViewModel(
         val hasMoreSubCategories: Boolean = false,
         val categoryInfo: CategorySettingScreenQuery.MoneyUsageCategory? = null,
         val isEditingCategoryName: Boolean = false,
-        val editingSubCategoryId: MoneyUsageSubCategoryId? = null,
         val isAddingSubCategory: Boolean = false,
         val showColorPickerDialog: Boolean = false,
         val confirmDialog: SettingCategoryScreenUiState.ConfirmDialog? = null,
@@ -481,5 +442,7 @@ public class SettingCategoryViewModel(
 
     public interface Event {
         public fun navigateToCategories()
+
+        public fun navigateToSubCategory(id: MoneyUsageSubCategoryId)
     }
 }

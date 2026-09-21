@@ -55,3 +55,17 @@ query CategorySettingScreen($categoryId: MoneyUsageCategoryId!) {
         }
     }
 }
+
+query SubCategorySettingScreen($id: MoneyUsageSubCategoryId!) {
+    user {
+        moneyUsageSubCategory(input: { id: $id }) {
+            id
+            name
+            category {
+                id
+                name
+                color
+            }
+        }
+    }
+}
