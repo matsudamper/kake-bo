@@ -156,7 +156,14 @@ internal data class ViewModelEventHandlers(
             handler.collect(
                 object : SettingSubCategoryViewModel.Event {
                     override fun navigateToCategory(id: MoneyUsageCategoryId) {
-                        navController.navigateReplace(ScreenStructure.Root.Settings.Category(id = id))
+                        val category = ScreenStructure.Root.Settings.Category(id = id)
+                        val backstackEntries = navController.backstackEntries
+                        val previousEntry = backstackEntries.getOrNull(backstackEntries.lastIndex - 1)
+                        if (previousEntry == category) {
+                            navController.back()
+                        } else {
+                            navController.navigateReplace(category)
+                        }
                     }
 
                     override fun navigateToCategories() {

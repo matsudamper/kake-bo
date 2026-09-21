@@ -30,6 +30,7 @@ import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.Immutable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -71,6 +72,8 @@ public data class SettingSubCategoryScreenUiState(
     public sealed interface LoadingState {
         public data object Loading : LoadingState
 
+        public data object Error : LoadingState
+
         public data class Loaded(
             val subCategoryName: String,
             val categoryName: String,
@@ -79,6 +82,7 @@ public data class SettingSubCategoryScreenUiState(
         ) : LoadingState
     }
 
+    @Immutable
     public interface Event {
         public suspend fun onResume()
 
@@ -101,76 +105,66 @@ public fun SettingSubCategoryScreen(
     LaunchedEffect(Unit) {
         uiState.event.onResume()
     }
-    val isNameEditing = (uiState.loadingState as? SettingSubCategoryScreenUiState.LoadingState.Loaded)
-        ?.heroMode == SettingSubCategoryScreenUiState.HeroMode.EditingSubCategoryName
+    val loadedState = uiState.loadingState as? SettingSubCategoryScreenUiState.LoadingState.Loaded
+    val isNameEditing = loadedState?.heroMode == SettingSubCategoryScreenUiState.HeroMode.EditingSubCategoryName
 
     ScreenBackHandler(enabled = isNameEditing) {
         uiState.event.onClickBack()
     }
 
-    Box(modifier = modifier.fillMaxSize()) {
-        when (val state = uiState.loadingState) {
-            is SettingSubCategoryScreenUiState.LoadingState.Loading -> {
-                Box(
-                    modifier = Modifier.fillMaxSize(),
-                    contentAlignment = Alignment.Center,
-                ) {
-                    CircularProgressIndicator()
-                }
-            }
-
-            is SettingSubCategoryScreenUiState.LoadingState.Loaded -> {
-                LoadedContent(
-                    modifier = Modifier.fillMaxSize(),
-                    uiState = uiState,
-                    loadedState = state,
-                    windowInsets = windowInsets,
-                )
-            }
-        }
-    }
-}
-
-@Composable
-private fun LoadedContent(
-    modifier: Modifier,
-    uiState: SettingSubCategoryScreenUiState,
-    loadedState: SettingSubCategoryScreenUiState.LoadingState.Loaded,
-    windowInsets: PaddingValues,
-) {
-    val heroColor = loadedState.categoryColor ?: MaterialTheme.colorScheme.primary
+    val heroColor = loadedState?.categoryColor ?: MaterialTheme.colorScheme.primary
     StatusBarAppearance(isLightStatusBar = ColorUtil.contrastTextColor(heroColor) == Color.Black)
 
-    Column(modifier = modifier) {
+    Column(modifier = modifier.fillMaxSize()) {
         HeroSection(
             modifier = Modifier.fillMaxWidth(),
-            subCategoryName = loadedState.subCategoryName,
-            categoryName = loadedState.categoryName,
+            loadedState = loadedState,
             heroColor = heroColor,
-            heroMode = loadedState.heroMode,
             windowInsets = windowInsets,
             onClickBack = { uiState.event.onClickBack() },
             onClickEditSubCategoryName = { uiState.event.onClickEditSubCategoryName() },
             onSubCategoryNameEditComplete = { text -> uiState.event.onSubCategoryNameEditComplete(text) },
             onClickCategory = { uiState.event.onClickCategory() },
         )
+
+        Box(
+            modifier = Modifier
+                .weight(1f)
+                .fillMaxWidth(),
+            contentAlignment = Alignment.Center,
+        ) {
+            when (uiState.loadingState) {
+                is SettingSubCategoryScreenUiState.LoadingState.Loading -> {
+                    CircularProgressIndicator()
+                }
+
+                is SettingSubCategoryScreenUiState.LoadingState.Error -> {
+                    Text(
+                        text = "データの取得に失敗しました",
+                        style = MaterialTheme.typography.bodyLarge,
+                        color = MaterialTheme.colorScheme.onSurfaceVariant,
+                    )
+                }
+
+                is SettingSubCategoryScreenUiState.LoadingState.Loaded -> Unit
+            }
+        }
     }
 }
 
 @Composable
 private fun HeroSection(
     modifier: Modifier,
-    subCategoryName: String,
-    categoryName: String,
+    loadedState: SettingSubCategoryScreenUiState.LoadingState.Loaded?,
     heroColor: Color,
-    heroMode: SettingSubCategoryScreenUiState.HeroMode,
     windowInsets: PaddingValues,
     onClickBack: () -> Unit,
     onClickEditSubCategoryName: () -> Unit,
     onSubCategoryNameEditComplete: (String) -> Unit,
     onClickCategory: () -> Unit,
 ) {
-    val isEditMode = heroMode == SettingSubCategoryScreenUiState.HeroMode.EditingSubCategoryName
+    val subCategoryName = loadedState?.subCategoryName.orEmpty()
+    val isEditMode = loadedState?.heroMode == SettingSubCategoryScreenUiState.HeroMode.EditingSubCategoryName
     var editingText by rememberSaveable(subCategoryName, isEditMode) { mutableStateOf(subCategoryName) }
 
     Surface(
@@ -197,18 +191,22 @@ private fun HeroSection(
                     onSubCategoryNameEditComplete = onSubCategoryNameEditComplete,
                 )
 
-                HeroBody(
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .padding(start = 20.dp, end = 20.dp, top = 4.dp, bottom = 24.dp),
-                    subCategoryName = subCategoryName,
-                    categoryName = categoryName,
-                    isEditMode = isEditMode,
-                    editingText = editingText,
-                    onEditingTextChange = { editingText = it },
-                    onClickEditSubCategoryName = onClickEditSubCategoryName,
-                    onClickCategory = onClickCategory,
-                )
+                if (loadedState != null) {
+                    HeroBody(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .padding(start = 20.dp, end = 20.dp, top = 4.dp, bottom = 24.dp),
+                        subCategoryName = loadedState.subCategoryName,
+                        categoryName = loadedState.categoryName,
+                        isEditMode = isEditMode,
+                        editingText = editingText,
+                        onEditingTextChange = { editingText = it },
+                        onClickEditSubCategoryName = onClickEditSubCategoryName,
+                        onClickCategory = onClickCategory,
+                    )
+                } else {
+                    Spacer(Modifier.height(16.dp))
+                }
             }
         }
     }

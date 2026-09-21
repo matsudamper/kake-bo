@@ -111,7 +111,11 @@ public class SettingSubCategoryViewModel(
                 uiStateFlow.update { uiState ->
                     uiState.copy(
                         loadingState = if (subCategoryInfo == null) {
-                            SettingSubCategoryScreenUiState.LoadingState.Loading
+                            if (viewModelState.isLoadFailed) {
+                                SettingSubCategoryScreenUiState.LoadingState.Error
+                            } else {
+                                SettingSubCategoryScreenUiState.LoadingState.Loading
+                            }
                         } else {
                             SettingSubCategoryScreenUiState.LoadingState.Loaded(
                                 subCategoryName = subCategoryInfo.name,
@@ -138,6 +142,7 @@ public class SettingSubCategoryViewModel(
         viewModelScope.launch {
             api.getSubCategoryInfo(id = subCategoryId)
                 .catch {
+                    viewModelStateFlow.update { state -> state.copy(isLoadFailed = true) }
                     globalEventSender.send {
                         it.showSnackBar("データの取得に失敗しました")
                     }
@@ -146,13 +151,17 @@ public class SettingSubCategoryViewModel(
                     val subCategoryInfo = response.data?.user?.moneyUsageSubCategory
                     if (subCategoryInfo == null) {
                         if (response.isFromCache && response.data == null) return@collect
+                        viewModelStateFlow.update { state -> state.copy(isLoadFailed = true) }
                         globalEventSender.send {
                             it.showSnackBar("データの取得に失敗しました")
                         }
                         return@collect
                     }
                     viewModelStateFlow.update {
-                        it.copy(subCategoryInfo = subCategoryInfo)
+                        it.copy(
+                            subCategoryInfo = subCategoryInfo,
+                            isLoadFailed = false,
+                        )
                     }
                 }
         }
@@ -172,6 +181,7 @@ public class SettingSubCategoryViewModel(
     private data class ViewModelState(
         val subCategoryInfo: SubCategorySettingScreenQuery.MoneyUsageSubCategory? = null,
         val isEditingSubCategoryName: Boolean = false,
+        val isLoadFailed: Boolean = false,
     )
 
     public interface Event {
