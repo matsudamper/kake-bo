@@ -1,0 +1,35 @@
+name: AGP Compatibility
+
+on:
+  pull_request_target:
+    types: [opened, synchronize, reopened]
+    paths:
+      - gradle/libs.versions.toml
+
+permissions:
+  contents: read
+  pull-requests: write
+
+concurrency:
+  group: agp-compatibility-${{ github.event.pull_request.number }}
+  cancel-in-progress: true
+
+jobs:
+  comment:
+    if: github.event.pull_request.head.repo.full_name == github.repository
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v7
+        with:
+          ref: ${{ github.event.pull_request.base.sha }}
+      - name: AGP互換性を確認
+        id: compatibility
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: python3 .github/scripts/agp_compatibility.py
+      - name: AGP互換性をコメント
+        if: steps.compatibility.outputs.should_comment == 'true'
+        uses: marocchino/sticky-pull-request-comment@5770ad5eb8f42dd2c4f34da00c94c5381e49af88
+        with:
+          header: agp-compatibility-report
+          path: agp-compatibility-comment.md

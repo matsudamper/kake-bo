@@ -1,0 +1,433 @@
+#!/usr/bin/env python3
+import html
+import json
+import re
+import time
+import urllib.request
+from pathlib import Path
+
+import numpy as np
+import onnxruntime as ort
+from huggingface_hub import hf_hub_download
+from transformers import AutoTokenizer
+
+MODEL_REPO = "heman10x/rlcd-modernbert-151m"
+MODEL_FILE = "model_fp16.onnx"
+CALIBRATOR_FILE = "calibrator.json"
+JETBRAINS_URL = "https://plugins.jetbrains.com/api/plugins/22989/updates?size=100&page={page}"
+JETBRAINS_META_URL = "https://plugins.jetbrains.com/files/22989/{update_id}/meta.json"
+REPORT_PATH = Path("agp-jev-tuning-report.json")
+LABEL = "<<LABEL>>"
+SEP = "<<SEP>>"
+ABSTAIN = "__insufficient_evidence__"
+THRESHOLDS = [0.35, 0.5, 0.65, 0.8, 0.9, 0.95]
+MARGINS = [0.0, 0.1, 0.2, 0.3, 0.4]
+SUPPORT_PATTERNS = [
+    re.compile(r"(?i)\bsupport(?:s|ed|ing)?\s+(?:for\s+)?(?:Android\s+Gradle\s+Plugin|AGP)(?:\s+version)?\s+(\d+\.\d+(?:\.\d+)?)"),
+    re.compile(r"(?i)\b(?:compatible|compatibility)\s+with\s+(?:Android\s+Gradle\s+Plugin|AGP)(?:\s+version)?\s+(\d+\.\d+(?:\.\d+)?)"),
+    re.compile(r"(?i)\b(?:Android\s+Gradle\s+Plugin|AGP)(?:\s+version)?\s+(\d+\.\d+(?:\.\d+)?)\b[^.!?;]{0,80}\bsupport(?:s|ed)?\b"),
+]
+
+def fetch_json(url):
+    req = urllib.request.Request(url, headers={"Accept": "application/json", "User-Agent": "kake-bo-agp-jev-tuning"})
+    with urllib.request.urlopen(req, timeout=30) as response:
+        return json.load(response)
+
+def strip_html(value):
+    return " ".join(re.sub(r"<[^>]+>", " ", html.unescape(value or "")).split())
+
+def major_minor(version):
+    match = re.match(r"^(\d+)\.(\d+)", version)
+    if not match:
+        raise ValueError(version)
+    return f"{int(match.group(1))}.{int(match.group(2))}"
+
+def nearby(version, delta=2):
+    major, minor = map(int, major_minor(version).split("."))
+    return f"{major}.{minor + delta}"
+
+def supported_versions(note):
+    versions = []
+    for pattern in SUPPORT_PATTERNS:
+        versions.extend(major_minor(match.group(1)) for match in pattern.finditer(note))
+    return list(dict.fromkeys(versions))
+
+def validate_support_patterns():
+    samples = {
+        "Added support for Android Gradle Plugin 9.4.": "9.4",
+        "This release is compatible with AGP 9.4.1.": "9.4",
+        "Android Gradle Plugin 9.4 support is now available.": "9.4",
+    }
+    for note, expected in samples.items():
+        versions = supported_versions(note)
+        if expected not in versions:
+            raise RuntimeError(f"AGP対応表現を抽出できません: {note}: {versions}")
+
+def build_cases():
+    updates = []
+    for page in range(2):
+        page_updates = fetch_json(JETBRAINS_URL.format(page=page))
+        if not page_updates:
+            break
+        updates.extend(page_updates)
+        if len(page_updates) < 100:
+            break
+
+    cases = []
+    seen = set()
+    metadata_cache = {}
+
+    def release_note(update):
+        update_id = update.get("id")
+        if update_id in metadata_cache:
+            return metadata_cache[update_id]
+        try:
+            metadata = fetch_json(JETBRAINS_META_URL.format(update_id=update_id))
+            note = strip_html(metadata.get("notes"))
+        except Exception:
+            note = ""
+        metadata_cache[update_id] = note
+        return note
+
+    for update in updates:
+        if (update.get("channel") or "stable").lower() != "stable" or update.get("hidden", False):
+            continue
+        note = release_note(update)
+        versions = supported_versions(note)
+        if not note or note in seen or not versions:
+            continue
+        seen.add(note)
+        target = versions[0]
+        control = nearby(target)
+        while control in versions:
+            control = nearby(control)
+        cases.append({"id": f"real-positive-{update.get('id')}", "kind": "real-positive", "target": target, "control": control, "note": note, "expected": True})
+        cases.append({"id": f"real-negative-{update.get('id')}", "kind": "real-near-negative", "target": control, "control": target, "note": note, "expected": False})
+        if len(seen) >= 1:
+            break
+
+    for update in updates[:20]:
+        if (update.get("channel") or "stable").lower() != "stable" or update.get("hidden", False):
+            continue
+        note = release_note(update)
+        if not note or note in seen or supported_versions(note):
+            continue
+        if not re.search(r"(?i)\b(?:AGP|Android\s+Gradle\s+Plugin)\b", note):
+            continue
+        cases.append({"id": f"real-unclear-{update.get('id')}", "kind": "real-unclear", "target": "9.4", "control": "9.3", "note": note, "expected": False})
+        if sum(case["kind"] == "real-unclear" for case in cases) >= 2:
+            break
+
+    for update in updates[:20]:
+        if (update.get("channel") or "stable").lower() != "stable" or update.get("hidden", False):
+            continue
+        note = release_note(update)
+        if not note or note in seen:
+            continue
+        if re.search(r"(?i)\b(?:AGP|Android\s+Gradle\s+Plugin)\b", note):
+            continue
+        cases.append({"id": f"real-neutral-{update.get('id')}", "kind": "real-neutral", "target": "9.4", "control": "9.3", "note": note, "expected": False})
+        if sum(case["kind"] == "real-neutral" for case in cases) >= 2:
+            break
+
+    cases.extend([
+        {"id": "synthetic-positive-support", "kind": "synthetic", "target": "9.4", "control": "9.3", "note": "Added support for Android Gradle Plugin 9.4.", "expected": True},
+        {"id": "synthetic-positive-compatible", "kind": "synthetic", "target": "9.4", "control": "9.3", "note": "This Android Plugin release is compatible with AGP 9.4.1 and includes sync fixes.", "expected": True},
+        {"id": "synthetic-positive-long", "kind": "synthetic", "target": "9.4", "control": "9.5", "note": "Fixed editor rendering. Android Gradle Plugin 9.4 support is now available in this release. Improved device discovery.", "expected": True},
+        {"id": "synthetic-positive-real-phrasing", "kind": "synthetic", "target": "9.1", "control": "9.3", "note": "This release contains partial updates from Android Studio Panda 2, including support for Android Gradle Plugin 9.1.0.", "expected": True},
+        {"id": "synthetic-negative-explicit", "kind": "synthetic", "target": "9.4", "control": "9.3", "note": "AGP 9.4 is not supported in this release. Use AGP 9.3 instead.", "expected": False},
+        {"id": "synthetic-negative-planned", "kind": "synthetic", "target": "9.4", "control": "9.3", "note": "Support for AGP 9.4 is planned for a future release and is not available yet.", "expected": False},
+        {"id": "synthetic-negative-different", "kind": "synthetic", "target": "9.4", "control": "9.3", "note": "Added support for AGP 9.3 and improved Gradle sync performance.", "expected": False},
+        {"id": "synthetic-negative-unrelated", "kind": "synthetic", "target": "9.4", "control": "9.3", "note": "Fixed the Android project wizard and improved device discovery.", "expected": False},
+        {"id": "synthetic-negative-mention", "kind": "synthetic", "target": "9.4", "control": "9.3", "note": "AGP 9.4 projects may fail to sync due to a known issue being investigated.", "expected": False},
+        {"id": "synthetic-negative-removed", "kind": "synthetic", "target": "9.4", "control": "9.3", "note": "Support for AGP 9.4 was removed from this release because of a compatibility regression.", "expected": False},
+        {"id": "synthetic-negative-eap-only", "kind": "synthetic", "target": "9.4", "control": "9.3", "note": "AGP 9.4 support is available only in the EAP build; this stable release does not support AGP 9.4.", "expected": False},
+        {"id": "synthetic-negative-similar-version", "kind": "synthetic", "target": "9.4", "control": "9.40", "note": "Added support for AGP 9.40 and improved Gradle sync performance.", "expected": False},
+        {"id": "stress-positive-now-supported", "kind": "stress", "target": "9.4", "control": "9.3", "note": "AGP 9.4 is now supported.", "expected": True},
+        {"id": "stress-positive-we-support", "kind": "stress", "target": "9.4", "control": "9.3", "note": "We now support AGP 9.4 in the stable Android plugin.", "expected": True},
+        {"id": "stress-positive-restored", "kind": "stress", "target": "9.4", "control": "9.3", "note": "Support for Android Gradle Plugin 9.4 has been restored.", "expected": True},
+        {"id": "stress-positive-compatible", "kind": "stress", "target": "9.4", "control": "9.3", "note": "Compatible with Android Gradle Plugin 9.4.2 and newer.", "expected": True},
+        {"id": "stress-positive-requires", "kind": "stress", "target": "9.4", "control": "9.3", "note": "This Android plugin requires AGP 9.4 or newer.", "expected": True},
+        {"id": "stress-positive-v-prefix", "kind": "stress", "target": "9.4", "control": "9.3", "note": "Added support for Android Gradle Plugin v9.4.", "expected": True},
+        {"id": "stress-positive-gte", "kind": "stress", "target": "9.4", "control": "9.3", "note": "The plugin supports AGP >= 9.4.", "expected": True},
+        {"id": "stress-positive-known-issue", "kind": "stress", "target": "9.4", "control": "9.3", "note": "AGP 9.4 is supported, although project sync has a known issue.", "expected": True},
+        {"id": "stress-negative-no-support", "kind": "stress", "target": "9.4", "control": "9.3", "note": "No support for AGP 9.4 is included in this release.", "expected": False},
+        {"id": "stress-negative-unsupported", "kind": "stress", "target": "9.4", "control": "9.3", "note": "Android Gradle Plugin 9.4 remains unsupported.", "expected": False},
+        {"id": "stress-negative-future", "kind": "stress", "target": "9.4", "control": "9.3", "note": "AGP 9.4 support will arrive in the next release.", "expected": False},
+        {"id": "stress-negative-eap", "kind": "stress", "target": "9.4", "control": "9.3", "note": "The EAP build supports AGP 9.4, but this stable release does not.", "expected": False},
+        {"id": "stress-negative-other-supported", "kind": "stress", "target": "9.4", "control": "9.3", "note": "AGP 9.3 is supported; AGP 9.4 remains unsupported.", "expected": False},
+        {"id": "stress-negative-docs", "kind": "stress", "target": "9.4", "control": "9.3", "note": "Added documentation for AGP 9.4 support and migration.", "expected": False},
+        {"id": "stress-negative-known-issue", "kind": "stress", "target": "9.4", "control": "9.3", "note": "Fixed a crash when opening projects that use AGP 9.4.", "expected": False},
+        {"id": "stress-negative-tests", "kind": "stress", "target": "9.4", "control": "9.3", "note": "Added test coverage for AGP 9.4 support.", "expected": False},
+        {"id": "stress-negative-removed", "kind": "stress", "target": "9.4", "control": "9.3", "note": "AGP 9.4 support has been removed from the stable plugin.", "expected": False},
+        {"id": "stress-negative-external-only", "kind": "stress", "target": "9.4", "control": "9.3", "note": "Android Studio supports AGP 9.4, but this IntelliJ Android plugin does not.", "expected": False},
+    ])
+    if sum(case["kind"] == "real-positive" for case in cases) < 1:
+        raise RuntimeError("実リリースノートのpositive評価ケースがありません")
+    return cases
+
+def relevant_context(note, target):
+    units = [unit.strip() for unit in re.split(r"(?<=[.!?;])\s+|\n+", note) if unit.strip()]
+    target_units = [unit for unit in units if target in unit and re.search(r"(?i)\b(?:AGP|Android\s+Gradle\s+Plugin)\b", unit)]
+    if target_units:
+        return " ".join(target_units[:3])
+    agp_units = [unit for unit in units if re.search(r"(?i)\b(?:AGP|Android\s+Gradle\s+Plugin)\b", unit)]
+    return " ".join(agp_units[:3]) if agp_units else note
+
+def softmax(logits, temperature):
+    scaled = np.asarray(logits, dtype=np.float64) / temperature
+    scaled -= np.max(scaled)
+    values = np.exp(scaled)
+    return values / np.sum(values)
+
+class Engine:
+    def __init__(self):
+        started = time.monotonic()
+        model = hf_hub_download(repo_id=MODEL_REPO, filename=MODEL_FILE)
+        calibrator = hf_hub_download(repo_id=MODEL_REPO, filename=CALIBRATOR_FILE)
+        self.tokenizer = AutoTokenizer.from_pretrained(MODEL_REPO)
+        options = ort.SessionOptions()
+        options.intra_op_num_threads = 4
+        options.inter_op_num_threads = 1
+        options.graph_optimization_level = ort.GraphOptimizationLevel.ORT_ENABLE_ALL
+        self.session = ort.InferenceSession(model, options, providers=["CPUExecutionProvider"])
+        self.calibrator = json.loads(Path(calibrator).read_text(encoding="utf-8"))
+        self.load_seconds = time.monotonic() - started
+
+    def infer(self, prompt, ids):
+        tokens = self.tokenizer(prompt, truncation=True, max_length=512, return_tensors="np")
+        feeds = {"input_ids": tokens["input_ids"].astype(np.int64), "attention_mask": tokens["attention_mask"].astype(np.int64)}
+        started = time.monotonic()
+        output = self.session.run(None, feeds)[0][0][:len(ids)]
+        latency = (time.monotonic() - started) * 1000
+        temperature = float(self.calibrator.get("per_k", {}).get(str(len(ids)), self.calibrator["temperature"]))
+        probs = softmax(output, temperature)
+        by_id = {candidate_id: float(probs[index]) for index, candidate_id in enumerate(ids)}
+        return {"selected": ids[int(np.argmax(probs))], "probabilities": by_id, "latency_ms": latency}
+
+def normalize_target_mentions(context, target):
+    escaped = re.escape(target)
+    return re.sub(rf"(?<!\\d){escaped}\\.\\d+(?!\\d)", target, context)
+
+def semantic_context(note, target):
+    context = relevant_context(note, target)
+    target_major_minor = major_minor(target)
+
+    def replace_version(match):
+        version = major_minor(match.group(1))
+        marker = "TARGET_VERSION" if version == target_major_minor else "OTHER_VERSION"
+        return f"target dependency {marker}"
+
+    context = re.sub(
+        r"(?i)\b(?:Android\s+Gradle\s+Plugin|AGP)\s*(?:version\s+|v\s*)?(?:>=?\s*)?(\d+\.\d+(?:\.\d+)?)",
+        replace_version,
+        context,
+    )
+    context = re.sub(r"(?i)\b(?:Android\s+Gradle\s+Plugin|AGP)\b", "target dependency", context)
+    return context
+
+def choice_prompt(note, target, arm):
+    context = relevant_context(note, target) if "relevant" in arm else note
+    if "semantic" in arm:
+        context = semantic_context(note, target)
+    elif "normalized" in arm:
+        context = normalize_target_mentions(context, target)
+
+    if "four_semantic" in arm:
+        descriptions = [
+            ("supported", "an explicit statement that target dependency TARGET_VERSION is supported by this release"),
+            ("unsupported", "an explicit statement that target dependency TARGET_VERSION is not supported by this release"),
+            ("conditional", "a statement that support for target dependency TARGET_VERSION is only planned, conditional, or limited to another channel"),
+            ("not_confirmed", "a statement that does not establish support for target dependency TARGET_VERSION"),
+        ]
+    elif "semantic_simple" in arm:
+        descriptions = [
+            ("supported", "support for target dependency TARGET_VERSION is available in this release"),
+            ("not_confirmed", "support for target dependency TARGET_VERSION is not established by this release"),
+        ]
+    elif "semantic" in arm:
+        descriptions = [
+            ("supported", "an explicit confirmation of support for target dependency TARGET_VERSION"),
+            ("not_confirmed", "a statement without explicit confirmation of support for target dependency TARGET_VERSION"),
+        ]
+    elif "nli_versioned" in arm:
+        descriptions = [
+            ("supported", f"an explicit confirmation that Android Gradle Plugin {target} is supported"),
+            ("not_confirmed", f"a release note without explicit confirmation that Android Gradle Plugin {target} is supported"),
+        ]
+    elif "four_versioned" in arm:
+        descriptions = [
+            ("supported", f"the release explicitly confirms support for Android Gradle Plugin {target}"),
+            ("unsupported", f"the release explicitly says Android Gradle Plugin {target} is unsupported"),
+            ("different", f"the release discusses Android Gradle Plugin versions other than {target}"),
+            ("unclear", f"the release does not explicitly establish support for Android Gradle Plugin {target}"),
+        ]
+    elif "versioned" in arm:
+        descriptions = [
+            ("supported", f"the release explicitly confirms support for Android Gradle Plugin {target}"),
+            ("not_confirmed", f"the release does not explicitly confirm support for Android Gradle Plugin {target}"),
+        ]
+    elif "entailment" in arm:
+        descriptions = [
+            ("supported", f'the release notes entail the statement "Android Gradle Plugin {target} is supported"'),
+            ("not_confirmed", f'the release notes do not entail the statement "Android Gradle Plugin {target} is supported"'),
+        ]
+    elif "short" in arm:
+        descriptions = [
+            ("supported", "support for the target AGP version is explicitly confirmed"),
+            ("not_confirmed", "support for the target AGP version is not explicitly confirmed"),
+        ]
+    elif "four" in arm:
+        descriptions = [
+            ("supported", "the release explicitly confirms support for the target Android Gradle Plugin version"),
+            ("unsupported", "the release explicitly says the target Android Gradle Plugin version is unsupported"),
+            ("different", "the release discusses support for a different Android Gradle Plugin version"),
+            ("unclear", "the release does not explicitly establish support for the target Android Gradle Plugin version"),
+        ]
+    else:
+        descriptions = [
+            ("supported", "the release explicitly confirms support for the target Android Gradle Plugin version"),
+            ("not_confirmed", "the release does not explicitly confirm support for the target Android Gradle Plugin version"),
+        ]
+
+    if "reversed" in arm:
+        descriptions = list(reversed(descriptions))
+
+    ids = [candidate_id for candidate_id, _ in descriptions]
+    labels = [f"It is {description}" for _, description in descriptions]
+    if "no_abstain" not in arm:
+        ids.append(ABSTAIN)
+        labels.append("insufficient evidence")
+
+    question = f"Which statement best describes these release notes with respect to Android Gradle Plugin (AGP) {target}?"
+    text = f"Question: {question}\n\nContext:\n{context}"
+    return "".join(f"{LABEL}{value}" for value in labels) + SEP + text, ids
+
+def noul_prompt(note, target, relevant, alternative):
+    context = relevant_context(note, target) if relevant else note
+    if alternative:
+        proposition = f"Android Gradle Plugin {target} is supported by the Android Plugin release described in these notes."
+    else:
+        proposition = f"These release notes explicitly confirm support for Android Gradle Plugin (AGP) {target}."
+    labels = [f"true: {proposition}", f"false: not {proposition}", "insufficient evidence"]
+    ids = ["supported", "not_confirmed", ABSTAIN]
+    text = f"Context:\n{context}\n\nEvaluate proposition: {proposition}"
+    return "".join(f"{LABEL}{value}" for value in labels) + SEP + text, ids
+
+def prompt_for(arm, note, target):
+    if arm.startswith("noul"):
+        return noul_prompt(note, target, "relevant" in arm, "alternative" in arm)
+    return choice_prompt(note, target, arm)
+
+def metrics(rows, threshold, margin=None):
+    tp = fp = tn = fn = 0
+    for row in rows:
+        predicted = row["selected"] == "supported" and row["p_supported"] >= threshold
+        if margin is not None:
+            predicted = predicted and row["p_supported"] - row["control_p_supported"] >= margin
+        expected = row["expected"]
+        if predicted and expected:
+            tp += 1
+        elif predicted and not expected:
+            fp += 1
+        elif not predicted and expected:
+            fn += 1
+        else:
+            tn += 1
+    total = tp + fp + tn + fn
+    return {"threshold": threshold, "margin": margin, "accuracy": (tp + tn) / total, "precision": tp / (tp + fp) if tp + fp else 1.0, "recall": tp / (tp + fn) if tp + fn else 0.0, "tp": tp, "fp": fp, "tn": tn, "fn": fn}
+
+def evaluate_arm(engine, cases, arm):
+    rows = []
+    for case in cases:
+        prompt, ids = prompt_for(arm, case["note"], case["target"])
+        result = engine.infer(prompt, ids)
+        control_prompt, control_ids = prompt_for(arm, case["note"], case["control"])
+        control = engine.infer(control_prompt, control_ids)
+        rows.append({**case, "selected": result["selected"], "p_supported": result["probabilities"].get("supported", 0.0), "probabilities": result["probabilities"], "control_selected": control["selected"], "control_p_supported": control["probabilities"].get("supported", 0.0), "latency_ms": result["latency_ms"], "control_latency_ms": control["latency_ms"]})
+    direct = [metrics(rows, threshold) for threshold in THRESHOLDS]
+    contrastive = [metrics(rows, threshold, margin) for threshold in THRESHOLDS for margin in MARGINS]
+    safe = [item for item in contrastive if item["fp"] == 0]
+    best_safe = max(safe, key=lambda item: (item["recall"], item["accuracy"], -item["threshold"], -item["margin"])) if safe else None
+    return {"arm": arm, "mean_inference_ms": sum(row["latency_ms"] + row["control_latency_ms"] for row in rows) / (2 * len(rows)), "direct": direct, "contrastive": contrastive, "best_safe": best_safe, "rows": rows}
+
+def consensus_report(first, second, arm):
+    second_rows = {row["id"]: row for row in second["rows"]}
+    rows = []
+    for row in first["rows"]:
+        other = second_rows[row["id"]]
+        both_supported = row["selected"] == "supported" and other["selected"] == "supported"
+        rows.append({
+            **row,
+            "selected": "supported" if both_supported else "not_confirmed",
+            "p_supported": min(row["p_supported"], other["p_supported"]),
+            "control_p_supported": max(row["control_p_supported"], other["control_p_supported"]),
+            "consensus_probabilities": other["probabilities"],
+        })
+    direct = [metrics(rows, threshold) for threshold in THRESHOLDS]
+    contrastive = [metrics(rows, threshold, margin) for threshold in THRESHOLDS for margin in MARGINS]
+    safe = [item for item in contrastive if item["fp"] == 0]
+    best_safe = max(safe, key=lambda item: (item["recall"], item["accuracy"], -item["threshold"], -item["margin"])) if safe else None
+    return {
+        "arm": arm,
+        "mean_inference_ms": first["mean_inference_ms"] + second["mean_inference_ms"],
+        "direct": direct,
+        "contrastive": contrastive,
+        "best_safe": best_safe,
+        "rows": rows,
+    }
+
+def main():
+    validate_support_patterns()
+    cases = build_cases()
+    engine = Engine()
+    arms = [
+        "choice2_semantic_no_abstain",
+        "choice2_semantic_no_abstain_reversed",
+        "choice2_semantic_simple_no_abstain",
+        "choice2_semantic_simple_no_abstain_reversed",
+        "choice_four_semantic",
+    ]
+    arm_reports = [evaluate_arm(engine, cases, arm) for arm in arms]
+    by_arm = {report["arm"]: report for report in arm_reports}
+    arm_reports.extend([
+        consensus_report(
+            by_arm["choice2_semantic_no_abstain"],
+            by_arm["choice2_semantic_no_abstain_reversed"],
+            "choice2_semantic_no_abstain_consensus",
+        ),
+        consensus_report(
+            by_arm["choice2_semantic_simple_no_abstain"],
+            by_arm["choice2_semantic_simple_no_abstain_reversed"],
+            "choice2_semantic_simple_no_abstain_consensus",
+        ),
+    ])
+    ranked = sorted([report for report in arm_reports if report["best_safe"]], key=lambda report: (report["best_safe"]["recall"], report["best_safe"]["accuracy"]), reverse=True)
+    report = {
+        "model": MODEL_REPO,
+        "model_file": MODEL_FILE,
+        "model_load_seconds": engine.load_seconds,
+        "calibrator": engine.calibrator,
+        "case_count": len(cases),
+        "positive_cases": sum(case["expected"] for case in cases),
+        "negative_cases": sum(not case["expected"] for case in cases),
+        "arms": arm_reports,
+        "best_arm": None if not ranked else {"arm": ranked[0]["arm"], "metrics": ranked[0]["best_safe"]},
+    }
+    REPORT_PATH.write_text(json.dumps(report, ensure_ascii=False, indent=2), encoding="utf-8")
+    print(json.dumps({key: value for key, value in report.items() if key != "arms"}, ensure_ascii=False, indent=2))
+    print("\\nARM SUMMARY")
+    for item in arm_reports:
+        print(f"{item['arm']}: mean_ms={item['mean_inference_ms']:.1f} best_safe={item['best_safe']}")
+    print("\\nTOP ARM MISSES")
+    for item in ranked[:3]:
+        config = item["best_safe"]
+        misses = []
+        for row in item["rows"]:
+            predicted = row["selected"] == "supported" and row["p_supported"] >= config["threshold"] and row["p_supported"] - row["control_p_supported"] >= config["margin"]
+            if predicted != row["expected"]:
+                misses.append({"id": row["id"], "expected": row["expected"], "selected": row["selected"], "p": round(row["p_supported"], 4), "control_p": round(row["control_p_supported"], 4), "note": row["note"][:180]})
+        print(item["arm"], json.dumps(misses, ensure_ascii=False))
+
+if __name__ == "__main__":
+    main()
