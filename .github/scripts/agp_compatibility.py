@@ -11,11 +11,14 @@ import urllib.request
 from html.parser import HTMLParser
 from pathlib import Path
 
+import agp_jev
+
 AGP_FILE = "gradle/libs.versions.toml"
 ANDROID_STUDIO_COMPATIBILITY_URL = "https://developer.android.com/build/releases/about-agp"
 JETBRAINS_ANDROID_PLUGIN_ID = 22989
 JETBRAINS_ANDROID_PLUGIN_URL = "https://plugins.jetbrains.com/plugin/22989-android/versions/stable"
 COMMENT_PATH = Path("agp-compatibility-comment.md")
+JEV_JUDGMENT_LIMIT = 60
 
 
 class TableParser(HTMLParser):
@@ -139,18 +142,6 @@ def update_timestamp(update):
         return 0
 
 
-def notes_support_agp(notes, target_version):
-    major, minor = major_minor(target_version)
-    text = strip_html(notes)
-    version = rf"{major}\.{minor}(?:\.\d+)?"
-    patterns = [
-        rf"\bsupport(?:s|ed|ing)?\s+(?:for\s+)?(?:Android\s+Gradle\s+Plugin|AGP)\s+{version}\b",
-        rf"\b(?:Android\s+Gradle\s+Plugin|AGP)\s+{version}\b[^.!?;]{{0,80}}\bsupport(?:s|ed)?\b",
-        rf"\b(?:compatible|compatibility)\s+with\s+(?:Android\s+Gradle\s+Plugin|AGP)\s+{version}\b",
-    ]
-    return any(re.search(pattern, text, re.IGNORECASE) for pattern in patterns)
-
-
 def intellij_compatibility(update):
     compatible = update.get("compatibleVersions") or {}
     idea_versions = []
@@ -161,6 +152,13 @@ def intellij_compatibility(update):
     if idea_versions:
         return ", ".join(dict.fromkeys(idea_versions))
     return update.get("sinceUntil") or format_build_range(update)
+
+
+def release_url(update):
+    update_id = update.get("id")
+    if not update_id:
+        return JETBRAINS_ANDROID_PLUGIN_URL
+    return f"https://plugins.jetbrains.com/plugin/{JETBRAINS_ANDROID_PLUGIN_ID}-android/versions/stable/{update_id}"
 
 
 def format_build_range(update):
@@ -175,52 +173,63 @@ def format_build_range(update):
     return "不明"
 
 
-def find_jetbrains_android_plugin_support(target_version):
-    latest = None
+def collect_stable_updates():
+    collected = []
     page = 0
     while True:
         url = f"https://plugins.jetbrains.com/api/plugins/{JETBRAINS_ANDROID_PLUGIN_ID}/updates?size=100&page={page}"
         updates = request_json(url)
         if not updates:
             break
-        stable = [item for item in updates if is_stable(item)]
-        if stable:
-            page_latest = max(stable, key=update_timestamp)
-            if latest is None or update_timestamp(page_latest) > update_timestamp(latest):
-                latest = page_latest
-            matched = max(
-                (item for item in stable if notes_support_agp(item.get("notes"), target_version)),
-                key=update_timestamp,
-                default=None,
-            )
-            if matched:
-                return matched, latest
+        collected.extend(item for item in updates if is_stable(item))
         if len(updates) < 100:
             break
         page += 1
-    return None, latest
+    return sorted(collected, key=update_timestamp, reverse=True)
 
 
-def jetbrains_row(target_version, matched, latest):
+def find_jetbrains_android_plugin_support(target_version):
+    # agp_jev_tuning.py の評価と同じ粒度で判定するため、パッチバージョンは落とす。
+    target = agp_jev.major_minor(target_version)
+    stable_updates = collect_stable_updates()
+    latest = stable_updates[0] if stable_updates else None
+
+    # 1件あたり2回推論するため、AGPに言及しているリリースノートを新しい順に上限まで絞る。
+    candidates = []
+    for update in stable_updates:
+        note = strip_html(update.get("notes"))
+        if note and agp_jev.mentions_agp(note):
+            candidates.append((update, note))
+        if len(candidates) >= JEV_JUDGMENT_LIMIT:
+            break
+    if not candidates:
+        return None, None, latest
+
+    engine = agp_jev.Engine()
+    for update, note in candidates:
+        verdict = engine.judge(note, target)
+        if verdict["supported"]:
+            return update, verdict, latest
+    return None, None, latest
+
+
+def jetbrains_row(target_version, matched, verdict, latest):
     if matched:
         version = matched.get("version") or "不明"
         compatibility = intellij_compatibility(matched)
-        update_id = matched.get("id")
-        detail_url = (
-            f"https://plugins.jetbrains.com/plugin/{JETBRAINS_ANDROID_PLUGIN_ID}-android/versions/stable/{update_id}"
-            if update_id
-            else JETBRAINS_ANDROID_PLUGIN_URL
-        )
         return (
-            f"✅ Android Plugin {version} で AGP {'.'.join(map(str, major_minor(target_version)))} の対応を明記。"
-            f" IntelliJ IDEA互換: {compatibility}。 [リリース]({detail_url})"
+            f"✅ Android Plugin {version} のリリースノートを"
+            f" AGP {'.'.join(map(str, major_minor(target_version)))} 対応と判定"
+            f"（p={verdict['probability']:.2f} / 対照 AGP {verdict['control_version']}"
+            f" p={verdict['control_probability']:.2f}）。"
+            f" IntelliJ IDEA互換: {compatibility}。 [リリース]({release_url(matched)})"
         )
     if latest:
         version = latest.get("version") or "不明"
         compatibility = intellij_compatibility(latest)
         return (
             f"⚠️ 最新Stableの Android Plugin {version} まで確認しましたが、"
-            f"AGP {'.'.join(map(str, major_minor(target_version)))} 対応の明記を確認できません。"
+            f"AGP {'.'.join(map(str, major_minor(target_version)))} 対応と判定できるリリースノートがありません。"
             f" IntelliJ IDEA互換: {compatibility}。 [Stable一覧]({JETBRAINS_ANDROID_PLUGIN_URL})"
         )
     return f"⚠️ JetBrains Marketplace から Android Plugin のStable版を取得できませんでした。"
@@ -246,6 +255,8 @@ def build_comment(old_version, new_version, studio, jetbrains_status, errors):
         "| --- | --- |",
         f"| Android Studio | {studio_status} |",
         f"| IntelliJ IDEA / Android Plugin | {jetbrains_status} |",
+        "",
+        f"Android Plugin の行はリリースノートを {agp_jev.MODEL_REPO} で機械判定した結果です。",
     ]
     if errors:
         lines.extend(["", "### 取得時の警告"])
@@ -275,17 +286,18 @@ def main():
     errors = []
     studio = None
     matched = None
+    verdict = None
     latest = None
     try:
         studio = find_android_studio_support(new_version)
     except Exception as error:
         errors.append(f"Android Studio互換表: {error}")
     try:
-        matched, latest = find_jetbrains_android_plugin_support(new_version)
+        matched, verdict, latest = find_jetbrains_android_plugin_support(new_version)
     except Exception as error:
-        errors.append(f"JetBrains Marketplace: {error}")
+        errors.append(f"Android Plugin判定: {error}")
 
-    jetbrains_status = jetbrains_row(new_version, matched, latest)
+    jetbrains_status = jetbrains_row(new_version, matched, verdict, latest)
     body = build_comment(old_version, new_version, studio, jetbrains_status, errors)
     COMMENT_PATH.write_text(body, encoding="utf-8")
     with open(os.environ["GITHUB_OUTPUT"], "a", encoding="utf-8") as output_file:
