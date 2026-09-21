@@ -151,7 +151,12 @@ public class SettingSubCategoryViewModel(
                     val subCategoryInfo = response.data?.user?.moneyUsageSubCategory
                     if (subCategoryInfo == null) {
                         if (response.isFromCache && response.data == null) return@collect
-                        viewModelStateFlow.update { state -> state.copy(isLoadFailed = true) }
+                        viewModelStateFlow.update { state ->
+                            state.copy(
+                                subCategoryInfo = null,
+                                isLoadFailed = true,
+                            )
+                        }
                         globalEventSender.send {
                             it.showSnackBar("データの取得に失敗しました")
                         }
