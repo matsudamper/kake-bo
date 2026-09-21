@@ -26,14 +26,15 @@ internal class ImagePickerImpl : ImagePicker {
 
         var resolved = false
         var focusTimeoutId: Int? = null
-        var attachFocusListenerTimeoutId: Int? = null
+        var windowBlurredForPicker = false
         lateinit var cancelHandler: (Event) -> Unit
+        lateinit var blurHandler: (Event) -> Unit
         lateinit var focusHandler: (Event) -> Unit
 
         fun cleanup() {
             focusTimeoutId?.let { window.clearTimeout(it) }
-            attachFocusListenerTimeoutId?.let { window.clearTimeout(it) }
             window.removeEventListener("focus", focusHandler)
+            window.removeEventListener("blur", blurHandler)
             input.removeEventListener("cancel", cancelHandler)
             input.parentNode?.removeChild(input)
         }
@@ -51,7 +52,15 @@ internal class ImagePickerImpl : ImagePicker {
             resumeOnce(emptyList())
         }
 
-        focusHandler = {
+        blurHandler = {
+            windowBlurredForPicker = true
+        }
+
+        focusHandler = onWindowFocus@{
+            if (!windowBlurredForPicker) {
+                return@onWindowFocus
+            }
+            windowBlurredForPicker = false
             focusTimeoutId?.let { window.clearTimeout(it) }
             focusTimeoutId = window.setTimeout({
                 val files = input.files
@@ -69,6 +78,8 @@ internal class ImagePickerImpl : ImagePicker {
         }
 
         input.addEventListener("cancel", cancelHandler)
+        window.addEventListener("blur", blurHandler)
+        window.addEventListener("focus", focusHandler)
 
         input.onchange = { _ ->
             val files = input.files
@@ -107,9 +118,6 @@ internal class ImagePickerImpl : ImagePicker {
         }
 
         input.click()
-        attachFocusListenerTimeoutId = window.setTimeout({
-            window.addEventListener("focus", focusHandler)
-        }, ATTACH_FOCUS_LISTENER_DELAY_MS)
     }
 
     private fun toByteArray(buffer: ArrayBuffer): ByteArray {
@@ -120,7 +128,6 @@ internal class ImagePickerImpl : ImagePicker {
     }
 
     private companion object {
-        private const val ATTACH_FOCUS_LISTENER_DELAY_MS = 300
         private const val FOCUS_SETTLE_DELAY_MS = 300
     }
 }
