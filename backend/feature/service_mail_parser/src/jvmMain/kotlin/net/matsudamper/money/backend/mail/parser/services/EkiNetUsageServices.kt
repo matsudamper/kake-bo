@@ -110,10 +110,12 @@ internal object EkiNetUsageServices : MoneyUsageServices {
 
     private fun getFirstDepartureTime(section: String): LocalTime? {
         val result = departureTimeRegex.find(section) ?: return null
-        return LocalTime.of(
-            result.groupValues[1].toInt(),
-            result.groupValues[2].toInt(),
-        )
+        return runCatching {
+            LocalTime.of(
+                result.groupValues[1].toInt(),
+                result.groupValues[2].toInt(),
+            )
+        }.getOrNull()
     }
 
     private fun getTrainInfo(lines: List<String>): String {
