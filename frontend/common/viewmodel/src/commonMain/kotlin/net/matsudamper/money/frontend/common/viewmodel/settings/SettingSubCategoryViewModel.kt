@@ -48,11 +48,7 @@ public class SettingSubCategoryViewModel(
                     val categoryId = viewModelStateFlow.value.subCategoryInfo?.category?.id
                     viewModelScope.launch {
                         viewModelEventSender.send {
-                            if (categoryId == null) {
-                                it.navigateToCategories()
-                            } else {
-                                it.navigateToCategory(categoryId)
-                            }
+                            it.navigateBack(categoryId)
                         }
                     }
                 }
@@ -192,6 +188,9 @@ public class SettingSubCategoryViewModel(
     public interface Event {
         public fun navigateToCategory(id: MoneyUsageCategoryId)
 
-        public fun navigateToCategories()
+        /**
+         * 読み込み前・失敗時は親カテゴリが分からないため、categoryIdはnullになりうる
+         */
+        public fun navigateBack(categoryId: MoneyUsageCategoryId?)
     }
 }

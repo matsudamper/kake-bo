@@ -6,6 +6,7 @@ import kotlinx.coroutines.launch
 import net.matsudamper.money.element.ImportedMailId
 import net.matsudamper.money.element.MoneyUsageCategoryId
 import net.matsudamper.money.element.MoneyUsageSubCategoryId
+import net.matsudamper.money.frontend.common.base.nav.user.IScreenStructure
 import net.matsudamper.money.frontend.common.base.nav.user.ScreenNavController
 import net.matsudamper.money.frontend.common.base.nav.user.ScreenStructure
 import net.matsudamper.money.frontend.common.viewmodel.addmoneyusage.AddMoneyUsageViewModel
@@ -157,17 +158,25 @@ internal data class ViewModelEventHandlers(
                 object : SettingSubCategoryViewModel.Event {
                     override fun navigateToCategory(id: MoneyUsageCategoryId) {
                         val category = ScreenStructure.Root.Settings.Category(id = id)
-                        val backstackEntries = navController.backstackEntries
-                        val previousEntry = backstackEntries.getOrNull(backstackEntries.lastIndex - 1)
-                        if (previousEntry == category) {
+                        if (previousBackstackEntry() == category) {
                             navController.back()
                         } else {
                             navController.navigateReplace(category)
                         }
                     }
 
-                    override fun navigateToCategories() {
-                        navController.navigateReplace(ScreenStructure.Root.Settings.Categories)
+                    override fun navigateBack(categoryId: MoneyUsageCategoryId?) {
+                        val previousEntry = previousBackstackEntry()
+                        when {
+                            previousEntry is ScreenStructure.Root.Settings.Category -> navController.back()
+                            categoryId != null -> navController.navigateReplace(ScreenStructure.Root.Settings.Category(id = categoryId))
+                            else -> navController.navigateReplace(ScreenStructure.Root.Settings.Categories)
+                        }
+                    }
+
+                    private fun previousBackstackEntry(): IScreenStructure? {
+                        val backstackEntries = navController.backstackEntries
+                        return backstackEntries.getOrNull(backstackEntries.lastIndex - 1)
                     }
                 },
             )
