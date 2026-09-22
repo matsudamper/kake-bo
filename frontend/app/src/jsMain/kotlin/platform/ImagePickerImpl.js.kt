@@ -1,7 +1,6 @@
 package platform
 
 import kotlin.coroutines.resume
-import kotlin.js.Date
 import kotlin.js.Promise
 import kotlin.uuid.ExperimentalUuidApi
 import kotlin.uuid.Uuid
@@ -28,16 +27,12 @@ internal class ImagePickerImpl : ImagePicker {
         var resolved = false
         var focusTimeoutId: Int? = null
         var pickerEngaged = false
-        var pickerClickedAtMs = 0.0
-        var windowBlurredForPicker = false
         lateinit var cancelHandler: (Event) -> Unit
-        lateinit var blurHandler: (Event) -> Unit
         lateinit var focusHandler: (Event) -> Unit
 
         fun cleanup() {
             focusTimeoutId?.let { window.clearTimeout(it) }
             window.removeEventListener("focus", focusHandler)
-            window.removeEventListener("blur", blurHandler)
             input.removeEventListener("cancel", cancelHandler)
             input.parentNode?.removeChild(input)
         }
@@ -55,19 +50,10 @@ internal class ImagePickerImpl : ImagePicker {
             resumeOnce(emptyList())
         }
 
-        blurHandler = {
-            windowBlurredForPicker = true
-        }
-
         focusHandler = onWindowFocus@{
             if (!pickerEngaged) {
                 return@onWindowFocus
             }
-            val elapsedSinceClickMs = Date.now() - pickerClickedAtMs
-            if (!windowBlurredForPicker && elapsedSinceClickMs < FOCUS_IGNORE_AFTER_CLICK_MS) {
-                return@onWindowFocus
-            }
-            windowBlurredForPicker = false
             focusTimeoutId?.let { window.clearTimeout(it) }
             focusTimeoutId = window.setTimeout({
                 val files = input.files
@@ -85,7 +71,6 @@ internal class ImagePickerImpl : ImagePicker {
         }
 
         input.addEventListener("cancel", cancelHandler)
-        window.addEventListener("blur", blurHandler)
         window.addEventListener("focus", focusHandler)
 
         input.onchange = { _ ->
@@ -125,7 +110,6 @@ internal class ImagePickerImpl : ImagePicker {
         }
 
         pickerEngaged = true
-        pickerClickedAtMs = Date.now()
         input.click()
     }
 
@@ -137,7 +121,6 @@ internal class ImagePickerImpl : ImagePicker {
     }
 
     private companion object {
-        private const val FOCUS_IGNORE_AFTER_CLICK_MS = 300
         private const val FOCUS_SETTLE_DELAY_MS = 300
     }
 }
