@@ -40,6 +40,7 @@ public data class RootUsageCalendarPagerHostScreenUiState(
 public fun RootUsageCalendarPagerHostScreen(
     uiState: RootUsageCalendarPagerHostScreenUiState,
     uiStateProvider: @Composable (ScreenStructure.Root.Usage.Calendar) -> RootUsageCalendarScreenUiState,
+    userScrollEnabled: Boolean,
     modifier: Modifier = Modifier,
     stickyHeaderState: StickyHeaderState,
 ) {
@@ -74,6 +75,7 @@ public fun RootUsageCalendarPagerHostScreen(
         HorizontalPager(
             state = state,
             modifier = modifier,
+            userScrollEnabled = userScrollEnabled,
         ) { index ->
             val item = uiState.pages[index]
             RootUsageCalendarScreen(
