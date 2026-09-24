@@ -29,10 +29,5 @@ kotlin {
                 implementation(libs.opentelemetryHikariCp3)
             }
         }
-        val jvmTest by getting {
-            dependencies {
-                implementation(kotlin("test"))
-            }
-        }
     }
 }
