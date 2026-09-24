@@ -12,6 +12,7 @@ import net.matsudamper.money.element.ImportedMailId
 import net.matsudamper.money.element.MoneyUsageCategoryId
 import net.matsudamper.money.element.MoneyUsageId
 import net.matsudamper.money.element.MoneyUsagePresetId
+import net.matsudamper.money.element.MoneyUsageSubCategoryId
 
 private val browserHiddenScreens: Set<Screens> = setOf(
     Screens.AddNotificationUsage,
@@ -101,6 +102,12 @@ private fun UrlPlaceHolderParser.ScreenState<Screens>.toScreenStructure(queryPar
         Screens.SettingsCategoryId ->
             ScreenStructure.Root.Settings.Category(
                 id = this.pathParams["id"]?.toIntOrNull()?.let { MoneyUsageCategoryId(it) }
+                    ?: return ScreenStructure.NotFound,
+            )
+
+        Screens.SettingsSubCategoryId ->
+            ScreenStructure.Root.Settings.SubCategory(
+                id = this.pathParams["id"]?.toIntOrNull()?.let { MoneyUsageSubCategoryId(it) }
                     ?: return ScreenStructure.NotFound,
             )
 

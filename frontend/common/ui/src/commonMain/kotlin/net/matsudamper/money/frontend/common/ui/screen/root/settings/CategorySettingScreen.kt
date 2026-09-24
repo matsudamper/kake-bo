@@ -115,19 +115,12 @@ public data class SettingCategoryScreenUiState(
     public data class SubCategoryItem(
         val id: MoneyUsageSubCategoryId,
         val name: String,
-        val isEditing: Boolean,
         val event: Event,
     ) {
         public interface Event {
             public fun onClick()
 
             public fun onClickDelete()
-
-            public fun onClickEdit()
-
-            public fun onEditComplete(text: String)
-
-            public fun onEditDismiss()
         }
     }
 
@@ -167,13 +160,9 @@ public fun SettingCategoryScreen(
     LaunchedEffect(Unit) {
         uiState.event.onResume()
     }
-    val isSubCategoryEditing = (uiState.loadingState as? SettingCategoryScreenUiState.LoadingState.Loaded)
-        ?.item
-        ?.any { it.isEditing } == true
-    val shouldHandleBackAsEditCancel =
-        uiState.heroMode == SettingCategoryScreenUiState.HeroMode.EditingCategoryName || isSubCategoryEditing
+    val isCategoryNameEditing = uiState.heroMode == SettingCategoryScreenUiState.HeroMode.EditingCategoryName
 
-    ScreenBackHandler(enabled = shouldHandleBackAsEditCancel) {
+    ScreenBackHandler(enabled = isCategoryNameEditing) {
         uiState.event.onClickBack()
     }
 
@@ -241,9 +230,7 @@ private fun LoadedContent(
 ) {
     val heroColor = uiState.categoryColor ?: MaterialTheme.colorScheme.primary
     StatusBarAppearance(isLightStatusBar = ColorUtil.contrastTextColor(heroColor) == Color.Black)
-    val shouldHandleBackAsEditCancel =
-        uiState.heroMode == SettingCategoryScreenUiState.HeroMode.EditingCategoryName ||
-            loadedState.item.any { it.isEditing }
+    val shouldHandleBackAsEditCancel = uiState.heroMode == SettingCategoryScreenUiState.HeroMode.EditingCategoryName
 
     Box(modifier = modifier) {
         Column(modifier = Modifier.fillMaxSize()) {
@@ -693,7 +680,6 @@ private fun SubCategoryRow(
     position: RowPosition,
     modifier: Modifier = Modifier,
 ) {
-    val accentColor = MaterialTheme.colorScheme.primary
     val rowShape = when (position) {
         RowPosition.Single -> RoundedCornerShape(12.dp)
         RowPosition.First -> RoundedCornerShape(topStart = 12.dp, topEnd = 12.dp)
@@ -702,124 +688,60 @@ private fun SubCategoryRow(
     }
     val isLast = position == RowPosition.Last || position == RowPosition.Single
 
-    if (item.isEditing) {
-        var editingText by remember(item.name) { mutableStateOf(item.name) }
-
+    Column(
+        modifier = modifier
+            .background(MaterialTheme.colorScheme.surfaceContainerHighest, rowShape)
+            .clip(rowShape),
+    ) {
         Row(
-            modifier = modifier
-                .background(accentColor.copy(alpha = 0.06f), rowShape)
-                .clip(rowShape)
-                .padding(start = 16.dp, top = 8.dp, bottom = 8.dp, end = 8.dp),
+            modifier = Modifier
+                .fillMaxWidth()
+                .then(
+                    if (!isAddMode) {
+                        Modifier.clickable { item.event.onClick() }
+                    } else {
+                        Modifier
+                    },
+                )
+                .padding(start = 16.dp, top = 4.dp, bottom = 4.dp, end = 4.dp),
             verticalAlignment = Alignment.CenterVertically,
         ) {
-            Row(
+            Text(
                 modifier = Modifier
                     .weight(1f)
-                    .border(2.dp, accentColor, RoundedCornerShape(8.dp))
-                    .background(MaterialTheme.colorScheme.surface, RoundedCornerShape(8.dp))
-                    .padding(horizontal = 10.dp, vertical = 8.dp),
-                verticalAlignment = Alignment.CenterVertically,
-            ) {
-                BasicTextField(
-                    modifier = Modifier.weight(1f),
-                    value = editingText,
-                    onValueChange = { editingText = it },
-                    textStyle = MaterialTheme.typography.bodyLarge.copy(
-                        color = LocalContentColor.current,
-                    ),
-                    cursorBrush = SolidColor(accentColor),
-                    singleLine = true,
-                )
-                Box(
+                    .padding(vertical = 8.dp),
+                text = item.name,
+                style = MaterialTheme.typography.bodyLarge,
+                color = if (isAddMode) {
+                    MaterialTheme.colorScheme.onSurface.copy(alpha = 0.5f)
+                } else {
+                    MaterialTheme.colorScheme.onSurface
+                },
+            )
+            if (!isAddMode) {
+                IconButton(onClick = { item.event.onClickDelete() }) {
+                    Icon(
+                        painter = painterResource(Res.drawable.ic_close),
+                        contentDescription = "削除",
+                        modifier = Modifier.size(18.dp),
+                        tint = MaterialTheme.colorScheme.onSurfaceVariant,
+                    )
+                }
+                Icon(
                     modifier = Modifier
-                        .width(2.dp)
-                        .height(18.dp)
-                        .background(accentColor),
-                )
-            }
-            Spacer(Modifier.width(8.dp))
-            Box(
-                modifier = Modifier
-                    .size(40.dp)
-                    .clip(CircleShape)
-                    .background(accentColor)
-                    .clickable { item.event.onEditComplete(editingText) },
-                contentAlignment = Alignment.Center,
-            ) {
-                Icon(
-                    painter = painterResource(Res.drawable.ic_check),
-                    contentDescription = "確定",
-                    modifier = Modifier.size(20.dp),
-                )
-            }
-            Spacer(Modifier.width(4.dp))
-            IconButton(onClick = { item.event.onEditDismiss() }) {
-                Icon(
-                    painter = painterResource(Res.drawable.ic_close),
-                    contentDescription = "キャンセル",
+                        .padding(end = 8.dp)
+                        .size(18.dp),
+                    painter = painterResource(Res.drawable.ic_chevron_right),
+                    contentDescription = null,
                     tint = MaterialTheme.colorScheme.onSurfaceVariant,
-                    modifier = Modifier.size(18.dp),
                 )
             }
         }
-    } else {
-        Column(
-            modifier = modifier
-                .background(MaterialTheme.colorScheme.surfaceContainerHighest, rowShape)
-                .clip(rowShape),
-        ) {
-            Row(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .then(
-                        if (!isAddMode) {
-                            Modifier.clickable { item.event.onClick() }
-                        } else {
-                            Modifier
-                        },
-                    )
-                    .padding(start = 16.dp, top = 4.dp, bottom = 4.dp, end = 4.dp),
-                verticalAlignment = Alignment.CenterVertically,
-            ) {
-                Text(
-                    modifier = Modifier
-                        .weight(1f)
-                        .padding(vertical = 8.dp),
-                    text = item.name,
-                    style = MaterialTheme.typography.bodyLarge,
-                    color = if (isAddMode) {
-                        MaterialTheme.colorScheme.onSurface.copy(alpha = 0.5f)
-                    } else {
-                        MaterialTheme.colorScheme.onSurface
-                    },
-                )
-                if (!isAddMode) {
-                    IconButton(onClick = { item.event.onClickEdit() }) {
-                        Icon(
-                            painter = painterResource(Res.drawable.ic_edit),
-                            contentDescription = "名前を変更",
-                            modifier = Modifier.size(18.dp),
-                            tint = MaterialTheme.colorScheme.onSurfaceVariant,
-                        )
-                    }
-                }
-                if (!isAddMode) {
-                    IconButton(onClick = { item.event.onClickDelete() }) {
-                        Icon(
-                            painter = painterResource(Res.drawable.ic_close),
-                            contentDescription = "削除",
-                            modifier = Modifier.size(18.dp),
-                            tint = MaterialTheme.colorScheme.onSurfaceVariant,
-                        )
-                    }
-                }
-            }
-            if (!isLast) {
-                HorizontalDivider(
-                    modifier = Modifier.padding(start = 16.dp),
-                    color = MaterialTheme.colorScheme.outlineVariant,
-                )
-            }
+        if (!isLast) {
+            HorizontalDivider(
+                modifier = Modifier.padding(start = 16.dp),
+                color = MaterialTheme.colorScheme.outlineVariant,
+            )
         }
     }
 }
@@ -834,7 +756,6 @@ private fun CategorySettingScreenPreview() {
 private fun CategorySettingScreenPreviewContent(
     heroMode: SettingCategoryScreenUiState.HeroMode = SettingCategoryScreenUiState.HeroMode.Base,
     isAddingSubCategory: Boolean = false,
-    editingSubCategoryIndex: Int? = null,
 ) {
     val subCategories = listOf(
         "スーパー",
@@ -867,13 +788,9 @@ private fun CategorySettingScreenPreviewContent(
                     SettingCategoryScreenUiState.SubCategoryItem(
                         id = MoneyUsageSubCategoryId(index),
                         name = name,
-                        isEditing = index == editingSubCategoryIndex,
                         event = object : SettingCategoryScreenUiState.SubCategoryItem.Event {
                             override fun onClick() {}
                             override fun onClickDelete() {}
-                            override fun onClickEdit() {}
-                            override fun onEditComplete(text: String) {}
-                            override fun onEditDismiss() {}
                         },
                     )
                 },

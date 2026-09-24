@@ -18,13 +18,11 @@ import net.matsudamper.money.frontend.graphql.CategorySettingScreenSubCategories
 import net.matsudamper.money.frontend.graphql.DeleteCategoryMutation
 import net.matsudamper.money.frontend.graphql.DeleteSubCategoryMutation
 import net.matsudamper.money.frontend.graphql.UpdateCategoryMutation
-import net.matsudamper.money.frontend.graphql.UpdateSubCategoryMutation
 import net.matsudamper.money.frontend.graphql.type.AddCategoryInput
 import net.matsudamper.money.frontend.graphql.type.AddSubCategoryInput
 import net.matsudamper.money.frontend.graphql.type.MoneyUsageCategoriesInput
 import net.matsudamper.money.frontend.graphql.type.MoneyUsageSubCategoryQuery
 import net.matsudamper.money.frontend.graphql.type.UpdateCategoryQuery
-import net.matsudamper.money.frontend.graphql.type.UpdateSubCategoryQuery
 import net.matsudamper.money.frontend.graphql.updateOperation
 
 private const val TAG = "SettingScreenCategoryApi"
@@ -135,26 +133,6 @@ public class SettingScreenCategoryApi(
             )
             .fetchPolicy(FetchPolicy.CacheAndNetwork)
             .watch()
-    }
-
-    public suspend fun updateSubCategory(
-        id: MoneyUsageSubCategoryId,
-        name: String,
-    ): ApolloResponse<UpdateSubCategoryMutation.Data>? {
-        return runCatching {
-            apolloClient
-                .mutation(
-                    UpdateSubCategoryMutation(
-                        id = id,
-                        query = UpdateSubCategoryQuery(
-                            name = Optional.present(name),
-                        ),
-                    ),
-                )
-                .execute()
-        }.onFailure {
-            Logger.e(TAG, it)
-        }.getOrNull()
     }
 
     public suspend fun deleteSubCategory(

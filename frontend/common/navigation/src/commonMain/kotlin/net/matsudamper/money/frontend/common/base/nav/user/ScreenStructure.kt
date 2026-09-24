@@ -7,6 +7,7 @@ import net.matsudamper.money.element.ImportedMailId
 import net.matsudamper.money.element.MoneyUsageCategoryId
 import net.matsudamper.money.element.MoneyUsageId
 import net.matsudamper.money.element.MoneyUsagePresetId
+import net.matsudamper.money.element.MoneyUsageSubCategoryId
 import net.matsudamper.money.frontend.common.base.Logger
 
 private const val TAG = "ScreenStructure"
@@ -61,6 +62,18 @@ public sealed interface ScreenStructure : IScreenStructure {
 
                 override fun createUrl(): String {
                     return direction.placeholderUrl.replace("{id}", id.value.toString())
+                }
+            }
+
+            @Serializable
+            public data class SubCategory(
+                public val id: MoneyUsageSubCategoryId,
+            ) : Settings {
+                override val direction: Screens = Screens.SettingsSubCategoryId
+                override val sameScreenId: String = "ScreenStructure#Root#Settings#SubCategory"
+
+                override fun createUrl(): String {
+                    return direction.placeholderUrl.replace("{id}", id.id.toString())
                 }
             }
 

@@ -25,6 +25,7 @@ import net.matsudamper.money.frontend.common.ui.screen.root.settings.SettingCate
 import net.matsudamper.money.frontend.common.ui.screen.root.settings.SettingCategoryScreen
 import net.matsudamper.money.frontend.common.ui.screen.root.settings.SettingMailCategoryFiltersScreen
 import net.matsudamper.money.frontend.common.ui.screen.root.settings.SettingRootScreen
+import net.matsudamper.money.frontend.common.ui.screen.root.settings.SettingSubCategoryScreen
 import net.matsudamper.money.frontend.common.ui.screen.root.settings.TextFieldTestScreen
 import net.matsudamper.money.frontend.common.ui.screen.root.settings.TextFieldTestScreenUiState
 import net.matsudamper.money.frontend.common.ui.screen.root.settings.TimezoneSettingScreen
@@ -47,6 +48,8 @@ import net.matsudamper.money.frontend.common.viewmodel.root.settings.timezone.Ti
 import net.matsudamper.money.frontend.common.viewmodel.settings.SettingCategoriesViewModel
 import net.matsudamper.money.frontend.common.viewmodel.settings.SettingCategoryViewModel
 import net.matsudamper.money.frontend.common.viewmodel.settings.SettingScreenCategoryApi
+import net.matsudamper.money.frontend.common.viewmodel.settings.SettingScreenSubCategoryApi
+import net.matsudamper.money.frontend.common.viewmodel.settings.SettingSubCategoryViewModel
 import net.matsudamper.money.frontend.common.viewmodel.shared.FidoApi
 import net.matsudamper.money.frontend.graphql.GraphqlClient
 import net.matsudamper.money.frontend.graphql.GraphqlUserConfigQuery
@@ -121,6 +124,32 @@ internal fun SettingNavContent(
                     viewModel.globalEventHandler.collect(globalEvent)
                 }
                 SettingCategoryScreen(
+                    uiState = viewModel.uiState.collectAsState().value,
+                    modifier = modifier,
+                    windowInsets = windowInsets,
+                )
+            }
+        }
+
+        is ScreenStructure.Root.Settings.SubCategory -> {
+            holder.SaveableStateProvider(state::class.toString()) {
+                val viewModel = LocalScopedObjectStore.current.putOrGet(state.id) {
+                    SettingSubCategoryViewModel(
+                        scopedObjectFeature = it,
+                        api = SettingScreenSubCategoryApi(
+                            apolloClient = koin.get<GraphqlClient>().apolloClient,
+                        ),
+                        subCategoryId = state.id,
+                        navController = navController,
+                    )
+                }
+                LaunchedEffect(viewModel.viewModelEventHandler) {
+                    viewModelEventHandlers.handleSettingSubCategory(viewModel.viewModelEventHandler)
+                }
+                LaunchedEffect(viewModel.globalEventHandler) {
+                    viewModel.globalEventHandler.collect(globalEvent)
+                }
+                SettingSubCategoryScreen(
                     uiState = viewModel.uiState.collectAsState().value,
                     modifier = modifier,
                     windowInsets = windowInsets,

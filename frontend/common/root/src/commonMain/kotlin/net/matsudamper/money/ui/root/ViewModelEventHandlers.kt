@@ -5,6 +5,8 @@ import kotlinx.coroutines.coroutineScope
 import kotlinx.coroutines.launch
 import net.matsudamper.money.element.ImportedMailId
 import net.matsudamper.money.element.MoneyUsageCategoryId
+import net.matsudamper.money.element.MoneyUsageSubCategoryId
+import net.matsudamper.money.frontend.common.base.nav.user.IScreenStructure
 import net.matsudamper.money.frontend.common.base.nav.user.ScreenNavController
 import net.matsudamper.money.frontend.common.base.nav.user.ScreenStructure
 import net.matsudamper.money.frontend.common.viewmodel.addmoneyusage.AddMoneyUsageViewModel
@@ -36,6 +38,7 @@ import net.matsudamper.money.frontend.common.viewmodel.root.usage.RootUsageCalen
 import net.matsudamper.money.frontend.common.viewmodel.root.usage.RootUsageHostViewModel
 import net.matsudamper.money.frontend.common.viewmodel.settings.SettingCategoriesViewModelEvent
 import net.matsudamper.money.frontend.common.viewmodel.settings.SettingCategoryViewModel
+import net.matsudamper.money.frontend.common.viewmodel.settings.SettingSubCategoryViewModel
 import net.matsudamper.money.frontend.feature.notification.viewmodel.NotificationUsageDetailViewModel
 import net.matsudamper.money.frontend.feature.notification.viewmodel.NotificationUsageViewModel
 import net.matsudamper.money.ui.root.platform.PlatformTools
@@ -139,6 +142,41 @@ internal data class ViewModelEventHandlers(
                 object : SettingCategoryViewModel.Event {
                     override fun navigateToCategories() {
                         navController.navigateReplace(ScreenStructure.Root.Settings.Categories)
+                    }
+
+                    override fun navigateToSubCategory(id: MoneyUsageSubCategoryId) {
+                        navController.navigate(ScreenStructure.Root.Settings.SubCategory(id = id))
+                    }
+                },
+            )
+        }
+    }
+
+    suspend fun handleSettingSubCategory(handler: EventHandler<SettingSubCategoryViewModel.Event>) {
+        coroutineScope {
+            handler.collect(
+                object : SettingSubCategoryViewModel.Event {
+                    override fun navigateToCategory(id: MoneyUsageCategoryId) {
+                        val category = ScreenStructure.Root.Settings.Category(id = id)
+                        if (previousBackstackEntry() == category) {
+                            navController.back()
+                        } else {
+                            navController.navigateReplace(category)
+                        }
+                    }
+
+                    override fun navigateBack(categoryId: MoneyUsageCategoryId?) {
+                        val previousEntry = previousBackstackEntry()
+                        when {
+                            previousEntry is ScreenStructure.Root.Settings.Category -> navController.back()
+                            categoryId != null -> navController.navigateReplace(ScreenStructure.Root.Settings.Category(id = categoryId))
+                            else -> navController.navigateReplace(ScreenStructure.Root.Settings.Categories)
+                        }
+                    }
+
+                    private fun previousBackstackEntry(): IScreenStructure? {
+                        val backstackEntries = navController.backstackEntries
+                        return backstackEntries.getOrNull(backstackEntries.lastIndex - 1)
                     }
                 },
             )
