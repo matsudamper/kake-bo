@@ -4,8 +4,9 @@ import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.getAndUpdate
 import kotlinx.coroutines.flow.update
+import net.matsudamper.money.categoryfilter.CategoryFilter
+import net.matsudamper.money.categoryfilter.appendCategoryFilterDescription
 import net.matsudamper.money.element.MoneyUsageId
-import net.matsudamper.money.element.MoneyUsageSubCategoryId
 import net.matsudamper.money.frontend.common.base.AppSettingsRepository
 import net.matsudamper.money.frontend.common.base.notification.NotificationUsageDraft
 import net.matsudamper.money.frontend.common.base.notification.NotificationUsageParser
@@ -37,11 +38,11 @@ internal class NotificationUsageAutoAddProcessor(
             } ?: return
             val parser = parserAndDraft.first
             val draft = parserAndDraft.second
-            val subCategoryId = categoryFilterRepository.getMatchingSubCategoryId(
+            val matchedFilter = categoryFilterRepository.getMatchingFilter(
                 title = draft.title,
                 serviceName = parser.filterDefinition.title,
             )
-            val moneyUsageId = api.addUsage(draftToPayload(draft, subCategoryId))
+            val moneyUsageId = api.addUsage(draftToPayload(draft, matchedFilter))
             if (moneyUsageId != null) {
                 dao.markAsAdded(notificationKey, moneyUsageId.id)
             }
@@ -73,14 +74,17 @@ internal class NotificationUsageAutoAddProcessor(
 
     private fun draftToPayload(
         draft: NotificationUsageDraft,
-        subCategoryId: MoneyUsageSubCategoryId?,
+        matchedFilter: CategoryFilter?,
     ): NotificationUsageAutoAddPayload {
         return NotificationUsageAutoAddPayload(
             title = draft.title,
-            description = draft.description,
+            description = appendCategoryFilterDescription(
+                description = draft.description,
+                descriptionSuffix = matchedFilter?.descriptionSuffix,
+            ),
             amount = draft.amount ?: 0,
             dateTime = draft.dateTime,
-            subCategoryId = subCategoryId,
+            subCategoryId = matchedFilter?.subCategoryId,
         )
     }
 }
