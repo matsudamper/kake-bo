@@ -12,6 +12,7 @@ import androidx.compose.foundation.layout.widthIn
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Button
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -74,6 +75,30 @@ internal fun AdminLoginScreen(uiState: AdminLoginScreenUiState) {
                         text = "ログイン",
                         fontFamily = rememberCustomFontFamily(),
                     )
+                }
+                Spacer(Modifier.height(16.dp))
+                Column(
+                    modifier = Modifier.fillMaxWidth(),
+                ) {
+                    OutlinedButton(
+                        modifier = Modifier.align(Alignment.End),
+                        onClick = { uiState.listener.onClickSecurityKeyLogin() },
+                    ) {
+                        Text(
+                            text = "セキュリティキーでログイン",
+                            fontFamily = rememberCustomFontFamily(),
+                        )
+                    }
+                    Spacer(Modifier.height(4.dp))
+                    OutlinedButton(
+                        modifier = Modifier.align(Alignment.End),
+                        onClick = { uiState.listener.onClickDeviceKeyLogin() },
+                    ) {
+                        Text(
+                            text = "デバイスのロックでログイン",
+                            fontFamily = rememberCustomFontFamily(),
+                        )
+                    }
                 }
             }
         }
