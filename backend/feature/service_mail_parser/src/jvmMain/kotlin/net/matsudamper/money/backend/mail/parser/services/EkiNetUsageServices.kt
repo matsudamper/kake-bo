@@ -1,6 +1,11 @@
 package net.matsudamper.money.backend.mail.parser.services
 
+import java.time.LocalDate
 import java.time.LocalDateTime
+import java.time.LocalTime
+import java.time.format.DateTimeFormatterBuilder
+import java.time.format.SignStyle
+import java.time.temporal.ChronoField
 import net.matsudamper.money.backend.base.element.MoneyUsageServiceType
 import net.matsudamper.money.backend.mail.parser.MoneyUsage
 import net.matsudamper.money.backend.mail.parser.MoneyUsageServices
@@ -37,6 +42,11 @@ internal object EkiNetUsageServices : MoneyUsageServices {
         val trainInfo = getTrainInfo(lines)
         val section = getSection(lines)
         val price = getPrice(lines)
+        val rideDateTime = getRideDate(lines)?.let { rideDate ->
+            getFirstDepartureTime(section)?.let { departureTime ->
+                LocalDateTime.of(rideDate, departureTime)
+            }
+        }
 
         return listOf(
             MoneyUsage(
@@ -44,7 +54,7 @@ internal object EkiNetUsageServices : MoneyUsageServices {
                 price = price,
                 description = trainInfo,
                 service = MoneyUsageServiceType.EkiNet,
-                dateTime = forwardedInfo?.date ?: date,
+                dateTime = rideDateTime ?: forwardedInfo?.date ?: date,
             ),
         )
     }
@@ -75,6 +85,39 @@ internal object EkiNetUsageServices : MoneyUsageServices {
         }["区　間"]!!
     }
 
+    private fun getRideDate(lines: List<String>): LocalDate? {
+        val startIndex = lines.indexOf("==基本情報==")
+            .takeIf { it >= 0 }
+            ?.plus(1) ?: return null
+
+        val endIndex = lines.subList(startIndex, lines.size)
+            .indexOf("")
+            .takeIf { it >= 0 }
+            ?.plus(startIndex) ?: return null
+
+        val rideDateText = lines.subList(startIndex, endIndex)
+            .mapNotNull {
+                val split = it.split("：")
+                if (split.size < 2) return@mapNotNull null
+                split[0] to split.drop(1).joinToString("：")
+            }
+            .toMap()["乗車日"] ?: return null
+
+        return runCatching {
+            LocalDate.parse(rideDateText, rideDateFormatter)
+        }.getOrNull()
+    }
+
+    private fun getFirstDepartureTime(section: String): LocalTime? {
+        val result = departureTimeRegex.find(section) ?: return null
+        return runCatching {
+            LocalTime.of(
+                result.groupValues[1].toInt(),
+                result.groupValues[2].toInt(),
+            )
+        }.getOrNull()
+    }
+
     private fun getTrainInfo(lines: List<String>): String {
         val startIndex = lines.indexOf("==列車情報==")
             .takeIf { it >= 0 }!!
@@ -94,4 +137,15 @@ internal object EkiNetUsageServices : MoneyUsageServices {
     ): Boolean {
         return from == "reservation@eki-net.com" && subject.contains("【申込完了】申込内容（JRきっぷ）のご案内")
     }
+
+    private val rideDateFormatter = DateTimeFormatterBuilder()
+        .appendValue(ChronoField.YEAR, 4, 10, SignStyle.EXCEEDS_PAD)
+        .appendLiteral('年')
+        .appendValue(ChronoField.MONTH_OF_YEAR, 1, 2, SignStyle.NEVER)
+        .appendLiteral('月')
+        .appendValue(ChronoField.DAY_OF_MONTH, 1, 2, SignStyle.NEVER)
+        .appendLiteral('日')
+        .toFormatter()
+
+    private val departureTimeRegex = "\\((\\d{1,2})時(\\d{1,2})分\\)".toRegex()
 }
