@@ -28,7 +28,7 @@ jobs:
       - name: GraalVM のセットアップ
         uses: graalvm/setup-graalvm@v1
         with:
-          java-version: '25'
+          java-version: '27'
           distribution: 'graalvm-community'
           native-image-job-reports: 'true'
 
