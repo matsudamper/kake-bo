@@ -44,6 +44,7 @@ import net.matsudamper.money.frontend.common.viewmodel.root.settings.login.Login
 import net.matsudamper.money.frontend.common.viewmodel.root.settings.login.LoginSettingViewModel
 import net.matsudamper.money.frontend.common.viewmodel.root.settings.timezone.TimezoneSettingGraphqlApi
 import net.matsudamper.money.frontend.common.viewmodel.root.settings.timezone.TimezoneSettingViewModel
+import net.matsudamper.money.frontend.common.viewmodel.settings.SettingCategoriesScreenPagingModel
 import net.matsudamper.money.frontend.common.viewmodel.settings.SettingCategoriesViewModel
 import net.matsudamper.money.frontend.common.viewmodel.settings.SettingCategoryViewModel
 import net.matsudamper.money.frontend.common.viewmodel.settings.SettingScreenCategoryApi
@@ -83,6 +84,10 @@ internal fun SettingNavContent(
                         api = SettingScreenCategoryApi(
                             apolloClient = koin.get<GraphqlClient>().apolloClient,
                         ),
+                        pagingModel = SettingCategoriesScreenPagingModel(
+                            scopedObjectFeature = it,
+                            graphqlClient = koin.get<GraphqlClient>(),
+                        ),
                         navController = navController,
                     )
                 }
@@ -109,6 +114,10 @@ internal fun SettingNavContent(
                         scopedObjectFeature = it,
                         api = SettingScreenCategoryApi(
                             apolloClient = koin.get<GraphqlClient>().apolloClient,
+                        ),
+                        pagingModel = SettingCategoriesScreenPagingModel(
+                            scopedObjectFeature = it,
+                            graphqlClient = koin.get<GraphqlClient>(),
                         ),
                         categoryId = state.id,
                         navController = navController,
