@@ -4,7 +4,7 @@ WORKDIR /app
 
 COPY . .
 
-RUN ./gradlew :backend:nativeCompile :frontend:app:wasmJsBrowserProductionWebpack \
+RUN ./gradlew :backend:nativeCompile :frontend:app:wasmJsBrowserDistribution \
     --no-daemon \
     -Dorg.gradle.jvmargs="-Xmx6g"
 

@@ -2,7 +2,7 @@
 PATH=$PATH:/home/matsudamper/.jdks/temurin-17.0.8/bin
 
 ./gradlew :backend:assemble
-./gradlew :frontend:app:wasmJsBrowserProductionWebpack
+./gradlew :frontend:app:wasmJsBrowserDistribution
 
 docker build -t ghcr.io/matsudamper/kake-bo:latest .
 
