@@ -26,13 +26,13 @@ class WebpackBundleHashPlugin : Plugin<Project> {
         val bundle = distDir.resolve(BUNDLE_FILE_NAME)
         check(bundle.isFile) { "$bundle が無い" }
 
-        val hashedName = "${bundle.nameWithoutExtension}.${contentHashOf(bundle)}.${bundle.extension}"
-        check(bundle.renameTo(distDir.resolve(hashedName))) { "$bundle の名前を $hashedName に変えられない" }
-
         val originalBundleScriptTag = "src=\"/$BUNDLE_FILE_NAME\""
         val index = distDir.resolve(INDEX_FILE_NAME)
         val html = index.readText()
         check(html.contains(originalBundleScriptTag)) { "$index に $originalBundleScriptTag が無い" }
+
+        val hashedName = "${bundle.nameWithoutExtension}.${contentHashOf(bundle)}.${bundle.extension}"
+        check(bundle.renameTo(distDir.resolve(hashedName))) { "$bundle の名前を $hashedName に変えられない" }
         index.writeText(html.replace(originalBundleScriptTag, "src=\"/$hashedName\""))
     }
 
