@@ -7,7 +7,7 @@ plugins {
 }
 
 kotlin {
-    js {
+    wasmJs {
         browser()
         binaries.executable()
     }
@@ -33,7 +33,7 @@ kotlin {
                 implementation(libs.coilRuntime)
             }
         }
-        val jsMain by getting {
+        val wasmJsMain by getting {
             dependencies {
                 implementation(projects.frontend.common.navigation)
 

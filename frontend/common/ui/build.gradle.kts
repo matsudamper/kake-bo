@@ -24,7 +24,7 @@ kotlin {
             isIncludeAndroidResources = true
         }
     }
-    js(IR) {
+    wasmJs {
         browser()
     }
     sourceSets {
@@ -44,7 +44,7 @@ kotlin {
                 implementation(libs.composeComponentsResources)
             }
         }
-        val jsMain by getting {
+        val wasmJsMain by getting {
             dependencies {
                 implementation(libs.coilNetworkKtor3)
                 implementation(libs.ktorClientJs)

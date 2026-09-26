@@ -14,8 +14,8 @@ class ComposePlugin : Plugin<Project> {
             }
             afterEvaluate {
                 extensions.findByType(KotlinMultiplatformExtension::class.java)?.apply {
-                    if (targets.any { it.name == "js" }) {
-                        js {
+                    if (targets.any { it.name == "wasmJs" }) {
+                        wasmJs {
                             binaries.executable()
                         }
                     }

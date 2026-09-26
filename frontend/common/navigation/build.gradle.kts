@@ -11,7 +11,7 @@ kotlin {
     android {
         namespace = "net.matsudamper.money.frontend.common.base.nav"
     }
-    js(IR) {
+    wasmJs {
         browser()
     }
     jvm { }
@@ -34,14 +34,14 @@ kotlin {
                 api(libs.jetbrainsNavigation3Ui)
             }
         }
-        val jsMain by getting {
+        val wasmJsMain by getting {
             dependencies {
                 implementation(projects.shared)
 
                 implementation(libs.composeRuntime)
                 implementation(libs.composeUi)
 
-                implementation("io.ktor:ktor-client-logging-js:3.6.0")
+                implementation(libs.ktorClientLogging)
                 implementation(libs.ktorClientCore)
                 implementation(libs.ktorClientJs)
             }
@@ -73,7 +73,7 @@ kotlin {
                 implementation(libs.kotlinRefrect)
             }
         }
-        val jsTest by getting {
+        val wasmJsTest by getting {
             dependencies {
                 implementation(libs.kotestFrameworkEngine)
                 implementation(libs.kotestAssertionsCore)

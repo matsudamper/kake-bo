@@ -9,7 +9,7 @@ kotlin {
     android {
         namespace = "net.matsudamper.money.frontend.common.di"
     }
-    js(IR) {
+    wasmJs {
         browser()
     }
     sourceSets {

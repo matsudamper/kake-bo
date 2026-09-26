@@ -43,7 +43,7 @@ kotlin {
     android {
         namespace = "net.matsudamper.money.frontend.graphql"
     }
-    js(IR) {
+    wasmJs {
         browser()
     }
     sourceSets {

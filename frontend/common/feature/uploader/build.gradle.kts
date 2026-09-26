@@ -8,7 +8,7 @@ kotlin {
     android {
         namespace = "net.matsudamper.money.frontend.common.feature.uploader"
     }
-    js(IR) {
+    wasmJs {
         browser()
     }
     sourceSets {
@@ -21,7 +21,7 @@ kotlin {
                 implementation(libs.room3Runtime)
             }
         }
-        val jsMain by getting {
+        val wasmJsMain by getting {
             dependencies {
                 implementation(projects.frontend.common.base)
                 implementation(projects.frontend.common.graphql)
@@ -45,7 +45,7 @@ kotlin {
 
 dependencies {
     add("kspAndroid", libs.room3Compiler)
-    add("kspJs", libs.room3Compiler)
+    add("kspWasmJs", libs.room3Compiler)
 }
 
 // Room 3.0 KMP の KSP は commonMain メタデータコンパイルにも出力を生成するが、
