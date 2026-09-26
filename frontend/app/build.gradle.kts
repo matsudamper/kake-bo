@@ -40,7 +40,6 @@ kotlin {
 
                 implementation(kotlin("stdlib"))
                 implementation(libs.kotlin.serialization.json)
-                implementation(libs.composeHtmlCore)
                 implementation(libs.androidxComposeSaveable)
             }
         }

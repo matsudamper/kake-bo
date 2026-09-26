@@ -1,10 +1,7 @@
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.unit.IntSize
 import androidx.compose.ui.window.ComposeViewport
-import kotlinx.coroutines.flow.MutableStateFlow
-import lib.compose.JsCompose
 import lib.js.NormalizeInputKeyCapture
 import net.matsudamper.money.MoneyCompositionLocalProvider
 import net.matsudamper.money.frontend.common.base.nav.user.RootHomeScreenStructure
@@ -26,10 +23,6 @@ fun main() {
     val koin = startKoin {
         modules(DefaultModule.module)
     }.koin
-    val composeSize = MutableStateFlow(IntSize.Zero)
-    JsCompose(
-        composeSize = composeSize,
-    )
     val globalEventSender = EventSender<GlobalEvent>()
     ComposeViewport(
         viewportContainerId = "ComposeTargetContainer",
@@ -46,7 +39,6 @@ fun main() {
                     Content(
                         modifier = Modifier.fillMaxSize(),
                         globalEventSender = globalEventSender,
-                        composeSizeProvider = { composeSize },
                         platformToolsProvider = { PlatformToolsProvider() },
                         navController = navController,
                     )
