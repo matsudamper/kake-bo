@@ -255,7 +255,7 @@ private fun staticFileCacheControlOf(fileName: String): String {
     }
 }
 
-private val contentHashedFileNameRegex = Regex("""^(?:.+\.)?[0-9a-f]{16,}\.(?:js|wasm)$""")
+private val contentHashedFileNameRegex = Regex("""^(?:.+\.)?[0-9a-f]{16,}(?:\.module)?\.(?:js|wasm)$""")
 
 private fun getAssetLinkJson(): String {
     return """
