@@ -48,5 +48,9 @@ gradlePlugin {
             id = "net.matsudamper.money.buildlogic.multiplatform.library"
             implementationClass = "net.matsudamper.money.buildlogic.MultiplatformLibraryPlugin"
         }
+        register("webpackBundleHash") {
+            id = "net.matsudamper.money.buildlogic.webpackBundleHash"
+            implementationClass = "net.matsudamper.money.buildlogic.WebpackBundleHashPlugin"
+        }
     }
 }

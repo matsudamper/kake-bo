@@ -6,6 +6,7 @@ import kotlinx.coroutines.withTimeout
 import kotlinx.serialization.json.Json
 import io.ktor.http.CacheControl
 import io.ktor.http.ContentType
+import io.ktor.http.HttpHeaders
 import io.ktor.http.HttpMethod
 import io.ktor.http.HttpStatusCode
 import io.ktor.serialization.kotlinx.json.json
@@ -27,6 +28,7 @@ import io.ktor.server.request.httpMethod
 import io.ktor.server.request.path
 import io.ktor.server.request.receiveStream
 import io.ktor.server.response.cacheControl
+import io.ktor.server.response.header
 import io.ktor.server.response.respondFile
 import io.ktor.server.response.respondText
 import io.ktor.server.routing.accept
@@ -133,7 +135,7 @@ fun Application.myApplicationModule(diContainer: DiContainer) {
         }
         status(HttpStatusCode.NotFound) { call, _ ->
             if (call.request.httpMethod == HttpMethod.Get) {
-                call.response.cacheControl(CacheControl.NoCache(null))
+                call.response.cacheControl(CacheControl.NoStore(null))
                 call.respondFile(File(ServerEnv.htmlPath))
             } else {
                 call.respondText(
@@ -227,8 +229,8 @@ fun Application.myApplicationModule(diContainer: DiContainer) {
             remotePath = "/",
             dir = File(ServerEnv.frontPath),
         ) {
-            cacheControl { _ ->
-                listOf(CacheControl.NoCache(null))
+            modify { file, call ->
+                call.response.header(HttpHeaders.CacheControl, staticFileCacheControlOf(file.name))
             }
             contentType { file ->
                 when (file.extension) {
@@ -240,6 +242,20 @@ fun Application.myApplicationModule(diContainer: DiContainer) {
         }
     }
 }
+
+/**
+ * ファイル名に中身のハッシュが入っているものは内容が変わらないので長期キャッシュさせる。
+ * index.html はハッシュ付きの名前を指す入口なので毎回取り直させる。
+ */
+private fun staticFileCacheControlOf(fileName: String): String {
+    return when {
+        fileName == "index.html" -> "no-store"
+        contentHashedFileNameRegex.matches(fileName) -> "public, max-age=31536000, immutable"
+        else -> "no-cache"
+    }
+}
+
+private val contentHashedFileNameRegex = Regex("""^(?:.+\.)?[0-9a-f]{16,}(?:\.module)?\.(?:js|wasm)$""")
 
 private fun getAssetLinkJson(): String {
     return """
