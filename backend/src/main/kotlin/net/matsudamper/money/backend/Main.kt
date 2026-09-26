@@ -135,7 +135,7 @@ fun Application.myApplicationModule(diContainer: DiContainer) {
         }
         status(HttpStatusCode.NotFound) { call, _ ->
             if (call.request.httpMethod == HttpMethod.Get) {
-                call.response.cacheControl(CacheControl.NoCache(null))
+                call.response.cacheControl(CacheControl.NoStore(null))
                 call.respondFile(File(ServerEnv.htmlPath))
             } else {
                 call.respondText(
