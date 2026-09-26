@@ -1,5 +1,6 @@
 package net.matsudamper.money.frontend.common.di
 
+import kotlin.js.toJsArray
 import kotlinx.browser.window
 import kotlinx.coroutines.await
 import kotlinx.serialization.json.Json
@@ -7,7 +8,11 @@ import net.matsudamper.money.frontend.common.base.ImageUploadClient
 import net.matsudamper.money.frontend.common.base.Logger
 import net.matsudamper.money.image.ImageUploadApiPath
 import net.matsudamper.money.image.ImageUploadImageResponse
-import org.khronos.webgl.Int8Array
+import org.khronos.webgl.toInt8Array
+import org.w3c.fetch.INCLUDE
+import org.w3c.fetch.RequestCredentials
+import org.w3c.fetch.RequestInit
+import org.w3c.fetch.Response
 import org.w3c.files.Blob
 import org.w3c.files.BlobPropertyBag
 import org.w3c.xhr.FormData
@@ -21,25 +26,22 @@ public class ImageUploadClientJsImpl : ImageUploadClient {
     ): ImageUploadClient.UploadResult? {
         if (bytes.isEmpty()) return null
 
-        val int8Array = Int8Array(bytes.size)
-        bytes.forEachIndexed { index, byte ->
-            int8Array.asDynamic()[index] = byte.toInt()
-        }
         val blob = Blob(
-            arrayOf(int8Array.buffer),
+            arrayOf<JsAny?>(bytes.toInt8Array().buffer).toJsArray(),
             BlobPropertyBag(type = contentType.orEmpty().ifBlank { "application/octet-stream" }),
         )
         val formData = FormData()
         formData.append("file", blob, "image")
 
-        val init = js("({})")
-        init.method = "POST"
-        init.body = formData
-        init.credentials = "include"
+        val init = RequestInit(
+            method = "POST",
+            body = formData,
+            credentials = RequestCredentials.INCLUDE,
+        )
 
         return runCatching {
-            val response = window.fetch(ImageUploadApiPath.uploadV1, init).await()
-            val body = response.text().await()
+            val response = window.fetch(ImageUploadApiPath.uploadV1, init).await<Response>()
+            val body = response.text().await<JsString>().toString()
             val success = Json.decodeFromString<ImageUploadImageResponse>(body).success ?: return@runCatching null
             ImageUploadClient.UploadResult(
                 imageId = success.imageId,

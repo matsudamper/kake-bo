@@ -70,12 +70,9 @@ private fun findComposeCanvas(): HTMLCanvasElement? {
     val container = document.getElementById("ComposeTargetContainer") ?: return null
     val divs = container.getElementsByTagName("div")
     for (index in 0 until divs.length) {
-        val shadowRoot = divs.item(index)?.asDynamic()?.shadowRoot
-        if (shadowRoot != null) {
-            val canvas = shadowRoot.querySelector("canvas")
-            if (canvas != null) {
-                return canvas.unsafeCast<HTMLCanvasElement>()
-            }
+        val canvas = divs.item(index)?.shadowRoot?.querySelector("canvas") as? HTMLCanvasElement
+        if (canvas != null) {
+            return canvas
         }
     }
     return null

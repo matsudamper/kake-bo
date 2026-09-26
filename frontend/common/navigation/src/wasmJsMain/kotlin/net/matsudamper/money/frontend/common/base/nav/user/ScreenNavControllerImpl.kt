@@ -101,15 +101,8 @@ internal class ScreenNavControllerImpl(
     override fun back() {
         window.history.back()
     }
-
-    private fun createHistoryState(index: Int): Any {
-        val obj = js("({})")
-        obj.index = index
-        return obj
-    }
-
-    private fun readHistoryIndex(state: Any?): Int {
-        if (state == null) return 0
-        return (state.asDynamic().index as? Double)?.toInt() ?: 0
-    }
 }
+
+private fun createHistoryState(index: Int): JsAny = js("({ index: index })")
+
+private fun readHistoryIndex(state: JsAny?): Int = js("(state != null && typeof state.index === 'number') ? state.index : 0")

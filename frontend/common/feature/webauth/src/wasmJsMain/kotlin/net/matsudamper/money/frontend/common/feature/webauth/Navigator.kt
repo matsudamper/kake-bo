@@ -2,99 +2,105 @@ package net.matsudamper.money.frontend.common.feature.webauth
 
 import kotlin.js.Promise
 import org.khronos.webgl.ArrayBuffer
-import org.khronos.webgl.Uint8Array
+import org.khronos.webgl.Int8Array
 
-internal external val navigator: Navigator
-
-internal external interface Navigator {
-    val credentials: CredentialsContainer
-}
-
-internal external interface CredentialsContainer {
+internal external interface CredentialsContainer : JsAny {
     fun get(options: CredentialsContainerCreateOptions): Promise<PublicKeyCredential>
 
     fun create(options: CredentialsContainerCreateOptions): Promise<CredentialsContainerCreateResult>
 }
 
-@Suppress("OPT_IN_USAGE")
-@JsExport
-public class PublicKeyCredential(
-    public val rawId: ArrayBuffer,
-    public val response: AuthenticatorAssertionResponse,
-    public val authenticatorAttachment: dynamic,
-    public val id: String,
-    public val type: String,
-) {
-    public data class AuthenticatorAssertionResponse(
-        val authenticatorData: ArrayBuffer,
-        val clientDataJSON: ArrayBuffer,
-        val signature: ArrayBuffer,
-        val userHandle: ArrayBuffer,
-    )
+internal external interface PublicKeyCredential : JsAny {
+    val id: String
+    val response: AuthenticatorAssertionResponse
 }
 
-@Suppress("OPT_IN_USAGE")
-@JsExport
-public class CredentialsContainerCreateOptions(
-    public val publicKey: CredentialsContainerCreatePublicKeyOptions,
+internal external interface AuthenticatorAssertionResponse : JsAny {
+    val authenticatorData: ArrayBuffer
+    val clientDataJSON: ArrayBuffer
+    val signature: ArrayBuffer
+    val userHandle: ArrayBuffer
+}
+
+internal external interface CredentialsContainerCreateResult : JsAny {
+    val response: AuthenticatorAttestationResponse
+}
+
+internal external interface AuthenticatorAttestationResponse : JsAny {
+    val attestationObject: ArrayBuffer
+    val clientDataJSON: ArrayBuffer
+}
+
+internal external interface CredentialsContainerCreateOptions : JsAny
+
+internal external interface PublicKeyCredentialUser : JsAny
+
+internal external interface PublicKeyCredentialRp : JsAny
+
+internal external interface PubKeyCredParams : JsAny
+
+internal external interface ExcludeCredential : JsAny
+
+internal external interface AuthenticatorSelection : JsAny
+
+internal object AuthenticatorAttachmentType {
+    const val PLATFORM = "platform"
+    const val CROSS_PLATFORM = "cross-platform"
+}
+
+internal fun credentialsContainer(): CredentialsContainer = js("navigator.credentials")
+
+internal fun CredentialsContainerCreateOptions(
+    challenge: Int8Array,
+    user: PublicKeyCredentialUser?,
+    rp: PublicKeyCredentialRp,
+    pubKeyCredParams: JsArray<PubKeyCredParams>,
+    excludeCredentials: JsArray<ExcludeCredential>,
+    authenticatorSelection: AuthenticatorSelection,
+): CredentialsContainerCreateOptions = js(
+    """({
+        publicKey: {
+            challenge: challenge,
+            user: user,
+            rp: rp,
+            pubKeyCredParams: pubKeyCredParams,
+            excludeCredentials: excludeCredentials,
+            authenticatorSelection: authenticatorSelection,
+        },
+    })""",
 )
 
-@Suppress("OPT_IN_USAGE")
-@JsExport
-public data class CredentialsContainerCreateResult(
-    public val authenticatorAttachment: String,
-    public val id: String,
-    public val rawId: ArrayBuffer,
-    public val response: Response,
-    public val type: String,
-) {
-    public data class Response(
-        public val attestationObject: ArrayBuffer,
-        public val clientDataJSON: ArrayBuffer,
-        public val transports: Array<String> = arrayOf(),
-    )
-}
+internal fun PublicKeyCredentialUser(
+    id: Int8Array,
+    name: String,
+    displayName: String,
+): PublicKeyCredentialUser = js("({ id: id, name: name, displayName: displayName })")
 
-@Suppress("OPT_IN_USAGE")
-@JsExport
-public class CredentialsContainerCreatePublicKeyOptions(
-    public val challenge: Uint8Array,
-    public val user: User? = null,
-    public val rp: Rp,
-    public val pubKeyCredParams: Array<PubKeyCredParams>,
-    public val excludeCredentials: Array<ExcludeCredential> = arrayOf(),
-    public val authenticatorSelection: AuthenticatorSelection,
-) {
-    public class ExcludeCredential(
-        public val id: ByteArray,
-        public val type: String,
-    )
+internal fun PublicKeyCredentialRp(
+    name: String,
+    id: String,
+): PublicKeyCredentialRp = js("({ name: name, id: id })")
 
-    public data class Rp(
-        val name: String,
-        val id: String,
-    )
+internal fun PubKeyCredParams(
+    type: String,
+    alg: Int,
+): PubKeyCredParams = js("({ type: type, alg: alg })")
 
-    public data class User(
-        val id: Uint8Array,
-        val name: String,
-        val displayName: String,
-    )
+internal fun ExcludeCredential(
+    id: Int8Array,
+    type: String,
+): ExcludeCredential = js("({ id: id, type: type })")
 
-    public data class PubKeyCredParams(
-        val type: String,
-        val alg: Int,
-    )
-
-    public data class AuthenticatorSelection(
-        val authenticatorAttachment: String?,
-        val requireResidentKey: Boolean = true,
-        val userVerification: String,
-        val residentKey: String,
-    ) {
-        public companion object {
-            internal const val AUTH_TYPE_PLATFORM = "platform"
-            internal const val AUTH_TYPE_CROSS_PLATFORM = "cross-platform"
-        }
-    }
-}
+internal fun AuthenticatorSelection(
+    authenticatorAttachment: String?,
+    requireResidentKey: Boolean,
+    userVerification: String,
+    residentKey: String,
+): AuthenticatorSelection = js(
+    """({
+        authenticatorAttachment: authenticatorAttachment,
+        requireResidentKey: requireResidentKey,
+        userVerification: userVerification,
+        residentKey: residentKey,
+    })""",
+)

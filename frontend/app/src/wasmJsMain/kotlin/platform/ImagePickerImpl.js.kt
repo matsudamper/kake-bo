@@ -6,17 +6,26 @@ import kotlin.uuid.ExperimentalUuidApi
 import kotlin.uuid.Uuid
 import kotlinx.browser.document
 import kotlinx.browser.window
+import kotlinx.coroutines.await
 import kotlinx.coroutines.suspendCancellableCoroutine
 import net.matsudamper.money.frontend.common.base.image.SelectedImage
 import net.matsudamper.money.ui.root.platform.ImagePicker
 import org.khronos.webgl.ArrayBuffer
 import org.khronos.webgl.Int8Array
+import org.khronos.webgl.toByteArray
 import org.w3c.dom.HTMLInputElement
 import org.w3c.dom.events.Event
+import org.w3c.files.File
 
 internal class ImagePickerImpl : ImagePicker {
-    @OptIn(ExperimentalUuidApi::class)
-    override suspend fun pickImages(): List<SelectedImage> = suspendCancellableCoroutine { continuation ->
+    override suspend fun pickImages(): List<SelectedImage> {
+        val files = pickFiles()
+        return runCatching {
+            files.mapNotNull { file -> file.toSelectedImage() }
+        }.getOrElse { emptyList() }
+    }
+
+    private suspend fun pickFiles(): List<File> = suspendCancellableCoroutine { continuation ->
         val input = document.createElement("input") as HTMLInputElement
         input.type = "file"
         input.accept = "image/*"
@@ -37,13 +46,13 @@ internal class ImagePickerImpl : ImagePicker {
             input.parentNode?.removeChild(input)
         }
 
-        fun resumeOnce(images: List<SelectedImage>) {
+        fun resumeOnce(files: List<File>) {
             if (!continuation.isActive || resolved) {
                 return
             }
             resolved = true
             cleanup()
-            continuation.resume(images)
+            continuation.resume(files)
         }
 
         cancelHandler = {
@@ -60,6 +69,7 @@ internal class ImagePickerImpl : ImagePicker {
                 if (files == null || files.length == 0) {
                     resumeOnce(emptyList())
                 }
+                null
             }, FOCUS_SETTLE_DELAY_MS)
         }
 
@@ -75,52 +85,33 @@ internal class ImagePickerImpl : ImagePicker {
 
         input.onchange = { _ ->
             val files = input.files
-            if (files == null || files.length == 0) {
-                resumeOnce(emptyList())
-            } else {
-                val promises = (0 until files.length).mapNotNull { index ->
-                    files.item(index)?.let { file ->
-                        file.asDynamic().arrayBuffer()
-                            .unsafeCast<Promise<ArrayBuffer>>()
-                            .then { buffer ->
-                                val bytes = toByteArray(buffer)
-                                if (bytes.isNotEmpty()) {
-                                    SelectedImage(
-                                        id = Uuid.random().toString(),
-                                        bytes = bytes,
-                                        contentType = file.type.ifBlank { "application/octet-stream" },
-                                    )
-                                } else {
-                                    null
-                                }
-                            }
-                    }
-                }
-                Promise.all(promises.toTypedArray()).then { selectedImages ->
-                    resumeOnce(
-                        selectedImages
-                            .unsafeCast<Array<SelectedImage?>>()
-                            .filterNotNull(),
-                    )
-                }.catch {
-                    resumeOnce(emptyList())
-                }
-            }
-            Unit
+            resumeOnce(
+                if (files == null) {
+                    emptyList()
+                } else {
+                    (0 until files.length).mapNotNull { index -> files.item(index) }
+                },
+            )
         }
 
         pickerEngaged = true
         input.click()
     }
 
-    private fun toByteArray(buffer: ArrayBuffer): ByteArray {
-        val int8Array = Int8Array(buffer)
-        return ByteArray(int8Array.length) { index ->
-            (int8Array.asDynamic()[index] as Number).toInt().toByte()
-        }
+    @OptIn(ExperimentalUuidApi::class)
+    private suspend fun File.toSelectedImage(): SelectedImage? {
+        val bytes = Int8Array(readArrayBuffer(this).await<ArrayBuffer>()).toByteArray()
+        if (bytes.isEmpty()) return null
+        return SelectedImage(
+            id = Uuid.random().toString(),
+            bytes = bytes,
+            contentType = type.ifBlank { "application/octet-stream" },
+        )
     }
 
     private companion object {
         private const val FOCUS_SETTLE_DELAY_MS = 300
     }
 }
+
+private fun readArrayBuffer(file: File): Promise<ArrayBuffer> = js("file.arrayBuffer()")

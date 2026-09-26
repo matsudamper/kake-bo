@@ -2,6 +2,7 @@ package net.matsudamper.money.frontend.common.feature.uploader
 
 import androidx.room3.Room
 import androidx.sqlite.driver.web.WebWorkerSQLiteDriver
+import kotlin.time.Clock
 import kotlin.uuid.ExperimentalUuidApi
 import kotlin.uuid.Uuid
 import kotlinx.coroutines.CoroutineScope
@@ -87,7 +88,7 @@ public class ImageUploadQueueJsImpl private constructor(
                 errorMessage = null,
                 stackTrace = null,
                 contentType = selectedImage.contentType,
-                createdAt = js("Date.now()").unsafeCast<Double>().toLong(),
+                createdAt = Clock.System.now().toEpochMilliseconds(),
             ),
         )
         triggerNext(moneyUsageId)
@@ -249,7 +250,7 @@ public class ImageUploadQueueJsImpl private constructor(
             graphqlClient: GraphqlClient,
             imageUploadClient: ImageUploadClient,
         ): ImageUploadQueueJsImpl {
-            val worker = Worker(js("""new URL("@androidx/sqlite-web-worker/worker.js", import.meta.url)"""))
+            val worker = createSqliteWebWorker()
             val db = Room.inMemoryDatabaseBuilder<ImageUploadRoomDatabase>()
                 .setDriver(WebWorkerSQLiteDriver(worker))
                 .setQueryCoroutineContext(Dispatchers.Default)
@@ -263,3 +264,5 @@ public class ImageUploadQueueJsImpl private constructor(
         }
     }
 }
+
+private fun createSqliteWebWorker(): Worker = js("""new Worker(new URL("@androidx/sqlite-web-worker/worker.js", import.meta.url))""")

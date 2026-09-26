@@ -1,13 +1,14 @@
 package net.matsudamper.money.frontend.common.feature.webauth
 
+import kotlin.js.toJsArray
 import kotlinx.coroutines.await
 import io.ktor.util.decodeBase64Bytes
 import io.ktor.util.encodeBase64
 import net.matsudamper.money.frontend.common.base.Logger
-import net.matsudamper.money.frontend.common.feature.webauth.CredentialsContainerCreatePublicKeyOptions.User
 import org.khronos.webgl.ArrayBuffer
-import org.khronos.webgl.Uint8Array
-import org.khronos.webgl.get
+import org.khronos.webgl.Int8Array
+import org.khronos.webgl.toByteArray
+import org.khronos.webgl.toInt8Array
 
 private const val TAG = "WebAuthModelJsImpl"
 
@@ -20,42 +21,34 @@ public class WebAuthModelJsImpl : WebAuthModel {
         base64ExcludeCredentialIdList: List<String>,
     ): WebAuthModel.WebAuthCreateResult? {
         val options = CredentialsContainerCreateOptions(
-            publicKey = CredentialsContainerCreatePublicKeyOptions(
-                challenge = Uint8Array(challenge.encodeToByteArray().toTypedArray()),
-                user = User(
-                    id = Uint8Array(id.encodeToByteArray().toTypedArray()),
-                    name = name,
-                    displayName = name,
-                ),
-                pubKeyCredParams = arrayOf(
-                    // ES256
-                    CredentialsContainerCreatePublicKeyOptions.PubKeyCredParams("public-key", -7),
-                    // RS256
-                    CredentialsContainerCreatePublicKeyOptions.PubKeyCredParams("public-key", -257),
-                    // Ed25519
-                    CredentialsContainerCreatePublicKeyOptions.PubKeyCredParams("public-key", -8),
-                ),
-                excludeCredentials = base64ExcludeCredentialIdList.map {
-                    CredentialsContainerCreatePublicKeyOptions.ExcludeCredential(
-                        id = it.decodeBase64Bytes(),
-                        type = "public-key",
-                    )
-                }.toTypedArray(),
-                authenticatorSelection = CredentialsContainerCreatePublicKeyOptions.AuthenticatorSelection(
-                    authenticatorAttachment = null,
-                    userVerification = "required",
-                    residentKey = "required",
-                ),
-                rp = CredentialsContainerCreatePublicKeyOptions.Rp(
-                    name = domain,
-                    id = domain,
-                ),
+            challenge = challenge.encodeToByteArray().toInt8Array(),
+            user = PublicKeyCredentialUser(
+                id = id.encodeToByteArray().toInt8Array(),
+                name = name,
+                displayName = name,
+            ),
+            pubKeyCredParams = supportedPubKeyCredParams(),
+            excludeCredentials = base64ExcludeCredentialIdList.map {
+                ExcludeCredential(
+                    id = it.decodeBase64Bytes().toInt8Array(),
+                    type = "public-key",
+                )
+            }.toJsArray(),
+            authenticatorSelection = AuthenticatorSelection(
+                authenticatorAttachment = null,
+                requireResidentKey = true,
+                userVerification = "required",
+                residentKey = "required",
+            ),
+            rp = PublicKeyCredentialRp(
+                name = domain,
+                id = domain,
             ),
         )
         val result = runCatching {
-            navigator.credentials.create(
+            credentialsContainer().create(
                 options,
-            ).await()
+            ).await<CredentialsContainerCreateResult>()
         }.onFailure {
             Logger.e(TAG, it)
         }.getOrNull() ?: return null
@@ -75,41 +68,32 @@ public class WebAuthModelJsImpl : WebAuthModel {
         domain: String,
     ): WebAuthModel.WebAuthGetResult? {
         val options = CredentialsContainerCreateOptions(
-            publicKey = CredentialsContainerCreatePublicKeyOptions(
-                challenge = Uint8Array(challenge.encodeToByteArray().toTypedArray()),
-                user = null,
-                pubKeyCredParams = arrayOf(
-                    // ES256
-                    CredentialsContainerCreatePublicKeyOptions.PubKeyCredParams("public-key", -7),
-                    // RS256
-                    CredentialsContainerCreatePublicKeyOptions.PubKeyCredParams("public-key", -257),
-                    // Ed25519
-                    CredentialsContainerCreatePublicKeyOptions.PubKeyCredParams("public-key", -8),
-                ),
-                excludeCredentials = arrayOf(),
-                authenticatorSelection = CredentialsContainerCreatePublicKeyOptions.AuthenticatorSelection(
-                    authenticatorAttachment = when (type) {
-                        WebAuthModel.WebAuthModelType.PLATFORM -> CredentialsContainerCreatePublicKeyOptions.AuthenticatorSelection.AUTH_TYPE_PLATFORM
-                        WebAuthModel.WebAuthModelType.CROSS_PLATFORM -> CredentialsContainerCreatePublicKeyOptions.AuthenticatorSelection.AUTH_TYPE_CROSS_PLATFORM
-                    },
-                    userVerification = "required",
-                    residentKey = "required",
-                ),
-                rp = CredentialsContainerCreatePublicKeyOptions.Rp(
-                    name = domain,
-                    id = domain,
-                ),
+            challenge = challenge.encodeToByteArray().toInt8Array(),
+            user = null,
+            pubKeyCredParams = supportedPubKeyCredParams(),
+            excludeCredentials = listOf<ExcludeCredential>().toJsArray(),
+            authenticatorSelection = AuthenticatorSelection(
+                authenticatorAttachment = when (type) {
+                    WebAuthModel.WebAuthModelType.PLATFORM -> AuthenticatorAttachmentType.PLATFORM
+                    WebAuthModel.WebAuthModelType.CROSS_PLATFORM -> AuthenticatorAttachmentType.CROSS_PLATFORM
+                },
+                requireResidentKey = true,
+                userVerification = "required",
+                residentKey = "required",
+            ),
+            rp = PublicKeyCredentialRp(
+                name = domain,
+                id = domain,
             ),
         )
 
         val result = runCatching {
-            navigator.credentials.get(
+            credentialsContainer().get(
                 options,
-            ).await()
+            ).await<PublicKeyCredential>()
         }.onFailure {
             Logger.e(TAG, it)
         }.getOrNull() ?: return null
-        console.log(result)
         return WebAuthModel.WebAuthGetResult(
             credentialId = result.id,
             base64ClientDataJSON = result.response.clientDataJSON.toBase64(),
@@ -119,12 +103,18 @@ public class WebAuthModelJsImpl : WebAuthModel {
         )
     }
 
+    private fun supportedPubKeyCredParams(): JsArray<PubKeyCredParams> {
+        return listOf(
+            // ES256
+            PubKeyCredParams("public-key", -7),
+            // RS256
+            PubKeyCredParams("public-key", -257),
+            // Ed25519
+            PubKeyCredParams("public-key", -8),
+        ).toJsArray()
+    }
+
     private fun ArrayBuffer.toBase64(): String {
-        return buildList {
-            val uint8Array = Uint8Array(this@toBase64)
-            for (index in 0 until this@toBase64.byteLength) {
-                add(uint8Array[index])
-            }
-        }.toByteArray().encodeBase64()
+        return Int8Array(this).toByteArray().encodeBase64()
     }
 }

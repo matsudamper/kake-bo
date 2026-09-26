@@ -19,9 +19,7 @@ import org.koin.core.context.startKoin
 import platform.PlatformToolsProvider
 
 @OptIn(ExperimentalComposeUiApi::class)
-fun main(
-    @Suppress("UNUSED_PARAMETER") args: Array<String>,
-) {
+fun main() {
     configureWebResources {
         resourcePathMapping { path -> "/$path" }
     }
