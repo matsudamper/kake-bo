@@ -429,6 +429,31 @@ public class MoneyUsageScreenViewModel(
 
     private fun createImageItemEvent(imageId: ImageId): MoneyUsageScreenUiState.ImageItemEvent {
         return object : MoneyUsageScreenUiState.ImageItemEvent {
+            override fun onClickReplace() {
+                viewModelScope.launch {
+                    val images = eventSender.send { it.selectImages() }
+                    val newImage = images.firstOrNull() ?: return@launch
+
+                    val isSuccess = api.deleteImage(
+                        usageId = moneyUsageId,
+                        imageId = imageId,
+                    )
+                    if (!isSuccess) {
+                        eventSender.send {
+                            it.showToast("画像の入れ替えに失敗しました")
+                        }
+                        return@launch
+                    }
+
+                    eventSender.send { it.requestNotificationPermission() }
+                    imageUploadQueue.enqueue(
+                        moneyUsageId = moneyUsageId,
+                        selectedImage = newImage,
+                    )
+                    fetch(policy = FetchPolicy.NetworkOnly)
+                }
+            }
+
             override fun onClickDelete() {
                 viewModelScope.launch {
                     val isSuccess = api.deleteImage(
