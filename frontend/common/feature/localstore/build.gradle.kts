@@ -47,7 +47,7 @@ kotlin {
         namespace = "net.matsudamper.money.frontend.common.feature.localstore"
         withJava()
     }
-    js(IR) {
+    wasmJs {
         browser()
     }
     sourceSets {
@@ -56,7 +56,7 @@ kotlin {
             dependencies {
             }
         }
-        val jsMain by getting {
+        val wasmJsMain by getting {
             dependencies {
             }
         }
@@ -67,7 +67,7 @@ kotlin {
             }
             kotlin.srcDir(generateProto)
         }
-        val jsTest by getting {
+        val wasmJsTest by getting {
             dependencies {
                 implementation(kotlin("test"))
             }

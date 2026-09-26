@@ -1,6 +1,6 @@
 FROM amazoncorretto:24-alpine
 CMD mkdir src
-COPY frontend/app/build/dist/js/productionExecutable src
+COPY frontend/app/build/dist/wasmJs/productionExecutable src
 
 COPY backend/build/distributions/backend.tar backend.tar
 RUN tar -xf backend.tar
