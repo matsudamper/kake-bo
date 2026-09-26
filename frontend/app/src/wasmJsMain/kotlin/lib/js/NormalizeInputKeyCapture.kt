@@ -1,7 +1,6 @@
 package lib.js
 
-import androidx.compose.foundation.clickable
-import androidx.compose.foundation.interaction.MutableInteractionSource
+import androidx.compose.foundation.gestures.detectTapGestures
 import androidx.compose.foundation.layout.Box
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
@@ -14,6 +13,7 @@ import androidx.compose.ui.focus.FocusRequester
 import androidx.compose.ui.focus.focusRequester
 import androidx.compose.ui.focus.focusTarget
 import androidx.compose.ui.focus.onFocusChanged
+import androidx.compose.ui.input.pointer.pointerInput
 import kotlinx.browser.document
 import kotlinx.coroutines.delay
 import org.w3c.dom.HTMLCanvasElement
@@ -43,10 +43,10 @@ public fun NormalizeInputKeyCapture(content: @Composable () -> Unit) {
         modifier = Modifier
             .focusTarget()
             .focusRequester(focusRequester)
-            .clickable(
-                indication = null,
-                interactionSource = remember { MutableInteractionSource() },
-            ) { focusRequester.freeFocus() }
+            // clickable は子孫のセマンティクスをマージするため、paneTitle を持つ子孫(Snackbar 等)があると Web の a11y 同期で例外になる
+            .pointerInput(focusRequester) {
+                detectTapGestures { focusRequester.freeFocus() }
+            }
             .onFocusChanged {
                 hasFocus = it.hasFocus
             },
