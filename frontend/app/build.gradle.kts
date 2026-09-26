@@ -1,14 +1,21 @@
+import net.matsudamper.money.buildlogic.WebpackBundleHashPlugin
+
 plugins {
     alias(libs.plugins.kotlin.multiplatform)
     alias(libs.plugins.kotlin.serialization)
     alias(libs.plugins.composeCompiler)
     alias(libs.plugins.jetbrainsCompose)
     id("net.matsudamper.money.buildlogic.compose")
+    id("net.matsudamper.money.buildlogic.webpackBundleHash")
 }
 
 kotlin {
     wasmJs {
-        browser()
+        browser {
+            commonWebpackConfig {
+                outputFileName = WebpackBundleHashPlugin.BUNDLE_FILE_NAME
+            }
+        }
         binaries.executable()
     }
     sourceSets {
