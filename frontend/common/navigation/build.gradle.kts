@@ -36,6 +36,7 @@ kotlin {
         }
         val wasmJsMain by getting {
             dependencies {
+                implementation(libs.kotlinxBrowser)
                 implementation(projects.shared)
 
                 implementation(libs.composeRuntime)

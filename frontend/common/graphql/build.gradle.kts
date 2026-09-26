@@ -61,5 +61,10 @@ kotlin {
                 implementation(libs.apolloAdaptersCore)
             }
         }
+        val wasmJsMain by getting {
+            dependencies {
+                implementation(libs.kotlinxBrowser)
+            }
+        }
     }
 }

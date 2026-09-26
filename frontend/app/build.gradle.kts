@@ -35,6 +35,7 @@ kotlin {
         }
         val wasmJsMain by getting {
             dependencies {
+                implementation(libs.kotlinxBrowser)
                 implementation(projects.frontend.common.navigation)
 
                 implementation(kotlin("stdlib"))

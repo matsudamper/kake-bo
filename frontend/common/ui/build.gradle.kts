@@ -46,6 +46,7 @@ kotlin {
         }
         val wasmJsMain by getting {
             dependencies {
+                implementation(libs.kotlinxBrowser)
                 implementation(libs.coilNetworkKtor3)
                 implementation(libs.ktorClientJs)
                 implementation(libs.ktorClientLogging)

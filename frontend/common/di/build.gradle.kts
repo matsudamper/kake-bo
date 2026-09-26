@@ -29,6 +29,11 @@ kotlin {
                 implementation(libs.kotlin.serialization.json)
             }
         }
+        val wasmJsMain by getting {
+            dependencies {
+                implementation(libs.kotlinxBrowser)
+            }
+        }
         val androidMain by getting {
             dependencies {
                 implementation(libs.okHttp)

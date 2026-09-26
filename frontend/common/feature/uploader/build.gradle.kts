@@ -23,6 +23,7 @@ kotlin {
         }
         val wasmJsMain by getting {
             dependencies {
+                implementation(libs.kotlinxBrowser)
                 implementation(projects.frontend.common.base)
                 implementation(projects.frontend.common.graphql)
                 implementation(libs.sqliteWeb)
