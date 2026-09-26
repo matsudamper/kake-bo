@@ -40,15 +40,7 @@ internal object EkiNetUsageServices : MoneyUsageServices {
         val trainInfo = getTrainInfo(lines)
         val section = getSection(lines)
         val price = getPrice(lines)
-        val dateTime = run dateTime@{
-            val rideDateTime = getRideDateTime(plain)
-            if (rideDateTime != null) return@dateTime rideDateTime
-
-            val forwardedDate = forwardedInfo?.date
-            if (forwardedDate != null) return@dateTime forwardedDate
-
-            date
-        }
+        val rideDateTime = getRideDateTime(plain)
 
         return listOf(
             MoneyUsage(
@@ -56,7 +48,7 @@ internal object EkiNetUsageServices : MoneyUsageServices {
                 price = price,
                 description = trainInfo,
                 service = MoneyUsageServiceType.EkiNet,
-                dateTime = dateTime,
+                dateTime = rideDateTime ?: forwardedInfo?.date ?: date,
             ),
         )
     }
