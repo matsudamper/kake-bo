@@ -22,13 +22,10 @@ import androidx.compose.runtime.rememberUpdatedState
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.layout.onSizeChanged
-import androidx.compose.ui.unit.IntSize
 import androidx.navigation3.runtime.EntryProviderScope
 import androidx.navigation3.runtime.NavEntry
 import androidx.navigation3.runtime.entryProvider
 import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import net.matsudamper.money.frontend.common.base.IO
@@ -74,7 +71,6 @@ public fun Content(
     globalEventSender: EventSender<GlobalEvent>,
     platformToolsProvider: () -> PlatformTools,
     navController: ScreenNavController,
-    composeSizeProvider: () -> MutableStateFlow<IntSize> = { MutableStateFlow(IntSize.Zero) },
     onBack: () -> Unit = {
         if (navController.canGoBack) {
             navController.back()
@@ -222,10 +218,7 @@ public fun Content(
             }
             Scaffold(
                 modifier = modifier
-                    .fillMaxSize()
-                    .onSizeChanged {
-                        composeSizeProvider().value = it
-                    },
+                    .fillMaxSize(),
                 snackbarHost = {
                     Box(
                         modifier = Modifier.fillMaxWidth(),

@@ -9,7 +9,7 @@ kotlin {
     android {
         namespace = "net.matsudamper.money.frontend.common.feature.webauth"
     }
-    js(IR) {
+    wasmJs {
         browser()
     }
     sourceSets {
@@ -27,14 +27,15 @@ kotlin {
                 implementation(libs.kotlin.datetime)
             }
         }
-        val jsMain by getting {
+        val wasmJsMain by getting {
             dependencies {
+                implementation(libs.kotlinxBrowser)
                 implementation(projects.shared)
 
                 implementation(libs.composeRuntime)
                 implementation(libs.composeUi)
 
-                implementation("io.ktor:ktor-client-logging-js:3.6.0")
+                implementation(libs.ktorClientLogging)
                 implementation(libs.ktorClientCore)
                 implementation(libs.ktorClientJs)
             }
@@ -50,7 +51,7 @@ kotlin {
                 implementation(libs.androidxCredentials)
             }
         }
-        val jsTest by getting {
+        val wasmJsTest by getting {
             dependencies {
                 implementation(kotlin("test"))
             }

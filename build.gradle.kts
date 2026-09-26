@@ -1,7 +1,6 @@
 import org.gradle.api.tasks.testing.logging.TestExceptionFormat
 import org.gradle.api.tasks.testing.logging.TestLogEvent
 import org.jetbrains.kotlin.gradle.dsl.KotlinMultiplatformExtension
-import org.jetbrains.kotlin.gradle.plugin.KotlinPlatformType
 
 plugins {
     alias(libs.plugins.kotlinJvm) apply false
@@ -23,19 +22,6 @@ subprojects {
         extensions.configure<KotlinMultiplatformExtension> {
             sourceSets.all {
                 languageSettings.optIn("kotlin.time.ExperimentalTime")
-            }
-        }
-    }
-
-    afterEvaluate {
-        extensions.findByType<KotlinMultiplatformExtension>()?.apply {
-            if (
-                targets.any {
-                    it.platformType == KotlinPlatformType.js
-                }
-            ) {
-                js(IR) {
-                }
             }
         }
     }

@@ -8,7 +8,7 @@ kotlin {
     android {
         namespace = "net.matsudamper.money.frontend.common.viewmodel"
     }
-    js(IR) {
+    wasmJs {
         browser()
     }
     sourceSets {
@@ -38,7 +38,7 @@ kotlin {
                 implementation(projects.frontend.common.feature.localstore)
             }
         }
-        val jsMain by getting {
+        val wasmJsMain by getting {
             dependencies {
             }
         }

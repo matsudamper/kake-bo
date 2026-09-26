@@ -7,7 +7,7 @@ plugins {
 }
 
 kotlin {
-    js {
+    wasmJs {
         browser()
         binaries.executable()
     }
@@ -33,13 +33,13 @@ kotlin {
                 implementation(libs.coilRuntime)
             }
         }
-        val jsMain by getting {
+        val wasmJsMain by getting {
             dependencies {
+                implementation(libs.kotlinxBrowser)
                 implementation(projects.frontend.common.navigation)
 
                 implementation(kotlin("stdlib"))
                 implementation(libs.kotlin.serialization.json)
-                implementation(libs.composeHtmlCore)
                 implementation(libs.androidxComposeSaveable)
             }
         }
