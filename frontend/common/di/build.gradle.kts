@@ -9,7 +9,7 @@ kotlin {
     android {
         namespace = "net.matsudamper.money.frontend.common.di"
     }
-    js(IR) {
+    wasmJs {
         browser()
     }
     sourceSets {
@@ -27,6 +27,11 @@ kotlin {
                 implementation(libs.koinCore)
                 implementation(libs.composeRuntime)
                 implementation(libs.kotlin.serialization.json)
+            }
+        }
+        val wasmJsMain by getting {
+            dependencies {
+                implementation(libs.kotlinxBrowser)
             }
         }
         val androidMain by getting {

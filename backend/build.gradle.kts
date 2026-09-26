@@ -109,7 +109,7 @@ dependencies {
     implementation(libs.opentelemetryKtor3)
     implementation(libs.opentelemetryKotlinExtension)
 
-    compileOnly("org.graalvm.sdk:nativeimage:25.3.4.1")
+    compileOnly("org.graalvm.sdk:nativeimage:25.4.4.1.1")
 
     testImplementation(kotlin("test"))
     testImplementation(libs.kotestRunnerJunit5)

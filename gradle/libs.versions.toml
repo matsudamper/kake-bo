@@ -4,32 +4,32 @@ nimbusJoseJwt = "10.9.1"
 java = "24"
 javaToolchain = "24"
 kotlin = "2.4.20"
-apollo = "5.1.0"
+apollo = "5.2.0"
 ktor = "3.6.0"
 activity = "1.13.0"
 appcompat = "1.8.0"
 agp = "9.2.1"
-jackson = "2.22.2"
-compose = "1.12.0"
-protoBuf = "4.36.1"
+jackson = "2.22.3"
+compose = "1.12.1"
+protoBuf = "4.36.2"
 lifecycle = "2.11.0"
-jooq = "3.21.8"
-nav3 = "1.1.7"
-jetbrainsNav3 = "1.1.1"
+jooq = "3.21.9"
+nav3 = "1.2.0"
+jetbrainsNav3 = "1.1.2"
 coil3 = "3.6.3"
-zoomable = "2.13.0"
+zoomable = "2.14.0"
 okhttp = "5.5.0"
-graalvmNative = "1.1.12"
-opentelemetry = "1.65.0"
+graalvmNative = "1.1.14"
+opentelemetry = "1.66.0"
 opentelemetryInstrumentation = "2.29.0-alpha"
 paparazzi = "2.0.0-alpha05"
 composablePreviewScanner = "0.9.3"
-room = "2.8.4"
-room3 = "3.0.2"
-sqlite = "2.7.0"
-workmanager = "2.11.2"
+room = "2.8.5"
+room3 = "3.0.3"
+sqlite = "2.7.1"
+workmanager = "2.12.0"
 timber = "5.0.1"
-ksp = "2.3.11"
+ksp = "2.3.12"
 
 [plugins]
 apollo = { id = "com.apollographql.apollo", version.ref = "apollo" }
@@ -49,7 +49,7 @@ protobuf = { id = "com.google.protobuf", version.require = "0.10.0" }
 paparazzi = { id = "app.cash.paparazzi", version.ref = "paparazzi" }
 graalvmNative = { id = "org.graalvm.buildtools.native", version.ref = "graalvmNative" }
 ksp = { id = "com.google.devtools.ksp", version.ref = "ksp" }
-buildkonfig = { id = "com.codingfeline.buildkonfig", version.require = "0.22.0" }
+buildkonfig = { id = "com.codingfeline.buildkonfig", version.require = "0.23.0" }
 
 [libraries]
 awsS3 = { module = "software.amazon.awssdk:s3", version.ref = "awsSdk" }
@@ -59,6 +59,7 @@ kotlinRefrect = { module = "org.jetbrains.kotlin:kotlin-reflect", version.ref = 
 kotlin-coroutines-core = { module = "org.jetbrains.kotlinx:kotlinx-coroutines-core", version.require = "1.11.0" }
 kotlin-datetime = { module = "org.jetbrains.kotlinx:kotlinx-datetime", version.require = "0.8.0-0.6.x-compat" }
 kotlin-serialization-json = { module = "org.jetbrains.kotlinx:kotlinx-serialization-json", version.require = "1.11.0" }
+kotlinxBrowser = { module = "org.jetbrains.kotlinx:kotlinx-browser", version = "0.5.0" }
 
 # Plugin
 androidGradlePlugin = { module = "com.android.application:com.android.application.gradle.plugin", version.ref = "agp" }
@@ -109,7 +110,6 @@ composeUi = { module = "org.jetbrains.compose.ui:ui", version.ref = "compose" }
 composeFoundation = { module = "org.jetbrains.compose.foundation:foundation", version.ref = "compose" }
 composeMaterial3 = { module = "org.jetbrains.compose.material3:material3", version.require = "1.9.0" }
 composeAnimation = { module = "org.jetbrains.compose.animation:animation", version.ref = "compose" }
-composeHtmlCore = { module = "org.jetbrains.compose.html:html-core", version.ref = "compose" }
 composeComponentsResources = { module = "org.jetbrains.compose.components:components-resources", version.ref = "compose" }
 
 # WebAUth4J
@@ -130,15 +130,15 @@ opentelemetryRuntimeTelemetry = { module = "io.opentelemetry.instrumentation:ope
 # Android
 androidActivityActivityCompose = { module = "androidx.activity:activity-compose", version.ref = "activity" }
 androidAppCompatAppCompat = { module = "androidx.appcompat:appcompat", version.ref = "appcompat" }
-androidxCoreKtx = { module = "androidx.core:core-ktx", version.require = "1.19.0" }
+androidxCoreKtx = { module = "androidx.core:core-ktx", version.require = "1.19.1" }
 androidxLifecycleViewModelKtx = { module = "androidx.lifecycle:lifecycle-viewmodel-ktx", version.ref = "lifecycle" }
 androidxLifecycleViewModelCompose = { module = "androidx.lifecycle:lifecycle-viewmodel-compose", version.ref = "lifecycle" }
 androidxLifecycleRuntimeCompose = { module = "androidx.lifecycle:lifecycle-runtime-compose", version.ref = "lifecycle" }
 androidxNavigation3Runtime = { module = "androidx.navigation3:navigation3-runtime", version.ref = "nav3" }
 androidxNavigation3Ui = { module = "androidx.navigation3:navigation3-ui", version.ref = "nav3" }
 jetbrainsNavigation3Ui = { module = "org.jetbrains.androidx.navigation3:navigation3-ui", version.ref = "jetbrainsNav3" }
-androidxComposeSaveable = { module = "androidx.compose.runtime:runtime-saveable", version = "1.12.0" }
-composeUiToolingPreview = { module = "org.jetbrains.compose.ui:ui-tooling-preview", version = "1.12.0" }
+androidxComposeSaveable = { module = "androidx.compose.runtime:runtime-saveable", version = "1.12.1" }
+composeUiToolingPreview = { module = "org.jetbrains.compose.ui:ui-tooling-preview", version = "1.12.1" }
 composeUiTooling = { module = "org.jetbrains.compose.ui:ui-tooling", version.ref = "compose" }
 
 # Test
@@ -167,7 +167,7 @@ okHttp = { module = "com.squareup.okhttp3:okhttp", version.ref = "okhttp" }
 zoomable = { module = "net.engawapg.lib:zoomable", version.ref = "zoomable" }
 
 # Log
-log4j-api = { module = "org.slf4j:slf4j-api", version.require = "2.0.19" }
+log4j-api = { module = "org.slf4j:slf4j-api", version.require = "2.0.20" }
 logback-classic = { module = "ch.qos.logback:logback-classic", version.require = "1.6.3" }
 logstashLogbackEncoder = { module = "net.logstash.logback:logstash-logback-encoder", version.require = "9.0" }
 
@@ -195,10 +195,10 @@ workRuntimeKtx = { module = "androidx.work:work-runtime-ktx", version.ref = "wor
 timber = { module = "com.jakewharton.timber:timber", version.ref = "timber" }
 
 # Other
-lettuce = { module = "io.lettuce:lettuce-core", version.require = "7.7.0.RELEASE" }
+lettuce = { module = "io.lettuce:lettuce-core", version.require = "7.8.0.RELEASE" }
 jsoup = { module = "org.jsoup:jsoup", version.require = "1.23.2" }
 hikariCP = { module = "com.zaxxer:HikariCP", version.require = "7.1.0" }
-mariadbClient = { module = "org.mariadb.jdbc:mariadb-java-client", version.require = "3.5.8" }
+mariadbClient = { module = "org.mariadb.jdbc:mariadb-java-client", version.require = "3.5.10" }
 
 # Play
 androidxCredentialsPlayServicesAuth = { module = "androidx.credentials:credentials-play-services-auth", version.require = "1.6.0" }

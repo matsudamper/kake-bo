@@ -135,6 +135,23 @@
     },
     {
       "matchPackageNames": [
+        "androidx.compose.runtime:runtime-saveable",
+        "/^androidx\\.room3:/",
+        "/^androidx\\.room:/",
+        "/^androidx\\.sqlite:/",
+        "org.graalvm.buildtools.native",
+        "/^com\\.google\\.protobuf:/",
+        "net.engawapg.lib:zoomable",
+        "/^org\\.jetbrains\\.compose[.:]/",
+        "org.jetbrains.androidx.navigation3:navigation3-ui",
+        "/^androidx\\.navigation3:/",
+        "androidx.work:work-runtime-ktx",
+      ],
+      "matchUpdateTypes": ["minor", "patch"],
+      "automerge": true,
+    },
+    {
+      "matchPackageNames": [
         "com.graphql-java:graphql-java-extended-scalars",
         "com.graphql-java:graphql-java",
         "com.graphql-java:java-dataloader",

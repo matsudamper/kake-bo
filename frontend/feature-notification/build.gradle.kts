@@ -8,7 +8,7 @@ kotlin {
     android {
         namespace = "net.matsudamper.money.frontend.feature.notification"
     }
-    js(IR) {
+    wasmJs {
         browser()
     }
     sourceSets {
