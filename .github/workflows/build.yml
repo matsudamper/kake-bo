@@ -145,7 +145,7 @@ jobs:
           fi
 
           kill $SERVER_PID 2>/dev/null || true
-      - run: ./gradlew :frontend:app:jsBrowserDevelopmentWebpack
+      - run: ./gradlew :frontend:app:wasmJsBrowserDevelopmentWebpack
       - run: ./gradlew allTests
       - name: collect reports file
         if: failure()

@@ -1,5 +1,5 @@
 ./gradlew :backend:assemble
-./gradlew :frontend:app:jsBrowserProductionWebpack
+./gradlew :frontend:app:wasmJsBrowserProductionWebpack
 
 $scriptPath = $MyInvocation.MyCommand.Path
 $scriptDirectory = Split-Path $scriptPath -Parent

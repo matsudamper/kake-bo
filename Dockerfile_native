@@ -4,7 +4,7 @@ WORKDIR /app
 
 COPY . .
 
-RUN ./gradlew :backend:nativeCompile :frontend:app:jsBrowserProductionWebpack \
+RUN ./gradlew :backend:nativeCompile :frontend:app:wasmJsBrowserProductionWebpack \
     --no-daemon \
     -Dorg.gradle.jvmargs="-Xmx6g"
 
@@ -18,7 +18,7 @@ WORKDIR /app
 
 RUN mkdir src logs
 
-COPY --from=builder /app/frontend/app/build/dist/js/productionExecutable src
+COPY --from=builder /app/frontend/app/build/dist/wasmJs/productionExecutable src
 COPY --from=builder /app/backend/build/native/nativeCompile/backend backend
 
 ENTRYPOINT ["/app/backend"]
