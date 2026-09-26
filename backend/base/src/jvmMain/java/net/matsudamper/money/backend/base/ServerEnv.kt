@@ -4,7 +4,7 @@ public object ServerEnv {
     public val isSecure: Boolean get() = System.getenv()["IS_SECURE"].toBoolean()
     public val domain: String? get() = System.getenv()["DOMAIN"]
     public val port: Int get() = System.getenv()["PORT"]!!.toInt()
-    public val frontPath: String get() = System.getenv()["HTML_PATH"] ?: "../frontend/app/build/dist/js/developmentExecutable"
+    public val frontPath: String get() = System.getenv()["HTML_PATH"] ?: "../frontend/app/build/dist/wasmJs/developmentExecutable"
     public val htmlPath: String get() = "$frontPath/index.html"
     public val imageStoragePath: String get() = System.getenv()["IMAGE_STORAGE_PATH"] ?: "./uploaded_images"
     public val imageUploadMaxBytes: Long get() = 50L * 1024L * 1024L // 50MB

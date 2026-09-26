@@ -5,7 +5,7 @@
 
 ## Tech / 構成
 - Backend: Ktor, GraphQL, MariaDB, Lettuce, FIDO(WebAuthn4J)
-- Frontend: Kotlin/JS, Compose Multiplatform (WASM + Android), Apollo, Compose HTML
+- Frontend: Kotlin/Wasm, Compose Multiplatform (Wasm + Android), Apollo
 - 詳細スタイル: 既存の `docs/coding_style.md` も参照
 
 ## 実装注意
@@ -23,7 +23,7 @@
 
 ## ビルド
 ```sh
-./gradlew :backend:assemble :frontend:app:jsBrowserDevelopmentWebpack :frontend:android:app:assembleDebug --quiet
+./gradlew :backend:assemble :frontend:app:wasmJsBrowserDevelopmentWebpack :frontend:android:app:assembleDebug --quiet
 ./gradlew ktlintFormat
 ./gradlew allTests --quiet
 ```

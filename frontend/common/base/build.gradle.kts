@@ -8,7 +8,7 @@ kotlin {
     android {
         namespace = "net.matsudamper.money.frontend.common.base"
     }
-    js(IR) {
+    wasmJs {
         browser()
     }
     jvm { }
@@ -28,14 +28,15 @@ kotlin {
                 implementation(libs.ktorClientCore)
             }
         }
-        val jsMain by getting {
+        val wasmJsMain by getting {
             dependencies {
+                implementation(libs.kotlinxBrowser)
                 implementation(projects.shared)
 
                 implementation(libs.composeRuntime)
                 implementation(libs.composeUi)
 
-                implementation("io.ktor:ktor-client-logging-js:3.6.0")
+                implementation(libs.ktorClientLogging)
                 implementation(libs.ktorClientCore)
                 implementation(libs.ktorClientJs)
             }
@@ -65,7 +66,7 @@ kotlin {
                 implementation(libs.kotlinRefrect)
             }
         }
-        val jsTest by getting {
+        val wasmJsTest by getting {
             dependencies {
                 implementation(kotlin("test"))
             }
