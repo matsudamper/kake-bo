@@ -7,7 +7,7 @@ kotlin {
     android {
         namespace = "net.matsudamper.money.frontend.common.feature.logging"
     }
-    js(IR) {
+    wasmJs {
         browser()
     }
     jvm { }

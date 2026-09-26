@@ -7,7 +7,7 @@ kotlin {
     android {
         namespace = "net.matsudamper.money.frontend.common.usecase"
     }
-    js(IR) {
+    wasmJs {
         browser()
     }
     sourceSets {
