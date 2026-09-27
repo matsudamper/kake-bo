@@ -276,7 +276,19 @@
     "allDeclaredFields": true
   },
   {
+    "name": "net.matsudamper.money.db.schema.tables.records.JUserGeminiSettingsRecord",
+    "allDeclaredConstructors": true,
+    "allPublicMethods": true,
+    "allDeclaredFields": true
+  },
+  {
     "name": "net.matsudamper.money.db.schema.tables.records.JUserImapSettingsRecord",
+    "allDeclaredConstructors": true,
+    "allPublicMethods": true,
+    "allDeclaredFields": true
+  },
+  {
+    "name": "net.matsudamper.money.db.schema.tables.records.JUserMailAiParseResultsRecord",
     "allDeclaredConstructors": true,
     "allPublicMethods": true,
     "allDeclaredFields": true
