@@ -11,26 +11,36 @@ interface ImportedMailAiParseRepository {
     ): AiParseResult?
 
     /**
-     * 実行中のパースが無い、または [staleRunningBefore] より前から実行中のまま止まっている場合のみ実行中にする。
+     * メールが存在し、実行中のパースが無い、または [staleRunningBefore] より前から実行中のまま止まっている場合のみ実行中にする。
+     * @param startedDateTime 保存時にこの実行の結果かを判定するため秒単位で渡す
      * @return 実行中にできたか
      */
     fun tryStartParsing(
         userId: UserId,
         importedMailId: ImportedMailId,
-        now: LocalDateTime,
+        startedDateTime: LocalDateTime,
         staleRunningBefore: LocalDateTime,
     ): Boolean
+
+    /**
+     * [startedDateTime] で開始した実行が実行中のまま残っている場合のみ保存する
+     */
 
     fun saveSucceeded(
         userId: UserId,
         importedMailId: ImportedMailId,
+        startedDateTime: LocalDateTime,
         usages: List<ParsedUsage>,
         now: LocalDateTime,
     ): Boolean
 
+    /**
+     * [startedDateTime] で開始した実行が実行中のまま残っている場合のみ保存する
+     */
     fun saveFailed(
         userId: UserId,
         importedMailId: ImportedMailId,
+        startedDateTime: LocalDateTime,
         errorMessage: String,
         now: LocalDateTime,
     ): Boolean

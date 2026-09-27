@@ -8,6 +8,7 @@ import net.matsudamper.money.backend.app.interfaces.ImportedMailAiParseRepositor
 import net.matsudamper.money.backend.app.interfaces.ImportedMailAiParseRepository.ParsedUsage
 import net.matsudamper.money.backend.datasource.db.DbConnection
 import net.matsudamper.money.db.schema.tables.JUserMailAiParseResults
+import net.matsudamper.money.db.schema.tables.JUserMails
 import net.matsudamper.money.db.schema.tables.records.JUserMailAiParseResultsRecord
 import net.matsudamper.money.element.ImportedMailId
 import net.matsudamper.money.element.UserId
@@ -38,18 +39,38 @@ class DbImportedMailAiParseRepository(
     override fun tryStartParsing(
         userId: UserId,
         importedMailId: ImportedMailId,
-        now: LocalDateTime,
+        startedDateTime: LocalDateTime,
         staleRunningBefore: LocalDateTime,
     ): Boolean {
         return dbConnection.use { connection ->
             val context = DSL.using(connection)
-            // 同時に開始されても1件だけが実行中にできるよう、挿入と更新の件数で開始できたかを判定する
+            val userMails = JUserMails.USER_MAILS
+            val mailExists = DSL.exists(
+                DSL.selectOne()
+                    .from(userMails)
+                    .where(
+                        userMails.USER_ID.eq(userId.value)
+                            .and(userMails.USER_MAIL_ID.eq(importedMailId.id)),
+                    ),
+            )
+            // 同時に開始されても1件だけが実行中にできるよう、挿入と更新の件数で開始できたかを判定する。
+            // 削除中のメールに対して開始しないよう、メールの存在確認も同じ文で行う
             val insertedCount = context
-                .insertInto(aiParseResults)
-                .set(aiParseResults.USER_MAIL_ID, importedMailId.id)
-                .set(aiParseResults.USER_ID, userId.value)
-                .set(aiParseResults.STATUS, STATUS_RUNNING)
-                .set(aiParseResults.UPDATE_DATETIME, now)
+                .insertInto(
+                    aiParseResults,
+                    aiParseResults.USER_MAIL_ID,
+                    aiParseResults.USER_ID,
+                    aiParseResults.STATUS,
+                    aiParseResults.UPDATE_DATETIME,
+                )
+                .select(
+                    DSL.select(
+                        DSL.inline(importedMailId.id),
+                        DSL.inline(userId.value),
+                        DSL.inline(STATUS_RUNNING),
+                        DSL.inline(startedDateTime),
+                    ).where(mailExists),
+                )
                 .onDuplicateKeyIgnore()
                 .execute()
             if (insertedCount == 1) return@use true
@@ -58,14 +79,15 @@ class DbImportedMailAiParseRepository(
                 .update(aiParseResults)
                 .set(aiParseResults.STATUS, STATUS_RUNNING)
                 .set(aiParseResults.ERROR_MESSAGE, null as String?)
-                .set(aiParseResults.UPDATE_DATETIME, now)
+                .set(aiParseResults.UPDATE_DATETIME, startedDateTime)
                 .where(
                     aiParseResults.USER_ID.eq(userId.value)
                         .and(aiParseResults.USER_MAIL_ID.eq(importedMailId.id))
                         .and(
                             aiParseResults.STATUS.ne(STATUS_RUNNING)
                                 .or(aiParseResults.UPDATE_DATETIME.le(staleRunningBefore)),
-                        ),
+                        )
+                        .and(mailExists),
                 )
                 .execute()
             updatedCount == 1
@@ -75,6 +97,7 @@ class DbImportedMailAiParseRepository(
     override fun saveSucceeded(
         userId: UserId,
         importedMailId: ImportedMailId,
+        startedDateTime: LocalDateTime,
         usages: List<ParsedUsage>,
         now: LocalDateTime,
     ): Boolean {
@@ -91,6 +114,7 @@ class DbImportedMailAiParseRepository(
         return updateResult(
             userId = userId,
             importedMailId = importedMailId,
+            startedDateTime = startedDateTime,
             status = STATUS_SUCCEEDED,
             resultJson = resultJson,
             errorMessage = null,
@@ -101,12 +125,14 @@ class DbImportedMailAiParseRepository(
     override fun saveFailed(
         userId: UserId,
         importedMailId: ImportedMailId,
+        startedDateTime: LocalDateTime,
         errorMessage: String,
         now: LocalDateTime,
     ): Boolean {
         return updateResult(
             userId = userId,
             importedMailId = importedMailId,
+            startedDateTime = startedDateTime,
             status = STATUS_FAILED,
             resultJson = null,
             errorMessage = errorMessage.take(ERROR_MESSAGE_MAX_LENGTH),
@@ -117,6 +143,7 @@ class DbImportedMailAiParseRepository(
     private fun updateResult(
         userId: UserId,
         importedMailId: ImportedMailId,
+        startedDateTime: LocalDateTime,
         status: String,
         resultJson: String?,
         errorMessage: String?,
@@ -131,7 +158,9 @@ class DbImportedMailAiParseRepository(
                 .set(aiParseResults.UPDATE_DATETIME, now)
                 .where(
                     aiParseResults.USER_ID.eq(userId.value)
-                        .and(aiParseResults.USER_MAIL_ID.eq(importedMailId.id)),
+                        .and(aiParseResults.USER_MAIL_ID.eq(importedMailId.id))
+                        .and(aiParseResults.STATUS.eq(STATUS_RUNNING))
+                        .and(aiParseResults.UPDATE_DATETIME.eq(startedDateTime)),
                 )
                 .execute()
         } == 1

@@ -3,6 +3,7 @@ package net.matsudamper.money.backend.graphql.usecase
 import java.time.Duration
 import java.time.LocalDateTime
 import java.time.ZoneOffset
+import java.time.temporal.ChronoUnit
 import kotlinx.coroutines.launch
 import net.matsudamper.money.backend.app.interfaces.ImportedMailAiParseRepository
 import net.matsudamper.money.backend.di.DiContainer
@@ -28,12 +29,13 @@ class StartImportedMailAiParseUseCase(
             .firstOrNull()
             ?: return Result.MailNotFound
 
-        val now = currentDateTime()
+        // DBのDATETIMEは秒単位なので、保存時の照合に使えるよう秒に揃える
+        val startedDateTime = currentDateTime().truncatedTo(ChronoUnit.SECONDS)
         val isStarted = aiParseRepository.tryStartParsing(
             userId = userId,
             importedMailId = importedMailId,
-            now = now,
-            staleRunningBefore = now.minus(STALE_RUNNING_DURATION),
+            startedDateTime = startedDateTime,
+            staleRunningBefore = startedDateTime.minus(STALE_RUNNING_DURATION),
         )
         if (isStarted.not()) return Result.AlreadyRunning
 
@@ -49,6 +51,7 @@ class StartImportedMailAiParseUseCase(
             parseAndSave(
                 userId = userId,
                 importedMailId = importedMailId,
+                startedDateTime = startedDateTime,
                 apiKey = apiKey,
                 input = input,
                 aiParseRepository = aiParseRepository,
@@ -60,6 +63,7 @@ class StartImportedMailAiParseUseCase(
     private fun parseAndSave(
         userId: UserId,
         importedMailId: ImportedMailId,
+        startedDateTime: LocalDateTime,
         apiKey: String,
         input: AiMailParseInput,
         aiParseRepository: ImportedMailAiParseRepository,
@@ -74,6 +78,7 @@ class StartImportedMailAiParseUseCase(
                     aiParseRepository.saveSucceeded(
                         userId = userId,
                         importedMailId = importedMailId,
+                        startedDateTime = startedDateTime,
                         usages = usages.map { usage ->
                             ImportedMailAiParseRepository.ParsedUsage(
                                 title = usage.title,
@@ -90,6 +95,7 @@ class StartImportedMailAiParseUseCase(
                     aiParseRepository.saveFailed(
                         userId = userId,
                         importedMailId = importedMailId,
+                        startedDateTime = startedDateTime,
                         errorMessage = throwable.message ?: throwable::class.java.simpleName,
                         now = currentDateTime(),
                     )

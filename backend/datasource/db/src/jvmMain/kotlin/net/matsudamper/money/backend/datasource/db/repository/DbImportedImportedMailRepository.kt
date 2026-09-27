@@ -307,15 +307,7 @@ class DbImportedImportedMailRepository(
     ): Boolean {
         return runCatching {
             dbConnection.use { connection ->
-                val aiParseResults = JUserMailAiParseResults.USER_MAIL_AI_PARSE_RESULTS
-                DSL.using(connection)
-                    .deleteFrom(aiParseResults)
-                    .where(
-                        aiParseResults.USER_ID.eq(userId.value)
-                            .and(aiParseResults.USER_MAIL_ID.eq(mailId.id)),
-                    )
-                    .execute()
-                DSL.using(connection)
+                val deletedCount = DSL.using(connection)
                     .deleteFrom(userMails)
                     .where(
                         DSL.value(true)
@@ -324,6 +316,16 @@ class DbImportedImportedMailRepository(
                     )
                     .limit(1)
                     .execute()
+                // AIパースの開始はメールの存在を確認して挿入するため、メールを先に削除してから結果を消すと孤立した行が残らない
+                val aiParseResults = JUserMailAiParseResults.USER_MAIL_AI_PARSE_RESULTS
+                DSL.using(connection)
+                    .deleteFrom(aiParseResults)
+                    .where(
+                        aiParseResults.USER_ID.eq(userId.value)
+                            .and(aiParseResults.USER_MAIL_ID.eq(mailId.id)),
+                    )
+                    .execute()
+                deletedCount
             } == 1
         }.fold(
             onSuccess = { it },
