@@ -1,30 +1,34 @@
-package net.matsudamper.money.backend.graphql.usecase
+package net.matsudamper.money.backend.feature.aimailparser
 
+import java.time.Clock
 import java.time.Duration
 import java.time.LocalDateTime
 import java.time.ZoneOffset
 import java.time.temporal.ChronoUnit
+import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.launch
 import net.matsudamper.money.backend.app.interfaces.ImportedMailAiParseRepository
-import net.matsudamper.money.backend.di.DiContainer
-import net.matsudamper.money.backend.feature.aimailparser.AiMailParseInput
+import net.matsudamper.money.backend.app.interfaces.ImportedMailRepository
+import net.matsudamper.money.backend.app.interfaces.UserConfigRepository
 import net.matsudamper.money.element.ImportedMailId
 import net.matsudamper.money.element.UserId
 
 class StartImportedMailAiParseUseCase(
-    private val diContainer: DiContainer,
+    private val userConfigRepository: UserConfigRepository,
+    private val importedMailRepository: ImportedMailRepository,
+    private val aiParseRepository: ImportedMailAiParseRepository,
+    private val aiMailParser: AiMailParser,
+    private val clock: Clock,
+    private val backgroundScope: CoroutineScope,
 ) {
     fun start(
         userId: UserId,
         importedMailId: ImportedMailId,
     ): Result {
-        val userConfigRepository = diContainer.createUserConfigRepository()
-        val aiParseRepository = diContainer.createImportedMailAiParseRepository()
-
         val apiKey = userConfigRepository.getGeminiApiKey(userId)
         if (apiKey.isNullOrBlank()) return Result.ApiKeyNotSet
 
-        val mail = diContainer.createDbMailRepository()
+        val mail = importedMailRepository
             .getMails(userId = userId, mailIds = listOf(importedMailId))
             .firstOrNull()
             ?: return Result.MailNotFound
@@ -47,14 +51,13 @@ class StartImportedMailAiParseUseCase(
             plain = mail.plain,
             html = mail.html,
         )
-        diContainer.backgroundScope().launch {
+        backgroundScope.launch {
             parseAndSave(
                 userId = userId,
                 importedMailId = importedMailId,
                 startedDateTime = startedDateTime,
                 apiKey = apiKey,
                 input = input,
-                aiParseRepository = aiParseRepository,
             )
         }
         return Result.Started
@@ -66,9 +69,8 @@ class StartImportedMailAiParseUseCase(
         startedDateTime: LocalDateTime,
         apiKey: String,
         input: AiMailParseInput,
-        aiParseRepository: ImportedMailAiParseRepository,
     ) {
-        val parseResult = diContainer.createGeminiMailParser().parse(
+        val parseResult = aiMailParser.parse(
             apiKey = apiKey,
             input = input,
         )
@@ -107,7 +109,7 @@ class StartImportedMailAiParseUseCase(
     }
 
     private fun currentDateTime(): LocalDateTime {
-        return LocalDateTime.now(diContainer.clock())
+        return LocalDateTime.now(clock)
     }
 
     sealed interface Result {

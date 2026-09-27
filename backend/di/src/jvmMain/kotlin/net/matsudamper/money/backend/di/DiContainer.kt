@@ -13,6 +13,7 @@ import net.matsudamper.money.backend.app.interfaces.ApiTokenRepository
 import net.matsudamper.money.backend.app.interfaces.ChallengeRepository
 import net.matsudamper.money.backend.app.interfaces.DeleteUsageImageRelationDao
 import net.matsudamper.money.backend.app.interfaces.FidoRepository
+import net.matsudamper.money.backend.app.interfaces.GeminiGateway
 import net.matsudamper.money.backend.app.interfaces.ImageStorageGateway
 import net.matsudamper.money.backend.app.interfaces.ImportedMailAiParseRepository
 import net.matsudamper.money.backend.app.interfaces.ImportedMailRepository
@@ -54,7 +55,7 @@ import net.matsudamper.money.backend.datasource.db.repository.DeleteUsageImageRe
 import net.matsudamper.money.backend.datasource.db.repository.EnvAdminLoginRepository
 import net.matsudamper.money.backend.datasource.session.AdminSessionRepositoryProvider
 import net.matsudamper.money.backend.datasource.session.UserSessionRepositoryProvider
-import net.matsudamper.money.backend.feature.aimailparser.GeminiMailParser
+import net.matsudamper.money.backend.feature.gemini.GeminiGatewayImpl
 import net.matsudamper.money.backend.feature.imagestoragelocal.LocalImageStorageGateway
 import net.matsudamper.money.backend.feature.objectstorage.ObjectStorageConfig
 import net.matsudamper.money.backend.feature.objectstorage.S3ImageStorageGateway
@@ -79,7 +80,7 @@ interface DiContainer {
 
     fun createImportedMailAiParseRepository(): ImportedMailAiParseRepository
 
-    fun createGeminiMailParser(): GeminiMailParser
+    fun createGeminiGateway(): GeminiGateway
 
     /**
      * リクエストのライフサイクルと切り離して実行する処理のためのScope
@@ -204,10 +205,10 @@ class MainDiContainer : DiContainer {
         return importedMailAiParseRepository
     }
 
-    private val geminiMailParser by lazy { GeminiMailParser() }
+    private val geminiGateway by lazy { GeminiGatewayImpl() }
 
-    override fun createGeminiMailParser(): GeminiMailParser {
-        return geminiMailParser
+    override fun createGeminiGateway(): GeminiGateway {
+        return geminiGateway
     }
 
     private val backgroundScope = CoroutineScope(SupervisorJob() + Dispatchers.IO)

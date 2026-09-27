@@ -14,6 +14,8 @@ import net.matsudamper.money.backend.app.interfaces.MoneyUsageSubCategoryReposit
 import net.matsudamper.money.backend.app.interfaces.UserLoginRepository
 import net.matsudamper.money.backend.base.ServerVariables
 import net.matsudamper.money.backend.dataloader.ImportedMailCategoryFilterDataLoaderDefine
+import net.matsudamper.money.backend.feature.aimailparser.AiMailParser
+import net.matsudamper.money.backend.feature.aimailparser.StartImportedMailAiParseUseCase
 import net.matsudamper.money.backend.fido.Auth4JModel
 import net.matsudamper.money.backend.fido.AuthenticatorConverter
 import net.matsudamper.money.backend.graphql.GraphQlContext
@@ -25,7 +27,6 @@ import net.matsudamper.money.backend.graphql.otelThenApplyAsync
 import net.matsudamper.money.backend.graphql.toDataFetcher
 import net.matsudamper.money.backend.graphql.usecase.DeleteMailUseCase
 import net.matsudamper.money.backend.graphql.usecase.ImportMailUseCase
-import net.matsudamper.money.backend.graphql.usecase.StartImportedMailAiParseUseCase
 import net.matsudamper.money.backend.lib.ChallengeModel
 import net.matsudamper.money.backend.lib.toDbUpdateValue
 import net.matsudamper.money.backend.logic.ApiTokenEncryptManager
@@ -799,7 +800,14 @@ class UserMutationResolverImpl : UserMutationResolver {
 
         return CompletableFuture.allOf().otelThenApplyAsync {
             val result = runCatching {
-                StartImportedMailAiParseUseCase(context.diContainer).start(
+                StartImportedMailAiParseUseCase(
+                    userConfigRepository = context.diContainer.createUserConfigRepository(),
+                    importedMailRepository = context.diContainer.createDbMailRepository(),
+                    aiParseRepository = context.diContainer.createImportedMailAiParseRepository(),
+                    aiMailParser = AiMailParser(geminiGateway = context.diContainer.createGeminiGateway()),
+                    clock = context.diContainer.clock(),
+                    backgroundScope = context.diContainer.backgroundScope(),
+                ).start(
                     userId = userId,
                     importedMailId = id,
                 )
