@@ -45,11 +45,6 @@ public fun AppRoot(
                         maxWidth > 800.dp
                     }
                 }
-                val windowWidthSizeClass by remember {
-                    derivedStateOf {
-                        WindowWidthSizeClass.fromWidth(maxWidth)
-                    }
-                }
 
                 CompositionLocalProvider(
                     LocalFontFamilyResolver provides fontFamilyResolver,
@@ -59,7 +54,6 @@ public fun AppRoot(
                         ),
                     ).merge(MaterialTheme.typography.bodyMedium),
                     LocalIsLargeScreen provides isLargeScreen,
-                    LocalWindowWidthSizeClass provides windowWidthSizeClass,
                 ) {
                     content()
                 }
