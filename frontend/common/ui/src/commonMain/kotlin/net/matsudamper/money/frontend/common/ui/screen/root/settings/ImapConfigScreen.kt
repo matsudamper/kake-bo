@@ -29,6 +29,7 @@ import net.matsudamper.money.frontend.common.ui.AppRoot
 import net.matsudamper.money.frontend.common.ui.base.KakeBoTopAppBar
 import net.matsudamper.money.frontend.common.ui.base.KakeboScaffoldListener
 import net.matsudamper.money.frontend.common.ui.base.RootScreenScaffold
+import net.matsudamper.money.frontend.common.ui.layout.TextFieldType
 import net.matsudamper.money.frontend.common.ui.layout.html.text.fullscreen.FullScreenTextInput
 import net.matsudamper.money.frontend.common.ui.rememberCustomFontFamily
 
@@ -80,6 +81,7 @@ public data class ImapSettingScreenUiState(
     public class TextInputUiState(
         public val title: String,
         public val default: String,
+        public val inputType: TextFieldType,
         public val event: Event,
     ) {
         @Immutable
@@ -114,6 +116,7 @@ public fun ImapConfigScreen(
         FullScreenTextInput(
             title = lastEvent.title,
             default = lastEvent.default,
+            inputType = lastEvent.inputType,
             onComplete = {
                 lastEvent.event.complete(
                     text = it,

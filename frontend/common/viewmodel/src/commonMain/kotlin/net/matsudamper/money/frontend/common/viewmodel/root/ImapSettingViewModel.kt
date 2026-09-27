@@ -13,6 +13,7 @@ import net.matsudamper.money.frontend.common.base.immutableListOf
 import net.matsudamper.money.frontend.common.base.nav.ScopedObjectFeature
 import net.matsudamper.money.frontend.common.base.nav.user.ScreenNavController
 import net.matsudamper.money.frontend.common.ui.base.KakeboScaffoldListener
+import net.matsudamper.money.frontend.common.ui.layout.TextFieldType
 import net.matsudamper.money.frontend.common.ui.screen.root.settings.ImapSettingScreenUiState
 import net.matsudamper.money.frontend.common.viewmodel.CommonViewModel
 import net.matsudamper.money.frontend.common.viewmodel.lib.EventSender
@@ -103,6 +104,7 @@ public class ImapSettingViewModel(
                     textInputEvents = viewModelState.textInputEvents.plus(
                         createTextInputEvent(
                             title = "Gemini API Key",
+                            inputType = TextFieldType.Password,
                             default = null,
                             complete = { text, event ->
                                 val result = runCatching {
@@ -143,6 +145,7 @@ public class ImapSettingViewModel(
                     textInputEvents = viewModelState.textInputEvents.plus(
                         createTextInputEvent(
                             title = "ホスト名",
+                            inputType = TextFieldType.Text,
                             default = viewModelState.imapConfig?.host,
                             complete = { text, event ->
                                 val result = runCatching {
@@ -181,6 +184,7 @@ public class ImapSettingViewModel(
                     textInputEvents = viewModelState.textInputEvents.plus(
                         createTextInputEvent(
                             title = "ユーザー名",
+                            inputType = TextFieldType.Text,
                             default = viewModelState.imapConfig?.userName,
                             complete = { text, event ->
                                 val result = runCatching {
@@ -219,6 +223,7 @@ public class ImapSettingViewModel(
                     textInputEvents = viewModelState.textInputEvents.plus(
                         createTextInputEvent(
                             title = "ポート",
+                            inputType = TextFieldType.Text,
                             default = viewModelState.imapConfig?.port?.toString(),
                             complete = { text, event ->
                                 val port = text.toIntOrNull()
@@ -264,6 +269,7 @@ public class ImapSettingViewModel(
                     textInputEvents = viewModelState.textInputEvents.plus(
                         createTextInputEvent(
                             title = "パスワード",
+                            inputType = TextFieldType.Password,
                             default = null,
                             complete = { text, event ->
                                 val result = runCatching {
@@ -298,11 +304,13 @@ public class ImapSettingViewModel(
     private fun createTextInputEvent(
         title: String,
         default: String?,
+        inputType: TextFieldType,
         complete: suspend (text: String, event: ImapSettingScreenUiState.TextInputUiState) -> Unit,
     ): ImapSettingScreenUiState.TextInputUiState {
         return ImapSettingScreenUiState.TextInputUiState(
             title = title,
             default = default.orEmpty(),
+            inputType = inputType,
             event = object : ImapSettingScreenUiState.TextInputUiState.Event {
                 override fun complete(
                     text: String,
