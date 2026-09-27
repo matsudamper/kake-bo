@@ -42,34 +42,33 @@ class DbImportedMailAiParseRepository(
         staleRunningBefore: LocalDateTime,
     ): Boolean {
         return dbConnection.use { connection ->
-            DSL.using(connection).transactionResult { configuration ->
-                val transaction = DSL.using(configuration)
-                val current = transaction
-                    .selectFrom(aiParseResults)
-                    .where(aiParseResults.USER_MAIL_ID.eq(importedMailId.id))
-                    .forUpdate()
-                    .fetchOne()
-                if (current != null) {
-                    if (current.userId != userId.value) return@transactionResult false
-                    val updatedDateTime = current.updateDatetime
-                    val isRunning = current.status == STATUS_RUNNING &&
-                        updatedDateTime != null &&
-                        updatedDateTime.isAfter(staleRunningBefore)
-                    if (isRunning) return@transactionResult false
-                }
-                transaction
-                    .insertInto(aiParseResults)
-                    .set(aiParseResults.USER_MAIL_ID, importedMailId.id)
-                    .set(aiParseResults.USER_ID, userId.value)
-                    .set(aiParseResults.STATUS, STATUS_RUNNING)
-                    .set(aiParseResults.UPDATE_DATETIME, now)
-                    .onDuplicateKeyUpdate()
-                    .set(aiParseResults.STATUS, STATUS_RUNNING)
-                    .set(aiParseResults.ERROR_MESSAGE, null as String?)
-                    .set(aiParseResults.UPDATE_DATETIME, now)
-                    .execute()
-                true
-            }
+            val context = DSL.using(connection)
+            // 同時に開始されても1件だけが実行中にできるよう、挿入と更新の件数で開始できたかを判定する
+            val insertedCount = context
+                .insertInto(aiParseResults)
+                .set(aiParseResults.USER_MAIL_ID, importedMailId.id)
+                .set(aiParseResults.USER_ID, userId.value)
+                .set(aiParseResults.STATUS, STATUS_RUNNING)
+                .set(aiParseResults.UPDATE_DATETIME, now)
+                .onDuplicateKeyIgnore()
+                .execute()
+            if (insertedCount == 1) return@use true
+
+            val updatedCount = context
+                .update(aiParseResults)
+                .set(aiParseResults.STATUS, STATUS_RUNNING)
+                .set(aiParseResults.ERROR_MESSAGE, null as String?)
+                .set(aiParseResults.UPDATE_DATETIME, now)
+                .where(
+                    aiParseResults.USER_ID.eq(userId.value)
+                        .and(aiParseResults.USER_MAIL_ID.eq(importedMailId.id))
+                        .and(
+                            aiParseResults.STATUS.ne(STATUS_RUNNING)
+                                .or(aiParseResults.UPDATE_DATETIME.le(staleRunningBefore)),
+                        ),
+                )
+                .execute()
+            updatedCount == 1
         }
     }
 
