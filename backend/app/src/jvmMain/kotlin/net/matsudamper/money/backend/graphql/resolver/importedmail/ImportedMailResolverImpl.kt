@@ -17,6 +17,9 @@ import net.matsudamper.money.graphql.model.QlImportedMail
 import net.matsudamper.money.graphql.model.QlImportedMailForwardedInfo
 import net.matsudamper.money.graphql.model.QlMoneyUsage
 import net.matsudamper.money.graphql.model.QlMoneyUsageSuggest
+import net.matsudamper.money.backend.app.interfaces.ImportedMailAiParseRepository
+import net.matsudamper.money.graphql.model.QlImportedMailAiParseResult
+import net.matsudamper.money.graphql.model.QlImportedMailAiParseStatus
 
 class ImportedMailResolverImpl : ImportedMailResolver {
     private val DataFetchingEnvironment.typedContext: GraphQlContext get() = graphQlContext.get(GraphQlContext::class.java.name)
@@ -194,6 +197,64 @@ class ImportedMailResolverImpl : ImportedMailResolver {
                 .localContext(
                     MoneyUsageSuggestLocalContext(
                         importedMailId = targetMail.id,
+                    ),
+                )
+                .build()
+        }
+    }
+
+    override fun aiParseResult(
+        importedMail: QlImportedMail,
+        env: DataFetchingEnvironment,
+    ): CompletionStage<DataFetcherResult<QlImportedMailAiParseResult?>> {
+        val context = env.typedContext
+        val userId = context.verifyUserSessionAndGetUserId()
+
+        return CompletableFuture.allOf().otelThenApplyAsync {
+            val result = context.diContainer.createImportedMailAiParseRepository()
+                .getResult(
+                    userId = userId,
+                    importedMailId = importedMail.id,
+                )
+            val qlResult = when (result) {
+                null -> null
+                is ImportedMailAiParseRepository.AiParseResult.Running -> {
+                    QlImportedMailAiParseResult(
+                        status = QlImportedMailAiParseStatus.RUNNING,
+                        usages = listOf(),
+                        errorMessage = null,
+                    )
+                }
+
+                is ImportedMailAiParseRepository.AiParseResult.Succeeded -> {
+                    QlImportedMailAiParseResult(
+                        status = QlImportedMailAiParseStatus.SUCCEEDED,
+                        usages = result.usages.map { usage ->
+                            QlMoneyUsageSuggest(
+                                title = usage.title,
+                                amount = usage.amount,
+                                description = usage.description,
+                                dateTime = usage.dateTime,
+                                serviceName = null,
+                            )
+                        },
+                        errorMessage = null,
+                    )
+                }
+
+                is ImportedMailAiParseRepository.AiParseResult.Failed -> {
+                    QlImportedMailAiParseResult(
+                        status = QlImportedMailAiParseStatus.FAILED,
+                        usages = listOf(),
+                        errorMessage = result.errorMessage,
+                    )
+                }
+            }
+            DataFetcherResult.newResult<QlImportedMailAiParseResult?>()
+                .data(qlResult)
+                .localContext(
+                    MoneyUsageSuggestLocalContext(
+                        importedMailId = importedMail.id,
                     ),
                 )
                 .build()

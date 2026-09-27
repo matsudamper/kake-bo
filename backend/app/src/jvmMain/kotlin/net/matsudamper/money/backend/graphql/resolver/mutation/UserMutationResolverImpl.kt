@@ -25,6 +25,7 @@ import net.matsudamper.money.backend.graphql.otelThenApplyAsync
 import net.matsudamper.money.backend.graphql.toDataFetcher
 import net.matsudamper.money.backend.graphql.usecase.DeleteMailUseCase
 import net.matsudamper.money.backend.graphql.usecase.ImportMailUseCase
+import net.matsudamper.money.backend.graphql.usecase.StartImportedMailAiParseUseCase
 import net.matsudamper.money.backend.lib.ChallengeModel
 import net.matsudamper.money.backend.lib.toDbUpdateValue
 import net.matsudamper.money.backend.logic.ApiTokenEncryptManager
@@ -72,6 +73,8 @@ import net.matsudamper.money.graphql.model.QlRegisteredFidoInfo
 import net.matsudamper.money.graphql.model.QlRegisteredFidoResult
 import net.matsudamper.money.graphql.model.QlSession
 import net.matsudamper.money.graphql.model.QlSettingsMutation
+import net.matsudamper.money.graphql.model.QlStartImportedMailAiParseError
+import net.matsudamper.money.graphql.model.QlStartImportedMailAiParseResult
 import net.matsudamper.money.graphql.model.QlUpdateCategoryQuery
 import net.matsudamper.money.graphql.model.QlUpdateImportedMailCategoryFilterConditionInput
 import net.matsudamper.money.graphql.model.QlUpdateImportedMailCategoryFilterInput
@@ -783,6 +786,37 @@ class UserMutationResolverImpl : UserMutationResolver {
                 mailId = id,
             )
             isSuccess
+        }.toDataFetcher()
+    }
+
+    override fun startImportedMailAiParse(
+        userMutation: QlUserMutation,
+        id: ImportedMailId,
+        env: DataFetchingEnvironment,
+    ): CompletionStage<DataFetcherResult<QlStartImportedMailAiParseResult>> {
+        val context = env.graphQlContext.get<GraphQlContext>(GraphQlContext::class.java.name)
+        val userId = context.verifyUserSessionAndGetUserId()
+
+        return CompletableFuture.allOf().otelThenApplyAsync {
+            val result = runCatching {
+                StartImportedMailAiParseUseCase(context.diContainer).start(
+                    userId = userId,
+                    importedMailId = id,
+                )
+            }.onFailure {
+                it.printStackTrace()
+            }.getOrNull()
+            val error = when (result) {
+                StartImportedMailAiParseUseCase.Result.Started -> null
+                StartImportedMailAiParseUseCase.Result.ApiKeyNotSet -> QlStartImportedMailAiParseError.ApiKeyNotSet
+                StartImportedMailAiParseUseCase.Result.MailNotFound -> QlStartImportedMailAiParseError.MailNotFound
+                StartImportedMailAiParseUseCase.Result.AlreadyRunning -> QlStartImportedMailAiParseError.AlreadyRunning
+                null -> QlStartImportedMailAiParseError.InternalServerError
+            }
+            QlStartImportedMailAiParseResult(
+                isSuccess = error == null,
+                error = error,
+            )
         }.toDataFetcher()
     }
 

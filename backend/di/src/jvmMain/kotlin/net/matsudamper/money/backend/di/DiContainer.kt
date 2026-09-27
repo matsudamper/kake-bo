@@ -1,6 +1,10 @@
 package net.matsudamper.money.backend.di
 
 import java.time.Clock
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.SupervisorJob
+import kotlinx.coroutines.cancel
 import net.matsudamper.money.backend.app.interfaces.AdminImageRepository
 import net.matsudamper.money.backend.app.interfaces.AdminLoginRepository
 import net.matsudamper.money.backend.app.interfaces.AdminRepository
@@ -10,6 +14,7 @@ import net.matsudamper.money.backend.app.interfaces.ChallengeRepository
 import net.matsudamper.money.backend.app.interfaces.DeleteUsageImageRelationDao
 import net.matsudamper.money.backend.app.interfaces.FidoRepository
 import net.matsudamper.money.backend.app.interfaces.ImageStorageGateway
+import net.matsudamper.money.backend.app.interfaces.ImportedMailAiParseRepository
 import net.matsudamper.money.backend.app.interfaces.ImportedMailRepository
 import net.matsudamper.money.backend.app.interfaces.MailFilterRepository
 import net.matsudamper.money.backend.app.interfaces.MailRepository
@@ -33,6 +38,7 @@ import net.matsudamper.money.backend.datasource.db.repository.ApiTokenRepository
 import net.matsudamper.money.backend.datasource.db.repository.DbAdminImageRepository
 import net.matsudamper.money.backend.datasource.db.repository.DbAdminSessionRepository
 import net.matsudamper.money.backend.datasource.db.repository.DbFidoRepository
+import net.matsudamper.money.backend.datasource.db.repository.DbImportedMailAiParseRepository
 import net.matsudamper.money.backend.datasource.db.repository.DbImportedImportedMailRepository
 import net.matsudamper.money.backend.datasource.db.repository.DbMailFilterRepository
 import net.matsudamper.money.backend.datasource.db.repository.DbMoneyUsageAnalyticsRepository
@@ -48,6 +54,7 @@ import net.matsudamper.money.backend.datasource.db.repository.DeleteUsageImageRe
 import net.matsudamper.money.backend.datasource.db.repository.EnvAdminLoginRepository
 import net.matsudamper.money.backend.datasource.session.AdminSessionRepositoryProvider
 import net.matsudamper.money.backend.datasource.session.UserSessionRepositoryProvider
+import net.matsudamper.money.backend.feature.aimailparser.GeminiMailParser
 import net.matsudamper.money.backend.feature.imagestoragelocal.LocalImageStorageGateway
 import net.matsudamper.money.backend.feature.objectstorage.ObjectStorageConfig
 import net.matsudamper.money.backend.feature.objectstorage.S3ImageStorageGateway
@@ -69,6 +76,15 @@ interface DiContainer {
     fun createUserConfigRepository(): UserConfigRepository
 
     fun createDbMailRepository(): ImportedMailRepository
+
+    fun createImportedMailAiParseRepository(): ImportedMailAiParseRepository
+
+    fun createGeminiMailParser(): GeminiMailParser
+
+    /**
+     * リクエストのライフサイクルと切り離して実行する処理のためのScope
+     */
+    fun backgroundScope(): CoroutineScope
 
     fun createMoneyUsageCategoryRepository(): MoneyUsageCategoryRepository
 
@@ -180,6 +196,24 @@ class MainDiContainer : DiContainer {
 
     override fun createDbMailRepository(): DbImportedImportedMailRepository {
         return dbImportedMailRepository
+    }
+
+    private val importedMailAiParseRepository = DbImportedMailAiParseRepository(dbConnection = DbConnectionImpl)
+
+    override fun createImportedMailAiParseRepository(): ImportedMailAiParseRepository {
+        return importedMailAiParseRepository
+    }
+
+    private val geminiMailParser by lazy { GeminiMailParser() }
+
+    override fun createGeminiMailParser(): GeminiMailParser {
+        return geminiMailParser
+    }
+
+    private val backgroundScope = CoroutineScope(SupervisorJob() + Dispatchers.IO)
+
+    override fun backgroundScope(): CoroutineScope {
+        return backgroundScope
     }
 
     private val moneyUsageCategoryRepository = DbMoneyUsageCategoryRepository()
@@ -392,6 +426,7 @@ class MainDiContainer : DiContainer {
     }
 
     fun close() {
+        backgroundScope.cancel()
         userSessionRepository.close()
         challengeRepository.close()
         adminSessionRepository.close()

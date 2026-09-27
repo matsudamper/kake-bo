@@ -5,6 +5,7 @@ import net.matsudamper.money.backend.app.interfaces.ImportedMailRepository
 import net.matsudamper.money.backend.datasource.db.DbConnection
 import net.matsudamper.money.db.schema.tables.JMoneyUsages
 import net.matsudamper.money.db.schema.tables.JMoneyUsagesMailsRelation
+import net.matsudamper.money.db.schema.tables.JUserMailAiParseResults
 import net.matsudamper.money.db.schema.tables.JUserMails
 import net.matsudamper.money.db.schema.tables.records.JUserMailsRecord
 import net.matsudamper.money.element.ImportedMailId
@@ -306,6 +307,14 @@ class DbImportedImportedMailRepository(
     ): Boolean {
         return runCatching {
             dbConnection.use { connection ->
+                val aiParseResults = JUserMailAiParseResults.USER_MAIL_AI_PARSE_RESULTS
+                DSL.using(connection)
+                    .deleteFrom(aiParseResults)
+                    .where(
+                        aiParseResults.USER_ID.eq(userId.value)
+                            .and(aiParseResults.USER_MAIL_ID.eq(mailId.id)),
+                    )
+                    .execute()
                 DSL.using(connection)
                     .deleteFrom(userMails)
                     .where(
