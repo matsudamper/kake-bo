@@ -34,7 +34,8 @@ import net.matsudamper.money.frontend.common.base.nav.user.RootHomeScreenStructu
 import net.matsudamper.money.frontend.common.base.nav.user.ScreenNavController
 import net.matsudamper.money.frontend.common.base.nav.user.ScreenStructure
 import net.matsudamper.money.frontend.common.ui.LocalCustomColors
-import net.matsudamper.money.frontend.common.ui.LocalIsLargeScreen
+import net.matsudamper.money.frontend.common.ui.LocalWindowWidthSizeClass
+import net.matsudamper.money.frontend.common.ui.WindowWidthSizeClass
 import net.matsudamper.money.frontend.common.ui.generated.resources.Res
 import net.matsudamper.money.frontend.common.ui.generated.resources.ic_add
 import net.matsudamper.money.frontend.common.ui.generated.resources.ic_home
@@ -108,11 +109,12 @@ private fun RootHostScaffoldContent(
     modifier: Modifier = Modifier,
     content: @Composable (PaddingValues) -> Unit,
 ) {
+    val showNavigationRail = LocalWindowWidthSizeClass.current != WindowWidthSizeClass.Compact
     Column(modifier) {
         Row(
             modifier = Modifier.weight(1f).fillMaxWidth(),
         ) {
-            if (LocalIsLargeScreen.current) {
+            if (showNavigationRail) {
                 NavigationRail(
                     modifier = Modifier.padding(top = 8.dp),
                 ) {
@@ -181,7 +183,7 @@ private fun RootHostScaffoldContent(
                     .weight(1f)
                     .fillMaxHeight(),
             ) {
-                val contentSides = if (LocalIsLargeScreen.current) {
+                val contentSides = if (showNavigationRail) {
                     WindowInsetsSides.Top + WindowInsetsSides.End
                 } else {
                     WindowInsetsSides.Top + WindowInsetsSides.Horizontal
@@ -193,7 +195,7 @@ private fun RootHostScaffoldContent(
                 )
             }
         }
-        if (LocalIsLargeScreen.current.not()) {
+        if (showNavigationRail.not()) {
             NavigationBar(
                 windowInsets = windowInsets.asWindowInsets()
                     .only(WindowInsetsSides.Bottom + WindowInsetsSides.Horizontal),
