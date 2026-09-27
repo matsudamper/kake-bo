@@ -70,10 +70,12 @@ class StartImportedMailAiParseUseCase(
         apiKey: String,
         input: AiMailParseInput,
     ) {
-        val parseResult = aiMailParser.parse(
-            apiKey = apiKey,
-            input = input,
-        )
+        val parseResult = runCatching {
+            aiMailParser.parse(
+                apiKey = apiKey,
+                input = input,
+            ).getOrThrow()
+        }
         runCatching {
             parseResult.fold(
                 onSuccess = { usages ->
