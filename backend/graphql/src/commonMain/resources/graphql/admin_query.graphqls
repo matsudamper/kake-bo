@@ -17,6 +17,11 @@ type AdminUnlinkedImage {
     userName: String!
 }
 
+type AdminImageDirectoryMonth {
+    yearMonth: String!
+    count: Int!
+}
+
 input AdminUserSearchInput {
     query: String!
     size: Int!
