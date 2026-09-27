@@ -21,24 +21,7 @@
     <title>家計簿</title>
     <meta name='robots' content="noindex" />
 
-    <meta id="viewport" name="viewport" content="width=device-width, initial-scale=1">
-    <script>
-        // 狭い端末だけ480px幅に縮小表示し、フォルダブル等の広い画面では実寸で表示する
-        (function () {
-            var minViewportWidth = 480;
-            var viewport = document.getElementById('viewport');
-            function updateViewport() {
-                var content = window.screen.width < minViewportWidth
-                    ? 'width=' + minViewportWidth
-                    : 'width=device-width, initial-scale=1';
-                if (viewport.getAttribute('content') !== content) {
-                    viewport.setAttribute('content', content);
-                }
-            }
-            updateViewport();
-            window.addEventListener('resize', updateViewport);
-        })();
-    </script>
+    <meta name="viewport" content="width=device-width, initial-scale=1">
 
     <link type="text/css" rel="stylesheet" href="/styles.css"/>
 </head>
