@@ -49,6 +49,16 @@ class GraphqlUserConfigQuery(
             .execute()
     }
 
+    suspend fun setGeminiApiKey(apiKey: String): ApolloResponse<SetGeminiApiKeyMutation.Data> {
+        return graphqlClient.apolloClient
+            .mutation(
+                SetGeminiApiKeyMutation(
+                    apiKey = Optional.present(apiKey),
+                ),
+            )
+            .execute()
+    }
+
     suspend fun setImapPassword(password: String): ApolloResponse<SetImapConfigMutation.Data> {
         return graphqlClient.apolloClient
             .mutation(

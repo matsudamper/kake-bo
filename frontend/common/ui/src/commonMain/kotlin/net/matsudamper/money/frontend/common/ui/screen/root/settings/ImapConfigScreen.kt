@@ -13,6 +13,7 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.CircularProgressIndicator
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.Immutable
@@ -40,7 +41,18 @@ public data class ImapSettingScreenUiState(
 
         public data class Loaded(
             val imapConfig: ImapConfig,
+            val geminiConfig: GeminiConfig,
         ) : LoadingState
+    }
+
+    public data class GeminiConfig(
+        val apiKey: String,
+        val event: Event,
+    ) {
+        @Immutable
+        public interface Event {
+            public fun onClickChangeApiKey()
+        }
     }
 
     public data class ImapConfig(
@@ -163,12 +175,39 @@ private fun MainContent(
             )
         },
     ) { paddingValues ->
-        SettingElementContent(
+        Column(
             modifier = Modifier.fillMaxWidth()
                 .padding(paddingValues)
                 .padding(vertical = 24.dp),
-            uiState = uiState.imapConfig,
-        )
+        ) {
+            SettingElementContent(
+                modifier = Modifier.fillMaxWidth(),
+                uiState = uiState.imapConfig,
+            )
+            Spacer(Modifier.height(32.dp))
+            Text(
+                text = "Gemini API設定",
+                style = MaterialTheme.typography.titleLarge,
+            )
+            Spacer(Modifier.height(14.dp))
+            SettingsChangeTextSection(
+                title = {
+                    Text("API Key")
+                },
+                text = {
+                    Text(
+                        text = uiState.geminiConfig.apiKey,
+                        fontFamily = rememberCustomFontFamily(),
+                    )
+                },
+                onClickChange = { uiState.geminiConfig.event.onClickChangeApiKey() },
+            )
+            Spacer(Modifier.height(8.dp))
+            Text(
+                text = "メール画面のAI解析に使用します。空で保存すると削除します",
+                style = MaterialTheme.typography.bodySmall,
+            )
+        }
     }
 }
 

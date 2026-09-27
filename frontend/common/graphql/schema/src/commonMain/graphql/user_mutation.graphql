@@ -24,6 +24,16 @@ mutation SetImapConfig($config: UpdateUserImapConfigInput!) {
     }
 }
 
+mutation SetGeminiApiKey($apiKey: String) {
+    userMutation {
+        settingsMutation {
+            updateGeminiApiKey(apiKey: $apiKey) {
+                hasApiKey
+            }
+        }
+    }
+}
+
 mutation SetTimezoneOffset($offsetMinutes: Int!) {
     userMutation {
         settingsMutation {
