@@ -38,8 +38,8 @@ import net.matsudamper.money.backend.datasource.db.repository.ApiTokenRepository
 import net.matsudamper.money.backend.datasource.db.repository.DbAdminImageRepository
 import net.matsudamper.money.backend.datasource.db.repository.DbAdminSessionRepository
 import net.matsudamper.money.backend.datasource.db.repository.DbFidoRepository
-import net.matsudamper.money.backend.datasource.db.repository.DbImportedMailAiParseRepository
 import net.matsudamper.money.backend.datasource.db.repository.DbImportedImportedMailRepository
+import net.matsudamper.money.backend.datasource.db.repository.DbImportedMailAiParseRepository
 import net.matsudamper.money.backend.datasource.db.repository.DbMailFilterRepository
 import net.matsudamper.money.backend.datasource.db.repository.DbMoneyUsageAnalyticsRepository
 import net.matsudamper.money.backend.datasource.db.repository.DbMoneyUsageCategoryRepository

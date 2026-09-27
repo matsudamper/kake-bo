@@ -16,9 +16,9 @@ import net.matsudamper.money.graphql.model.QlChangePasswordErrorType
 import net.matsudamper.money.graphql.model.QlChangePasswordResult
 import net.matsudamper.money.graphql.model.QlSettingsMutation
 import net.matsudamper.money.graphql.model.QlUpdateUserImapConfigInput
+import net.matsudamper.money.graphql.model.QlUserGeminiConfig
 import net.matsudamper.money.graphql.model.QlUserImapConfig
 import net.matsudamper.money.graphql.model.SettingsMutationResolver
-import net.matsudamper.money.graphql.model.QlUserGeminiConfig
 
 class SettingsMutationResolverResolverImpl : SettingsMutationResolver {
     override fun changePassword(

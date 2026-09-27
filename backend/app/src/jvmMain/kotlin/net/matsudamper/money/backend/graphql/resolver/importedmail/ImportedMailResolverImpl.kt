@@ -5,6 +5,7 @@ import java.util.concurrent.CompletableFuture
 import java.util.concurrent.CompletionStage
 import graphql.execution.DataFetcherResult
 import graphql.schema.DataFetchingEnvironment
+import net.matsudamper.money.backend.app.interfaces.ImportedMailAiParseRepository
 import net.matsudamper.money.backend.dataloader.ImportedMailDataLoaderDefine
 import net.matsudamper.money.backend.dataloader.MoneyUsageDataLoaderDefine
 import net.matsudamper.money.backend.graphql.GraphQlContext
@@ -14,12 +15,11 @@ import net.matsudamper.money.backend.graphql.toDataFetcher
 import net.matsudamper.money.backend.mail.parser.MailParser
 import net.matsudamper.money.graphql.model.ImportedMailResolver
 import net.matsudamper.money.graphql.model.QlImportedMail
+import net.matsudamper.money.graphql.model.QlImportedMailAiParseResult
+import net.matsudamper.money.graphql.model.QlImportedMailAiParseStatus
 import net.matsudamper.money.graphql.model.QlImportedMailForwardedInfo
 import net.matsudamper.money.graphql.model.QlMoneyUsage
 import net.matsudamper.money.graphql.model.QlMoneyUsageSuggest
-import net.matsudamper.money.backend.app.interfaces.ImportedMailAiParseRepository
-import net.matsudamper.money.graphql.model.QlImportedMailAiParseResult
-import net.matsudamper.money.graphql.model.QlImportedMailAiParseStatus
 
 class ImportedMailResolverImpl : ImportedMailResolver {
     private val DataFetchingEnvironment.typedContext: GraphQlContext get() = graphQlContext.get(GraphQlContext::class.java.name)

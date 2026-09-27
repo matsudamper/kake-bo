@@ -14,10 +14,10 @@ import net.matsudamper.money.backend.graphql.toDataFetcher
 import net.matsudamper.money.backend.lib.ChallengeModel
 import net.matsudamper.money.graphql.model.QlFidoAddInfo
 import net.matsudamper.money.graphql.model.QlRegisteredFidoInfo
+import net.matsudamper.money.graphql.model.QlUserGeminiConfig
 import net.matsudamper.money.graphql.model.QlUserImapConfig
 import net.matsudamper.money.graphql.model.QlUserSettings
 import net.matsudamper.money.graphql.model.UserSettingsResolver
-import net.matsudamper.money.graphql.model.QlUserGeminiConfig
 
 class UserSettingsResolverImpl : UserSettingsResolver {
     override fun hasPassword(
