@@ -111,8 +111,8 @@ class StartImportedMailAiParseUseCase(
         data object AlreadyRunning : Result
     }
 
-    private companion object {
+    companion object {
         // サーバー再起動などで実行中のまま残ったものを再実行できるようにする
-        private val STALE_RUNNING_DURATION = Duration.ofMinutes(10)
+        val STALE_RUNNING_DURATION: Duration = Duration.ofMinutes(10)
     }
 }

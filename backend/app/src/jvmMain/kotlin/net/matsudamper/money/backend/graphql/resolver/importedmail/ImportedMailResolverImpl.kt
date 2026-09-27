@@ -12,6 +12,7 @@ import net.matsudamper.money.backend.graphql.GraphQlContext
 import net.matsudamper.money.backend.graphql.localcontext.MoneyUsageSuggestLocalContext
 import net.matsudamper.money.backend.graphql.otelThenApplyAsync
 import net.matsudamper.money.backend.graphql.toDataFetcher
+import net.matsudamper.money.backend.graphql.usecase.StartImportedMailAiParseUseCase
 import net.matsudamper.money.backend.mail.parser.MailParser
 import net.matsudamper.money.graphql.model.ImportedMailResolver
 import net.matsudamper.money.graphql.model.QlImportedMail
@@ -216,14 +217,24 @@ class ImportedMailResolverImpl : ImportedMailResolver {
                     userId = userId,
                     importedMailId = importedMail.id,
                 )
+            val staleRunningBefore = LocalDateTime.now(context.diContainer.clock())
+                .minus(StartImportedMailAiParseUseCase.STALE_RUNNING_DURATION)
             val qlResult = when (result) {
                 null -> null
                 is ImportedMailAiParseRepository.AiParseResult.Running -> {
-                    QlImportedMailAiParseResult(
-                        status = QlImportedMailAiParseStatus.RUNNING,
-                        usages = listOf(),
-                        errorMessage = null,
-                    )
+                    if (result.updatedDateTime.isAfter(staleRunningBefore)) {
+                        QlImportedMailAiParseResult(
+                            status = QlImportedMailAiParseStatus.RUNNING,
+                            usages = listOf(),
+                            errorMessage = null,
+                        )
+                    } else {
+                        QlImportedMailAiParseResult(
+                            status = QlImportedMailAiParseStatus.FAILED,
+                            usages = listOf(),
+                            errorMessage = "解析が中断されました",
+                        )
+                    }
                 }
 
                 is ImportedMailAiParseRepository.AiParseResult.Succeeded -> {
