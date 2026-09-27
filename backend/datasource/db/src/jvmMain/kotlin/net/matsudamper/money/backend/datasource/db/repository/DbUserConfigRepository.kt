@@ -3,6 +3,7 @@ package net.matsudamper.money.backend.datasource.db.repository
 import java.time.ZoneOffset
 import net.matsudamper.money.backend.app.interfaces.UserConfigRepository
 import net.matsudamper.money.backend.app.interfaces.element.ImapConfig
+import net.matsudamper.money.backend.base.DbSecretCipher
 import net.matsudamper.money.backend.datasource.db.DbConnectionImpl
 import net.matsudamper.money.db.schema.tables.JUserGeminiSettings
 import net.matsudamper.money.db.schema.tables.JUserImapSettings
@@ -10,7 +11,9 @@ import net.matsudamper.money.db.schema.tables.JUserTimezoneSetting
 import net.matsudamper.money.element.UserId
 import org.jooq.impl.DSL
 
-class DbUserConfigRepository : UserConfigRepository {
+class DbUserConfigRepository(
+    private val dbSecretCipher: DbSecretCipher?,
+) : UserConfigRepository {
     /**
      * @return isSuccess
      */
@@ -103,25 +106,43 @@ class DbUserConfigRepository : UserConfigRepository {
 
     override fun getGeminiApiKey(userId: UserId): String? {
         val geminiSettings = JUserGeminiSettings.USER_GEMINI_SETTINGS
-        return DbConnectionImpl.use {
+        val encryptedApiKey = DbConnectionImpl.use {
             DSL.using(it)
-                .select(geminiSettings.API_KEY)
+                .select(geminiSettings.ENCRYPTED_API_KEY)
                 .from(geminiSettings)
                 .where(geminiSettings.USER_ID.eq(userId.value))
                 .fetchOne()
-        }?.value1()
+        }?.value1() ?: return null
+        val cipher = requireDbSecretCipher()
+        return runCatching {
+            cipher.decrypt(
+                encryptedText = encryptedApiKey,
+                associatedData = geminiApiKeyAssociatedData(userId),
+            )
+        }.onFailure {
+            // 暗号鍵を変更した場合などは復号できないため、未登録として扱い再登録してもらう
+            it.printStackTrace()
+        }.getOrNull()
     }
 
     override fun updateGeminiApiKey(userId: UserId, apiKey: String?): Boolean {
         return runCatching {
+            val encryptedApiKey = if (apiKey == null) {
+                null
+            } else {
+                requireDbSecretCipher().encrypt(
+                    plainText = apiKey,
+                    associatedData = geminiApiKeyAssociatedData(userId),
+                )
+            }
             val geminiSettings = JUserGeminiSettings.USER_GEMINI_SETTINGS
             DbConnectionImpl.use {
                 DSL.using(it)
                     .insertInto(geminiSettings)
                     .set(geminiSettings.USER_ID, userId.value)
-                    .set(geminiSettings.API_KEY, apiKey)
+                    .set(geminiSettings.ENCRYPTED_API_KEY, encryptedApiKey)
                     .onDuplicateKeyUpdate()
-                    .set(geminiSettings.API_KEY, apiKey)
+                    .set(geminiSettings.ENCRYPTED_API_KEY, encryptedApiKey)
                     .execute()
             }
         }.fold(
@@ -164,5 +185,13 @@ class DbUserConfigRepository : UserConfigRepository {
                 null
             },
         )
+    }
+
+    private fun requireDbSecretCipher(): DbSecretCipher {
+        return checkNotNull(dbSecretCipher) { "DB_SECRET_ENCRYPTION_KEY が未設定です" }
+    }
+
+    private fun geminiApiKeyAssociatedData(userId: UserId): String {
+        return "user_gemini_settings.encrypted_api_key:${userId.value}"
     }
 }

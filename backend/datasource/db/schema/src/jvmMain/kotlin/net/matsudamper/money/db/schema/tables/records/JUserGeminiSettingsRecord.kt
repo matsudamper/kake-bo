@@ -20,7 +20,7 @@ open class JUserGeminiSettingsRecord() : UpdatableRecordImpl<JUserGeminiSettings
         set(value): Unit = set(0, value)
         get(): Int? = get(0) as Int?
 
-    open var apiKey: String?
+    open var encryptedApiKey: String?
         set(value): Unit = set(1, value)
         get(): String? = get(1) as String?
 
@@ -33,9 +33,9 @@ open class JUserGeminiSettingsRecord() : UpdatableRecordImpl<JUserGeminiSettings
     /**
      * Create a detached, initialised JUserGeminiSettingsRecord
      */
-    constructor(userId: Int? = null, apiKey: String? = null): this() {
+    constructor(userId: Int? = null, encryptedApiKey: String? = null): this() {
         this.userId = userId
-        this.apiKey = apiKey
+        this.encryptedApiKey = encryptedApiKey
         resetTouchedOnNotNull()
     }
 }

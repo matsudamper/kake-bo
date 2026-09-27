@@ -75,9 +75,9 @@ open class JUserGeminiSettings(
     val USER_ID: TableField<JUserGeminiSettingsRecord, Int?> = createField(DSL.name("user_id"), SQLDataType.INTEGER.nullable(false), this, "")
 
     /**
-     * The column <code>money.user_gemini_settings.api_key</code>.
+     * The column <code>money.user_gemini_settings.encrypted_api_key</code>.
      */
-    val API_KEY: TableField<JUserGeminiSettingsRecord, String?> = createField(DSL.name("api_key"), SQLDataType.VARCHAR(500).defaultValue(DSL.field(DSL.raw("NULL"), SQLDataType.VARCHAR)), this, "")
+    val ENCRYPTED_API_KEY: TableField<JUserGeminiSettingsRecord, String?> = createField(DSL.name("encrypted_api_key"), SQLDataType.VARCHAR(1000).defaultValue(DSL.field(DSL.raw("NULL"), SQLDataType.VARCHAR)), this, "")
 
     private constructor(alias: Name, aliased: Table<JUserGeminiSettingsRecord>?): this(alias, null, null, null, aliased, null, null)
     private constructor(alias: Name, aliased: Table<JUserGeminiSettingsRecord>?, parameters: Array<Field<*>?>?): this(alias, null, null, null, aliased, parameters, null)

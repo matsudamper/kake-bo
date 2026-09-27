@@ -1,7 +1,7 @@
 CREATE TABLE user_gemini_settings
 (
-    user_id INT NOT NULL PRIMARY KEY,
-    api_key VARCHAR(500)
+    user_id           INT NOT NULL PRIMARY KEY,
+    encrypted_api_key VARCHAR(1000)
 );
 
 CREATE TABLE user_mail_ai_parse_results

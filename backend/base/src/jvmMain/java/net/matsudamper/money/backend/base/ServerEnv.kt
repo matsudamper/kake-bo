@@ -22,6 +22,12 @@ public object ServerEnv {
 
     public val userPasswordPepper: String get() = System.getenv("USER_PASSWORD_PEPPER")!!
 
+    /**
+     * DBに保存する秘密情報を暗号化する鍵。32バイトの乱数をBase64にした値を指定する。
+     * 未設定の場合は暗号化が必要な情報を保存できない。
+     */
+    public val dbSecretEncryptionKey: String? get() = System.getenv("DB_SECRET_ENCRYPTION_KEY")?.takeIf { it.isNotBlank() }
+
     public val adminPasswordHash: String? get() = System.getenv("ADMIN_PASSWORD_HASH")
     public val adminPasswordSalt: String? get() = System.getenv("ADMIN_PASSWORD_SALT")
 
