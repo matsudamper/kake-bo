@@ -17,6 +17,7 @@ import net.matsudamper.money.graphql.model.QlRegisteredFidoInfo
 import net.matsudamper.money.graphql.model.QlUserImapConfig
 import net.matsudamper.money.graphql.model.QlUserSettings
 import net.matsudamper.money.graphql.model.UserSettingsResolver
+import net.matsudamper.money.graphql.model.QlUserGeminiConfig
 
 class UserSettingsResolverImpl : UserSettingsResolver {
     override fun hasPassword(
@@ -44,6 +45,21 @@ class UserSettingsResolverImpl : UserSettingsResolver {
                 ?.totalSeconds
                 ?.div(60)
                 ?: 0
+        }.toDataFetcher()
+    }
+
+    override fun geminiConfig(
+        userSettings: QlUserSettings,
+        env: DataFetchingEnvironment,
+    ): CompletionStage<DataFetcherResult<QlUserGeminiConfig>> {
+        val context = env.graphQlContext.get<GraphQlContext>(GraphQlContext::class.java.name)
+        val userId = context.verifyUserSessionAndGetUserId()
+
+        return otelSupplyAsync {
+            val apiKey = context.diContainer.createUserConfigRepository().getGeminiApiKey(userId)
+            QlUserGeminiConfig(
+                hasApiKey = apiKey.isNullOrBlank().not(),
+            )
         }.toDataFetcher()
     }
 

@@ -18,6 +18,7 @@ import net.matsudamper.money.graphql.model.QlSettingsMutation
 import net.matsudamper.money.graphql.model.QlUpdateUserImapConfigInput
 import net.matsudamper.money.graphql.model.QlUserImapConfig
 import net.matsudamper.money.graphql.model.SettingsMutationResolver
+import net.matsudamper.money.graphql.model.QlUserGeminiConfig
 
 class SettingsMutationResolverResolverImpl : SettingsMutationResolver {
     override fun changePassword(
@@ -139,6 +140,28 @@ class SettingsMutationResolverResolverImpl : SettingsMutationResolver {
                 port = result.port,
                 hasPassword = result.password.isNullOrBlank().not(),
                 userName = result.userName,
+            )
+        }.toDataFetcher()
+    }
+
+    override fun updateGeminiApiKey(
+        settingsMutation: QlSettingsMutation,
+        apiKey: String?,
+        env: DataFetchingEnvironment,
+    ): CompletionStage<DataFetcherResult<QlUserGeminiConfig?>> {
+        val context = env.graphQlContext.get<GraphQlContext>(GraphQlContext::class.java.name)
+        val userConfigRepository = context.diContainer.createUserConfigRepository()
+        val userId = context.verifyUserSessionAndGetUserId()
+        return otelSupplyAsync {
+            val isSuccess = userConfigRepository.updateGeminiApiKey(
+                userId = userId,
+                apiKey = apiKey?.trim()?.takeIf { it.isNotEmpty() },
+            )
+            if (isSuccess.not()) {
+                return@otelSupplyAsync null
+            }
+            QlUserGeminiConfig(
+                hasApiKey = userConfigRepository.getGeminiApiKey(userId).isNullOrBlank().not(),
             )
         }.toDataFetcher()
     }

@@ -4,6 +4,7 @@ import java.time.ZoneOffset
 import net.matsudamper.money.backend.app.interfaces.UserConfigRepository
 import net.matsudamper.money.backend.app.interfaces.element.ImapConfig
 import net.matsudamper.money.backend.datasource.db.DbConnectionImpl
+import net.matsudamper.money.db.schema.tables.JUserGeminiSettings
 import net.matsudamper.money.db.schema.tables.JUserImapSettings
 import net.matsudamper.money.db.schema.tables.JUserTimezoneSetting
 import net.matsudamper.money.element.UserId
@@ -97,6 +98,38 @@ class DbUserConfigRepository : UserConfigRepository {
         }.fold(
             onSuccess = { true },
             onFailure = { false },
+        )
+    }
+
+    override fun getGeminiApiKey(userId: UserId): String? {
+        val geminiSettings = JUserGeminiSettings.USER_GEMINI_SETTINGS
+        return DbConnectionImpl.use {
+            DSL.using(it)
+                .select(geminiSettings.API_KEY)
+                .from(geminiSettings)
+                .where(geminiSettings.USER_ID.eq(userId.value))
+                .fetchOne()
+        }?.value1()
+    }
+
+    override fun updateGeminiApiKey(userId: UserId, apiKey: String?): Boolean {
+        return runCatching {
+            val geminiSettings = JUserGeminiSettings.USER_GEMINI_SETTINGS
+            DbConnectionImpl.use {
+                DSL.using(it)
+                    .insertInto(geminiSettings)
+                    .set(geminiSettings.USER_ID, userId.value)
+                    .set(geminiSettings.API_KEY, apiKey)
+                    .onDuplicateKeyUpdate()
+                    .set(geminiSettings.API_KEY, apiKey)
+                    .execute()
+            }
+        }.fold(
+            onSuccess = { true },
+            onFailure = {
+                it.printStackTrace()
+                false
+            },
         )
     }
 

@@ -186,6 +186,10 @@ type SettingsMutation {
     updateImapConfig(config: UpdateUserImapConfigInput!) : UserImapConfig
     changePassword(password: String): ChangePasswordResult! @lazy
     updateTimezoneOffset(offsetMinutes: Int!): Int
+    """
+    nullまたは空文字の場合はAPIキーを削除する
+    """
+    updateGeminiApiKey(apiKey: String): UserGeminiConfig
 }
 
 type ChangePasswordResult {
