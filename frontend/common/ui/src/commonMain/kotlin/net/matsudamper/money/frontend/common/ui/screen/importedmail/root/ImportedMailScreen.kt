@@ -12,6 +12,7 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.layout.widthIn
 import androidx.compose.foundation.lazy.LazyColumn
@@ -66,11 +67,31 @@ public data class MailScreenUiState(
         public data class Loaded(
             val mail: Mail,
             val usageSuggest: ImmutableList<UsageSuggest>,
+            val aiParse: AiParse,
             val usage: ImmutableList<LinkedUsage>,
             val hasPlain: Boolean,
             val hasHtml: Boolean,
             val event: LoadedEvent,
         ) : LoadingState
+    }
+
+    public data class AiParse(
+        val state: AiParseState,
+        val startErrorMessage: String?,
+    )
+
+    public sealed interface AiParseState {
+        public data object NotExecuted : AiParseState
+
+        public data object Running : AiParseState
+
+        public data class Failed(
+            val message: String,
+        ) : AiParseState
+
+        public data class Succeeded(
+            val usageSuggest: ImmutableList<UsageSuggest>,
+        ) : AiParseState
     }
 
     public data class AlertDialog(
@@ -146,6 +167,8 @@ public data class MailScreenUiState(
         public fun onClickMailPlain()
 
         public fun onClickRegister()
+
+        public fun onClickAiParse()
     }
 
     @Immutable
@@ -332,22 +355,130 @@ private fun MainContent(
                 }
             } else {
                 items(uiState.usageSuggest) { item ->
-                    MoneyUsageSuggestCard(
+                    MoneyUsageSuggestItem(
                         modifier = Modifier.fillMaxWidth(),
-                        items = item,
+                        item = item,
                     )
-                    Spacer(modifier = Modifier.height(4.dp))
-                    Row {
-                        Spacer(modifier = Modifier.weight(1f))
-                        OutlinedButton(
-                            onClick = { item.event.onClickRegister() },
-                        ) {
-                            Text("登録")
-                        }
-                    }
-                    Spacer(modifier = Modifier.height(16.dp))
                 }
             }
+            item {
+                Spacer(modifier = Modifier.height(24.dp))
+                AiParseHeader(
+                    modifier = Modifier.fillMaxWidth(),
+                    uiState = uiState.aiParse,
+                    onClickAiParse = { uiState.event.onClickAiParse() },
+                )
+            }
+            when (val aiParseState = uiState.aiParse.state) {
+                is MailScreenUiState.AiParseState.Succeeded -> {
+                    if (aiParseState.usageSuggest.isEmpty()) {
+                        item {
+                            Text(
+                                modifier = Modifier.padding(8.dp),
+                                text = "支払いは見つかりませんでした",
+                                style = MaterialTheme.typography.bodyMedium,
+                            )
+                        }
+                    } else {
+                        items(aiParseState.usageSuggest) { item ->
+                            MoneyUsageSuggestItem(
+                                modifier = Modifier.fillMaxWidth(),
+                                item = item,
+                            )
+                        }
+                    }
+                }
+
+                is MailScreenUiState.AiParseState.Failed,
+                MailScreenUiState.AiParseState.NotExecuted,
+                MailScreenUiState.AiParseState.Running,
+                -> Unit
+            }
+            item {
+                Spacer(modifier = Modifier.height(24.dp))
+            }
+        }
+    }
+}
+
+@Composable
+private fun MoneyUsageSuggestItem(
+    modifier: Modifier = Modifier,
+    item: MailScreenUiState.UsageSuggest,
+) {
+    Column(modifier = modifier) {
+        MoneyUsageSuggestCard(
+            modifier = Modifier.fillMaxWidth(),
+            items = item,
+        )
+        Spacer(modifier = Modifier.height(4.dp))
+        Row {
+            Spacer(modifier = Modifier.weight(1f))
+            OutlinedButton(
+                onClick = { item.event.onClickRegister() },
+            ) {
+                Text("登録")
+            }
+        }
+        Spacer(modifier = Modifier.height(16.dp))
+    }
+}
+
+@Composable
+private fun AiParseHeader(
+    modifier: Modifier = Modifier,
+    uiState: MailScreenUiState.AiParse,
+    onClickAiParse: () -> Unit,
+) {
+    Column(modifier = modifier) {
+        Row(
+            modifier = Modifier.fillMaxWidth(),
+            verticalAlignment = Alignment.CenterVertically,
+        ) {
+            Text(
+                modifier = Modifier.padding(horizontal = 12.dp)
+                    .weight(1f),
+                text = "AI解析結果",
+                style = MaterialTheme.typography.headlineLarge,
+            )
+            val isRunning = uiState.state is MailScreenUiState.AiParseState.Running
+            OutlinedButton(
+                enabled = isRunning.not(),
+                onClick = { onClickAiParse() },
+            ) {
+                if (isRunning) {
+                    CircularProgressIndicator(
+                        modifier = Modifier.size(16.dp),
+                        strokeWidth = 2.dp,
+                    )
+                    Spacer(modifier = Modifier.width(8.dp))
+                    Text("解析中")
+                } else {
+                    Text(
+                        text = when (uiState.state) {
+                            MailScreenUiState.AiParseState.NotExecuted -> "AIで解析"
+                            else -> "再解析"
+                        },
+                    )
+                }
+            }
+        }
+        Spacer(modifier = Modifier.height(12.dp))
+        HorizontalDivider(modifier = Modifier.fillMaxWidth().height(1.dp))
+        Spacer(modifier = Modifier.height(12.dp))
+        val message = uiState.startErrorMessage ?: when (val state = uiState.state) {
+            is MailScreenUiState.AiParseState.Failed -> "解析に失敗しました: ${state.message}"
+            MailScreenUiState.AiParseState.NotExecuted -> "Gemini APIでメールを解析します"
+            MailScreenUiState.AiParseState.Running,
+            is MailScreenUiState.AiParseState.Succeeded,
+            -> null
+        }
+        if (message != null) {
+            Text(
+                modifier = Modifier.padding(8.dp),
+                text = message,
+                style = MaterialTheme.typography.bodyMedium,
+            )
         }
     }
 }

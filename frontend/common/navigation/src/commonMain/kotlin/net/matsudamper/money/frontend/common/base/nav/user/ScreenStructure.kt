@@ -421,6 +421,7 @@ public sealed interface ScreenStructure : IScreenStructure {
     public data class AddMoneyUsage(
         val importedMailId: ImportedMailId? = null,
         val importedMailIndex: Int? = null,
+        val isAiParseResult: Boolean = false,
         val title: String? = null,
         val price: Float? = null,
         val date: LocalDateTime? = null,
@@ -440,6 +441,9 @@ public sealed interface ScreenStructure : IScreenStructure {
                     }
                     if (importedMailIndex != null) {
                         append(KEY_IMPORTED_MAIL_INDEX, importedMailIndex.toString())
+                    }
+                    if (isAiParseResult) {
+                        append(KEY_IS_AI_PARSE_RESULT, isAiParseResult.toString())
                     }
                     if (title != null) {
                         append(KEY_TITLE, title)
@@ -474,6 +478,7 @@ public sealed interface ScreenStructure : IScreenStructure {
         public companion object {
             private const val KEY_IMPORTED_MAIL_ID = "imported_mail_id"
             private const val KEY_IMPORTED_MAIL_INDEX = "imported_mail_index"
+            private const val KEY_IS_AI_PARSE_RESULT = "is_ai_parse_result"
             private const val KEY_TITLE = "title"
             private const val KEY_PRICE = "price"
             private const val KEY_DATE = "date"
@@ -487,6 +492,7 @@ public sealed interface ScreenStructure : IScreenStructure {
                     importedMailId = queryParams[KEY_IMPORTED_MAIL_ID]?.firstOrNull()?.toIntOrNull()
                         ?.let { ImportedMailId(it) },
                     importedMailIndex = queryParams[KEY_IMPORTED_MAIL_INDEX]?.firstOrNull()?.toIntOrNull(),
+                    isAiParseResult = queryParams[KEY_IS_AI_PARSE_RESULT]?.firstOrNull()?.toBooleanStrictOrNull() ?: false,
                     title = queryParams[KEY_TITLE]?.firstOrNull(),
                     price = queryParams[KEY_PRICE]?.firstOrNull()?.toFloatOrNull(),
                     date = queryParams[KEY_DATE]?.firstOrNull()?.let { dateFormat.parse(it) },

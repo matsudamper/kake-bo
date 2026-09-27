@@ -24,18 +24,13 @@ query ImportedMailScreen($id: ImportedMailId!) {
                     }
                 }
                 suggestUsages {
-                    title
-                    serviceName
-                    description
-                    dateTime
-                    amount
-                    subCategory {
-                        id
-                        name
-                        category {
-                            id
-                            name
-                        }
+                    ...ImportedMailScreenSuggestUsage
+                }
+                aiParseResult {
+                    status
+                    errorMessage
+                    usages {
+                        ...ImportedMailScreenSuggestUsage
                     }
                 }
             }
@@ -46,5 +41,30 @@ query ImportedMailScreen($id: ImportedMailId!) {
 mutation ImportedMailScreenDeleteMail($id: ImportedMailId!) {
     userMutation {
         deleteImportedMail(id: $id)
+    }
+}
+
+mutation ImportedMailScreenStartAiParse($id: ImportedMailId!) {
+    userMutation {
+        startImportedMailAiParse(id: $id) {
+            isSuccess
+            error
+        }
+    }
+}
+
+fragment ImportedMailScreenSuggestUsage on MoneyUsageSuggest {
+    title
+    serviceName
+    description
+    dateTime
+    amount
+    subCategory {
+        id
+        name
+        category {
+            id
+            name
+        }
     }
 }
