@@ -42,7 +42,7 @@ public fun AppRoot(
                 val maxWidth by rememberUpdatedState(maxWidth)
                 val isLargeScreen by remember {
                     derivedStateOf {
-                        maxWidth > 800.dp
+                        maxWidth >= 600.dp
                     }
                 }
 
