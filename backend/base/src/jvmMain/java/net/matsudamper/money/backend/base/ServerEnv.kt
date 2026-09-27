@@ -25,6 +25,8 @@ public object ServerEnv {
     public val adminPasswordHash: String? get() = System.getenv("ADMIN_PASSWORD_HASH")
     public val adminPasswordSalt: String? get() = System.getenv("ADMIN_PASSWORD_SALT")
 
+    public val adminUserId: Int? get() = System.getenv("ADMIN_USER_ID")?.toIntOrNull()
+
     public val adminPasswordAlgorithm: String get() = "PBKDF2WithHmacSHA512"
     public val adminPasswordIterationCount: Int get() = 100000
     public val adminPasswordKeyLength: Int get() = 512

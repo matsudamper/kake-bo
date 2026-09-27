@@ -1,12 +1,18 @@
 package net.matsudamper.money.backend.graphql.resolver.mutation
 
+import java.util.Base64
 import java.util.concurrent.CompletionStage
 import kotlinx.coroutines.runBlocking
 import graphql.execution.DataFetcherResult
 import graphql.schema.DataFetchingEnvironment
+import net.matsudamper.money.backend.base.ServerEnv
+import net.matsudamper.money.backend.fido.Auth4JModel
+import net.matsudamper.money.backend.fido.AuthenticatorConverter
 import net.matsudamper.money.backend.graphql.GraphQlContext
+import net.matsudamper.money.backend.graphql.exception.GraphqlExceptions
 import net.matsudamper.money.backend.graphql.otelSupplyAsync
 import net.matsudamper.money.backend.graphql.toDataFetcher
+import net.matsudamper.money.backend.lib.ChallengeModel
 import net.matsudamper.money.backend.logic.AddUserUseCase
 import net.matsudamper.money.backend.logic.IPasswordManager
 import net.matsudamper.money.backend.logic.PasswordManager
@@ -16,6 +22,7 @@ import net.matsudamper.money.element.UserId
 import net.matsudamper.money.graphql.model.AdminMutationResolver
 import net.matsudamper.money.graphql.model.QlAdminAddUserErrorType
 import net.matsudamper.money.graphql.model.QlAdminAddUserResult
+import net.matsudamper.money.graphql.model.QlAdminFidoLoginInput
 import net.matsudamper.money.graphql.model.QlAdminLoginResult
 import net.matsudamper.money.graphql.model.QlAdminMutation
 import net.matsudamper.money.graphql.model.QlAdminReplacePasswordErrorType
@@ -143,6 +150,79 @@ class AdminMutationResolverImpl : AdminMutationResolver {
                             isSuccess = false,
                         )
                     }
+                }
+            }
+        }.toDataFetcher()
+    }
+
+    override fun adminFidoLogin(
+        adminMutation: QlAdminMutation,
+        input: QlAdminFidoLoginInput,
+        env: DataFetchingEnvironment,
+    ): CompletionStage<DataFetcherResult<QlAdminLoginResult>> {
+        val context = env.graphQlContext.get<GraphQlContext>(GraphQlContext::class.java.name)
+        return otelSupplyAsync {
+            runBlocking {
+                minExecutionTime(LOGIN_MINIMUM_EXECUTION_TIME_MILLIS) {
+                    val adminUserId = ServerEnv.adminUserId
+                        ?: return@minExecutionTime QlAdminLoginResult(isSuccess = false)
+
+                    val requestUserId = String(
+                        Base64.getUrlDecoder().decode(input.base64UserHandle),
+                        Charsets.UTF_8,
+                    ).toIntOrNull()?.let { UserId(it) }
+                        ?: return@minExecutionTime QlAdminLoginResult(isSuccess = false)
+
+                    if (requestUserId.value != adminUserId) {
+                        return@minExecutionTime QlAdminLoginResult(isSuccess = false)
+                    }
+
+                    val fidoRepository = context.diContainer.createFidoRepository()
+                    val challengeRepository = context.diContainer.createChallengeRepository()
+
+                    if (ChallengeModel(challengeRepository).validateChallenge(
+                            challenge = input.challenge,
+                        ).not()
+                    ) {
+                        throw GraphqlExceptions.BadRequest("challenge is invalid")
+                    }
+
+                    val fidoList = fidoRepository.getFidoList(requestUserId)
+                    for (fido in fidoList) {
+                        val authenticator = AuthenticatorConverter.convertFromBase64(
+                            base64AttestationStatement = fido.attestedStatement,
+                            attestationStatementFormat = fido.attestedStatementFormat,
+                            base64AttestedCredentialData = fido.attestedCredentialData,
+                            counter = fido.counter,
+                        )
+                        runCatching {
+                            Auth4JModel(
+                                challenge = input.challenge,
+                            ).verify(
+                                authenticator = authenticator,
+                                credentialId = input.credentialId.toByteArray(),
+                                base64UserHandle = input.base64UserHandle.toByteArray(),
+                                base64AuthenticatorData = input.base64AuthenticatorData.toByteArray(),
+                                base64ClientDataJSON = input.base64ClientDataJson.toByteArray(),
+                                clientExtensionJSON = null,
+                                base64Signature = input.base64Signature.toByteArray(),
+                            )
+                        }.getOrNull() ?: continue
+
+                        fidoRepository.updateCounter(
+                            fidoId = fido.fidoId,
+                            counter = authenticator.counter,
+                            userId = requestUserId,
+                        )
+
+                        val adminSession = context.diContainer.createAdminUserSessionRepository().createSession()
+                        context.setAdminSessionCookie(
+                            value = adminSession.adminSessionId.id,
+                            expires = adminSession.expire,
+                        )
+                        return@minExecutionTime QlAdminLoginResult(isSuccess = true)
+                    }
+                    QlAdminLoginResult(isSuccess = false)
                 }
             }
         }.toDataFetcher()
