@@ -21,8 +21,11 @@ import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import net.matsudamper.money.frontend.common.base.ImmutableList
+import net.matsudamper.money.frontend.common.base.immutableListOf
+import net.matsudamper.money.frontend.common.ui.AppRoot
 import net.matsudamper.money.frontend.common.ui.base.KakeBoTopAppBar
 import net.matsudamper.money.frontend.common.ui.base.KakeboScaffoldListener
 import net.matsudamper.money.frontend.common.ui.base.RootScreenScaffold
@@ -267,6 +270,46 @@ private fun SettingElementContent(
                 )
             },
             onClickChange = { uiState.event.onClickChangePassword() },
+        )
+    }
+}
+
+@Composable
+@Preview
+private fun ImapConfigScreenPreview() {
+    AppRoot {
+        ImapConfigScreen(
+            uiState = ImapSettingScreenUiState(
+                textInputEvents = immutableListOf(),
+                loadingState = ImapSettingScreenUiState.LoadingState.Loaded(
+                    imapConfig = ImapSettingScreenUiState.ImapConfig(
+                        host = "imap.example.com",
+                        userName = "user@example.com",
+                        port = "993",
+                        password = "****************",
+                        event = object : ImapSettingScreenUiState.ImapConfig.Event {
+                            override fun onClickChangeHost() {}
+                            override fun onClickChangeUserName() {}
+                            override fun onClickChangePort() {}
+                            override fun onClickChangePassword() {}
+                        },
+                    ),
+                    geminiConfig = ImapSettingScreenUiState.GeminiConfig(
+                        apiKey = "****************",
+                        event = object : ImapSettingScreenUiState.GeminiConfig.Event {
+                            override fun onClickChangeApiKey() {}
+                        },
+                    ),
+                ),
+                event = object : ImapSettingScreenUiState.Event {
+                    override fun consumeTextInputEvent(event: ImapSettingScreenUiState.TextInputUiState) {}
+                    override fun onResume() {}
+                },
+                kakeboScaffoldListener = object : KakeboScaffoldListener {
+                    override fun onClickTitle() {}
+                },
+            ),
+            windowInsets = PaddingValues(0.dp),
         )
     }
 }

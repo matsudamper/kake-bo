@@ -39,8 +39,11 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.ExperimentalTextApi
+import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import net.matsudamper.money.frontend.common.base.ImmutableList
+import net.matsudamper.money.frontend.common.base.immutableListOf
+import net.matsudamper.money.frontend.common.ui.AppRoot
 import net.matsudamper.money.frontend.common.ui.base.KakeBoTopAppBar
 import net.matsudamper.money.frontend.common.ui.base.LoadingErrorContent
 import net.matsudamper.money.frontend.common.ui.generated.resources.Res
@@ -717,4 +720,119 @@ private fun MailCard(
             }
         }
     }
+}
+
+@Composable
+@Preview
+private fun ImportedMailScreenAiParseNotExecutedPreview() {
+    ImportedMailScreenPreviewContent(
+        aiParse = MailScreenUiState.AiParse(
+            state = MailScreenUiState.AiParseState.NotExecuted,
+            startErrorMessage = null,
+        ),
+    )
+}
+
+@Composable
+@Preview
+private fun ImportedMailScreenAiParseRunningPreview() {
+    ImportedMailScreenPreviewContent(
+        aiParse = MailScreenUiState.AiParse(
+            state = MailScreenUiState.AiParseState.Running,
+            startErrorMessage = null,
+        ),
+    )
+}
+
+@Composable
+@Preview
+private fun ImportedMailScreenAiParseFailedPreview() {
+    ImportedMailScreenPreviewContent(
+        aiParse = MailScreenUiState.AiParse(
+            state = MailScreenUiState.AiParseState.Failed(
+                message = "Gemini APIがエラーを返しました(400): API key not valid",
+            ),
+            startErrorMessage = null,
+        ),
+    )
+}
+
+@Composable
+@Preview
+private fun ImportedMailScreenAiParseSucceededPreview() {
+    ImportedMailScreenPreviewContent(
+        aiParse = MailScreenUiState.AiParse(
+            state = MailScreenUiState.AiParseState.Succeeded(
+                usageSuggest = immutableListOf(
+                    createPreviewUsageSuggest(
+                        title = "サンプルストア",
+                        serviceName = "",
+                    ),
+                ),
+            ),
+            startErrorMessage = null,
+        ),
+    )
+}
+
+@Composable
+private fun ImportedMailScreenPreviewContent(aiParse: MailScreenUiState.AiParse) {
+    AppRoot {
+        ImportedMailScreen(
+            modifier = Modifier.fillMaxSize(),
+            uiState = MailScreenUiState(
+                loadingState = MailScreenUiState.LoadingState.Loaded(
+                    mail = MailScreenUiState.Mail(
+                        from = "noreply@example.com",
+                        title = "ご注文ありがとうございます",
+                        date = "2026/01/01 12:00",
+                    ),
+                    usageSuggest = immutableListOf(),
+                    aiParse = aiParse,
+                    usage = immutableListOf(),
+                    hasPlain = true,
+                    hasHtml = true,
+                    event = object : MailScreenUiState.LoadedEvent {
+                        override fun onClickMailHtml() {}
+                        override fun onClickMailPlain() {}
+                        override fun onClickRegister() {}
+                        override fun onClickAiParse() {}
+                    },
+                ),
+                confirmDialog = null,
+                urlMenuDialog = null,
+                event = object : MailScreenUiState.Event {
+                    override fun onClickRetry() {}
+                    override fun onClickArrowBackButton() {}
+                    override fun onClickTitle() {}
+                    override fun onClickDelete() {}
+                    override fun onResume() {}
+                },
+            ),
+            windowInsets = PaddingValues(0.dp),
+        )
+    }
+}
+
+private fun createPreviewUsageSuggest(
+    title: String,
+    serviceName: String,
+): MailScreenUiState.UsageSuggest {
+    return MailScreenUiState.UsageSuggest(
+        title = title,
+        amount = "1,000円",
+        category = "食費 / 外食",
+        description = MailScreenUiState.Clickable(
+            text = "商品A x1",
+            event = object : MailScreenUiState.ClickableEvent {
+                override fun onClickUrl(url: String) {}
+                override fun onLongClickUrl(text: String) {}
+            },
+        ),
+        dateTime = "2026/01/01 12:00",
+        event = object : MailScreenUiState.UsageSuggest.Event {
+            override fun onClickRegister() {}
+        },
+        serviceName = serviceName,
+    )
 }
