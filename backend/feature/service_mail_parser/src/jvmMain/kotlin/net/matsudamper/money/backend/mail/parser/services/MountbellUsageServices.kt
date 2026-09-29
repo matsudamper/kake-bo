@@ -44,7 +44,6 @@ internal object MountbellUsageServices : MoneyUsageServices {
                 .map { (start, end) -> productLines.subList(start, end) }
 
             for (productSections in productsSections) {
-                println(productSections)
                 val nameLine = productSections
                     .firstOrNull { it.startsWith("商品名") }
                     ?.dropWhile { it != '：' }?.drop(1)?.trim() ?: break
