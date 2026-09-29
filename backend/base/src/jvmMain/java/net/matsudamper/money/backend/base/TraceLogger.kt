@@ -25,7 +25,10 @@ internal class OpenTracerRepository : TraceLogger {
     override fun noticeThrowable(e: Throwable, isError: Boolean) {
         if (isError) {
             span.setStatus(StatusCode.ERROR)
-            logger.error(e.message ?: e::class.java.name, e)
+            logger.atError()
+                .setCause(e)
+                .addKeyValue("export", false)
+                .log(e.message ?: e::class.java.name)
         }
         span.recordException(e)
         span.setAttribute("exception.${System.nanoTime()}", e.message.orEmpty())
