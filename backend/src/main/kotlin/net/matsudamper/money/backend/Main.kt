@@ -111,7 +111,6 @@ fun Application.myApplicationModule(diContainer: DiContainer) {
         format { call ->
             buildString {
                 appendLine("request=${call.request.path()}")
-                println("path: ${call.request.path()}")
                 appendLine(
                     call.request.headers.entries().joinToString("\n") { (key, value) ->
                         "$key=$value"
