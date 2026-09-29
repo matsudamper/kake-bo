@@ -58,8 +58,10 @@ import net.matsudamper.money.element.MoneyUsagePresetId
 import net.matsudamper.money.element.MoneyUsageSubCategoryId
 import net.matsudamper.money.element.SessionRecordId
 import net.matsudamper.money.graphql.model.GraphQlInputField
+import org.slf4j.LoggerFactory
 
 object MoneyGraphQlSchema {
+    private val logger = LoggerFactory.getLogger(MoneyGraphQlSchema::class.java)
     private fun getSchemaFiles(): List<String> {
         val schemaFileNames = GraphqlSchemaModule::class.java.classLoader
             .getResourceAsStream("graphql/schema-list.txt")
@@ -76,10 +78,15 @@ object MoneyGraphQlSchema {
 
     private val schema by lazy {
         val schemaFiles = getSchemaFiles()
-        println("==========schema==========")
-        schemaFiles.forEach {
-            println(it)
-        }
+        logger.info(
+            buildString {
+                appendLine("==========schema==========")
+                schemaFiles.forEach {
+                    appendLine(it)
+                }
+            }.trim()
+        )
+
         SchemaParser.newParser()
             .schemaString(schemaFiles.joinToString("\n"))
             .scalars(
