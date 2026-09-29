@@ -84,7 +84,7 @@ object MoneyGraphQlSchema {
                 schemaFiles.forEach {
                     appendLine(it)
                 }
-            }.trim()
+            }.trim(),
         )
 
         SchemaParser.newParser()
