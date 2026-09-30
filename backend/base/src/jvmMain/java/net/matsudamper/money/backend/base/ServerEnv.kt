@@ -25,6 +25,12 @@ public object ServerEnv {
     /**
      * DBに保存する秘密情報を暗号化する鍵。32バイトの乱数をBase64にした値を指定する。
      * 未設定の場合は暗号化が必要な情報を保存できない。
+     *
+     * 生成方法:
+     * ```
+     * openssl rand -base64 32
+     * ```
+     * 値を変更すると既存の暗号文を復号できなくなる。DBのバックアップとは別の場所で管理する。
      */
     public val dbSecretEncryptionKey: String? get() = System.getenv("DB_SECRET_ENCRYPTION_KEY")?.takeIf { it.isNotBlank() }
 
