@@ -113,14 +113,13 @@ class DbUserConfigRepository(
                 .where(geminiSettings.USER_ID.eq(userId.value))
                 .fetchOne()
         }?.value1() ?: return null
-        val cipher = requireDbSecretCipher()
         return runCatching {
-            cipher.decrypt(
+            requireDbSecretCipher().decrypt(
                 encryptedText = encryptedApiKey,
                 associatedData = geminiApiKeyAssociatedData(userId),
             )
         }.onFailure {
-            // 暗号鍵を変更した場合などは復号できないため、未登録として扱い再登録してもらう
+            // 暗号鍵の変更や未設定で復号できない場合は、未登録として扱い再登録してもらう
             it.printStackTrace()
         }.getOrNull()
     }
