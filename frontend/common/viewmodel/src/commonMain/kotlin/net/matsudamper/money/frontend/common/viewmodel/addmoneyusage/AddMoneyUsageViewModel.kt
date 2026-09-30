@@ -7,6 +7,8 @@ import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.collectLatest
+import kotlinx.coroutines.flow.distinctUntilChanged
+import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import kotlinx.datetime.LocalDate
@@ -16,6 +18,7 @@ import kotlinx.datetime.TimeZone
 import kotlinx.datetime.todayIn
 import net.matsudamper.money.element.ImageId
 import net.matsudamper.money.element.ImportedMailId
+import net.matsudamper.money.element.MoneyUsageId
 import net.matsudamper.money.element.MoneyUsageSubCategoryId
 import net.matsudamper.money.frontend.common.base.ImmutableList.Companion.toImmutableList
 import net.matsudamper.money.frontend.common.base.Logger
@@ -295,6 +298,32 @@ public class AddMoneyUsageViewModel(
 
     init {
         viewModelScope.launch {
+            viewModelStateFlow
+                .map { LocalDateTime(date = it.usageDate, time = it.usageTime) }
+                .distinctUntilChanged()
+                .collectLatest { datetime ->
+                    viewModelStateFlow.update { it.copy(sameDateTimeUsages = listOf()) }
+                    if (datetime.time == LocalTime(0, 0, 0, 0)) return@collectLatest
+
+                    val usages = graphqlApi.getSameDateTimeUsages(datetime)
+                        .onFailure { Logger.e(TAG, it) }
+                        .getOrNull()
+                        ?.data?.user?.moneyUsages?.nodes
+                        .orEmpty()
+                    viewModelStateFlow.update { state ->
+                        state.copy(
+                            sameDateTimeUsages = usages.map {
+                                ViewModelState.SameDateTimeUsage(
+                                    id = it.id,
+                                    title = it.title,
+                                    amount = it.amount,
+                                )
+                            },
+                        )
+                    }
+                }
+        }
+        viewModelScope.launch {
             categorySelectDialogViewModel.getUiStateFlow().collectLatest { categoryUiState ->
                 viewModelStateFlow.update { viewModelState ->
                     viewModelState.copy(
@@ -496,6 +525,7 @@ public class AddMoneyUsageViewModel(
             fullScreenTextInputDialog = null,
             categorySelectDialog = null,
             discardConfirmDialog = null,
+            sameDateTimeUsages = immutableListOf(),
             numberInputDialog = null,
             category = "",
             event = uiEvent,
@@ -537,6 +567,19 @@ public class AddMoneyUsageViewModel(
                         handleBackPress = viewModelState.hasInputChanges,
                         categorySelectDialog = viewModelState.categorySelectDialog,
                         discardConfirmDialog = viewModelState.discardConfirmDialog,
+                        sameDateTimeUsages = viewModelState.sameDateTimeUsages.map { usage ->
+                            AddMoneyUsageScreenUiState.SameDateTimeUsage(
+                                title = usage.title,
+                                amount = "${usage.amount}円",
+                                listener = object : AddMoneyUsageScreenUiState.SameDateTimeUsage.Listener {
+                                    override fun onClick() {
+                                        viewModelScope.launch {
+                                            eventSender.send { it.navigate(ScreenStructure.MoneyUsage(usage.id)) }
+                                        }
+                                    }
+                                },
+                            )
+                        }.toImmutableList(),
                     )
                 }
             }
@@ -567,7 +610,9 @@ public class AddMoneyUsageViewModel(
         val usageCategorySet: CategorySelectDialogViewModel.SelectedResult? = null,
         val hasInputChanges: Boolean = false,
         val discardConfirmDialog: AddMoneyUsageScreenUiState.DiscardConfirmDialog? = null,
+        val sameDateTimeUsages: List<SameDateTimeUsage> = listOf(),
     ) {
+        data class SameDateTimeUsage(val id: MoneyUsageId, val title: String, val amount: Int)
         data class UploadedImage(val imageId: ImageId, val url: String)
     }
 }
