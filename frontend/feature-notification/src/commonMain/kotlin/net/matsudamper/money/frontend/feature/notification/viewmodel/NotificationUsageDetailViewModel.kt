@@ -17,6 +17,7 @@ import net.matsudamper.money.categoryfilter.CategoryFilterCondition
 import net.matsudamper.money.categoryfilter.CategoryFilterConditionType
 import net.matsudamper.money.categoryfilter.CategoryFilterDataSourceType
 import net.matsudamper.money.categoryfilter.CategoryFilterOperator
+import net.matsudamper.money.categoryfilter.appendCategoryFilterDescription
 import net.matsudamper.money.categoryfilter.evaluateCategoryFilters
 import net.matsudamper.money.element.MoneyUsageId
 import net.matsudamper.money.element.MoneyUsageSubCategoryId
@@ -126,16 +127,16 @@ public class NotificationUsageDetailViewModel(
                         } else {
                             DetailState.Loaded(detail)
                         },
-                        matchedSubCategory = null,
+                        matchedFilter = null,
                     )
                 }
                 fetchLinkedUsage(detail?.record?.moneyUsageId)
-                fetchMatchedSubCategory(detail?.matched)
+                fetchMatchedFilter(detail?.matched)
             }
         }
     }
 
-    private suspend fun fetchMatchedSubCategory(matched: NotificationUsageMatchedRecord?) {
+    private suspend fun fetchMatchedFilter(matched: NotificationUsageMatchedRecord?) {
         if (matched == null) return
 
         val response = runCatchingWithoutCancel {
@@ -160,6 +161,7 @@ public class NotificationUsageDetailViewModel(
                 orderNumber = node.orderNumber,
                 operator = node.operator.toShared(),
                 subCategoryId = node.subCategory?.id,
+                descriptionSuffix = node.descriptionSuffix,
                 conditions = node.conditions.orEmpty().map { c ->
                     CategoryFilterCondition(
                         text = c.text,
@@ -170,7 +172,7 @@ public class NotificationUsageDetailViewModel(
             )
         }
 
-        val subCategoryId = evaluateCategoryFilters(filters) { dataSourceType ->
+        val matchedFilter = evaluateCategoryFilters(filters) { dataSourceType ->
             when (dataSourceType) {
                 CategoryFilterDataSourceType.Title -> matched.draft.title
                 CategoryFilterDataSourceType.ServiceName -> matched.filterDefinition.title
@@ -178,16 +180,25 @@ public class NotificationUsageDetailViewModel(
             }
         }
 
-        if (subCategoryId == null) return
+        if (matchedFilter == null) return
 
-        val matchedNode = nodes.firstOrNull { it.subCategory?.id == subCategoryId }
-        val subCategory = matchedNode?.subCategory ?: return
+        val subCategoryId = matchedFilter.subCategoryId
+        val subCategory = if (subCategoryId == null) {
+            null
+        } else {
+            nodes.firstOrNull { it.subCategory?.id == subCategoryId }?.subCategory
+        }
 
         viewModelStateFlow.update { viewModelState ->
             viewModelState.copy(
-                matchedSubCategory = MatchedSubCategory(
-                    subCategoryId = subCategoryId,
-                    displayName = "${subCategory.category.name} / ${subCategory.name}",
+                matchedFilter = MatchedFilter(
+                    subCategoryId = subCategory?.id,
+                    subCategoryDisplayName = if (subCategory != null) {
+                        "${subCategory.category.name} / ${subCategory.name}"
+                    } else {
+                        null
+                    },
+                    descriptionSuffix = matchedFilter.descriptionSuffix,
                 ),
             )
         }
@@ -204,7 +215,7 @@ public class NotificationUsageDetailViewModel(
         return NotificationUsageDetailScreenUiState.LoadingState.Loaded(
             notification = createNotificationUiState(detail.record),
             filter = createFilterUiState(matched),
-            draft = if (matched != null) createDraftUiState(matched, viewModelState.matchedSubCategory) else null,
+            draft = if (matched != null) createDraftUiState(matched, viewModelState.matchedFilter) else null,
             linkedUsage = createLinkedUsageUiState(viewModelState.linkedUsageState),
             metadataDialog = if (viewModelState.showMetadataDialog) {
                 NotificationUsageDetailScreenUiState.MetadataDialog(
@@ -221,7 +232,7 @@ public class NotificationUsageDetailViewModel(
             event = object : NotificationUsageDetailScreenUiState.LoadedEvent {
                 override fun onClickRegister() {
                     viewModelScope.launch {
-                        eventSender.send { it.navigate(createAddMoneyUsageScreen(detail, viewModelStateFlow.value.matchedSubCategory)) }
+                        eventSender.send { it.navigate(createAddMoneyUsageScreen(detail, viewModelStateFlow.value.matchedFilter)) }
                     }
                 }
             },
@@ -295,14 +306,17 @@ public class NotificationUsageDetailViewModel(
 
     private fun createDraftUiState(
         matched: NotificationUsageMatchedRecord,
-        matchedSubCategory: MatchedSubCategory?,
+        matchedFilter: MatchedFilter?,
     ): NotificationUsageDetailScreenUiState.Draft {
         return NotificationUsageDetailScreenUiState.Draft(
             title = matched.draft.title,
-            description = matched.draft.description,
+            description = appendCategoryFilterDescription(
+                description = matched.draft.description,
+                descriptionSuffix = matchedFilter?.descriptionSuffix,
+            ),
             amount = matched.draft.amount?.let { "${Formatter.formatMoney(it)}円" }.orEmpty(),
             dateTime = matched.draft.dateTime.let { Formatter.formatDateTime(it) },
-            subCategory = matchedSubCategory?.displayName.orEmpty(),
+            subCategory = matchedFilter?.subCategoryDisplayName.orEmpty(),
         )
     }
 
@@ -342,16 +356,19 @@ public class NotificationUsageDetailViewModel(
 
     private fun createAddMoneyUsageScreen(
         detail: NotificationUsageDetail,
-        matchedSubCategory: MatchedSubCategory?,
+        matchedFilter: MatchedFilter?,
     ): ScreenStructure.AddMoneyUsage {
         val draft = detail.matched?.draft
         val description = draft?.description ?: detail.record.text
         return ScreenStructure.AddMoneyUsage(
             title = draft?.title,
-            description = description,
+            description = appendCategoryFilterDescription(
+                description = description,
+                descriptionSuffix = matchedFilter?.descriptionSuffix,
+            ),
             price = draft?.amount?.toFloat(),
             date = draft?.dateTime,
-            subCategoryId = matchedSubCategory?.subCategoryId?.id?.toString(),
+            subCategoryId = matchedFilter?.subCategoryId?.id?.toString(),
             notificationUsageKey = detail.record.notificationKey,
         )
     }
@@ -399,9 +416,10 @@ public class NotificationUsageDetailViewModel(
         public fun navigateToHome()
     }
 
-    private data class MatchedSubCategory(
-        val subCategoryId: MoneyUsageSubCategoryId,
-        val displayName: String,
+    private data class MatchedFilter(
+        val subCategoryId: MoneyUsageSubCategoryId?,
+        val subCategoryDisplayName: String?,
+        val descriptionSuffix: String,
     )
 
     private sealed interface DetailState {
@@ -432,6 +450,6 @@ public class NotificationUsageDetailViewModel(
         val linkedUsageState: LinkedUsageState = LinkedUsageState.None,
         val showMetadataDialog: Boolean = false,
         val showDeleteConfirmDialog: Boolean = false,
-        val matchedSubCategory: MatchedSubCategory? = null,
+        val matchedFilter: MatchedFilter? = null,
     )
 }

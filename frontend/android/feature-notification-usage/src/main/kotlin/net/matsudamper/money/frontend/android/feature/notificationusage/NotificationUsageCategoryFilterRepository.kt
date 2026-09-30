@@ -7,7 +7,6 @@ import net.matsudamper.money.categoryfilter.CategoryFilterConditionType
 import net.matsudamper.money.categoryfilter.CategoryFilterDataSourceType
 import net.matsudamper.money.categoryfilter.CategoryFilterOperator
 import net.matsudamper.money.categoryfilter.evaluateCategoryFilters
-import net.matsudamper.money.element.MoneyUsageSubCategoryId
 import net.matsudamper.money.frontend.common.base.Logger
 import net.matsudamper.money.frontend.common.base.runCatchingWithoutCancel
 import net.matsudamper.money.frontend.graphql.GraphqlClient
@@ -19,7 +18,7 @@ import net.matsudamper.money.frontend.graphql.type.ImportedMailCategoryFiltersSo
 import net.matsudamper.money.frontend.graphql.type.ImportedMailFilterCategoryConditionOperator
 
 internal interface NotificationUsageCategoryFilterRepository {
-    suspend fun getMatchingSubCategoryId(title: String, serviceName: String): MoneyUsageSubCategoryId?
+    suspend fun getMatchingFilter(title: String, serviceName: String): CategoryFilter?
 }
 
 private const val TAG = "NotificationUsageCategoryFilterRepository"
@@ -27,7 +26,7 @@ private const val TAG = "NotificationUsageCategoryFilterRepository"
 internal class NotificationUsageCategoryFilterGraphqlRepository(
     private val graphqlClient: GraphqlClient,
 ) : NotificationUsageCategoryFilterRepository {
-    override suspend fun getMatchingSubCategoryId(title: String, serviceName: String): MoneyUsageSubCategoryId? {
+    override suspend fun getMatchingFilter(title: String, serviceName: String): CategoryFilter? {
         val response = runCatchingWithoutCancel {
             graphqlClient.apolloClient
                 .query(
@@ -50,6 +49,7 @@ internal class NotificationUsageCategoryFilterGraphqlRepository(
                 orderNumber = node.orderNumber,
                 operator = node.operator.toShared(),
                 subCategoryId = node.subCategory?.id,
+                descriptionSuffix = node.descriptionSuffix,
                 conditions = node.conditions.orEmpty().map { c ->
                     CategoryFilterCondition(
                         text = c.text,

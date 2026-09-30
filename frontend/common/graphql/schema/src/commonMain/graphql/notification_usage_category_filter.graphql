@@ -5,6 +5,7 @@ query NotificationUsageCategoryFilters($query: ImportedMailCategoryFiltersQuery!
                 id
                 orderNumber
                 operator
+                descriptionSuffix
                 subCategory {
                     id
                     name

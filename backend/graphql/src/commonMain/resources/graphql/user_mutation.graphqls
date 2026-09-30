@@ -122,6 +122,7 @@ input UpdateImportedMailCategoryFilterInput {
     subCategoryId: MoneyUsageSubCategoryId
     orderNumber: Int
     operator: ImportedMailFilterCategoryConditionOperator
+    descriptionSuffix: String
 }
 
 input UpdateSubCategoryQuery {

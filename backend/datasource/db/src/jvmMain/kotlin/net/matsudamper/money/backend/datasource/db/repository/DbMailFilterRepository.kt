@@ -67,6 +67,7 @@ class DbMailFilterRepository(
                         subCategories.MONEY_USAGE_SUB_CATEGORY_ID,
                         filters.CATEGORY_MAIL_FILTER_CONDITION_OPERATOR_TYPE_ID,
                         filters.ORDER_NUMBER,
+                        filters.DESCRIPTION_SUFFIX,
                     )
                     .from(filters)
                     .leftJoin(subCategories).on(
@@ -90,6 +91,7 @@ class DbMailFilterRepository(
                                 record.get(filters.CATEGORY_MAIL_FILTER_CONDITION_OPERATOR_TYPE_ID)!!,
                             ).toLogicValue(),
                             orderNumber = record.get(filters.ORDER_NUMBER)!!,
+                            descriptionSuffix = record.get(filters.DESCRIPTION_SUFFIX)!!,
                         )
                     }
             }
@@ -113,6 +115,7 @@ class DbMailFilterRepository(
                         subCategories.MONEY_USAGE_SUB_CATEGORY_ID,
                         filters.CATEGORY_MAIL_FILTER_CONDITION_OPERATOR_TYPE_ID,
                         filters.ORDER_NUMBER,
+                        filters.DESCRIPTION_SUFFIX,
                     )
                     .from(filters)
                     .leftJoin(subCategories).on(
@@ -171,6 +174,7 @@ class DbMailFilterRepository(
                                 record.get(filters.CATEGORY_MAIL_FILTER_CONDITION_OPERATOR_TYPE_ID)!!,
                             ).toLogicValue(),
                             orderNumber = record.get(filters.ORDER_NUMBER)!!,
+                            descriptionSuffix = record.get(filters.DESCRIPTION_SUFFIX)!!,
                         )
                     }
 
@@ -246,6 +250,7 @@ class DbMailFilterRepository(
                 record.get(filters.CATEGORY_MAIL_FILTER_CONDITION_OPERATOR_TYPE_ID)!!,
             ).toLogicValue(),
             orderNumber = record.get(filters.ORDER_NUMBER)!!,
+            descriptionSuffix = record.get(filters.DESCRIPTION_SUFFIX)!!,
         )
     }
 
@@ -273,6 +278,7 @@ class DbMailFilterRepository(
         orderNum: Int?,
         subCategory: MoneyUsageSubCategoryId?,
         operator: ImportedMailFilterCategoryConditionOperator?,
+        descriptionSuffix: String?,
     ): Boolean {
         return runCatching {
             dbConnection.use {
@@ -308,6 +314,9 @@ class DbMailFilterRepository(
                             }
                             if (operator != null) {
                                 put(filters.CATEGORY_MAIL_FILTER_CONDITION_OPERATOR_TYPE_ID, operator.toDbDefine().dbValue)
+                            }
+                            if (descriptionSuffix != null) {
+                                put(filters.DESCRIPTION_SUFFIX, descriptionSuffix)
                             }
                         },
                     )
@@ -478,6 +487,7 @@ class DbMailFilterRepository(
                         subCategories.MONEY_USAGE_SUB_CATEGORY_ID,
                         filters.CATEGORY_MAIL_FILTER_CONDITION_OPERATOR_TYPE_ID,
                         filters.ORDER_NUMBER,
+                        filters.DESCRIPTION_SUFFIX,
                     )
                     .from(filters)
                     .leftJoin(subCategories).on(
@@ -501,6 +511,7 @@ class DbMailFilterRepository(
                                 record.get(filters.CATEGORY_MAIL_FILTER_CONDITION_OPERATOR_TYPE_ID)!!,
                             ).toLogicValue(),
                             orderNumber = record.get(filters.ORDER_NUMBER)!!,
+                            descriptionSuffix = record.get(filters.DESCRIPTION_SUFFIX)!!,
                         )
                     }
             }

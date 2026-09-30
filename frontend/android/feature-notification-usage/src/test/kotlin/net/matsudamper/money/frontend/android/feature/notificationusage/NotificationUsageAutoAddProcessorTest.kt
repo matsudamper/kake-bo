@@ -7,6 +7,8 @@ import kotlinx.datetime.TimeZone
 import kotlinx.datetime.toLocalDateTime
 import io.kotest.core.spec.style.DescribeSpec
 import io.kotest.matchers.shouldBe
+import net.matsudamper.money.categoryfilter.CategoryFilter
+import net.matsudamper.money.categoryfilter.CategoryFilterOperator
 import net.matsudamper.money.element.MoneyUsageId
 import net.matsudamper.money.element.MoneyUsageSubCategoryId
 import net.matsudamper.money.frontend.common.base.AppSettingsRepository
@@ -140,13 +142,75 @@ public class NotificationUsageAutoAddProcessorTest : DescribeSpec(
                         autoAddEnabledByFilterId = mapOf("com.example" to true),
                     ),
                     api = api,
-                    categoryFilterRepository = FakeNotificationUsageCategoryFilterRepository(subCategoryId),
+                    categoryFilterRepository = FakeNotificationUsageCategoryFilterRepository(
+                        matchedFilter(subCategoryId = subCategoryId, descriptionSuffix = ""),
+                    ),
                 )
 
                 processor.process("key")
 
                 api.payloads.size.shouldBe(1)
                 api.payloads.single().subCategoryId.shouldBe(subCategoryId)
+            }
+
+            it("カテゴリフィルターの説明が設定されている時は説明の末尾に追加される") {
+                val subCategoryId = MoneyUsageSubCategoryId(2)
+                val entity = NotificationUsageEntity(
+                    notificationKey = "key",
+                    packageName = "com.example",
+                    text = "body",
+                    postedAtEpochMillis = 1_000,
+                    receivedAtEpochMillis = 2_000,
+                    isAdded = false,
+                )
+                val dao = FakeNotificationUsageDao(listOf(entity))
+                val api = AutoAddFakeNotificationUsageAutoAddApi()
+                val processor = NotificationUsageAutoAddProcessor(
+                    dao = dao,
+                    parsers = listOf(AutoAddComExampleParser()),
+                    appSettingsRepository = AutoAddFakeAppSettingsRepository(
+                        autoAddEnabledByFilterId = mapOf("com.example" to true),
+                    ),
+                    api = api,
+                    categoryFilterRepository = FakeNotificationUsageCategoryFilterRepository(
+                        matchedFilter(subCategoryId = subCategoryId, descriptionSuffix = "追加テキスト"),
+                    ),
+                )
+
+                processor.process("key")
+
+                api.payloads.size.shouldBe(1)
+                api.payloads.single().description.shouldBe("body\n追加テキスト")
+            }
+
+            it("サブカテゴリ未指定のフィルターがマッチした時も説明の末尾に追加される") {
+                val entity = NotificationUsageEntity(
+                    notificationKey = "key",
+                    packageName = "com.example",
+                    text = "body",
+                    postedAtEpochMillis = 1_000,
+                    receivedAtEpochMillis = 2_000,
+                    isAdded = false,
+                )
+                val dao = FakeNotificationUsageDao(listOf(entity))
+                val api = AutoAddFakeNotificationUsageAutoAddApi()
+                val processor = NotificationUsageAutoAddProcessor(
+                    dao = dao,
+                    parsers = listOf(AutoAddComExampleParser()),
+                    appSettingsRepository = AutoAddFakeAppSettingsRepository(
+                        autoAddEnabledByFilterId = mapOf("com.example" to true),
+                    ),
+                    api = api,
+                    categoryFilterRepository = FakeNotificationUsageCategoryFilterRepository(
+                        matchedFilter(subCategoryId = null, descriptionSuffix = "追加テキスト"),
+                    ),
+                )
+
+                processor.process("key")
+
+                api.payloads.size.shouldBe(1)
+                api.payloads.single().subCategoryId.shouldBe(null)
+                api.payloads.single().description.shouldBe("body\n追加テキスト")
             }
 
             it("カテゴリフィルターがマッチしない時は subCategoryId が null になる") {
@@ -180,11 +244,24 @@ public class NotificationUsageAutoAddProcessorTest : DescribeSpec(
 )
 
 private class FakeNotificationUsageCategoryFilterRepository(
-    private val result: MoneyUsageSubCategoryId?,
+    private val matchedFilter: CategoryFilter?,
 ) : NotificationUsageCategoryFilterRepository {
-    override suspend fun getMatchingSubCategoryId(title: String, serviceName: String): MoneyUsageSubCategoryId? {
-        return result
+    override suspend fun getMatchingFilter(title: String, serviceName: String): CategoryFilter? {
+        return matchedFilter
     }
+}
+
+private fun matchedFilter(
+    subCategoryId: MoneyUsageSubCategoryId?,
+    descriptionSuffix: String,
+): CategoryFilter {
+    return CategoryFilter(
+        orderNumber = 0,
+        operator = CategoryFilterOperator.AND,
+        subCategoryId = subCategoryId,
+        descriptionSuffix = descriptionSuffix,
+        conditions = listOf(),
+    )
 }
 
 private class AutoAddFakeAppSettingsRepository(

@@ -118,6 +118,11 @@ open class JCategoryMailFilters(
      */
     val ORDER_NUMBER: TableField<JCategoryMailFiltersRecord, Int?> = createField(DSL.name("order_number"), SQLDataType.INTEGER.nullable(false), this, "")
 
+    /**
+     * The column <code>money.category_mail_filters.description_suffix</code>.
+     */
+    val DESCRIPTION_SUFFIX: TableField<JCategoryMailFiltersRecord, String?> = createField(DSL.name("description_suffix"), SQLDataType.VARCHAR(500).nullable(false).defaultValue(DSL.field(DSL.raw("''"), SQLDataType.VARCHAR)), this, "")
+
     private constructor(alias: Name, aliased: Table<JCategoryMailFiltersRecord>?): this(alias, null, null, null, aliased, null, null)
     private constructor(alias: Name, aliased: Table<JCategoryMailFiltersRecord>?, parameters: Array<Field<*>?>?): this(alias, null, null, null, aliased, parameters, null)
     private constructor(alias: Name, aliased: Table<JCategoryMailFiltersRecord>?, where: Condition?): this(alias, null, null, null, aliased, null, where)

@@ -6,6 +6,7 @@ data class CategoryFilter(
     val orderNumber: Int,
     val operator: CategoryFilterOperator,
     val subCategoryId: MoneyUsageSubCategoryId?,
+    val descriptionSuffix: String,
     val conditions: List<CategoryFilterCondition>,
 )
 

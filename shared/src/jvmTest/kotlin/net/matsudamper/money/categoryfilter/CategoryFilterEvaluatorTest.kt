@@ -1,6 +1,7 @@
 package net.matsudamper.money.categoryfilter
 
 import io.kotest.core.spec.style.DescribeSpec
+import io.kotest.matchers.nulls.shouldNotBeNull
 import io.kotest.matchers.shouldBe
 import net.matsudamper.money.element.MoneyUsageSubCategoryId
 
@@ -18,6 +19,7 @@ class CategoryFilterEvaluatorTest : DescribeSpec(
             orderNumber = orderNumber,
             operator = operator,
             subCategoryId = subCategoryId,
+            descriptionSuffix = "",
             conditions = conditions,
         )
 
@@ -51,7 +53,7 @@ class CategoryFilterEvaluatorTest : DescribeSpec(
                             else -> null
                         }
                     }
-                    result.shouldBe(subCategoryId1)
+                    result?.subCategoryId.shouldBe(subCategoryId1)
                 }
 
                 it("Include: タイトルが条件テキストを含まない場合はマッチしない") {
@@ -93,7 +95,7 @@ class CategoryFilterEvaluatorTest : DescribeSpec(
                             else -> null
                         }
                     }
-                    result.shouldBe(subCategoryId1)
+                    result?.subCategoryId.shouldBe(subCategoryId1)
                 }
 
                 it("Equal: タイトルが条件テキストと完全一致する場合はマッチする") {
@@ -114,7 +116,7 @@ class CategoryFilterEvaluatorTest : DescribeSpec(
                             else -> null
                         }
                     }
-                    result.shouldBe(subCategoryId1)
+                    result?.subCategoryId.shouldBe(subCategoryId1)
                 }
 
                 it("Equal: タイトルが部分一致のみの場合はマッチしない") {
@@ -156,7 +158,7 @@ class CategoryFilterEvaluatorTest : DescribeSpec(
                             else -> null
                         }
                     }
-                    result.shouldBe(subCategoryId1)
+                    result?.subCategoryId.shouldBe(subCategoryId1)
                 }
             }
 
@@ -179,7 +181,7 @@ class CategoryFilterEvaluatorTest : DescribeSpec(
                             else -> null
                         }
                     }
-                    result.shouldBe(subCategoryId1)
+                    result?.subCategoryId.shouldBe(subCategoryId1)
                 }
             }
 
@@ -222,7 +224,7 @@ class CategoryFilterEvaluatorTest : DescribeSpec(
                             else -> null
                         }
                     }
-                    result.shouldBe(subCategoryId1)
+                    result?.subCategoryId.shouldBe(subCategoryId1)
                 }
 
                 it("AND: 一部の条件しかマッチしない場合はマッチしない") {
@@ -268,7 +270,7 @@ class CategoryFilterEvaluatorTest : DescribeSpec(
                             else -> null
                         }
                     }
-                    result.shouldBe(subCategoryId1)
+                    result?.subCategoryId.shouldBe(subCategoryId1)
                 }
 
                 it("OR: 全条件がマッチしない場合はマッチしない") {
@@ -320,10 +322,10 @@ class CategoryFilterEvaluatorTest : DescribeSpec(
                             else -> null
                         }
                     }
-                    result.shouldBe(subCategoryId2)
+                    result?.subCategoryId.shouldBe(subCategoryId2)
                 }
 
-                it("subCategoryId が null のフィルターがマッチしてもnullを返す") {
+                it("subCategoryId が null のフィルターがマッチした場合は subCategoryId が null になる") {
                     val result = evaluateCategoryFilters(
                         filters = listOf(
                             filter(
@@ -341,7 +343,8 @@ class CategoryFilterEvaluatorTest : DescribeSpec(
                             else -> null
                         }
                     }
-                    result.shouldBe(null)
+                    result.shouldNotBeNull()
+                    result.subCategoryId.shouldBe(null)
                 }
 
                 it("orderNumber が小さいフィルターが優先される") {
@@ -370,7 +373,7 @@ class CategoryFilterEvaluatorTest : DescribeSpec(
                             else -> null
                         }
                     }
-                    result.shouldBe(subCategoryId1)
+                    result?.subCategoryId.shouldBe(subCategoryId1)
                 }
 
                 it("フィルターが空の場合はnullを返す") {
@@ -379,6 +382,65 @@ class CategoryFilterEvaluatorTest : DescribeSpec(
                     ) { null }
                     result.shouldBe(null)
                 }
+            }
+        }
+
+        describe("descriptionSuffix") {
+            it("マッチしたフィルターの説明の末尾に追加するテキストを保持する") {
+                val result = evaluateCategoryFilters(
+                    filters = listOf(
+                        CategoryFilter(
+                            orderNumber = 1,
+                            operator = CategoryFilterOperator.AND,
+                            subCategoryId = subCategoryId1,
+                            descriptionSuffix = "追加テキスト",
+                            conditions = listOf(
+                                condition("コンビニ", CategoryFilterDataSourceType.Title, CategoryFilterConditionType.Include),
+                            ),
+                        ),
+                    ),
+                ) { type ->
+                    when (type) {
+                        CategoryFilterDataSourceType.Title -> "コンビニで購入"
+                        else -> null
+                    }
+                }
+                result.shouldNotBeNull()
+                result.descriptionSuffix.shouldBe("追加テキスト")
+            }
+        }
+
+        describe("appendCategoryFilterDescription") {
+            it("説明の末尾に追加するテキストが空の場合は元の説明を返す") {
+                val result = appendCategoryFilterDescription(
+                    description = "元の説明",
+                    descriptionSuffix = "",
+                )
+                result.shouldBe("元の説明")
+            }
+
+            it("マッチしたフィルターが無い場合は元の説明を返す") {
+                val result = appendCategoryFilterDescription(
+                    description = "元の説明",
+                    descriptionSuffix = null,
+                )
+                result.shouldBe("元の説明")
+            }
+
+            it("元の説明がある場合は改行区切りで末尾に追加する") {
+                val result = appendCategoryFilterDescription(
+                    description = "元の説明",
+                    descriptionSuffix = "追加テキスト",
+                )
+                result.shouldBe("元の説明\n追加テキスト")
+            }
+
+            it("元の説明が空の場合は追加するテキストのみを返す") {
+                val result = appendCategoryFilterDescription(
+                    description = "",
+                    descriptionSuffix = "追加テキスト",
+                )
+                result.shouldBe("追加テキスト")
             }
         }
     },
