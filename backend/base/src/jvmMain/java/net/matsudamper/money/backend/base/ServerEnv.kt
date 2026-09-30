@@ -30,7 +30,6 @@ public object ServerEnv {
      * ```
      * openssl rand -base64 32
      * ```
-     * 値を変更すると既存の暗号文を復号できなくなる。DBのバックアップとは別の場所で管理する。
      */
     public val dbSecretEncryptionKey: String? get() = System.getenv("DB_SECRET_ENCRYPTION_KEY")?.takeIf { it.isNotBlank() }
 
