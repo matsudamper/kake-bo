@@ -254,25 +254,7 @@ public class AddMoneyUsageViewModel(
 
                 try {
                     images.forEach { image ->
-                        val imageBytes = image.bytes ?: return@forEach
-                        val uploadResult = graphqlApi.uploadImage(
-                            bytes = imageBytes,
-                            contentType = image.contentType,
-                        )
-
-                        if (uploadResult != null) {
-                            viewModelStateFlow.update { viewModelState ->
-                                viewModelState.copy(
-                                    usageImages = (
-                                        viewModelState.usageImages + ViewModelState.UploadedImage(
-                                            imageId = uploadResult.imageId,
-                                            url = uploadResult.url,
-                                        )
-                                        ).distinctBy { it.imageId.value },
-                                    hasInputChanges = true,
-                                )
-                            }
-                        }
+                        uploadImage(image)
                     }
                 } finally {
                     viewModelStateFlow.update {
@@ -303,6 +285,72 @@ public class AddMoneyUsageViewModel(
                 }
             }
         }
+    }
+
+    private fun createUploadedImageEvent(imageId: ImageId): ImageItem.UploadedEvent {
+        return object : ImageItem.UploadedEvent {
+            override fun onClickReplace() {
+                viewModelScope.launch {
+                    val images = eventSender.send { it.selectImages() }
+                    val newImage = images.firstOrNull() ?: return@launch
+
+                    viewModelStateFlow.update {
+                        it.copy(uploadingImageCount = it.uploadingImageCount + 1)
+                    }
+
+                    try {
+                        val uploadResult = uploadImage(newImage)
+                        if (uploadResult != null) {
+                            viewModelStateFlow.update { viewModelState ->
+                                viewModelState.copy(
+                                    usageImages = viewModelState.usageImages
+                                        .filter { it.imageId != imageId }
+                                        .distinctBy { it.imageId.value },
+                                    hasInputChanges = true,
+                                )
+                            }
+                        }
+                    } finally {
+                        viewModelStateFlow.update {
+                            it.copy(uploadingImageCount = (it.uploadingImageCount - 1).coerceAtLeast(0))
+                        }
+                    }
+                }
+            }
+
+            override fun onClickDelete() {
+                viewModelStateFlow.update { viewModelState ->
+                    viewModelState.copy(
+                        usageImages = viewModelState.usageImages.filter { it.imageId != imageId },
+                        hasInputChanges = true,
+                    )
+                }
+            }
+        }
+    }
+
+    private suspend fun uploadImage(image: SelectedImage): ViewModelState.UploadedImage? {
+        val imageBytes = image.bytes ?: return null
+        val uploadResult = graphqlApi.uploadImage(
+            bytes = imageBytes,
+            contentType = image.contentType,
+        )
+
+        if (uploadResult == null) return null
+
+        val uploadedImage = ViewModelState.UploadedImage(
+            imageId = uploadResult.imageId,
+            url = uploadResult.url,
+        )
+        viewModelStateFlow.update { viewModelState ->
+            viewModelState.copy(
+                usageImages = (
+                    viewModelState.usageImages + uploadedImage
+                    ).distinctBy { it.imageId.value },
+                hasInputChanges = true,
+            )
+        }
+        return uploadedImage
     }
 
     private fun addMoneyUsage() {
@@ -530,7 +578,14 @@ public class AddMoneyUsageViewModel(
                             "$category / $subCategory"
                         },
                         images = buildList {
-                            addAll(viewModelState.usageImages.map { ImageItem.Uploaded(url = it.url) })
+                            addAll(
+                                viewModelState.usageImages.map { uploadedImage ->
+                                    ImageItem.Uploaded(
+                                        url = uploadedImage.url,
+                                        event = createUploadedImageEvent(uploadedImage.imageId),
+                                    )
+                                },
+                            )
                             repeat(viewModelState.uploadingImageCount) { add(ImageItem.Uploading) }
                         }.toImmutableList(),
                         addButtonEnabled = viewModelState.uploadingImageCount == 0,

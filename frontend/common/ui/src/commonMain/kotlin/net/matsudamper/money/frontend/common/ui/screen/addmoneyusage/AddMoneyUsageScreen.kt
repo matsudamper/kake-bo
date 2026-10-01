@@ -1,6 +1,5 @@
 package net.matsudamper.money.frontend.common.ui.screen.addmoneyusage
 
-import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -41,14 +40,12 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.window.Dialog
 import kotlinx.datetime.LocalDate
 import kotlinx.datetime.LocalTime
-import coil3.compose.SubcomposeAsyncImage
 import net.matsudamper.money.frontend.common.base.ImmutableList
 import net.matsudamper.money.frontend.common.ui.AppRoot
 import net.matsudamper.money.frontend.common.ui.base.CategorySelectDialog
@@ -65,15 +62,26 @@ import net.matsudamper.money.frontend.common.ui.layout.NumberInputValue
 import net.matsudamper.money.frontend.common.ui.layout.SnackbarEventState
 import net.matsudamper.money.frontend.common.ui.layout.TimePickerDialog
 import net.matsudamper.money.frontend.common.ui.layout.html.text.fullscreen.FullScreenTextInput
-import net.matsudamper.money.frontend.common.ui.layout.image.ImageLoadingPlaceholder
 import net.matsudamper.money.frontend.common.ui.layout.image.ImageUploadButton
+import net.matsudamper.money.frontend.common.ui.layout.image.MoneyUsageImageThumbnail
 import net.matsudamper.money.frontend.common.ui.layout.image.ZoomableImageDialog
 import net.matsudamper.money.frontend.common.ui.lib.asWindowInsets
 import org.jetbrains.compose.resources.painterResource
 
 public sealed interface ImageItem {
     public data object Uploading : ImageItem
-    public data class Uploaded(val url: String) : ImageItem
+
+    public data class Uploaded(
+        val url: String,
+        val event: UploadedEvent,
+    ) : ImageItem
+
+    @Immutable
+    public interface UploadedEvent {
+        public fun onClickReplace()
+
+        public fun onClickDelete()
+    }
 }
 
 public data class AddMoneyUsageScreenUiState(
@@ -370,14 +378,12 @@ public fun AddMoneyUsageScreen(
                                                 }
                                             }
                                             is ImageItem.Uploaded -> {
-                                                SubcomposeAsyncImage(
-                                                    model = image.url,
-                                                    contentDescription = null,
-                                                    contentScale = ContentScale.Crop,
-                                                    modifier = Modifier
-                                                        .size(120.dp)
-                                                        .clickable { selectedImageUrl = image.url },
-                                                    loading = { ImageLoadingPlaceholder() },
+                                                MoneyUsageImageThumbnail(
+                                                    url = image.url,
+                                                    modifier = Modifier.size(120.dp),
+                                                    onClick = { selectedImageUrl = image.url },
+                                                    onClickReplace = { image.event.onClickReplace() },
+                                                    onClickDelete = { image.event.onClickDelete() },
                                                 )
                                             }
                                         }
