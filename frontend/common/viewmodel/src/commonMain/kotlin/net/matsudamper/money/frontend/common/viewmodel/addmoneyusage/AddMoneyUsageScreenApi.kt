@@ -2,6 +2,7 @@ package net.matsudamper.money.frontend.common.viewmodel.addmoneyusage
 
 import kotlinx.datetime.DateTimeUnit
 import kotlinx.datetime.LocalDateTime
+import kotlinx.datetime.LocalTime
 import kotlinx.datetime.TimeZone
 import kotlinx.datetime.plus
 import kotlinx.datetime.toInstant
@@ -98,7 +99,11 @@ public class AddMoneyUsageScreenApi(
     }
 
     public suspend fun getSameDateTimeUsages(datetime: LocalDateTime): Result<ApolloResponse<AddMoneyUsageScreenSameDateTimeUsagesQuery.Data>> {
-        val untilDateTime = datetime.toInstant(TimeZone.UTC)
+        val sinceDateTime = LocalDateTime(
+            date = datetime.date,
+            time = LocalTime(datetime.hour, datetime.minute, datetime.second),
+        )
+        val untilDateTime = sinceDateTime.toInstant(TimeZone.UTC)
             .plus(1, DateTimeUnit.SECOND, TimeZone.UTC)
             .toLocalDateTime(TimeZone.UTC)
         return runCatching {
@@ -110,7 +115,7 @@ public class AddMoneyUsageScreenApi(
                             isAsc = true,
                             filter = Optional.present(
                                 MoneyUsagesQueryFilter(
-                                    sinceDateTime = Optional.present(datetime),
+                                    sinceDateTime = Optional.present(sinceDateTime),
                                     untilDateTime = Optional.present(untilDateTime),
                                 ),
                             ),

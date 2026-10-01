@@ -558,7 +558,17 @@ private fun AddMoneyUsageScreenPreview() {
                 fullScreenTextInputDialog = null,
                 categorySelectDialog = null,
                 discardConfirmDialog = null,
-                sameDateTimeUsages = ImmutableList(listOf()),
+                sameDateTimeUsages = ImmutableList(
+                    listOf(
+                        AddMoneyUsageScreenUiState.SameDateTimeUsage(
+                            title = "スーパーマーケット",
+                            amount = "3500円",
+                            listener = object : AddMoneyUsageScreenUiState.SameDateTimeUsage.Listener {
+                                override fun onClick() = Unit
+                            },
+                        ),
+                    ),
+                ),
                 date = "2026/02/26",
                 time = "12:30",
                 title = "スーパーマーケット",
