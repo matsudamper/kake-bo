@@ -5,8 +5,10 @@ import java.util.concurrent.CompletableFuture
 import java.util.concurrent.CompletionStage
 import graphql.execution.DataFetcherResult
 import graphql.schema.DataFetchingEnvironment
+import net.matsudamper.money.backend.app.interfaces.ImportedMailAiParseRepository
 import net.matsudamper.money.backend.dataloader.ImportedMailDataLoaderDefine
 import net.matsudamper.money.backend.dataloader.MoneyUsageDataLoaderDefine
+import net.matsudamper.money.backend.feature.aimailparser.StartImportedMailAiParseUseCase
 import net.matsudamper.money.backend.graphql.GraphQlContext
 import net.matsudamper.money.backend.graphql.localcontext.MoneyUsageSuggestLocalContext
 import net.matsudamper.money.backend.graphql.otelThenApplyAsync
@@ -14,6 +16,8 @@ import net.matsudamper.money.backend.graphql.toDataFetcher
 import net.matsudamper.money.backend.mail.parser.MailParser
 import net.matsudamper.money.graphql.model.ImportedMailResolver
 import net.matsudamper.money.graphql.model.QlImportedMail
+import net.matsudamper.money.graphql.model.QlImportedMailAiParseResult
+import net.matsudamper.money.graphql.model.QlImportedMailAiParseStatus
 import net.matsudamper.money.graphql.model.QlImportedMailForwardedInfo
 import net.matsudamper.money.graphql.model.QlMoneyUsage
 import net.matsudamper.money.graphql.model.QlMoneyUsageSuggest
@@ -194,6 +198,74 @@ class ImportedMailResolverImpl : ImportedMailResolver {
                 .localContext(
                     MoneyUsageSuggestLocalContext(
                         importedMailId = targetMail.id,
+                    ),
+                )
+                .build()
+        }
+    }
+
+    override fun aiParseResult(
+        importedMail: QlImportedMail,
+        env: DataFetchingEnvironment,
+    ): CompletionStage<DataFetcherResult<QlImportedMailAiParseResult?>> {
+        val context = env.typedContext
+        val userId = context.verifyUserSessionAndGetUserId()
+
+        return CompletableFuture.allOf().otelThenApplyAsync {
+            val result = context.diContainer.createImportedMailAiParseRepository()
+                .getResult(
+                    userId = userId,
+                    importedMailId = importedMail.id,
+                )
+            val staleRunningBefore = LocalDateTime.now(context.diContainer.clock())
+                .minus(StartImportedMailAiParseUseCase.STALE_RUNNING_DURATION)
+            val qlResult = when (result) {
+                null -> null
+                is ImportedMailAiParseRepository.AiParseResult.Running -> {
+                    if (result.updatedDateTime.isAfter(staleRunningBefore)) {
+                        QlImportedMailAiParseResult(
+                            status = QlImportedMailAiParseStatus.RUNNING,
+                            usages = listOf(),
+                            errorMessage = null,
+                        )
+                    } else {
+                        QlImportedMailAiParseResult(
+                            status = QlImportedMailAiParseStatus.FAILED,
+                            usages = listOf(),
+                            errorMessage = "解析が中断されました",
+                        )
+                    }
+                }
+
+                is ImportedMailAiParseRepository.AiParseResult.Succeeded -> {
+                    QlImportedMailAiParseResult(
+                        status = QlImportedMailAiParseStatus.SUCCEEDED,
+                        usages = result.usages.map { usage ->
+                            QlMoneyUsageSuggest(
+                                title = usage.title,
+                                amount = usage.amount,
+                                description = usage.description,
+                                dateTime = usage.dateTime,
+                                serviceName = null,
+                            )
+                        },
+                        errorMessage = null,
+                    )
+                }
+
+                is ImportedMailAiParseRepository.AiParseResult.Failed -> {
+                    QlImportedMailAiParseResult(
+                        status = QlImportedMailAiParseStatus.FAILED,
+                        usages = listOf(),
+                        errorMessage = result.errorMessage,
+                    )
+                }
+            }
+            DataFetcherResult.newResult<QlImportedMailAiParseResult?>()
+                .data(qlResult)
+                .localContext(
+                    MoneyUsageSuggestLocalContext(
+                        importedMailId = importedMail.id,
                     ),
                 )
                 .build()

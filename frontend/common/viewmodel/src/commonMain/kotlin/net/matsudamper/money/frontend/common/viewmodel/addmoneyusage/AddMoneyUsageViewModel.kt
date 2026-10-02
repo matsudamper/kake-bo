@@ -433,9 +433,14 @@ public class AddMoneyUsageViewModel(
             graphqlApi.get(importedMailId)
                 .onSuccess { result ->
                     val importedMailIndex = current.importedMailIndex
+                    val mail = result.data?.user?.importedMailAttributes?.mail
+                    val suggestUsages = if (current.isAiParseResult) {
+                        mail?.aiParseResult?.usages?.map { it.addMoneyUsageScreenSuggestUsage }
+                    } else {
+                        mail?.suggestUsages?.map { it.addMoneyUsageScreenSuggestUsage }
+                    }
 
-                    val suggestUsage = result.data?.user?.importedMailAttributes?.mail?.suggestUsages
-                        ?.getOrNull(importedMailIndex ?: 0)
+                    val suggestUsage = suggestUsages?.getOrNull(importedMailIndex ?: 0)
                     val forwardedInfo = result.data?.user?.importedMailAttributes?.mail?.forwardedInfo
                     if (suggestUsage == null) {
                         val subject = result.data?.user?.importedMailAttributes?.mail?.subject.orEmpty()

@@ -12,6 +12,7 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.layout.widthIn
 import androidx.compose.foundation.lazy.LazyColumn
@@ -38,8 +39,11 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.ExperimentalTextApi
+import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import net.matsudamper.money.frontend.common.base.ImmutableList
+import net.matsudamper.money.frontend.common.base.immutableListOf
+import net.matsudamper.money.frontend.common.ui.AppRoot
 import net.matsudamper.money.frontend.common.ui.base.KakeBoTopAppBar
 import net.matsudamper.money.frontend.common.ui.base.LoadingErrorContent
 import net.matsudamper.money.frontend.common.ui.generated.resources.Res
@@ -66,11 +70,31 @@ public data class MailScreenUiState(
         public data class Loaded(
             val mail: Mail,
             val usageSuggest: ImmutableList<UsageSuggest>,
+            val aiParse: AiParse,
             val usage: ImmutableList<LinkedUsage>,
             val hasPlain: Boolean,
             val hasHtml: Boolean,
             val event: LoadedEvent,
         ) : LoadingState
+    }
+
+    public data class AiParse(
+        val state: AiParseState,
+        val startErrorMessage: String?,
+    )
+
+    public sealed interface AiParseState {
+        public data object NotExecuted : AiParseState
+
+        public data object Running : AiParseState
+
+        public data class Failed(
+            val message: String,
+        ) : AiParseState
+
+        public data class Succeeded(
+            val usageSuggest: ImmutableList<UsageSuggest>,
+        ) : AiParseState
     }
 
     public data class AlertDialog(
@@ -146,6 +170,8 @@ public data class MailScreenUiState(
         public fun onClickMailPlain()
 
         public fun onClickRegister()
+
+        public fun onClickAiParse()
     }
 
     @Immutable
@@ -332,22 +358,130 @@ private fun MainContent(
                 }
             } else {
                 items(uiState.usageSuggest) { item ->
-                    MoneyUsageSuggestCard(
+                    MoneyUsageSuggestItem(
                         modifier = Modifier.fillMaxWidth(),
-                        items = item,
+                        item = item,
                     )
-                    Spacer(modifier = Modifier.height(4.dp))
-                    Row {
-                        Spacer(modifier = Modifier.weight(1f))
-                        OutlinedButton(
-                            onClick = { item.event.onClickRegister() },
-                        ) {
-                            Text("登録")
-                        }
-                    }
-                    Spacer(modifier = Modifier.height(16.dp))
                 }
             }
+            item {
+                Spacer(modifier = Modifier.height(24.dp))
+                AiParseHeader(
+                    modifier = Modifier.fillMaxWidth(),
+                    uiState = uiState.aiParse,
+                    onClickAiParse = { uiState.event.onClickAiParse() },
+                )
+            }
+            when (val aiParseState = uiState.aiParse.state) {
+                is MailScreenUiState.AiParseState.Succeeded -> {
+                    if (aiParseState.usageSuggest.isEmpty()) {
+                        item {
+                            Text(
+                                modifier = Modifier.padding(8.dp),
+                                text = "支払いは見つかりませんでした",
+                                style = MaterialTheme.typography.bodyMedium,
+                            )
+                        }
+                    } else {
+                        items(aiParseState.usageSuggest) { item ->
+                            MoneyUsageSuggestItem(
+                                modifier = Modifier.fillMaxWidth(),
+                                item = item,
+                            )
+                        }
+                    }
+                }
+
+                is MailScreenUiState.AiParseState.Failed,
+                MailScreenUiState.AiParseState.NotExecuted,
+                MailScreenUiState.AiParseState.Running,
+                -> Unit
+            }
+            item {
+                Spacer(modifier = Modifier.height(24.dp))
+            }
+        }
+    }
+}
+
+@Composable
+private fun MoneyUsageSuggestItem(
+    modifier: Modifier = Modifier,
+    item: MailScreenUiState.UsageSuggest,
+) {
+    Column(modifier = modifier) {
+        MoneyUsageSuggestCard(
+            modifier = Modifier.fillMaxWidth(),
+            items = item,
+        )
+        Spacer(modifier = Modifier.height(4.dp))
+        Row {
+            Spacer(modifier = Modifier.weight(1f))
+            OutlinedButton(
+                onClick = { item.event.onClickRegister() },
+            ) {
+                Text("登録")
+            }
+        }
+        Spacer(modifier = Modifier.height(16.dp))
+    }
+}
+
+@Composable
+private fun AiParseHeader(
+    modifier: Modifier = Modifier,
+    uiState: MailScreenUiState.AiParse,
+    onClickAiParse: () -> Unit,
+) {
+    Column(modifier = modifier) {
+        Row(
+            modifier = Modifier.fillMaxWidth(),
+            verticalAlignment = Alignment.CenterVertically,
+        ) {
+            Text(
+                modifier = Modifier.padding(horizontal = 12.dp)
+                    .weight(1f),
+                text = "AI解析結果",
+                style = MaterialTheme.typography.headlineLarge,
+            )
+            val isRunning = uiState.state is MailScreenUiState.AiParseState.Running
+            OutlinedButton(
+                enabled = isRunning.not(),
+                onClick = { onClickAiParse() },
+            ) {
+                if (isRunning) {
+                    CircularProgressIndicator(
+                        modifier = Modifier.size(16.dp),
+                        strokeWidth = 2.dp,
+                    )
+                    Spacer(modifier = Modifier.width(8.dp))
+                    Text("解析中")
+                } else {
+                    Text(
+                        text = when (uiState.state) {
+                            MailScreenUiState.AiParseState.NotExecuted -> "AIで解析"
+                            else -> "再解析"
+                        },
+                    )
+                }
+            }
+        }
+        Spacer(modifier = Modifier.height(12.dp))
+        HorizontalDivider(modifier = Modifier.fillMaxWidth().height(1.dp))
+        Spacer(modifier = Modifier.height(12.dp))
+        val message = uiState.startErrorMessage ?: when (val state = uiState.state) {
+            is MailScreenUiState.AiParseState.Failed -> "解析に失敗しました: ${state.message}"
+            MailScreenUiState.AiParseState.NotExecuted -> "Gemini APIでメールを解析します"
+            MailScreenUiState.AiParseState.Running,
+            is MailScreenUiState.AiParseState.Succeeded,
+            -> null
+        }
+        if (message != null) {
+            Text(
+                modifier = Modifier.padding(8.dp),
+                text = message,
+                style = MaterialTheme.typography.bodyMedium,
+            )
         }
     }
 }
@@ -586,4 +720,119 @@ private fun MailCard(
             }
         }
     }
+}
+
+@Composable
+@Preview
+private fun ImportedMailScreenAiParseNotExecutedPreview() {
+    ImportedMailScreenPreviewContent(
+        aiParse = MailScreenUiState.AiParse(
+            state = MailScreenUiState.AiParseState.NotExecuted,
+            startErrorMessage = null,
+        ),
+    )
+}
+
+@Composable
+@Preview
+private fun ImportedMailScreenAiParseRunningPreview() {
+    ImportedMailScreenPreviewContent(
+        aiParse = MailScreenUiState.AiParse(
+            state = MailScreenUiState.AiParseState.Running,
+            startErrorMessage = null,
+        ),
+    )
+}
+
+@Composable
+@Preview
+private fun ImportedMailScreenAiParseFailedPreview() {
+    ImportedMailScreenPreviewContent(
+        aiParse = MailScreenUiState.AiParse(
+            state = MailScreenUiState.AiParseState.Failed(
+                message = "Gemini APIがエラーを返しました(400): API key not valid",
+            ),
+            startErrorMessage = null,
+        ),
+    )
+}
+
+@Composable
+@Preview
+private fun ImportedMailScreenAiParseSucceededPreview() {
+    ImportedMailScreenPreviewContent(
+        aiParse = MailScreenUiState.AiParse(
+            state = MailScreenUiState.AiParseState.Succeeded(
+                usageSuggest = immutableListOf(
+                    createPreviewUsageSuggest(
+                        title = "サンプルストア",
+                        serviceName = "",
+                    ),
+                ),
+            ),
+            startErrorMessage = null,
+        ),
+    )
+}
+
+@Composable
+private fun ImportedMailScreenPreviewContent(aiParse: MailScreenUiState.AiParse) {
+    AppRoot {
+        ImportedMailScreen(
+            modifier = Modifier.fillMaxSize(),
+            uiState = MailScreenUiState(
+                loadingState = MailScreenUiState.LoadingState.Loaded(
+                    mail = MailScreenUiState.Mail(
+                        from = "noreply@example.com",
+                        title = "ご注文ありがとうございます",
+                        date = "2026/01/01 12:00",
+                    ),
+                    usageSuggest = immutableListOf(),
+                    aiParse = aiParse,
+                    usage = immutableListOf(),
+                    hasPlain = true,
+                    hasHtml = true,
+                    event = object : MailScreenUiState.LoadedEvent {
+                        override fun onClickMailHtml() {}
+                        override fun onClickMailPlain() {}
+                        override fun onClickRegister() {}
+                        override fun onClickAiParse() {}
+                    },
+                ),
+                confirmDialog = null,
+                urlMenuDialog = null,
+                event = object : MailScreenUiState.Event {
+                    override fun onClickRetry() {}
+                    override fun onClickArrowBackButton() {}
+                    override fun onClickTitle() {}
+                    override fun onClickDelete() {}
+                    override fun onResume() {}
+                },
+            ),
+            windowInsets = PaddingValues(0.dp),
+        )
+    }
+}
+
+private fun createPreviewUsageSuggest(
+    title: String,
+    serviceName: String,
+): MailScreenUiState.UsageSuggest {
+    return MailScreenUiState.UsageSuggest(
+        title = title,
+        amount = "1,000円",
+        category = "食費 / 外食",
+        description = MailScreenUiState.Clickable(
+            text = "商品A x1",
+            event = object : MailScreenUiState.ClickableEvent {
+                override fun onClickUrl(url: String) {}
+                override fun onLongClickUrl(text: String) {}
+            },
+        ),
+        dateTime = "2026/01/01 12:00",
+        event = object : MailScreenUiState.UsageSuggest.Event {
+            override fun onClickRegister() {}
+        },
+        serviceName = serviceName,
+    )
 }

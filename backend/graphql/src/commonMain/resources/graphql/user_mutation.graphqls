@@ -6,6 +6,7 @@ type UserMutation {
 
     importMail(mailIds: [MailId!]!): ImportMailResult!
     deleteImportedMail(id: ImportedMailId!): Boolean!
+    startImportedMailAiParse(id: ImportedMailId!): StartImportedMailAiParseResult!
     deleteMail(mailIds: [MailId!]!): DeleteMailResult!
 
     addUsage(usage: AddUsageQuery!): MoneyUsage!
@@ -174,6 +175,18 @@ enum DeleteMailResultError {
     MailServerNotConnected,
 }
 
+type StartImportedMailAiParseResult {
+    isSuccess: Boolean!
+    error: StartImportedMailAiParseError
+}
+
+enum StartImportedMailAiParseError {
+    ApiKeyNotSet,
+    MailNotFound,
+    AlreadyRunning,
+    InternalServerError,
+}
+
 type ImportMailResult {
     isSuccess: Boolean!
 }
@@ -186,6 +199,10 @@ type SettingsMutation {
     updateImapConfig(config: UpdateUserImapConfigInput!) : UserImapConfig
     changePassword(password: String): ChangePasswordResult! @lazy
     updateTimezoneOffset(offsetMinutes: Int!): Int
+    """
+    nullまたは空文字の場合はAPIキーを削除する
+    """
+    updateGeminiApiKey(apiKey: String): UserGeminiConfig
 }
 
 type ChangePasswordResult {

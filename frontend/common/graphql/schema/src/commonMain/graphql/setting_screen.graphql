@@ -5,6 +5,9 @@ query GetConfig {
                 ... DisplayImapConfig
             }
             timezoneOffsetMinutes
+            geminiConfig {
+                hasApiKey
+            }
         }
     }
 }

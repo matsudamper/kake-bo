@@ -31,6 +31,7 @@ kotlin {
                 implementation(projects.backend.feature.oidc)
                 implementation(projects.backend.feature.objectStorage)
                 implementation(projects.backend.feature.imageStorageLocal)
+                implementation(projects.backend.feature.aiMailParser)
 
                 implementation(kotlin("stdlib"))
                 implementation(libs.graphqlJava.extendedScalars)

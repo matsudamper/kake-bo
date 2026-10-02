@@ -1,9 +1,12 @@
 package net.matsudamper.money.frontend.common.viewmodel.importedmail.root
 
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.collectLatest
+import kotlinx.coroutines.flow.distinctUntilChanged
+import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import com.apollographql.apollo.api.ApolloResponse
@@ -19,8 +22,11 @@ import net.matsudamper.money.frontend.common.viewmodel.lib.EventHandler
 import net.matsudamper.money.frontend.common.viewmodel.lib.EventSender
 import net.matsudamper.money.frontend.common.viewmodel.lib.Formatter
 import net.matsudamper.money.frontend.graphql.ImportedMailScreenQuery
+import net.matsudamper.money.frontend.graphql.fragment.ImportedMailScreenSuggestUsage
+import net.matsudamper.money.frontend.graphql.type.ImportedMailAiParseStatus
 
 private const val TAG = "ImportedMailScreenViewModel"
+private const val AI_PARSE_POLLING_INTERVAL_MILLIS = 3000L
 
 public class ImportedMailScreenViewModel(
     scopedObjectFeature: ScopedObjectFeature,
@@ -112,7 +118,10 @@ public class ImportedMailScreenViewModel(
                                 return@run MailScreenUiState.LoadingState.Error
                             }
 
-                            createLoadedUiState(mail = mail)
+                            createLoadedUiState(
+                                mail = mail,
+                                aiParseStartErrorMessage = viewModelState.aiParseStartErrorMessage,
+                            )
                         },
                     )
                 }
@@ -120,7 +129,10 @@ public class ImportedMailScreenViewModel(
         }
     }.asStateFlow()
 
-    private fun createLoadedUiState(mail: ImportedMailScreenQuery.Mail): MailScreenUiState.LoadingState.Loaded {
+    private fun createLoadedUiState(
+        mail: ImportedMailScreenQuery.Mail,
+        aiParseStartErrorMessage: String?,
+    ): MailScreenUiState.LoadingState.Loaded {
         return MailScreenUiState.LoadingState.Loaded(
             mail = MailScreenUiState.Mail(
                 title = mail.subject,
@@ -157,47 +169,16 @@ public class ImportedMailScreenViewModel(
                 )
             }.toImmutableList(),
             usageSuggest = mail.suggestUsages.mapIndexed { index, suggestUsage ->
-                MailScreenUiState.UsageSuggest(
-                    title = suggestUsage.title,
-                    serviceName = suggestUsage.serviceName.orEmpty(),
-                    amount = run amount@{
-                        val amount = suggestUsage.amount ?: return@amount null
-
-                        val splitAmount = Formatter.formatMoney(amount)
-                        "${splitAmount}円"
-                    },
-                    category = run category@{
-                        val subCategory = suggestUsage.subCategory ?: return@category null
-                        val category = subCategory.category
-
-                        "${category.name} / ${subCategory.name}"
-                    },
-                    description = run {
-                        MailScreenUiState.Clickable(
-                            text = suggestUsage.description,
-                            event = ClickableEventImpl(suggestUsage.description),
-                        )
-                    },
-                    dateTime = run dateTime@{
-                        val dateTIme = suggestUsage.dateTime ?: return@dateTime ""
-                        Formatter.formatDateTime(dateTIme)
-                    },
-                    event = object : MailScreenUiState.UsageSuggest.Event {
-                        override fun onClickRegister() {
-                            viewModelScope.launch {
-                                viewModelEventSender.send {
-                                    it.navigate(
-                                        ScreenStructure.AddMoneyUsage(
-                                            importedMailId = importedMailId,
-                                            importedMailIndex = index,
-                                        ),
-                                    )
-                                }
-                            }
-                        }
-                    },
+                createUsageSuggest(
+                    suggestUsage = suggestUsage.importedMailScreenSuggestUsage,
+                    index = index,
+                    isAiParseResult = false,
                 )
             }.toImmutableList(),
+            aiParse = MailScreenUiState.AiParse(
+                state = createAiParseState(mail.aiParseResult),
+                startErrorMessage = aiParseStartErrorMessage,
+            ),
             hasHtml = mail.hasHtml,
             hasPlain = mail.hasPlain,
             event = object : MailScreenUiState.LoadedEvent {
@@ -236,23 +217,129 @@ public class ImportedMailScreenViewModel(
                         }
                     }
                 }
+
+                override fun onClickAiParse() {
+                    startAiParse()
+                }
+            },
+        )
+    }
+
+    private fun createAiParseState(aiParseResult: ImportedMailScreenQuery.AiParseResult?): MailScreenUiState.AiParseState {
+        if (aiParseResult == null) return MailScreenUiState.AiParseState.NotExecuted
+        return when (aiParseResult.status) {
+            ImportedMailAiParseStatus.RUNNING -> MailScreenUiState.AiParseState.Running
+            ImportedMailAiParseStatus.SUCCEEDED -> MailScreenUiState.AiParseState.Succeeded(
+                usageSuggest = aiParseResult.usages.mapIndexed { index, suggestUsage ->
+                    createUsageSuggest(
+                        suggestUsage = suggestUsage.importedMailScreenSuggestUsage,
+                        index = index,
+                        isAiParseResult = true,
+                    )
+                }.toImmutableList(),
+            )
+
+            ImportedMailAiParseStatus.FAILED,
+            ImportedMailAiParseStatus.UNKNOWN__,
+            -> MailScreenUiState.AiParseState.Failed(
+                message = aiParseResult.errorMessage.orEmpty(),
+            )
+        }
+    }
+
+    private fun createUsageSuggest(
+        suggestUsage: ImportedMailScreenSuggestUsage,
+        index: Int,
+        isAiParseResult: Boolean,
+    ): MailScreenUiState.UsageSuggest {
+        return MailScreenUiState.UsageSuggest(
+            title = suggestUsage.title,
+            serviceName = suggestUsage.serviceName.orEmpty(),
+            amount = run amount@{
+                val amount = suggestUsage.amount ?: return@amount null
+
+                val splitAmount = Formatter.formatMoney(amount)
+                "${splitAmount}円"
+            },
+            category = run category@{
+                val subCategory = suggestUsage.subCategory ?: return@category null
+                val category = subCategory.category
+
+                "${category.name} / ${subCategory.name}"
+            },
+            description = run {
+                MailScreenUiState.Clickable(
+                    text = suggestUsage.description,
+                    event = ClickableEventImpl(suggestUsage.description),
+                )
+            },
+            dateTime = run dateTime@{
+                val dateTIme = suggestUsage.dateTime ?: return@dateTime ""
+                Formatter.formatDateTime(dateTIme)
+            },
+            event = object : MailScreenUiState.UsageSuggest.Event {
+                override fun onClickRegister() {
+                    viewModelScope.launch {
+                        viewModelEventSender.send {
+                            it.navigate(
+                                ScreenStructure.AddMoneyUsage(
+                                    importedMailId = importedMailId,
+                                    importedMailIndex = index,
+                                    isAiParseResult = isAiParseResult,
+                                ),
+                            )
+                        }
+                    }
+                }
             },
         )
     }
 
     init {
         fetch()
+        viewModelScope.launch {
+            viewModelStateFlow
+                .map { it.isAiParseRunning() }
+                .distinctUntilChanged()
+                .collectLatest { isAiParseRunning ->
+                    if (isAiParseRunning.not()) return@collectLatest
+                    while (true) {
+                        delay(AI_PARSE_POLLING_INTERVAL_MILLIS)
+                        fetchAndUpdate()
+                    }
+                }
+        }
     }
 
     private fun fetch() {
         viewModelScope.launch {
-            val result = api.get(id = importedMailId)
+            fetchAndUpdate()
+        }
+    }
 
-            viewModelStateFlow.update { viewModelState ->
-                viewModelState.copy(
-                    apolloResponse = result,
-                )
+    private suspend fun fetchAndUpdate() {
+        val result = api.get(id = importedMailId)
+
+        viewModelStateFlow.update { viewModelState ->
+            viewModelState.copy(
+                apolloResponse = result,
+            )
+        }
+    }
+
+    private fun startAiParse() {
+        viewModelScope.launch {
+            viewModelStateFlow.update { it.copy(aiParseStartErrorMessage = null) }
+            val errorMessage = when (api.startAiParse(id = importedMailId)) {
+                ImportedMailScreenGraphqlApi.StartAiParseResult.Success,
+                ImportedMailScreenGraphqlApi.StartAiParseResult.AlreadyRunning,
+                -> null
+
+                ImportedMailScreenGraphqlApi.StartAiParseResult.ApiKeyNotSet -> "Gemini APIキーが設定されていません。設定画面から登録してください"
+                ImportedMailScreenGraphqlApi.StartAiParseResult.Failure -> "解析を開始できませんでした"
             }
+            viewModelStateFlow.update { it.copy(aiParseStartErrorMessage = errorMessage) }
+            fetchAndUpdate()
         }
     }
 
@@ -338,5 +425,11 @@ public class ImportedMailScreenViewModel(
         val apolloResponse: Result<ApolloResponse<ImportedMailScreenQuery.Data>>? = null,
         val confirmDialog: MailScreenUiState.AlertDialog? = null,
         val urlMenuDialog: MailScreenUiState.UrlMenuDialog? = null,
-    )
+        val aiParseStartErrorMessage: String? = null,
+    ) {
+        fun isAiParseRunning(): Boolean {
+            val aiParseResult = apolloResponse?.getOrNull()?.data?.user?.importedMailAttributes?.mail?.aiParseResult
+            return aiParseResult?.status == ImportedMailAiParseStatus.RUNNING
+        }
+    }
 }
