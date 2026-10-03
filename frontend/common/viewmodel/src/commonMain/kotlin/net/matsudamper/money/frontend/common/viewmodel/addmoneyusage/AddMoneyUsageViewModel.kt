@@ -609,9 +609,7 @@ public class AddMoneyUsageViewModel(
         usage: ViewModelState.SameDateUsage,
         viewModelState: ViewModelState,
     ): Boolean {
-        // 00:00 は時刻不明として入力されることが多いため、時刻一致の判定から除外する
-        val isSameTime = viewModelState.usageTime != LocalTime(0, 0, 0, 0) &&
-            usage.time.hour == viewModelState.usageTime.hour &&
+        val isSameTime = usage.time.hour == viewModelState.usageTime.hour &&
             usage.time.minute == viewModelState.usageTime.minute
         val isSameTitle = viewModelState.usageTitle.isNotBlank() && usage.title == viewModelState.usageTitle
         val isSameAmount = viewModelState.usageAmount.value != 0 && usage.amount == viewModelState.usageAmount.value
