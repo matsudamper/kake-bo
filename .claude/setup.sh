@@ -333,7 +333,20 @@ sdkmanager_bin = os.path.join(cmdline_tools_dir, 'bin', 'sdkmanager')
 if not os.path.exists(sdkmanager_bin):
     cmdline_url = 'https://dl.google.com/android/repository/commandlinetools-linux-11076708_latest.zip'
     cmdline_zip = os.path.join(android_home, 'commandlinetools.zip')
-    download(cmdline_url, cmdline_zip, opener)
+    # プロキシ経由だと転送が途中で切れて壊れた zip になることがあるため、検証してリトライする
+    for attempt in range(1, 5):
+        if os.path.exists(cmdline_zip):
+            os.unlink(cmdline_zip)
+        try:
+            download(cmdline_url, cmdline_zip, opener)
+        except Exception as e:
+            print(f"cmdline-tools download failed (attempt {attempt}): {e}")
+            continue
+        if zipfile.is_zipfile(cmdline_zip):
+            break
+        print(f"cmdline-tools archive is corrupted (attempt {attempt})")
+    else:
+        raise RuntimeError('cmdline-tools could not be downloaded')
     with zipfile.ZipFile(cmdline_zip, 'r') as zf:
         zf.extractall(android_home)
     os.unlink(cmdline_zip)
