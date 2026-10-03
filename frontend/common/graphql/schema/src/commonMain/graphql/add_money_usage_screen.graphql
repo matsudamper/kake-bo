@@ -49,13 +49,14 @@ query AddMoneyUsageScreenGetSubCategory($subCategoryId: MoneyUsageSubCategoryId!
     }
 }
 
-query AddMoneyUsageScreenSameDateTimeUsages($query: MoneyUsagesQuery!) {
+query AddMoneyUsageScreenSameDateUsages($query: MoneyUsagesQuery!) {
     user {
         moneyUsages(query: $query) {
             nodes {
                 id
                 title
                 amount
+                date
             }
         }
     }

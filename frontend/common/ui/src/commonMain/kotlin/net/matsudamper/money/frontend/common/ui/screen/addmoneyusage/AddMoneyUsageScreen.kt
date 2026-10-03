@@ -84,7 +84,7 @@ public data class AddMoneyUsageScreenUiState(
     val fullScreenTextInputDialog: FullScreenTextInputDialog?,
     val categorySelectDialog: CategorySelectDialogUiState?,
     val discardConfirmDialog: DiscardConfirmDialog?,
-    val sameDateTimeUsages: ImmutableList<SameDateTimeUsage>,
+    val duplicateCandidateUsages: ImmutableList<DuplicateCandidateUsage>,
     val date: String,
     val time: String,
     val title: String,
@@ -108,7 +108,8 @@ public data class AddMoneyUsageScreenUiState(
         }
     }
 
-    public data class SameDateTimeUsage(
+    public data class DuplicateCandidateUsage(
+        val time: String,
         val title: String,
         val amount: String,
         val listener: Listener,
@@ -283,10 +284,10 @@ public fun AddMoneyUsageScreen(
                 horizontalAlignment = Alignment.CenterHorizontally,
             ) {
                 Spacer(Modifier.height(24.dp))
-                if (uiState.sameDateTimeUsages.isNotEmpty()) {
-                    SameDateTimeUsageNotice(
+                if (uiState.duplicateCandidateUsages.isNotEmpty()) {
+                    DuplicateCandidateUsageNotice(
                         modifier = Modifier.fillMaxWidth(),
-                        usages = uiState.sameDateTimeUsages,
+                        usages = uiState.duplicateCandidateUsages,
                     )
                     Spacer(Modifier.height(12.dp))
                 }
@@ -474,8 +475,8 @@ public fun AddMoneyUsageScreen(
 }
 
 @Composable
-private fun SameDateTimeUsageNotice(
-    usages: ImmutableList<AddMoneyUsageScreenUiState.SameDateTimeUsage>,
+private fun DuplicateCandidateUsageNotice(
+    usages: ImmutableList<AddMoneyUsageScreenUiState.DuplicateCandidateUsage>,
     modifier: Modifier = Modifier,
 ) {
     Card(
@@ -487,12 +488,12 @@ private fun SameDateTimeUsageNotice(
     ) {
         Column(Modifier.padding(12.dp)) {
             Text(
-                text = "同じ日時の使用履歴が追加済みです",
+                text = "同じ日付に似た使用履歴が追加済みです",
                 style = MaterialTheme.typography.titleSmall,
             )
             usages.forEach { usage ->
                 TextButton(onClick = { usage.listener.onClick() }) {
-                    Text("${usage.title} ${usage.amount}")
+                    Text("${usage.time} ${usage.title} ${usage.amount}")
                 }
             }
         }
@@ -558,12 +559,13 @@ private fun AddMoneyUsageScreenPreview() {
                 fullScreenTextInputDialog = null,
                 categorySelectDialog = null,
                 discardConfirmDialog = null,
-                sameDateTimeUsages = ImmutableList(
+                duplicateCandidateUsages = ImmutableList(
                     listOf(
-                        AddMoneyUsageScreenUiState.SameDateTimeUsage(
+                        AddMoneyUsageScreenUiState.DuplicateCandidateUsage(
+                            time = "12:30",
                             title = "スーパーマーケット",
                             amount = "3500円",
-                            listener = object : AddMoneyUsageScreenUiState.SameDateTimeUsage.Listener {
+                            listener = object : AddMoneyUsageScreenUiState.DuplicateCandidateUsage.Listener {
                                 override fun onClick() = Unit
                             },
                         ),

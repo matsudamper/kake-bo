@@ -299,24 +299,24 @@ public class AddMoneyUsageViewModel(
     init {
         viewModelScope.launch {
             viewModelStateFlow
-                .map { LocalDateTime(date = it.usageDate, time = it.usageTime) }
+                .map { it.usageDate }
                 .distinctUntilChanged()
-                .collectLatest { datetime ->
-                    viewModelStateFlow.update { it.copy(sameDateTimeUsages = listOf()) }
-                    if (datetime.time == LocalTime(0, 0, 0, 0)) return@collectLatest
+                .collectLatest { date ->
+                    viewModelStateFlow.update { it.copy(sameDateUsages = listOf()) }
 
-                    val usages = graphqlApi.getSameDateTimeUsages(datetime)
+                    val usages = graphqlApi.getSameDateUsages(date)
                         .onFailure { Logger.e(TAG, it) }
                         .getOrNull()
                         ?.data?.user?.moneyUsages?.nodes
                         .orEmpty()
                     viewModelStateFlow.update { state ->
                         state.copy(
-                            sameDateTimeUsages = usages.map {
-                                ViewModelState.SameDateTimeUsage(
+                            sameDateUsages = usages.map {
+                                ViewModelState.SameDateUsage(
                                     id = it.id,
                                     title = it.title,
                                     amount = it.amount,
+                                    time = it.date.time,
                                 )
                             },
                         )
@@ -525,7 +525,7 @@ public class AddMoneyUsageViewModel(
             fullScreenTextInputDialog = null,
             categorySelectDialog = null,
             discardConfirmDialog = null,
-            sameDateTimeUsages = immutableListOf(),
+            duplicateCandidateUsages = immutableListOf(),
             numberInputDialog = null,
             category = "",
             event = uiEvent,
@@ -567,24 +567,41 @@ public class AddMoneyUsageViewModel(
                         handleBackPress = viewModelState.hasInputChanges,
                         categorySelectDialog = viewModelState.categorySelectDialog,
                         discardConfirmDialog = viewModelState.discardConfirmDialog,
-                        sameDateTimeUsages = viewModelState.sameDateTimeUsages.map { usage ->
-                            AddMoneyUsageScreenUiState.SameDateTimeUsage(
-                                title = usage.title,
-                                amount = "${usage.amount}円",
-                                listener = object : AddMoneyUsageScreenUiState.SameDateTimeUsage.Listener {
-                                    override fun onClick() {
-                                        viewModelScope.launch {
-                                            eventSender.send { it.navigate(ScreenStructure.MoneyUsage(usage.id)) }
+                        duplicateCandidateUsages = viewModelState.sameDateUsages
+                            .filter { usage -> isDuplicateCandidate(usage = usage, viewModelState = viewModelState) }
+                            .map { usage ->
+                                AddMoneyUsageScreenUiState.DuplicateCandidateUsage(
+                                    time = Formatter.formatTime(usage.time),
+                                    title = usage.title,
+                                    amount = "${usage.amount}円",
+                                    listener = object : AddMoneyUsageScreenUiState.DuplicateCandidateUsage.Listener {
+                                        override fun onClick() {
+                                            viewModelScope.launch {
+                                                eventSender.send { it.navigate(ScreenStructure.MoneyUsage(usage.id)) }
+                                            }
                                         }
-                                    }
-                                },
-                            )
-                        }.toImmutableList(),
+                                    },
+                                )
+                            }.toImmutableList(),
                     )
                 }
             }
         }
     }.asStateFlow()
+
+    private fun isDuplicateCandidate(
+        usage: ViewModelState.SameDateUsage,
+        viewModelState: ViewModelState,
+    ): Boolean {
+        // 00:00 は時刻不明として入力されることが多いため、時刻一致の判定から除外する
+        val isSameTime = viewModelState.usageTime != LocalTime(0, 0, 0, 0) &&
+            usage.time.hour == viewModelState.usageTime.hour &&
+            usage.time.minute == viewModelState.usageTime.minute &&
+            usage.time.second == viewModelState.usageTime.second
+        val isSameTitle = viewModelState.usageTitle.isNotBlank() && usage.title == viewModelState.usageTitle
+        val isSameAmount = viewModelState.usageAmount.value != 0 && usage.amount == viewModelState.usageAmount.value
+        return isSameTime || isSameTitle || isSameAmount
+    }
 
     public interface Event {
         public suspend fun selectImages(): List<SelectedImage>
@@ -610,9 +627,9 @@ public class AddMoneyUsageViewModel(
         val usageCategorySet: CategorySelectDialogViewModel.SelectedResult? = null,
         val hasInputChanges: Boolean = false,
         val discardConfirmDialog: AddMoneyUsageScreenUiState.DiscardConfirmDialog? = null,
-        val sameDateTimeUsages: List<SameDateTimeUsage> = listOf(),
+        val sameDateUsages: List<SameDateUsage> = listOf(),
     ) {
-        data class SameDateTimeUsage(val id: MoneyUsageId, val title: String, val amount: Int)
+        data class SameDateUsage(val id: MoneyUsageId, val title: String, val amount: Int, val time: LocalTime)
         data class UploadedImage(val imageId: ImageId, val url: String)
     }
 }
