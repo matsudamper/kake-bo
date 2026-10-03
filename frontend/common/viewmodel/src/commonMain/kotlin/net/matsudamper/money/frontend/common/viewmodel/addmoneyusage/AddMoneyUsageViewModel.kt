@@ -311,14 +311,16 @@ public class AddMoneyUsageViewModel(
                         .orEmpty()
                     viewModelStateFlow.update { state ->
                         state.copy(
-                            sameDateUsages = usages.map {
-                                ViewModelState.SameDateUsage(
-                                    id = it.id,
-                                    title = it.title,
-                                    amount = it.amount,
-                                    time = it.date.time,
-                                )
-                            },
+                            sameDateUsages = (
+                                usages.map {
+                                    ViewModelState.SameDateUsage(
+                                        id = it.id,
+                                        title = it.title,
+                                        amount = it.amount,
+                                        time = it.date.time,
+                                    )
+                                } + state.sameDateUsages
+                                ).distinctBy { it.id },
                         )
                     }
                 }
@@ -379,12 +381,14 @@ public class AddMoneyUsageViewModel(
                     ViewModelState(
                         usageDate = it.usageDate,
                         sameDateUsages = if (it.usageDate == submittedState.usageDate) {
-                            it.sameDateUsages + ViewModelState.SameDateUsage(
-                                id = addedUsage.id,
-                                title = submittedState.usageTitle,
-                                amount = submittedState.usageAmount.value,
-                                time = submittedState.usageTime,
-                            )
+                            (
+                                it.sameDateUsages + ViewModelState.SameDateUsage(
+                                    id = addedUsage.id,
+                                    title = submittedState.usageTitle,
+                                    amount = submittedState.usageAmount.value,
+                                    time = submittedState.usageTime,
+                                )
+                                ).distinctBy { usage -> usage.id }
                         } else {
                             it.sameDateUsages
                         },
