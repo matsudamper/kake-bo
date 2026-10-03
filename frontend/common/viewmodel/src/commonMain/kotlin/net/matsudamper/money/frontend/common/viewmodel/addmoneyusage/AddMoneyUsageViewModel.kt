@@ -609,7 +609,9 @@ public class AddMoneyUsageViewModel(
         usage: ViewModelState.SameDateUsage,
         viewModelState: ViewModelState,
     ): Boolean {
-        val isSameTime = usage.time.hour == viewModelState.usageTime.hour &&
+        val isMidnight = viewModelState.usageTime.hour == 0 && viewModelState.usageTime.minute == 0
+        val isSameTime = !isMidnight &&
+            usage.time.hour == viewModelState.usageTime.hour &&
             usage.time.minute == viewModelState.usageTime.minute
         val isSameTitle = viewModelState.usageTitle.isNotBlank() && usage.title == viewModelState.usageTitle
         val isSameAmount = viewModelState.usageAmount.value != 0 && usage.amount == viewModelState.usageAmount.value
