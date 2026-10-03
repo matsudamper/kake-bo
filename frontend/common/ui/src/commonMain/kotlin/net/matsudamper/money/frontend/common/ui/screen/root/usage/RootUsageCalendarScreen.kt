@@ -4,18 +4,20 @@ import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.BoxWithConstraints
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.IntrinsicSize
 import androidx.compose.foundation.layout.PaddingValues
+import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.lazy.grid.GridCells
-import androidx.compose.foundation.lazy.grid.LazyGridState
-import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
-import androidx.compose.foundation.lazy.grid.items
-import androidx.compose.foundation.lazy.grid.rememberLazyGridState
+import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.LazyListState
+import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.CircularProgressIndicator
@@ -149,11 +151,11 @@ public fun RootUsageCalendarScreen(
             when (uiState.loadingState) {
                 is RootUsageCalendarScreenUiState.LoadingState.Loaded -> {
                     var buttonSize: IntSize by remember { mutableStateOf(IntSize.Zero) }
-                    val lazyGridState = rememberLazyGridState()
+                    val lazyListState = rememberLazyListState()
                     LoadedContent(
                         modifier = Modifier.fillMaxSize(),
                         uiState = uiState.loadingState,
-                        state = lazyGridState,
+                        state = lazyListState,
                         stickyHeaderState = stickyHeaderState,
                         contentPadding = PaddingValues(
                             top = 12.dp,
@@ -177,42 +179,63 @@ public fun RootUsageCalendarScreen(
 private fun LoadedContent(
     modifier: Modifier = Modifier,
     uiState: RootUsageCalendarScreenUiState.LoadingState.Loaded,
-    state: LazyGridState,
+    state: LazyListState,
     stickyHeaderState: StickyHeaderState,
     contentPadding: PaddingValues,
 ) {
-    LazyVerticalGrid(
+    val weeks = remember(uiState.calendarCells) {
+        uiState.calendarCells.chunked(DAYS_OF_WEEK)
+    }
+    LazyColumn(
         modifier = modifier.stickyHeaderScrollable(
             state = stickyHeaderState,
             listState = state,
         ),
         state = state,
-        columns = GridCells.Fixed(7),
         contentPadding = contentPadding,
     ) {
-        items(uiState.calendarCells) { cell ->
-            when (cell) {
-                is RootUsageCalendarScreenUiState.CalendarCell.Day -> {
-                    CalendarCell(
-                        modifier = Modifier.heightIn(min = 100.dp),
-                        uiState = cell,
-                    )
-                }
+        items(weeks) { week ->
+            Row(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .height(IntrinsicSize.Min),
+            ) {
+                week.forEach { cell ->
+                    val cellModifier = Modifier
+                        .weight(1f)
+                        .fillMaxHeight()
+                    when (cell) {
+                        is RootUsageCalendarScreenUiState.CalendarCell.Day -> {
+                            CalendarCell(
+                                modifier = cellModifier.heightIn(min = 100.dp),
+                                uiState = cell,
+                            )
+                        }
 
-                is RootUsageCalendarScreenUiState.CalendarCell.Empty -> Unit
-                is RootUsageCalendarScreenUiState.CalendarCell.DayOfWeek -> {
-                    Text(
-                        modifier = Modifier.fillMaxSize()
-                            .padding(2.dp),
-                        text = cell.text,
-                        textAlign = TextAlign.Center,
-                        style = MaterialTheme.typography.titleSmall,
-                    )
+                        is RootUsageCalendarScreenUiState.CalendarCell.Empty -> {
+                            Spacer(cellModifier)
+                        }
+
+                        is RootUsageCalendarScreenUiState.CalendarCell.DayOfWeek -> {
+                            Text(
+                                modifier = cellModifier
+                                    .padding(2.dp),
+                                text = cell.text,
+                                textAlign = TextAlign.Center,
+                                style = MaterialTheme.typography.titleSmall,
+                            )
+                        }
+                    }
+                }
+                repeat(DAYS_OF_WEEK - week.size) {
+                    Spacer(Modifier.weight(1f))
                 }
             }
         }
     }
 }
+
+private const val DAYS_OF_WEEK = 7
 
 @Composable
 private fun CalendarCell(

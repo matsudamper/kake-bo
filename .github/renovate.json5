@@ -76,6 +76,14 @@
       "automerge": true,
     },
     {
+      "matchManagers": ["github-actions"],
+      "matchPackageNames": [
+        "graalvm/setup-graalvm",
+        "gradle/actions",
+      ],
+      "automerge": true,
+    },
+    {
       "matchPackageNames": ["org.graalvm.sdk:nativeimage"],
       "matchUpdateTypes": ["minor", "patch"],
       "automerge": true,
