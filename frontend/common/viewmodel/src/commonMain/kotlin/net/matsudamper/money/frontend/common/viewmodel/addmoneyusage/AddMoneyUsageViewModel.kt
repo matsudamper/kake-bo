@@ -376,7 +376,15 @@ public class AddMoneyUsageViewModel(
                     }
                 }
                 viewModelStateFlow.update {
-                    ViewModelState(usageDate = it.usageDate)
+                    ViewModelState(
+                        usageDate = it.usageDate,
+                        sameDateUsages = it.sameDateUsages + ViewModelState.SameDateUsage(
+                            id = addedUsage.id,
+                            title = it.usageTitle,
+                            amount = it.usageAmount.value,
+                            time = it.usageTime,
+                        ),
+                    )
                 }
                 val snackbarResult = snackbarEventState.show(
                     SnackbarEventState.Event(
