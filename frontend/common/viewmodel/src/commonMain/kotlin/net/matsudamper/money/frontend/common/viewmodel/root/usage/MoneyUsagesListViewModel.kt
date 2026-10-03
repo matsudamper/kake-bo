@@ -14,6 +14,7 @@ import com.apollographql.apollo.api.ApolloResponse
 import net.matsudamper.money.frontend.common.base.ImmutableList.Companion.toImmutableList
 import net.matsudamper.money.frontend.common.base.nav.ScopedObjectFeature
 import net.matsudamper.money.frontend.common.base.nav.user.ScreenStructure
+import net.matsudamper.money.frontend.common.ui.screen.root.usage.RootUsageHostScreenUiState
 import net.matsudamper.money.frontend.common.ui.screen.root.usage.RootUsageListScreenUiState
 import net.matsudamper.money.frontend.common.viewmodel.CommonViewModel
 import net.matsudamper.money.frontend.common.viewmodel.lib.EventHandler
@@ -28,7 +29,11 @@ public class MoneyUsagesListViewModel(
     graphqlClient: GraphqlClient,
     rootUsageHostViewModel: RootUsageHostViewModel,
 ) : CommonViewModel(scopedObjectFeature) {
-    private val viewModelStateFlow = MutableStateFlow(ViewModelState())
+    private val viewModelStateFlow = MutableStateFlow(
+        ViewModelState(
+            hostScreenUiState = rootUsageHostViewModel.uiStateFlow.value,
+        ),
+    )
 
     private val pagingModel = MoneyUsagesListFetchModel(
         graphqlClient = graphqlClient,
@@ -41,7 +46,6 @@ public class MoneyUsagesListViewModel(
     public val uiStateFlow: StateFlow<RootUsageListScreenUiState> = MutableStateFlow(
         RootUsageListScreenUiState(
             loadingState = RootUsageListScreenUiState.LoadingState.Loading,
-            sortType = viewModelStateFlow.value.sortType,
             hostScreenUiState = rootUsageHostViewModel.uiStateFlow.value,
             event = object : RootUsageListScreenUiState.Event {
                 override suspend fun onViewInitialized() {
@@ -77,28 +81,14 @@ public class MoneyUsagesListViewModel(
                         pagingModel.refresh()
                     }
                 }
-
-                override fun onSortTypeChanged(sortType: RootUsageListScreenUiState.SortType) {
-                    viewModelStateFlow.update {
-                        it.copy(sortType = sortType)
-                    }
-                    pagingModel.changeOrderType(
-                        when (sortType) {
-                            RootUsageListScreenUiState.SortType.Date -> MoneyUsagesQueryOrderType.DATE
-                            RootUsageListScreenUiState.SortType.CreatedDateTime -> MoneyUsagesQueryOrderType.CREATED_DATETIME
-                        },
-                    )
-                }
             },
         ),
     ).also { uiStateFlow ->
         viewModelScope.launch {
             rootUsageHostViewModel.uiStateFlow
                 .collectLatest { hostUiState ->
-                    uiStateFlow.update { uiState ->
-                        uiState.copy(
-                            hostScreenUiState = hostUiState,
-                        )
+                    viewModelStateFlow.update {
+                        it.copy(hostScreenUiState = hostUiState)
                     }
                 }
         }
@@ -107,8 +97,8 @@ public class MoneyUsagesListViewModel(
                 .collectLatest { viewModelState ->
                     val nodes = viewModelState.results?.data?.user?.moneyUsages?.nodes.orEmpty()
                     val showsMonthTitle = when (viewModelState.sortType) {
-                        RootUsageListScreenUiState.SortType.Date -> true
-                        RootUsageListScreenUiState.SortType.CreatedDateTime -> false
+                        SortType.Date -> true
+                        SortType.CreatedDateTime -> false
                     }
                     val items = buildList {
                         var lastMonth: LocalDateTime? = null
@@ -157,7 +147,9 @@ public class MoneyUsagesListViewModel(
 
                     uiStateFlow.update { uiState ->
                         uiState.copy(
-                            sortType = viewModelState.sortType,
+                            hostScreenUiState = viewModelState.hostScreenUiState.copy(
+                                sortDropdown = createSortDropdownState(viewModelState.sortType),
+                            ),
                             loadingState = RootUsageListScreenUiState.LoadingState.Loaded(
                                 loadToEnd = hasMore.not(),
                                 items = items,
@@ -175,12 +167,46 @@ public class MoneyUsagesListViewModel(
         }
     }.asStateFlow()
 
+    private fun createSortDropdownState(selectedSortType: SortType): RootUsageHostScreenUiState.DropdownState {
+        return RootUsageHostScreenUiState.DropdownState(
+            selectedLabel = selectedSortType.label,
+            items = SortType.entries.map { sortType ->
+                RootUsageHostScreenUiState.DropdownItem(
+                    name = sortType.label,
+                    event = object : RootUsageHostScreenUiState.DropdownItemEvent {
+                        override fun onClick() {
+                            changeSortType(sortType)
+                        }
+                    },
+                )
+            }.toImmutableList(),
+        )
+    }
+
+    private fun changeSortType(sortType: SortType) {
+        viewModelStateFlow.update {
+            it.copy(sortType = sortType)
+        }
+        pagingModel.changeOrderType(
+            when (sortType) {
+                SortType.Date -> MoneyUsagesQueryOrderType.DATE
+                SortType.CreatedDateTime -> MoneyUsagesQueryOrderType.CREATED_DATETIME
+            },
+        )
+    }
+
     public interface Event {
         public fun navigate(screenStructure: ScreenStructure)
     }
 
+    private enum class SortType(val label: String) {
+        Date(label = "日時順"),
+        CreatedDateTime(label = "追加順"),
+    }
+
     private data class ViewModelState(
+        val hostScreenUiState: RootUsageHostScreenUiState,
         val results: ApolloResponse<UsageListScreenPagingQuery.Data>? = null,
-        val sortType: RootUsageListScreenUiState.SortType = RootUsageListScreenUiState.SortType.Date,
+        val sortType: SortType = SortType.Date,
     )
 }
