@@ -306,6 +306,7 @@ public class RootUsageHostViewModel(
                     items = ImmutableList(listOf()),
                 ),
             ),
+            sortDropdown = null,
             event = event,
             kakeboScaffoldListener = object : KakeboScaffoldListener {
                 override fun onClickTitle() {

@@ -43,8 +43,11 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.semantics.contentDescription
 import androidx.compose.ui.semantics.semantics
+import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import net.matsudamper.money.frontend.common.base.ImmutableList
+import net.matsudamper.money.frontend.common.base.ImmutableList.Companion.toImmutableList
+import net.matsudamper.money.frontend.common.ui.AppRoot
 import net.matsudamper.money.frontend.common.ui.LocalIsLargeScreen
 import net.matsudamper.money.frontend.common.ui.StickyHeaderState
 import net.matsudamper.money.frontend.common.ui.base.DropDownMenuButton
@@ -68,6 +71,7 @@ public data class RootUsageHostScreenUiState(
     val textInputUiState: TextInputUiState?,
     val searchText: String,
     val categoryFilterState: CategoryFilterState,
+    val sortDropdown: DropdownState?,
     val event: Event,
     val kakeboScaffoldListener: KakeboScaffoldListener,
 ) {
@@ -257,6 +261,7 @@ public fun RootUsageHostScreen(
                     CategoryFilterRow(
                         modifier = Modifier.padding(horizontal = 12.dp),
                         categoryFilterState = uiState.categoryFilterState,
+                        sortDropdown = uiState.sortDropdown,
                     )
                     Spacer(modifier = Modifier.height(12.dp))
                 }
@@ -323,28 +328,36 @@ private fun SearchBox(
 @Composable
 private fun CategoryFilterRow(
     categoryFilterState: RootUsageHostScreenUiState.CategoryFilterState,
+    sortDropdown: RootUsageHostScreenUiState.DropdownState?,
     modifier: Modifier = Modifier,
 ) {
-    if (categoryFilterState.categoryDropdown.items.isEmpty()) return
+    val hasCategories = categoryFilterState.categoryDropdown.items.isNotEmpty()
+    if (hasCategories.not() && sortDropdown == null) return
     Row(
         modifier = modifier,
-        horizontalArrangement = Arrangement.End,
     ) {
+        if (hasCategories) {
+            SelectableDropdown(
+                state = categoryFilterState.categoryDropdown,
+            )
+            if (categoryFilterState.subCategoryDropdown.items.isNotEmpty()) {
+                Spacer(modifier = Modifier.width(8.dp))
+                SelectableDropdown(
+                    state = categoryFilterState.subCategoryDropdown,
+                )
+            }
+        }
         Spacer(modifier = Modifier.weight(1f))
-        CategoryDropdown(
-            state = categoryFilterState.categoryDropdown,
-        )
-        if (categoryFilterState.subCategoryDropdown.items.isNotEmpty()) {
-            Spacer(modifier = Modifier.width(8.dp))
-            CategoryDropdown(
-                state = categoryFilterState.subCategoryDropdown,
+        if (sortDropdown != null) {
+            SelectableDropdown(
+                state = sortDropdown,
             )
         }
     }
 }
 
 @Composable
-private fun CategoryDropdown(
+private fun SelectableDropdown(
     state: RootUsageHostScreenUiState.DropdownState,
     modifier: Modifier = Modifier,
 ) {
@@ -634,6 +647,89 @@ private fun Menu(
                 text = {
                     Text(text = "リスト")
                 },
+            )
+        }
+    }
+}
+
+@Composable
+@Preview
+private fun ListPreview() {
+    val noOpDropdownItemEvent = object : RootUsageHostScreenUiState.DropdownItemEvent {
+        override fun onClick() {}
+    }
+    val noOpItemEvent = object : RootUsageListScreenUiState.ItemEvent {
+        override fun onClick() {}
+    }
+    fun dropdownState(selectedLabel: String, names: List<String>) = RootUsageHostScreenUiState.DropdownState(
+        selectedLabel = selectedLabel,
+        items = names.map { name ->
+            RootUsageHostScreenUiState.DropdownItem(
+                name = name,
+                event = noOpDropdownItemEvent,
+            )
+        }.toImmutableList(),
+    )
+    val hostScreenUiState = RootUsageHostScreenUiState(
+        type = RootUsageHostScreenUiState.Type.List,
+        header = RootUsageHostScreenUiState.Header.None,
+        textInputUiState = null,
+        searchText = "",
+        categoryFilterState = RootUsageHostScreenUiState.CategoryFilterState(
+            categoryDropdown = dropdownState("全てのカテゴリ", listOf("全てのカテゴリ", "食費")),
+            subCategoryDropdown = dropdownState("-", listOf()),
+        ),
+        sortDropdown = dropdownState("日時順", listOf("日時順", "追加順")),
+        event = object : RootUsageHostScreenUiState.Event {
+            override suspend fun onViewInitialized() {}
+            override fun onClickCalendar() {}
+            override fun onClickList() {}
+            override fun onClickSearchBox() {}
+            override fun onClickSearchBoxClear() {}
+            override fun onClickAdd() {}
+        },
+        kakeboScaffoldListener = object : KakeboScaffoldListener {
+            override fun onClickTitle() {}
+        },
+    )
+    AppRoot(isDarkTheme = true) {
+        RootUsageHostScreen(
+            uiState = hostScreenUiState,
+            windowInsets = PaddingValues(),
+            stickyHeaderState = StickyHeaderState(enterAlways = false),
+        ) {
+            RootUsageListScreen(
+                modifier = Modifier.fillMaxSize(),
+                uiState = RootUsageListScreenUiState(
+                    event = object : RootUsageListScreenUiState.Event {
+                        override suspend fun onViewInitialized() {}
+                        override fun refresh() {}
+                    },
+                    loadingState = RootUsageListScreenUiState.LoadingState.Loaded(
+                        loadToEnd = true,
+                        items = listOf(
+                            RootUsageListScreenUiState.Item.Title(title = "2026年10月"),
+                            RootUsageListScreenUiState.Item.Usage(
+                                title = "スーパー",
+                                date = "2026/10/03 12:00",
+                                amount = "1,234円",
+                                category = "食費 / 食料品",
+                                event = noOpItemEvent,
+                            ),
+                            RootUsageListScreenUiState.Item.Usage(
+                                title = "コンビニ",
+                                date = "2026/10/02 08:30",
+                                amount = "560円",
+                                category = "食費 / 外食",
+                                event = noOpItemEvent,
+                            ),
+                        ).toImmutableList(),
+                        event = object : RootUsageListScreenUiState.LoadedEvent {
+                            override fun loadMore() {}
+                        },
+                    ),
+                    hostScreenUiState = hostScreenUiState,
+                ),
             )
         }
     }

@@ -139,6 +139,7 @@ class UserResolverImpl : UserResolver {
                             lastId = it.lastId,
                             date = it.lastDate,
                             amount = it.amount,
+                            createdDateTime = it.lastCreatedDateTime,
                         )
                     },
                     sinceDateTime = query.filter?.sinceDateTime,
@@ -154,6 +155,9 @@ class UserResolverImpl : UserResolver {
 
                         QlMoneyUsagesQueryOrderType.AMOUNT ->
                             MoneyUsageRepository.OrderType.AMOUNT
+
+                        QlMoneyUsagesQueryOrderType.CREATED_DATETIME ->
+                            MoneyUsageRepository.OrderType.CREATED_DATETIME
                     },
                 )
             val result = when (results) {
@@ -171,6 +175,7 @@ class UserResolverImpl : UserResolver {
                         lastId = cursor.lastId,
                         lastDate = cursor.date,
                         amount = cursor.amount,
+                        lastCreatedDateTime = cursor.createdDateTime,
                     ).toCursorString()
                 },
                 hasMore = result.ids.isNotEmpty(),
