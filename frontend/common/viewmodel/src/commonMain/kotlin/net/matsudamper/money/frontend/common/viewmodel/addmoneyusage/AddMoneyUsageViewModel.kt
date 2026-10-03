@@ -337,20 +337,20 @@ public class AddMoneyUsageViewModel(
     private fun addMoneyUsage() {
         if (viewModelStateFlow.value.uploadingImageCount > 0) return
 
-        val date = viewModelStateFlow.value.usageDate
+        val submittedState = viewModelStateFlow.value
 
         viewModelScope.launch {
             val result = graphqlApi.addMoneyUsage(
-                title = viewModelStateFlow.value.usageTitle,
-                description = viewModelStateFlow.value.usageDescription,
+                title = submittedState.usageTitle,
+                description = submittedState.usageDescription,
                 datetime = LocalDateTime(
-                    date = date,
-                    time = viewModelStateFlow.value.usageTime,
+                    date = submittedState.usageDate,
+                    time = submittedState.usageTime,
                 ),
-                amount = viewModelStateFlow.value.usageAmount.value,
-                subCategoryId = viewModelStateFlow.value.usageCategorySet?.subCategoryId,
-                importedMailId = viewModelStateFlow.value.importedMailId,
-                imageIds = viewModelStateFlow.value.usageImages
+                amount = submittedState.usageAmount.value,
+                subCategoryId = submittedState.usageCategorySet?.subCategoryId,
+                importedMailId = submittedState.importedMailId,
+                imageIds = submittedState.usageImages
                     .map { it.imageId }
                     .takeIf { it.isNotEmpty() },
             )
@@ -378,12 +378,16 @@ public class AddMoneyUsageViewModel(
                 viewModelStateFlow.update {
                     ViewModelState(
                         usageDate = it.usageDate,
-                        sameDateUsages = it.sameDateUsages + ViewModelState.SameDateUsage(
-                            id = addedUsage.id,
-                            title = it.usageTitle,
-                            amount = it.usageAmount.value,
-                            time = it.usageTime,
-                        ),
+                        sameDateUsages = if (it.usageDate == submittedState.usageDate) {
+                            it.sameDateUsages + ViewModelState.SameDateUsage(
+                                id = addedUsage.id,
+                                title = submittedState.usageTitle,
+                                amount = submittedState.usageAmount.value,
+                                time = submittedState.usageTime,
+                            )
+                        } else {
+                            it.sameDateUsages
+                        },
                     )
                 }
                 val snackbarResult = snackbarEventState.show(
