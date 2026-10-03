@@ -8,7 +8,7 @@ import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.flow.filterNotNull
 import kotlinx.coroutines.flow.first
-import kotlinx.coroutines.flow.flattenMerge
+import kotlinx.coroutines.flow.flatMapLatest
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.mapNotNull
 import kotlinx.coroutines.flow.stateIn
@@ -56,7 +56,7 @@ public class MoneyUsagesListFetchModel(
 
         coroutineScope.launch {
             modelStateFlow.mapNotNull { it.searchText }
-                .map {
+                .flatMapLatest {
                     val state = modelStateFlow.value
                     graphqlClient.apolloClient.query(
                         getCacheQuery(
@@ -69,7 +69,6 @@ public class MoneyUsagesListFetchModel(
                         .fetchPolicy(FetchPolicy.CacheOnly)
                         .watch()
                 }
-                .flattenMerge()
                 .collectLatest { response ->
                     resultsFlow.value = response
                 }
