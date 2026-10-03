@@ -55,14 +55,19 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.style.TextOverflow
+import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.LayoutDirection
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.window.Popup
 import androidx.compose.ui.window.PopupProperties
 import kotlinx.coroutines.delay
+import kotlinx.coroutines.flow.emptyFlow
 import kotlinx.coroutines.isActive
 import kotlinx.coroutines.launch
+import net.matsudamper.money.frontend.common.base.ImmutableList.Companion.toImmutableList
+import net.matsudamper.money.frontend.common.ui.AppRoot
 import net.matsudamper.money.frontend.common.ui.base.KakeBoTopAppBar
+import net.matsudamper.money.frontend.common.ui.base.KakeboScaffoldListener
 import net.matsudamper.money.frontend.common.ui.base.LocalScrollToTopHandler
 import net.matsudamper.money.frontend.common.ui.base.RootScreenScaffold
 import net.matsudamper.money.frontend.common.ui.generated.resources.Res
@@ -729,5 +734,68 @@ private fun MailItem(
                 )
             }
         }
+    }
+}
+
+@Composable
+@Preview
+private fun Preview() {
+    AppRoot(isDarkTheme = false) {
+        ImportedMailListScreen(
+            uiState = ImportedMailListScreenUiState(
+                event = object : ImportedMailListScreenUiState.Event {
+                    override fun onViewInitialized() {}
+                    override fun moreLoading() {}
+                    override fun refresh() {}
+                },
+                filters = ImportedMailListScreenUiState.Filters(
+                    link = ImportedMailListScreenUiState.Filters.Link(
+                        status = ImportedMailListScreenUiState.Filters.LinkStatus.Undefined,
+                        updateState = {},
+                    ),
+                    textSearch = ImportedMailListScreenUiState.Filters.TextSearch(
+                        text = "",
+                        onTextChanged = {},
+                        onSearch = {},
+                    ),
+                    sort = ImportedMailListScreenUiState.Filters.Sort(
+                        type = ImportedMailListScreenUiState.Filters.SortType.AddedOrder,
+                        event = object : ImportedMailListScreenUiState.Filters.SortEvent {
+                            override fun onSelectSortType(type: ImportedMailListScreenUiState.Filters.SortType) {}
+                        },
+                    ),
+                ),
+                loadingState = ImportedMailListScreenUiState.LoadingState.Loaded(
+                    listItems = List(2) { index ->
+                        ImportedMailListScreenUiState.ListItem(
+                            mail = ImportedMailListScreenUiState.ImportedMail(
+                                mailFrom = "example@example.com",
+                                mailSubject = "ご購入ありがとうございます $index",
+                            ),
+                            usages = List(1) {
+                                ImportedMailListScreenUiState.UsageItem(
+                                    title = "サンプル商品",
+                                    service = "サンプルサービス",
+                                    description = "説明",
+                                    amount = "1,000円",
+                                    dateTime = "2024/01/01 12:00",
+                                    category = "食費 / 外食",
+                                )
+                            }.toImmutableList(),
+                            event = object : ImportedMailListScreenUiState.ListItemEvent {
+                                override fun onClickMailDetail() {}
+                                override fun onClick() {}
+                            },
+                        )
+                    }.toImmutableList(),
+                    showLastLoading = false,
+                ),
+                kakeboScaffoldListener = object : KakeboScaffoldListener {
+                    override fun onClickTitle() {}
+                },
+                operation = emptyFlow(),
+            ),
+            windowInsets = PaddingValues(),
+        )
     }
 }
