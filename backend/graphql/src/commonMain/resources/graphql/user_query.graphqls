@@ -33,6 +33,7 @@ input MoneyUsagesQuery {
 enum MoneyUsagesQueryOrderType {
     DATE
     AMOUNT
+    CREATED_DATETIME
 }
 
 input MoneyUsagesQueryFilter {

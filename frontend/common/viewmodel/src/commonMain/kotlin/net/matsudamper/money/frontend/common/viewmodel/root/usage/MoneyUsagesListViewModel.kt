@@ -21,6 +21,7 @@ import net.matsudamper.money.frontend.common.viewmodel.lib.EventSender
 import net.matsudamper.money.frontend.common.viewmodel.lib.Formatter
 import net.matsudamper.money.frontend.graphql.GraphqlClient
 import net.matsudamper.money.frontend.graphql.UsageListScreenPagingQuery
+import net.matsudamper.money.frontend.graphql.type.MoneyUsagesQueryOrderType
 
 public class MoneyUsagesListViewModel(
     scopedObjectFeature: ScopedObjectFeature,
@@ -40,6 +41,7 @@ public class MoneyUsagesListViewModel(
     public val uiStateFlow: StateFlow<RootUsageListScreenUiState> = MutableStateFlow(
         RootUsageListScreenUiState(
             loadingState = RootUsageListScreenUiState.LoadingState.Loading,
+            sortType = viewModelStateFlow.value.sortType,
             hostScreenUiState = rootUsageHostViewModel.uiStateFlow.value,
             event = object : RootUsageListScreenUiState.Event {
                 override suspend fun onViewInitialized() {
@@ -75,6 +77,18 @@ public class MoneyUsagesListViewModel(
                         pagingModel.refresh()
                     }
                 }
+
+                override fun onSortTypeChanged(sortType: RootUsageListScreenUiState.SortType) {
+                    viewModelStateFlow.update {
+                        it.copy(sortType = sortType)
+                    }
+                    pagingModel.changeOrderType(
+                        when (sortType) {
+                            RootUsageListScreenUiState.SortType.Date -> MoneyUsagesQueryOrderType.DATE
+                            RootUsageListScreenUiState.SortType.CreatedDateTime -> MoneyUsagesQueryOrderType.CREATED_DATETIME
+                        },
+                    )
+                }
             },
         ),
     ).also { uiStateFlow ->
@@ -92,10 +106,14 @@ public class MoneyUsagesListViewModel(
             viewModelStateFlow
                 .collectLatest { viewModelState ->
                     val nodes = viewModelState.results?.data?.user?.moneyUsages?.nodes.orEmpty()
+                    val showsMonthTitle = when (viewModelState.sortType) {
+                        RootUsageListScreenUiState.SortType.Date -> true
+                        RootUsageListScreenUiState.SortType.CreatedDateTime -> false
+                    }
                     val items = buildList {
                         var lastMonth: LocalDateTime? = null
                         nodes.forEach { result ->
-                            if (lastMonth == null || lastMonth?.month != result.date.month) {
+                            if (showsMonthTitle && (lastMonth == null || lastMonth?.month != result.date.month)) {
                                 add(
                                     RootUsageListScreenUiState.Item.Title(
                                         title = buildString {
@@ -139,6 +157,7 @@ public class MoneyUsagesListViewModel(
 
                     uiStateFlow.update { uiState ->
                         uiState.copy(
+                            sortType = viewModelState.sortType,
                             loadingState = RootUsageListScreenUiState.LoadingState.Loaded(
                                 loadToEnd = hasMore.not(),
                                 items = items,
@@ -162,5 +181,6 @@ public class MoneyUsagesListViewModel(
 
     private data class ViewModelState(
         val results: ApolloResponse<UsageListScreenPagingQuery.Data>? = null,
+        val sortType: RootUsageListScreenUiState.SortType = RootUsageListScreenUiState.SortType.Date,
     )
 }

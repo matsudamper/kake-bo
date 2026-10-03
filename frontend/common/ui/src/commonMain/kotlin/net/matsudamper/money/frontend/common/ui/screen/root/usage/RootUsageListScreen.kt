@@ -1,9 +1,11 @@
 package net.matsudamper.money.frontend.common.ui.screen.root.usage
 
+import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.BoxWithConstraints
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
+import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.calculateEndPadding
 import androidx.compose.foundation.layout.calculateStartPadding
@@ -18,6 +20,8 @@ import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.material3.Card
 import androidx.compose.material3.CircularProgressIndicator
+import androidx.compose.material3.DropdownMenu
+import androidx.compose.material3.DropdownMenuItem
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.MaterialTheme
@@ -40,14 +44,21 @@ import androidx.compose.ui.unit.dp
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import net.matsudamper.money.frontend.common.base.ImmutableList
+import net.matsudamper.money.frontend.common.ui.base.DropDownMenuButton
 import net.matsudamper.money.frontend.common.ui.base.LocalScrollToTopHandler
 import net.matsudamper.money.frontend.common.ui.layout.GridColumn
 
 public data class RootUsageListScreenUiState(
     val event: Event,
     val loadingState: LoadingState,
+    val sortType: SortType,
     val hostScreenUiState: RootUsageHostScreenUiState,
 ) {
+    public enum class SortType {
+        Date,
+        CreatedDateTime,
+    }
+
     @Immutable
     public sealed interface LoadingState {
         public data object Loading : LoadingState
@@ -88,10 +99,10 @@ public data class RootUsageListScreenUiState(
     public interface Event {
         public suspend fun onViewInitialized()
         public fun refresh()
+        public fun onSortTypeChanged(sortType: SortType)
     }
 }
 
-@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 public fun RootUsageListScreen(
     modifier: Modifier = Modifier,
@@ -100,6 +111,70 @@ public fun RootUsageListScreen(
     LaunchedEffect(Unit) {
         uiState.event.onViewInitialized()
     }
+    Column(modifier = modifier) {
+        SortTypeDropdown(
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(horizontal = 8.dp),
+            sortType = uiState.sortType,
+            onSortTypeChanged = uiState.event::onSortTypeChanged,
+        )
+        UsageList(
+            modifier = Modifier.weight(1f),
+            uiState = uiState,
+        )
+    }
+}
+
+@Composable
+private fun SortTypeDropdown(
+    sortType: RootUsageListScreenUiState.SortType,
+    onSortTypeChanged: (RootUsageListScreenUiState.SortType) -> Unit,
+    modifier: Modifier = Modifier,
+) {
+    var expanded by remember { mutableStateOf(false) }
+    Row(
+        modifier = modifier,
+        horizontalArrangement = Arrangement.End,
+    ) {
+        Box {
+            DropDownMenuButton(
+                onClick = { expanded = true },
+            ) {
+                Text(text = sortType.label)
+            }
+            DropdownMenu(
+                expanded = expanded,
+                onDismissRequest = { expanded = false },
+            ) {
+                RootUsageListScreenUiState.SortType.entries.forEach { item ->
+                    DropdownMenuItem(
+                        onClick = {
+                            expanded = false
+                            onSortTypeChanged(item)
+                        },
+                        text = {
+                            Text(text = item.label)
+                        },
+                    )
+                }
+            }
+        }
+    }
+}
+
+private val RootUsageListScreenUiState.SortType.label: String
+    get() = when (this) {
+        RootUsageListScreenUiState.SortType.Date -> "日時順"
+        RootUsageListScreenUiState.SortType.CreatedDateTime -> "追加順"
+    }
+
+@OptIn(ExperimentalMaterial3Api::class)
+@Composable
+private fun UsageList(
+    uiState: RootUsageListScreenUiState,
+    modifier: Modifier = Modifier,
+) {
     val state = rememberPullToRefreshState()
     val coroutineScope = rememberCoroutineScope()
     var isRefreshing by remember { mutableStateOf(false) }

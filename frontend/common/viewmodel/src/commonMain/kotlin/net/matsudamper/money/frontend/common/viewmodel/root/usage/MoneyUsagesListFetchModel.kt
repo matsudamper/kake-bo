@@ -27,6 +27,7 @@ import net.matsudamper.money.frontend.graphql.GraphqlClient
 import net.matsudamper.money.frontend.graphql.UsageListScreenPagingQuery
 import net.matsudamper.money.frontend.graphql.type.MoneyUsagesQuery
 import net.matsudamper.money.frontend.graphql.type.MoneyUsagesQueryFilter
+import net.matsudamper.money.frontend.graphql.type.MoneyUsagesQueryOrderType
 import net.matsudamper.money.frontend.graphql.updateOperation
 
 public class MoneyUsagesListFetchModel(
@@ -41,6 +42,7 @@ public class MoneyUsagesListFetchModel(
             searchText = it.searchText.orEmpty(),
             categoryId = it.categoryId,
             subCategoryId = it.subCategoryId,
+            orderType = it.orderType,
             cursor = null,
         )
     }.stateIn(coroutineScope, started = SharingStarted.Lazily, initialValue = null)
@@ -61,6 +63,7 @@ public class MoneyUsagesListFetchModel(
                             searchText = it,
                             categoryId = state.categoryId,
                             subCategoryId = state.subCategoryId,
+                            orderType = state.orderType,
                         ),
                     )
                         .fetchPolicy(FetchPolicy.CacheOnly)
@@ -108,6 +111,15 @@ public class MoneyUsagesListFetchModel(
         }
     }
 
+    public fun changeOrderType(orderType: MoneyUsagesQueryOrderType) {
+        if (modelStateFlow.value.orderType == orderType) return
+        modelStateFlow.update {
+            it.copy(
+                orderType = orderType,
+            )
+        }
+    }
+
     public fun refresh() {
         fetchData(isForceRefresh = true)
     }
@@ -123,6 +135,7 @@ public class MoneyUsagesListFetchModel(
                     searchText = searchText,
                     categoryId = state.categoryId,
                     subCategoryId = state.subCategoryId,
+                    orderType = state.orderType,
                 ),
             ) update@{ before ->
                 if (before == null || isForceRefresh) {
@@ -174,6 +187,7 @@ public class MoneyUsagesListFetchModel(
         val searchText: String? = null,
         val categoryId: MoneyUsageCategoryId? = null,
         val subCategoryId: MoneyUsageSubCategoryId? = null,
+        val orderType: MoneyUsagesQueryOrderType = MoneyUsagesQueryOrderType.DATE,
     )
 
     private companion object {
@@ -181,10 +195,12 @@ public class MoneyUsagesListFetchModel(
             searchText: String,
             categoryId: MoneyUsageCategoryId?,
             subCategoryId: MoneyUsageSubCategoryId?,
+            orderType: MoneyUsagesQueryOrderType,
         ) = createQuery(
             searchText = searchText,
             categoryId = categoryId,
             subCategoryId = subCategoryId,
+            orderType = orderType,
             cursor = null,
         )
     }
@@ -194,6 +210,7 @@ private fun createQuery(
     searchText: String,
     categoryId: MoneyUsageCategoryId?,
     subCategoryId: MoneyUsageSubCategoryId?,
+    orderType: MoneyUsagesQueryOrderType,
     cursor: String?,
 ): UsageListScreenPagingQuery {
     return UsageListScreenPagingQuery(
@@ -201,6 +218,7 @@ private fun createQuery(
             cursor = Optional.present(cursor),
             size = 10,
             isAsc = false,
+            orderType = Optional.present(orderType),
             filter = Optional.present(
                 MoneyUsagesQueryFilter(
                     text = Optional.present(searchText),
