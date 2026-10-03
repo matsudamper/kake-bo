@@ -19,6 +19,7 @@ public data class ImportedMailListScreenUiState(
     public data class Filters(
         val link: Link,
         val textSearch: TextSearch,
+        val sort: Sort,
     ) {
         public data class Link(
             val status: LinkStatus,
@@ -30,6 +31,21 @@ public data class ImportedMailListScreenUiState(
             val onTextChanged: (String) -> Unit,
             val onSearch: () -> Unit,
         )
+
+        public data class Sort(
+            val type: SortType,
+            val event: SortEvent,
+        )
+
+        @Immutable
+        public interface SortEvent {
+            public fun onSelectSortType(type: SortType)
+        }
+
+        public enum class SortType {
+            MailDateTime,
+            AddedOrder,
+        }
 
         public enum class LinkStatus {
             Undefined,

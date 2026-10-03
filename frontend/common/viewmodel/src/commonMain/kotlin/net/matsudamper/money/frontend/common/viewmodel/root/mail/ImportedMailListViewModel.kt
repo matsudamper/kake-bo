@@ -20,12 +20,14 @@ import net.matsudamper.money.frontend.common.base.nav.user.ScreenStructure
 import net.matsudamper.money.frontend.common.ui.base.KakeboScaffoldListener
 import net.matsudamper.money.frontend.common.ui.screen.root.mail.ImportedMailListScreenUiState
 import net.matsudamper.money.frontend.common.ui.screen.root.mail.ImportedMailListScreenUiState.Filters.LinkStatus
+import net.matsudamper.money.frontend.common.ui.screen.root.mail.ImportedMailListScreenUiState.Filters.SortType
 import net.matsudamper.money.frontend.common.viewmodel.CommonViewModel
 import net.matsudamper.money.frontend.common.viewmodel.lib.EventHandler
 import net.matsudamper.money.frontend.common.viewmodel.lib.EventSender
 import net.matsudamper.money.frontend.common.viewmodel.lib.Formatter
 import net.matsudamper.money.frontend.graphql.ImportedMailListScreenMailPagingQuery
 import net.matsudamper.money.frontend.graphql.MailLinkScreenGraphqlApi
+import net.matsudamper.money.frontend.graphql.type.ImportedMailSortKey
 
 private const val TAG = "ImportedMailListViewModel"
 
@@ -53,6 +55,14 @@ public class ImportedMailListViewModel(
                     text = "",
                     onTextChanged = { searchInputTextFlow.value = it },
                     onSearch = { searchText() },
+                ),
+                sort = ImportedMailListScreenUiState.Filters.Sort(
+                    type = SortType.MailDateTime,
+                    event = object : ImportedMailListScreenUiState.Filters.SortEvent {
+                        override fun onSelectSortType(type: SortType) {
+                            updateSortType(type)
+                        }
+                    },
                 ),
             ),
             event = object : ImportedMailListScreenUiState.Event {
@@ -132,6 +142,9 @@ public class ImportedMailListViewModel(
                                     false -> LinkStatus.NotLinked
                                 },
                             ),
+                            sort = uiState.filters.sort.copy(
+                                type = viewModelState.mailState.query.sortType,
+                            ),
                         ),
                     )
                 }
@@ -153,7 +166,7 @@ public class ImportedMailListViewModel(
     }.asStateFlow()
 
     public fun updateQuery(screen: ScreenStructure.Root.Add.Imported) {
-        val newQuery = ViewModelState.Query(
+        val newQuery = viewModelStateFlow.value.mailState.query.copy(
             isLinked = screen.isLinked,
             text = screen.text,
         )
@@ -221,6 +234,19 @@ public class ImportedMailListViewModel(
         fetch()
     }
 
+    private fun updateSortType(sortType: SortType) {
+        val currentQuery = viewModelStateFlow.value.mailState.query
+        if (currentQuery.sortType == sortType) return
+        viewModelStateFlow.update {
+            it.copy(
+                mailState = ViewModelState.MailState(
+                    query = currentQuery.copy(sortType = sortType),
+                ),
+            )
+        }
+        fetch()
+    }
+
     private fun createMailEvent(mail: ImportedMailListScreenMailPagingQuery.Node): ImportedMailListScreenUiState.ListItemEvent {
         return object : ImportedMailListScreenUiState.ListItemEvent {
             override fun onClickMailDetail() {
@@ -262,6 +288,10 @@ public class ImportedMailListViewModel(
                             cursor = mailState.cursor,
                             isLinked = mailState.query.isLinked,
                             text = mailState.query.text,
+                            sortedBy = when (mailState.query.sortType) {
+                                SortType.MailDateTime -> ImportedMailSortKey.DATETIME
+                                SortType.AddedOrder -> ImportedMailSortKey.CREATED_DATETIME
+                            },
                         )
                     }
                 }.onFailure {
@@ -306,6 +336,7 @@ public class ImportedMailListViewModel(
         data class Query(
             val isLinked: Boolean? = null,
             val text: String? = null,
+            val sortType: SortType = SortType.MailDateTime,
         )
     }
 }
