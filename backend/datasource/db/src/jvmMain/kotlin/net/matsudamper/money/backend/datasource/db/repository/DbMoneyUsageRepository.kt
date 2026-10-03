@@ -198,8 +198,11 @@ class DbMoneyUsageRepository : MoneyUsageRepository {
                                                 }
 
                                                 MoneyUsageRepository.OrderType.CREATED_DATETIME -> {
+                                                    val lastCreatedDateTime = requireNotNull(cursor.createdDateTime) {
+                                                        "cursor does not contain createdDateTime"
+                                                    }
                                                     DSL.row(jUsage.CREATED_DATETIME, jUsage.MONEY_USAGE_ID)
-                                                        .greaterThan(cursor.createdDateTime!!, cursor.lastId.id)
+                                                        .greaterThan(lastCreatedDateTime, cursor.lastId.id)
                                                 }
                                             }
                                         } else {
@@ -215,8 +218,11 @@ class DbMoneyUsageRepository : MoneyUsageRepository {
                                                 }
 
                                                 MoneyUsageRepository.OrderType.CREATED_DATETIME -> {
+                                                    val lastCreatedDateTime = requireNotNull(cursor.createdDateTime) {
+                                                        "cursor does not contain createdDateTime"
+                                                    }
                                                     DSL.row(jUsage.CREATED_DATETIME, jUsage.MONEY_USAGE_ID)
-                                                        .lessThan(cursor.createdDateTime!!, cursor.lastId.id)
+                                                        .lessThan(lastCreatedDateTime, cursor.lastId.id)
                                                 }
                                             }
                                         }
