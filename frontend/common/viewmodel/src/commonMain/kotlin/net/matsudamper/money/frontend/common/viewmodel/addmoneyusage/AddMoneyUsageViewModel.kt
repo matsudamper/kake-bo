@@ -7,6 +7,8 @@ import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.collectLatest
+import kotlinx.coroutines.flow.distinctUntilChanged
+import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import kotlinx.datetime.LocalDate
@@ -16,6 +18,7 @@ import kotlinx.datetime.TimeZone
 import kotlinx.datetime.todayIn
 import net.matsudamper.money.element.ImageId
 import net.matsudamper.money.element.ImportedMailId
+import net.matsudamper.money.element.MoneyUsageId
 import net.matsudamper.money.element.MoneyUsageSubCategoryId
 import net.matsudamper.money.frontend.common.base.ImmutableList.Companion.toImmutableList
 import net.matsudamper.money.frontend.common.base.Logger
@@ -295,6 +298,34 @@ public class AddMoneyUsageViewModel(
 
     init {
         viewModelScope.launch {
+            viewModelStateFlow
+                .map { it.usageDate }
+                .distinctUntilChanged()
+                .collectLatest { date ->
+                    viewModelStateFlow.update { it.copy(sameDateUsages = listOf()) }
+
+                    val usages = graphqlApi.getSameDateUsages(date)
+                        .onFailure { Logger.e(TAG, it) }
+                        .getOrNull()
+                        ?.data?.user?.moneyUsages?.nodes
+                        .orEmpty()
+                    viewModelStateFlow.update { state ->
+                        state.copy(
+                            sameDateUsages = (
+                                usages.map {
+                                    ViewModelState.SameDateUsage(
+                                        id = it.id,
+                                        title = it.title,
+                                        amount = it.amount,
+                                        time = it.date.time,
+                                    )
+                                } + state.sameDateUsages
+                                ).distinctBy { it.id },
+                        )
+                    }
+                }
+        }
+        viewModelScope.launch {
             categorySelectDialogViewModel.getUiStateFlow().collectLatest { categoryUiState ->
                 viewModelStateFlow.update { viewModelState ->
                     viewModelState.copy(
@@ -308,20 +339,20 @@ public class AddMoneyUsageViewModel(
     private fun addMoneyUsage() {
         if (viewModelStateFlow.value.uploadingImageCount > 0) return
 
-        val date = viewModelStateFlow.value.usageDate
+        val submittedState = viewModelStateFlow.value
 
         viewModelScope.launch {
             val result = graphqlApi.addMoneyUsage(
-                title = viewModelStateFlow.value.usageTitle,
-                description = viewModelStateFlow.value.usageDescription,
+                title = submittedState.usageTitle,
+                description = submittedState.usageDescription,
                 datetime = LocalDateTime(
-                    date = date,
-                    time = viewModelStateFlow.value.usageTime,
+                    date = submittedState.usageDate,
+                    time = submittedState.usageTime,
                 ),
-                amount = viewModelStateFlow.value.usageAmount.value,
-                subCategoryId = viewModelStateFlow.value.usageCategorySet?.subCategoryId,
-                importedMailId = viewModelStateFlow.value.importedMailId,
-                imageIds = viewModelStateFlow.value.usageImages
+                amount = submittedState.usageAmount.value,
+                subCategoryId = submittedState.usageCategorySet?.subCategoryId,
+                importedMailId = submittedState.importedMailId,
+                imageIds = submittedState.usageImages
                     .map { it.imageId }
                     .takeIf { it.isNotEmpty() },
             )
@@ -347,7 +378,21 @@ public class AddMoneyUsageViewModel(
                     }
                 }
                 viewModelStateFlow.update {
-                    ViewModelState(usageDate = it.usageDate)
+                    ViewModelState(
+                        usageDate = it.usageDate,
+                        sameDateUsages = if (it.usageDate == submittedState.usageDate) {
+                            (
+                                it.sameDateUsages + ViewModelState.SameDateUsage(
+                                    id = addedUsage.id,
+                                    title = submittedState.usageTitle,
+                                    amount = submittedState.usageAmount.value,
+                                    time = submittedState.usageTime,
+                                )
+                                ).distinctBy { usage -> usage.id }
+                        } else {
+                            it.sameDateUsages
+                        },
+                    )
                 }
                 val snackbarResult = snackbarEventState.show(
                     SnackbarEventState.Event(
@@ -496,6 +541,7 @@ public class AddMoneyUsageViewModel(
             fullScreenTextInputDialog = null,
             categorySelectDialog = null,
             discardConfirmDialog = null,
+            duplicateCandidateUsages = immutableListOf(),
             numberInputDialog = null,
             category = "",
             event = uiEvent,
@@ -537,11 +583,38 @@ public class AddMoneyUsageViewModel(
                         handleBackPress = viewModelState.hasInputChanges,
                         categorySelectDialog = viewModelState.categorySelectDialog,
                         discardConfirmDialog = viewModelState.discardConfirmDialog,
+                        duplicateCandidateUsages = viewModelState.sameDateUsages
+                            .filter { usage -> isDuplicateCandidate(usage = usage, viewModelState = viewModelState) }
+                            .map { usage ->
+                                AddMoneyUsageScreenUiState.DuplicateCandidateUsage(
+                                    time = Formatter.formatTime(usage.time),
+                                    title = usage.title,
+                                    amount = "${usage.amount}円",
+                                    listener = object : AddMoneyUsageScreenUiState.DuplicateCandidateUsage.Listener {
+                                        override fun onClick() {
+                                            viewModelScope.launch {
+                                                eventSender.send { it.navigate(ScreenStructure.MoneyUsage(usage.id)) }
+                                            }
+                                        }
+                                    },
+                                )
+                            }.toImmutableList(),
                     )
                 }
             }
         }
     }.asStateFlow()
+
+    private fun isDuplicateCandidate(
+        usage: ViewModelState.SameDateUsage,
+        viewModelState: ViewModelState,
+    ): Boolean {
+        val isSameTime = usage.time.hour == viewModelState.usageTime.hour &&
+            usage.time.minute == viewModelState.usageTime.minute
+        val isSameTitle = viewModelState.usageTitle.isNotBlank() && usage.title == viewModelState.usageTitle
+        val isSameAmount = viewModelState.usageAmount.value != 0 && usage.amount == viewModelState.usageAmount.value
+        return isSameTime || isSameTitle || isSameAmount
+    }
 
     public interface Event {
         public suspend fun selectImages(): List<SelectedImage>
@@ -567,7 +640,9 @@ public class AddMoneyUsageViewModel(
         val usageCategorySet: CategorySelectDialogViewModel.SelectedResult? = null,
         val hasInputChanges: Boolean = false,
         val discardConfirmDialog: AddMoneyUsageScreenUiState.DiscardConfirmDialog? = null,
+        val sameDateUsages: List<SameDateUsage> = listOf(),
     ) {
+        data class SameDateUsage(val id: MoneyUsageId, val title: String, val amount: Int, val time: LocalTime)
         data class UploadedImage(val imageId: ImageId, val url: String)
     }
 }

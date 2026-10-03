@@ -1,6 +1,10 @@
 package net.matsudamper.money.frontend.common.viewmodel.addmoneyusage
 
+import kotlinx.datetime.DateTimeUnit
+import kotlinx.datetime.LocalDate
 import kotlinx.datetime.LocalDateTime
+import kotlinx.datetime.LocalTime
+import kotlinx.datetime.plus
 import com.apollographql.apollo.api.ApolloResponse
 import com.apollographql.apollo.api.Optional
 import com.apollographql.apollo.cache.normalized.FetchPolicy
@@ -13,10 +17,14 @@ import net.matsudamper.money.frontend.common.base.Logger
 import net.matsudamper.money.frontend.graphql.AddMoneyUsageMutation
 import net.matsudamper.money.frontend.graphql.AddMoneyUsageScreenGetSubCategoryQuery
 import net.matsudamper.money.frontend.graphql.AddMoneyUsageScreenQuery
+import net.matsudamper.money.frontend.graphql.AddMoneyUsageScreenSameDateUsagesQuery
 import net.matsudamper.money.frontend.graphql.GraphqlClient
 import net.matsudamper.money.frontend.graphql.type.AddUsageQuery
+import net.matsudamper.money.frontend.graphql.type.MoneyUsagesQuery
+import net.matsudamper.money.frontend.graphql.type.MoneyUsagesQueryFilter
 
 private const val TAG = "AddMoneyUsageScreenApi"
+private const val SAME_DATE_USAGES_SIZE = 100
 
 public class AddMoneyUsageScreenApi(
     private val graphqlClient: GraphqlClient,
@@ -81,6 +89,30 @@ public class AddMoneyUsageScreenApi(
                 .query(
                     AddMoneyUsageScreenGetSubCategoryQuery(
                         subCategoryId = subCategoryId,
+                    ),
+                )
+                .fetchPolicy(FetchPolicy.NetworkOnly)
+                .execute()
+        }
+    }
+
+    public suspend fun getSameDateUsages(date: LocalDate): Result<ApolloResponse<AddMoneyUsageScreenSameDateUsagesQuery.Data>> {
+        val sinceDateTime = LocalDateTime(date, LocalTime(0, 0))
+        val untilDateTime = LocalDateTime(date.plus(1, DateTimeUnit.DAY), LocalTime(0, 0))
+        return runCatching {
+            graphqlClient.apolloClient
+                .query(
+                    AddMoneyUsageScreenSameDateUsagesQuery(
+                        query = MoneyUsagesQuery(
+                            size = SAME_DATE_USAGES_SIZE,
+                            isAsc = true,
+                            filter = Optional.present(
+                                MoneyUsagesQueryFilter(
+                                    sinceDateTime = Optional.present(sinceDateTime),
+                                    untilDateTime = Optional.present(untilDateTime),
+                                ),
+                            ),
+                        ),
                     ),
                 )
                 .fetchPolicy(FetchPolicy.NetworkOnly)

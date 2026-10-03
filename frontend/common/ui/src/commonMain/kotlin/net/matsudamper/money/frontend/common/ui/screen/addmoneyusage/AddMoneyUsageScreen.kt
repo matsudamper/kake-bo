@@ -20,6 +20,8 @@ import androidx.compose.foundation.layout.windowInsetsPadding
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.Button
+import androidx.compose.material3.Card
+import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
@@ -82,6 +84,7 @@ public data class AddMoneyUsageScreenUiState(
     val fullScreenTextInputDialog: FullScreenTextInputDialog?,
     val categorySelectDialog: CategorySelectDialogUiState?,
     val discardConfirmDialog: DiscardConfirmDialog?,
+    val duplicateCandidateUsages: ImmutableList<DuplicateCandidateUsage>,
     val date: String,
     val time: String,
     val title: String,
@@ -102,6 +105,18 @@ public data class AddMoneyUsageScreenUiState(
         public interface Listener {
             public fun onClickDiscard()
             public fun onClickCancel()
+        }
+    }
+
+    public data class DuplicateCandidateUsage(
+        val time: String,
+        val title: String,
+        val amount: String,
+        val listener: Listener,
+    ) {
+        @Immutable
+        public interface Listener {
+            public fun onClick()
         }
     }
 
@@ -269,6 +284,13 @@ public fun AddMoneyUsageScreen(
                 horizontalAlignment = Alignment.CenterHorizontally,
             ) {
                 Spacer(Modifier.height(24.dp))
+                if (uiState.duplicateCandidateUsages.isNotEmpty()) {
+                    DuplicateCandidateUsageNotice(
+                        modifier = Modifier.fillMaxWidth(),
+                        usages = uiState.duplicateCandidateUsages,
+                    )
+                    Spacer(Modifier.height(12.dp))
+                }
                 Section(
                     title = {
                         Text("日付")
@@ -453,6 +475,32 @@ public fun AddMoneyUsageScreen(
 }
 
 @Composable
+private fun DuplicateCandidateUsageNotice(
+    usages: ImmutableList<AddMoneyUsageScreenUiState.DuplicateCandidateUsage>,
+    modifier: Modifier = Modifier,
+) {
+    Card(
+        modifier = modifier,
+        colors = CardDefaults.cardColors(
+            containerColor = MaterialTheme.colorScheme.tertiaryContainer,
+            contentColor = MaterialTheme.colorScheme.onTertiaryContainer,
+        ),
+    ) {
+        Column(Modifier.padding(12.dp)) {
+            Text(
+                text = "同じ日付に似た使用履歴が追加済みです",
+                style = MaterialTheme.typography.titleSmall,
+            )
+            usages.forEach { usage ->
+                TextButton(onClick = { usage.listener.onClick() }) {
+                    Text("${usage.time} ${usage.title} ${usage.amount}")
+                }
+            }
+        }
+    }
+}
+
+@Composable
 private fun NumberInputDialog(
     value: NumberInputValue,
     onChangeValue: (NumberInputValue) -> Unit,
@@ -511,6 +559,18 @@ private fun AddMoneyUsageScreenPreview() {
                 fullScreenTextInputDialog = null,
                 categorySelectDialog = null,
                 discardConfirmDialog = null,
+                duplicateCandidateUsages = ImmutableList(
+                    listOf(
+                        AddMoneyUsageScreenUiState.DuplicateCandidateUsage(
+                            time = "12:30",
+                            title = "スーパーマーケット",
+                            amount = "3500円",
+                            listener = object : AddMoneyUsageScreenUiState.DuplicateCandidateUsage.Listener {
+                                override fun onClick() = Unit
+                            },
+                        ),
+                    ),
+                ),
                 date = "2026/02/26",
                 time = "12:30",
                 title = "スーパーマーケット",
