@@ -41,6 +41,7 @@ interface MoneyUsageRepository {
     enum class OrderType {
         DATE,
         AMOUNT,
+        CREATED_DATETIME,
     }
 
     fun getMoneyUsage(
@@ -98,6 +99,7 @@ interface MoneyUsageRepository {
             val lastId: MoneyUsageId,
             val date: LocalDateTime?,
             val amount: Int?,
+            val createdDateTime: LocalDateTime?,
         )
     }
 }
