@@ -12,20 +12,20 @@ internal object MailBodyTextBuilder {
     private const val LINE_BREAK_MARKER = "[[LINE_BREAK]]"
 
     /**
-     * 巨大なHTMLをそのままDOMに展開するとメモリと時間を大きく消費するため、解析前に切り詰める長さ。
-     * タグや装飾を除くと本文は大きく縮むので、送信上限よりも十分大きくしておく。
+     * 巨大な本文をそのまま正規化やDOM展開するとメモリと時間を大きく消費するため、処理前に切り詰める長さ。
+     * 空白やタグを除くと本文は大きく縮むので、送信上限よりも十分大きくしておく。
      */
-    private const val MAX_HTML_SOURCE_LENGTH = 1_000_000
+    private const val MAX_SOURCE_LENGTH = 1_000_000
 
     fun build(
         input: AiMailParseInput,
         maxBodyLength: Int,
     ): String {
-        val plainText = input.plain?.let { normalizeWhitespace(it) }.orEmpty()
+        val plainText = input.plain?.let { normalizeWhitespace(it.take(MAX_SOURCE_LENGTH)) }.orEmpty()
         val truncatedPlain = plainText.take(maxBodyLength)
         val remainingLength = maxBodyLength - truncatedPlain.length
         val htmlText = if (remainingLength > 0) {
-            input.html?.let { htmlToText(it.take(MAX_HTML_SOURCE_LENGTH)) }.orEmpty()
+            input.html?.let { htmlToText(it.take(MAX_SOURCE_LENGTH)) }.orEmpty()
         } else {
             ""
         }
