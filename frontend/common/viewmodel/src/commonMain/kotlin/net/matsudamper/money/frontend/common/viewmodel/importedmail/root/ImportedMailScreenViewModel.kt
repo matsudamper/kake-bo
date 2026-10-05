@@ -318,11 +318,13 @@ public class ImportedMailScreenViewModel(
     }
 
     /**
-     * 一時的な通信失敗で実行中の判定が外れるとポーリングが止まるため、成功した結果だけを反映する
+     * 一時的な取得失敗で実行中の判定が外れるとポーリングが止まるため、メールを取得できた結果だけを反映する
      */
     private suspend fun fetchAiParseResult() {
         val result = api.get(id = importedMailId)
-        if (result.isFailure) return
+        val response = result.getOrNull() ?: return
+        if (response.hasErrors()) return
+        if (response.data?.user?.importedMailAttributes?.mail == null) return
 
         viewModelStateFlow.update { viewModelState ->
             viewModelState.copy(
