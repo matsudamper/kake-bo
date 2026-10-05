@@ -130,6 +130,8 @@ graalvmNative {
                 "--features=" + listOf(
                     "net.matsudamper.money.backend.graalvm.GraphqlReflectionFeature",
                     "net.matsudamper.money.backend.graalvm.JooqRecordReflectionFeature",
+                    "net.matsudamper.money.backend.graalvm.GraphqlResolverReflectionFeature",
+                    "net.matsudamper.money.backend.graalvm.SharedElementReflectionFeature",
                 ).joinToString(","),
             )
             javaLauncher.set(graalVmLauncher)
