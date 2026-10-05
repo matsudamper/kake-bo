@@ -19,6 +19,7 @@ import net.matsudamper.money.db.schema.tables.JMoneyUsageSubCategories
 import net.matsudamper.money.db.schema.tables.JMoneyUsages
 import net.matsudamper.money.db.schema.tables.JMoneyUsagesMailsRelation
 import net.matsudamper.money.db.schema.tables.JUserImages
+import net.matsudamper.money.db.schema.tables.JUserGeminiSettings
 import net.matsudamper.money.db.schema.tables.JUserImapSettings
 import net.matsudamper.money.db.schema.tables.JUserMails
 import net.matsudamper.money.db.schema.tables.JUserPasswordExtendData
@@ -41,6 +42,7 @@ import net.matsudamper.money.db.schema.tables.records.JMoneyUsageSubCategoriesRe
 import net.matsudamper.money.db.schema.tables.records.JMoneyUsagesMailsRelationRecord
 import net.matsudamper.money.db.schema.tables.records.JMoneyUsagesRecord
 import net.matsudamper.money.db.schema.tables.records.JUserImagesRecord
+import net.matsudamper.money.db.schema.tables.records.JUserGeminiSettingsRecord
 import net.matsudamper.money.db.schema.tables.records.JUserImapSettingsRecord
 import net.matsudamper.money.db.schema.tables.records.JUserMailsRecord
 import net.matsudamper.money.db.schema.tables.records.JUserPasswordExtendDataRecord
@@ -78,6 +80,7 @@ val KEY_MONEY_USAGES_MAILS_RELATION_PRIMARY: UniqueKey<JMoneyUsagesMailsRelation
 val KEY_USER_IMAGES_IMAGE_PATH_UNIQUE: UniqueKey<JUserImagesRecord> = Internal.createUniqueKey(JUserImages.USER_IMAGES, DSL.name("KEY_user_images_image_path_unique"), arrayOf(JUserImages.USER_IMAGES.IMAGE_PATH), true)
 val KEY_USER_IMAGES_PRIMARY: UniqueKey<JUserImagesRecord> = Internal.createUniqueKey(JUserImages.USER_IMAGES, DSL.name("KEY_user_images_PRIMARY"), arrayOf(JUserImages.USER_IMAGES.USER_IMAGE_ID), true)
 val KEY_USER_IMAGES_USER_IMAGE_DISPLAY_ID_UNIQUE: UniqueKey<JUserImagesRecord> = Internal.createUniqueKey(JUserImages.USER_IMAGES, DSL.name("KEY_user_images_user_image_display_id_unique"), arrayOf(JUserImages.USER_IMAGES.DISPLAY_ID), true)
+val KEY_USER_GEMINI_SETTINGS_PRIMARY: UniqueKey<JUserGeminiSettingsRecord> = Internal.createUniqueKey(JUserGeminiSettings.USER_GEMINI_SETTINGS, DSL.name("KEY_user_gemini_settings_PRIMARY"), arrayOf(JUserGeminiSettings.USER_GEMINI_SETTINGS.USER_ID), true)
 val KEY_USER_IMAP_SETTINGS_PRIMARY: UniqueKey<JUserImapSettingsRecord> = Internal.createUniqueKey(JUserImapSettings.USER_IMAP_SETTINGS, DSL.name("KEY_user_imap_settings_PRIMARY"), arrayOf(JUserImapSettings.USER_IMAP_SETTINGS.USER_ID), true)
 val KEY_USER_MAILS_PRIMARY: UniqueKey<JUserMailsRecord> = Internal.createUniqueKey(JUserMails.USER_MAILS, DSL.name("KEY_user_mails_PRIMARY"), arrayOf(JUserMails.USER_MAILS.USER_MAIL_ID), true)
 val KEY_USER_PASSWORD_EXTEND_DATA_PRIMARY: UniqueKey<JUserPasswordExtendDataRecord> = Internal.createUniqueKey(JUserPasswordExtendData.USER_PASSWORD_EXTEND_DATA, DSL.name("KEY_user_password_extend_data_PRIMARY"), arrayOf(JUserPasswordExtendData.USER_PASSWORD_EXTEND_DATA.USER_ID), true)
