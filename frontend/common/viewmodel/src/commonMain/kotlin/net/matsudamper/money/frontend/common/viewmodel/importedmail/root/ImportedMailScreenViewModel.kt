@@ -318,22 +318,23 @@ public class ImportedMailScreenViewModel(
     }
 
     /**
-     * 一時的な取得失敗で実行中の判定が外れるとポーリングが止まるため、メールを取得できた結果だけを反映する
+     * 一時的な取得失敗で実行中の判定が外れるとポーリングが止まるため、有効な応答だけを反映する
      */
     private suspend fun fetchAiParseResult() {
         val result = api.get(id = importedMailId)
-        if (result.hasMail().not()) return
+        if (result.isValidResponse().not()) return
 
         viewModelStateFlow.update { viewModelState ->
-            val updated = viewModelState.copy(
+            viewModelState.copy(
                 apolloResponse = result,
                 isAwaitingAiParseResult = false,
+                // 開始結果が不明だった場合も、サーバーの状態を取得できたのでそちらの表示に任せる
+                aiParseStartErrorMessage = if (viewModelState.isAwaitingAiParseResult) {
+                    null
+                } else {
+                    viewModelState.aiParseStartErrorMessage
+                },
             )
-            if (updated.shouldPollAiParseResult()) {
-                updated.copy(aiParseStartErrorMessage = null)
-            } else {
-                updated
-            }
         }
     }
 
@@ -343,7 +344,7 @@ public class ImportedMailScreenViewModel(
         viewModelStateFlow.update { viewModelState ->
             viewModelState.copy(
                 apolloResponse = result,
-                isAwaitingAiParseResult = if (result.hasMail()) {
+                isAwaitingAiParseResult = if (result.isValidResponse()) {
                     false
                 } else {
                     viewModelState.shouldPollAiParseResult()
@@ -352,10 +353,13 @@ public class ImportedMailScreenViewModel(
         }
     }
 
-    private fun Result<ApolloResponse<ImportedMailScreenQuery.Data>>.hasMail(): Boolean {
+    /**
+     * メールが削除されている場合も mail = null の正常な応答になるため、mail の有無では判定しない
+     */
+    private fun Result<ApolloResponse<ImportedMailScreenQuery.Data>>.isValidResponse(): Boolean {
         val response = getOrNull() ?: return false
         if (response.hasErrors()) return false
-        return response.data?.user?.importedMailAttributes?.mail != null
+        return response.data?.user?.importedMailAttributes != null
     }
 
     private fun startAiParse() {
@@ -378,10 +382,14 @@ public class ImportedMailScreenViewModel(
                 }
 
                 ImportedMailScreenGraphqlApi.StartAiParseResult.Failure -> {
+                    viewModelStateFlow.update { it.copy(aiParseStartErrorMessage = "解析を開始できませんでした") }
+                }
+
+                ImportedMailScreenGraphqlApi.StartAiParseResult.Unknown -> {
                     // 応答だけを受け取れずサーバー側では開始している場合があるため、状態を取得できるまで確認する
                     viewModelStateFlow.update {
                         it.copy(
-                            aiParseStartErrorMessage = "解析を開始できませんでした",
+                            aiParseStartErrorMessage = "通信に失敗しました。解析状態を確認しています",
                             isAwaitingAiParseResult = true,
                         )
                     }

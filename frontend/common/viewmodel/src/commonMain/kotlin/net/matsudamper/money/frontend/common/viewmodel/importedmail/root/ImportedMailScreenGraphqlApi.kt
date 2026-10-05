@@ -45,7 +45,7 @@ public class ImportedMailScreenGraphqlApi(
                 onSuccess = { response ->
                     val result = response.data?.userMutation?.startImportedMailAiParse
                     when {
-                        result == null -> StartAiParseResult.Failure
+                        result == null -> StartAiParseResult.Unknown
                         result.isSuccess -> StartAiParseResult.Success
                         else -> when (result.error) {
                             StartImportedMailAiParseError.ApiKeyNotSet -> StartAiParseResult.ApiKeyNotSet
@@ -58,7 +58,7 @@ public class ImportedMailScreenGraphqlApi(
                         }
                     }
                 },
-                onFailure = { StartAiParseResult.Failure },
+                onFailure = { StartAiParseResult.Unknown },
             )
         }
     }
@@ -87,5 +87,10 @@ public class ImportedMailScreenGraphqlApi(
         public data object MailNotFound : StartAiParseResult
 
         public data object Failure : StartAiParseResult
+
+        /**
+         * 通信失敗などで、サーバー側で開始されたかどうか分からない
+         */
+        public data object Unknown : StartAiParseResult
     }
 }
