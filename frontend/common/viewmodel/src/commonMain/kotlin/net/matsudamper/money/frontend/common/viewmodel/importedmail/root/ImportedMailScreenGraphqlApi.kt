@@ -50,7 +50,7 @@ public class ImportedMailScreenGraphqlApi(
                         else -> when (result.error) {
                             StartImportedMailAiParseError.ApiKeyNotSet -> StartAiParseResult.ApiKeyNotSet
                             StartImportedMailAiParseError.AlreadyRunning -> StartAiParseResult.AlreadyRunning
-                            StartImportedMailAiParseError.MailNotFound,
+                            StartImportedMailAiParseError.MailNotFound -> StartAiParseResult.MailNotFound
                             StartImportedMailAiParseError.InternalServerError,
                             StartImportedMailAiParseError.UNKNOWN__,
                             null,
@@ -83,6 +83,8 @@ public class ImportedMailScreenGraphqlApi(
         public data object ApiKeyNotSet : StartAiParseResult
 
         public data object AlreadyRunning : StartAiParseResult
+
+        public data object MailNotFound : StartAiParseResult
 
         public data object Failure : StartAiParseResult
     }

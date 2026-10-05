@@ -373,6 +373,10 @@ public class ImportedMailScreenViewModel(
                     viewModelStateFlow.update { it.copy(aiParseStartErrorMessage = "Gemini APIキーが設定されていません。設定画面から登録してください") }
                 }
 
+                ImportedMailScreenGraphqlApi.StartAiParseResult.MailNotFound -> {
+                    viewModelStateFlow.update { it.copy(aiParseStartErrorMessage = "メールが見つかりませんでした") }
+                }
+
                 ImportedMailScreenGraphqlApi.StartAiParseResult.Failure -> {
                     // 応答だけを受け取れずサーバー側では開始している場合があるため、状態を取得できるまで確認する
                     viewModelStateFlow.update {
