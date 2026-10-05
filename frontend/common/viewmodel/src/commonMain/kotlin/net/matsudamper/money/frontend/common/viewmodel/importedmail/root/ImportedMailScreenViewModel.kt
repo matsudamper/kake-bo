@@ -305,7 +305,7 @@ public class ImportedMailScreenViewModel(
                     if (isAiParseRunning.not()) return@collectLatest
                     while (true) {
                         delay(AI_PARSE_POLLING_INTERVAL_MILLIS)
-                        fetchAndUpdate()
+                        fetchAiParseResult()
                     }
                 }
         }
@@ -314,6 +314,20 @@ public class ImportedMailScreenViewModel(
     private fun fetch() {
         viewModelScope.launch {
             fetchAndUpdate()
+        }
+    }
+
+    /**
+     * 一時的な通信失敗で実行中の判定が外れるとポーリングが止まるため、成功した結果だけを反映する
+     */
+    private suspend fun fetchAiParseResult() {
+        val result = api.get(id = importedMailId)
+        if (result.isFailure) return
+
+        viewModelStateFlow.update { viewModelState ->
+            viewModelState.copy(
+                apolloResponse = result,
+            )
         }
     }
 
