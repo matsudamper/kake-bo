@@ -13,7 +13,6 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.CircularProgressIndicator
-import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.Immutable
@@ -45,18 +44,7 @@ public data class ImapSettingScreenUiState(
 
         public data class Loaded(
             val imapConfig: ImapConfig,
-            val aiConfig: AiConfig,
         ) : LoadingState
-    }
-
-    public data class AiConfig(
-        val geminiApiKey: String,
-        val event: Event,
-    ) {
-        @Immutable
-        public interface Event {
-            public fun onClickChangeGeminiApiKey()
-        }
     }
 
     public data class ImapConfig(
@@ -181,39 +169,12 @@ private fun MainContent(
             )
         },
     ) { paddingValues ->
-        Column(
+        SettingElementContent(
             modifier = Modifier.fillMaxWidth()
                 .padding(paddingValues)
                 .padding(vertical = 24.dp),
-        ) {
-            SettingElementContent(
-                modifier = Modifier.fillMaxWidth(),
-                uiState = uiState.imapConfig,
-            )
-            Spacer(Modifier.height(32.dp))
-            Text(
-                text = "AI設定",
-                style = MaterialTheme.typography.titleLarge,
-            )
-            Spacer(Modifier.height(14.dp))
-            SettingsChangeTextSection(
-                title = {
-                    Text("Gemini API Key")
-                },
-                text = {
-                    Text(
-                        text = uiState.aiConfig.geminiApiKey,
-                        fontFamily = rememberCustomFontFamily(),
-                    )
-                },
-                onClickChange = { uiState.aiConfig.event.onClickChangeGeminiApiKey() },
-            )
-            Spacer(Modifier.height(8.dp))
-            Text(
-                text = "メール画面のAI解析に使用します。空で保存すると削除します",
-                style = MaterialTheme.typography.bodySmall,
-            )
-        }
+            uiState = uiState.imapConfig,
+        )
     }
 }
 
@@ -295,12 +256,6 @@ private fun ImapConfigScreenPreview() {
                             override fun onClickChangeUserName() {}
                             override fun onClickChangePort() {}
                             override fun onClickChangePassword() {}
-                        },
-                    ),
-                    aiConfig = ImapSettingScreenUiState.AiConfig(
-                        geminiApiKey = "****************",
-                        event = object : ImapSettingScreenUiState.AiConfig.Event {
-                            override fun onClickChangeGeminiApiKey() {}
                         },
                     ),
                 ),

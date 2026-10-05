@@ -97,6 +97,7 @@ private fun UrlPlaceHolderParser.ScreenState<Screens>.toScreenStructure(queryPar
         Screens.Api -> ScreenStructure.Root.Settings.Api
         Screens.SettingsImap -> ScreenStructure.Root.Settings.Imap
         Screens.SettingsTimezone -> ScreenStructure.Root.Settings.Timezone
+        Screens.SettingsAi -> ScreenStructure.Root.Settings.Ai
         Screens.SettingsCategory -> ScreenStructure.Root.Settings.Categories
         Screens.SettingsCategoryId ->
             ScreenStructure.Root.Settings.Category(
