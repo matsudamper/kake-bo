@@ -322,14 +322,12 @@ public class ImportedMailScreenViewModel(
      */
     private suspend fun fetchAiParseResult() {
         val result = api.get(id = importedMailId)
-        val response = result.getOrNull() ?: return
-        if (response.hasErrors()) return
-        if (response.data?.user?.importedMailAttributes?.mail == null) return
+        if (result.hasMail().not()) return
 
         viewModelStateFlow.update { viewModelState ->
             viewModelState.copy(
                 apolloResponse = result,
-                isAiParseStartAccepted = false,
+                isAwaitingAiParseResult = false,
             )
         }
     }
@@ -340,8 +338,19 @@ public class ImportedMailScreenViewModel(
         viewModelStateFlow.update { viewModelState ->
             viewModelState.copy(
                 apolloResponse = result,
+                isAwaitingAiParseResult = if (result.hasMail()) {
+                    false
+                } else {
+                    viewModelState.shouldPollAiParseResult()
+                },
             )
         }
+    }
+
+    private fun Result<ApolloResponse<ImportedMailScreenQuery.Data>>.hasMail(): Boolean {
+        val response = getOrNull() ?: return false
+        if (response.hasErrors()) return false
+        return response.data?.user?.importedMailAttributes?.mail != null
     }
 
     private fun startAiParse() {
@@ -351,7 +360,7 @@ public class ImportedMailScreenViewModel(
                 ImportedMailScreenGraphqlApi.StartAiParseResult.Success,
                 ImportedMailScreenGraphqlApi.StartAiParseResult.AlreadyRunning,
                 -> {
-                    viewModelStateFlow.update { it.copy(isAiParseStartAccepted = true) }
+                    viewModelStateFlow.update { it.copy(isAwaitingAiParseResult = true) }
                     fetchAiParseResult()
                 }
 
@@ -450,12 +459,12 @@ public class ImportedMailScreenViewModel(
         val urlMenuDialog: MailScreenUiState.UrlMenuDialog? = null,
         val aiParseStartErrorMessage: String? = null,
         /**
-         * 解析開始を受け付けた後、実行中の状態を取得できるまでの間もポーリングを続けるために保持する
+         * 解析開始の受付後や、実行中に取得が失敗した後は apolloResponse から実行中を判定できないため、ポーリングを続ける根拠として保持する
          */
-        val isAiParseStartAccepted: Boolean = false,
+        val isAwaitingAiParseResult: Boolean = false,
     ) {
         fun shouldPollAiParseResult(): Boolean {
-            return isAiParseStartAccepted || isAiParseRunning()
+            return isAwaitingAiParseResult || isAiParseRunning()
         }
 
         private fun isAiParseRunning(): Boolean {
