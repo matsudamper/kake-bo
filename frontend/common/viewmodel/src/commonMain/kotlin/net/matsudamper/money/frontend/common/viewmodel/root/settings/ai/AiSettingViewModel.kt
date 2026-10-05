@@ -21,17 +21,11 @@ public class AiSettingViewModel(
 ) : CommonViewModel(scopedObjectFeature) {
     private val viewModelStateFlow = MutableStateFlow(ViewModelState())
 
-    private val errorDialogEvent = object : AiSettingScreenUiState.ErrorDialog.Event {
-        override fun onDismiss() {
-            viewModelStateFlow.update { it.copy(errorMessage = null) }
-        }
-    }
-
     public val uiStateFlow: StateFlow<AiSettingScreenUiState> = MutableStateFlow(
         AiSettingScreenUiState(
             loadingState = AiSettingScreenUiState.LoadingState.Loading,
             isGeminiApiKeyInputVisible = false,
-            errorDialog = null,
+            geminiApiKeyInputErrorMessage = null,
             kakeboScaffoldListener = object : KakeboScaffoldListener {
                 override fun onClickTitle() {
                     navController.navigateToHome()
@@ -59,7 +53,12 @@ public class AiSettingViewModel(
                 }
 
                 override fun onCancelGeminiApiKeyInput() {
-                    viewModelStateFlow.update { it.copy(isGeminiApiKeyInputVisible = false) }
+                    viewModelStateFlow.update {
+                        it.copy(
+                            isGeminiApiKeyInputVisible = false,
+                            geminiApiKeyInputErrorMessage = null,
+                        )
+                    }
                 }
             },
         ),
@@ -76,12 +75,7 @@ public class AiSettingViewModel(
                             )
                         },
                         isGeminiApiKeyInputVisible = viewModelState.isGeminiApiKeyInputVisible,
-                        errorDialog = viewModelState.errorMessage?.let { errorMessage ->
-                            AiSettingScreenUiState.ErrorDialog(
-                                message = errorMessage,
-                                event = errorDialogEvent,
-                            )
-                        },
+                        geminiApiKeyInputErrorMessage = viewModelState.geminiApiKeyInputErrorMessage,
                     )
                 }
             }
@@ -116,13 +110,14 @@ public class AiSettingViewModel(
                 .getOrNull()
                 ?.data?.userMutation?.settingsMutation?.updateGeminiApiKey
             if (aiConfig == null) {
-                viewModelStateFlow.update { it.copy(errorMessage = "Gemini API Keyの更新に失敗しました") }
+                viewModelStateFlow.update { it.copy(geminiApiKeyInputErrorMessage = "Gemini API Keyの更新に失敗しました") }
                 return@launch
             }
             viewModelStateFlow.update {
                 it.copy(
                     hasGeminiApiKey = aiConfig.hasGeminiApiKey,
                     isGeminiApiKeyInputVisible = false,
+                    geminiApiKeyInputErrorMessage = null,
                 )
             }
         }
@@ -131,7 +126,7 @@ public class AiSettingViewModel(
     private data class ViewModelState(
         val hasGeminiApiKey: Boolean = false,
         val isGeminiApiKeyInputVisible: Boolean = false,
-        val errorMessage: String? = null,
+        val geminiApiKeyInputErrorMessage: String? = null,
         val loadingState: LoadingState = LoadingState.Loading,
     ) {
         enum class LoadingState {

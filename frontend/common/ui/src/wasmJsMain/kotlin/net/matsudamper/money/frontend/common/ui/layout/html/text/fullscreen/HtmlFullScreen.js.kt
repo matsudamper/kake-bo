@@ -40,6 +40,7 @@ public actual fun FullScreenTextInput(
     inputType: TextFieldType,
     isMultiline: Boolean,
     autocomplete: String?,
+    errorMessage: String?,
 ) {
     var text by remember { mutableStateOf(default) }
     Dialog(onDismissRequest = canceled) {
@@ -76,6 +77,14 @@ public actual fun FullScreenTextInput(
                         )
                     },
                 )
+                if (errorMessage != null) {
+                    Spacer(modifier = Modifier.height(8.dp))
+                    Text(
+                        text = errorMessage,
+                        color = MaterialTheme.colorScheme.error,
+                        style = MaterialTheme.typography.bodyMedium,
+                    )
+                }
                 Spacer(modifier = Modifier.height(24.dp))
                 Row(
                     modifier = Modifier.fillMaxWidth(),

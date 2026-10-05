@@ -10,13 +10,11 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
-import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
-import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.Immutable
 import androidx.compose.runtime.LaunchedEffect
@@ -40,7 +38,7 @@ import org.jetbrains.compose.resources.painterResource
 public data class AiSettingScreenUiState(
     val loadingState: LoadingState,
     val isGeminiApiKeyInputVisible: Boolean,
-    val errorDialog: ErrorDialog?,
+    val geminiApiKeyInputErrorMessage: String?,
     val kakeboScaffoldListener: KakeboScaffoldListener,
     val event: Event,
 ) {
@@ -51,16 +49,6 @@ public data class AiSettingScreenUiState(
         public data class Loaded(
             val geminiApiKey: String,
         ) : LoadingState
-    }
-
-    public data class ErrorDialog(
-        val message: String,
-        val event: Event,
-    ) {
-        @Immutable
-        public interface Event {
-            public fun onDismiss()
-        }
     }
 
     @Immutable
@@ -90,18 +78,7 @@ public fun AiSettingScreen(
             inputType = TextFieldType.Password,
             onComplete = { uiState.event.onCompleteGeminiApiKeyInput(it) },
             canceled = { uiState.event.onCancelGeminiApiKeyInput() },
-        )
-    }
-    uiState.errorDialog?.also { errorDialog ->
-        AlertDialog(
-            onDismissRequest = { errorDialog.event.onDismiss() },
-            confirmButton = {
-                TextButton(onClick = { errorDialog.event.onDismiss() }) {
-                    Text("OK")
-                }
-            },
-            title = { Text("エラー") },
-            text = { Text(errorDialog.message) },
+            errorMessage = uiState.geminiApiKeyInputErrorMessage,
         )
     }
 
@@ -200,28 +177,23 @@ private fun LoadedContent(
 private fun AiSettingScreenPreview() {
     AiSettingScreenPreviewContent(
         isGeminiApiKeyInputVisible = false,
-        errorDialog = null,
+        geminiApiKeyInputErrorMessage = null,
     )
 }
 
 @Composable
 @Preview
-private fun AiSettingScreenErrorDialogPreview() {
+private fun AiSettingScreenInputErrorPreview() {
     AiSettingScreenPreviewContent(
         isGeminiApiKeyInputVisible = true,
-        errorDialog = AiSettingScreenUiState.ErrorDialog(
-            message = "Gemini API Keyの更新に失敗しました",
-            event = object : AiSettingScreenUiState.ErrorDialog.Event {
-                override fun onDismiss() {}
-            },
-        ),
+        geminiApiKeyInputErrorMessage = "Gemini API Keyの更新に失敗しました",
     )
 }
 
 @Composable
 private fun AiSettingScreenPreviewContent(
     isGeminiApiKeyInputVisible: Boolean,
-    errorDialog: AiSettingScreenUiState.ErrorDialog?,
+    geminiApiKeyInputErrorMessage: String?,
 ) {
     AppRoot {
         AiSettingScreen(
@@ -230,7 +202,7 @@ private fun AiSettingScreenPreviewContent(
                     geminiApiKey = "****************",
                 ),
                 isGeminiApiKeyInputVisible = isGeminiApiKeyInputVisible,
-                errorDialog = errorDialog,
+                geminiApiKeyInputErrorMessage = geminiApiKeyInputErrorMessage,
                 kakeboScaffoldListener = object : KakeboScaffoldListener {
                     override fun onClickTitle() {}
                 },
