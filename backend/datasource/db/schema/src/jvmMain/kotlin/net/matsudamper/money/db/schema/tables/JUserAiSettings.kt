@@ -84,16 +84,14 @@ open class JUserAiSettings(
     private constructor(alias: Name, aliased: Table<JUserAiSettingsRecord>?, where: Condition?): this(alias, null, null, null, aliased, null, where)
 
     /**
-     * Create an aliased <code>money.user_ai_settings</code> table
-     * reference
+     * Create an aliased <code>money.user_ai_settings</code> table reference
      */
     constructor(alias: String): this(DSL.name(alias))
 
     /**
-     * Create an aliased <code>money.user_ai_settings</code> table
-     * reference
+     * Create an aliased <code>money.user_ai_settings</code> table reference
      */
-    constructor(alias: Name): this(alias, null)
+    constructor(alias: Name): this(alias, USER_AI_SETTINGS)
 
     /**
      * Create a <code>money.user_ai_settings</code> table reference

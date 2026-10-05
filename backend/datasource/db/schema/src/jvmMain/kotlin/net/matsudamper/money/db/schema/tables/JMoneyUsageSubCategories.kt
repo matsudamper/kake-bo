@@ -124,7 +124,7 @@ open class JMoneyUsageSubCategories(
      * Create an aliased <code>money.money_usage_sub_categories</code> table
      * reference
      */
-    constructor(alias: Name): this(alias, null)
+    constructor(alias: Name): this(alias, MONEY_USAGE_SUB_CATEGORIES)
 
     /**
      * Create a <code>money.money_usage_sub_categories</code> table reference

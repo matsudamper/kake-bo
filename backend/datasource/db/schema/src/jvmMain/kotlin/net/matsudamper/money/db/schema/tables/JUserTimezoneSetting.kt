@@ -94,7 +94,7 @@ open class JUserTimezoneSetting(
      * Create an aliased <code>money.user_timezone_setting</code> table
      * reference
      */
-    constructor(alias: Name): this(alias, null)
+    constructor(alias: Name): this(alias, USER_TIMEZONE_SETTING)
 
     /**
      * Create a <code>money.user_timezone_setting</code> table reference
