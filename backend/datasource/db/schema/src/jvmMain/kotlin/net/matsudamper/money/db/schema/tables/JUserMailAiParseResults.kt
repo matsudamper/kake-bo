@@ -106,16 +106,14 @@ open class JUserMailAiParseResults(
     private constructor(alias: Name, aliased: Table<JUserMailAiParseResultsRecord>?, where: Condition?): this(alias, null, null, null, aliased, null, where)
 
     /**
-     * Create an aliased <code>money.user_mail_ai_parse_results</code> table
-     * reference
+     * Create an aliased <code>money.user_mail_ai_parse_results</code> table reference
      */
     constructor(alias: String): this(DSL.name(alias))
 
     /**
-     * Create an aliased <code>money.user_mail_ai_parse_results</code> table
-     * reference
+     * Create an aliased <code>money.user_mail_ai_parse_results</code> table reference
      */
-    constructor(alias: Name): this(alias, null)
+    constructor(alias: Name): this(alias, USER_MAIL_AI_PARSE_RESULTS)
 
     /**
      * Create a <code>money.user_mail_ai_parse_results</code> table reference
