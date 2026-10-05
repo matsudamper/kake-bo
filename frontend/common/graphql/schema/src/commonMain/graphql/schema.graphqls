@@ -664,6 +664,11 @@ type SettingsMutation {
   changePassword(password: String): ChangePasswordResult!
 
   updateTimezoneOffset(offsetMinutes: Int!): Int
+
+  """
+  nullまたは空文字の場合はAPIキーを削除する
+  """
+  updateGeminiApiKey(apiKey: String): UserGeminiConfig
 }
 
 """
@@ -793,6 +798,10 @@ input UserFidoLoginInput {
   base64ClientDataJson: String!
 
   base64UserHandle: String!
+}
+
+type UserGeminiConfig {
+  hasApiKey: Boolean!
 }
 
 scalar UserId
@@ -929,6 +938,8 @@ type UserSettings {
   hasPassword: Boolean!
 
   timezoneOffsetMinutes: Int!
+
+  geminiConfig: UserGeminiConfig!
 }
 
 type __Directive {

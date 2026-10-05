@@ -13,6 +13,7 @@ import net.matsudamper.money.frontend.common.base.immutableListOf
 import net.matsudamper.money.frontend.common.base.nav.ScopedObjectFeature
 import net.matsudamper.money.frontend.common.base.nav.user.ScreenNavController
 import net.matsudamper.money.frontend.common.ui.base.KakeboScaffoldListener
+import net.matsudamper.money.frontend.common.ui.layout.TextFieldType
 import net.matsudamper.money.frontend.common.ui.screen.root.settings.ImapSettingScreenUiState
 import net.matsudamper.money.frontend.common.viewmodel.CommonViewModel
 import net.matsudamper.money.frontend.common.viewmodel.lib.EventSender
@@ -74,6 +75,14 @@ public class ImapSettingViewModel(
                                 },
                                 event = imapConfigEvent,
                             ),
+                            geminiConfig = ImapSettingScreenUiState.GeminiConfig(
+                                apiKey = if (viewModelState.hasGeminiApiKey) {
+                                    "****************"
+                                } else {
+                                    ""
+                                },
+                                event = geminiConfigEvent,
+                            ),
                         )
                     }
 
@@ -88,13 +97,55 @@ public class ImapSettingViewModel(
         }
     }.asStateFlow()
 
+    private val geminiConfigEvent = object : ImapSettingScreenUiState.GeminiConfig.Event {
+        override fun onClickChangeApiKey() {
+            viewModelStateFlow.update { viewModelState ->
+                viewModelState.copy(
+                    textInputEvents = viewModelState.textInputEvents.plus(
+                        createTextInputEvent(
+                            title = "Gemini API Key",
+                            inputType = TextFieldType.Password,
+                            default = null,
+                            complete = { text, event ->
+                                val result = runCatching {
+                                    withContext(ioDispatchers) {
+                                        graphqlQuery.setGeminiApiKey(
+                                            apiKey = text,
+                                        )
+                                    }
+                                }.onFailure {
+                                    Logger.e(TAG, it)
+                                }.getOrNull()
+                                val geminiConfig = result?.data?.userMutation?.settingsMutation?.updateGeminiApiKey
+                                if (geminiConfig == null) {
+                                    globalEventSender.send {
+                                        it.showNativeNotification("更新に失敗しました")
+                                    }
+                                    return@createTextInputEvent
+                                }
+
+                                viewModelStateFlow.update {
+                                    it.copy(
+                                        hasGeminiApiKey = geminiConfig.hasApiKey,
+                                        textInputEvents = it.textInputEvents.minus(event),
+                                    )
+                                }
+                            },
+                        ),
+                    ),
+                )
+            }
+        }
+    }
+
     private val imapConfigEvent = object : ImapSettingScreenUiState.ImapConfig.Event {
         override fun onClickChangeHost() {
             viewModelStateFlow.update { viewModelState ->
                 viewModelState.copy(
                     textInputEvents = viewModelState.textInputEvents.plus(
-                        createEvent(
+                        createTextInputEvent(
                             title = "ホスト名",
+                            inputType = TextFieldType.Text,
                             default = viewModelState.imapConfig?.host,
                             complete = { text, event ->
                                 val result = runCatching {
@@ -108,11 +159,11 @@ public class ImapSettingViewModel(
                                     globalEventSender.send {
                                         it.showNativeNotification("更新に失敗しました")
                                     }
-                                    return@createEvent
-                                }.getOrNull() ?: return@createEvent
+                                    return@createTextInputEvent
+                                }.getOrNull() ?: return@createTextInputEvent
 
                                 val updateImapConfig = result.data?.userMutation?.settingsMutation?.updateImapConfig?.displayImapConfig
-                                    ?: return@createEvent
+                                    ?: return@createTextInputEvent
 
                                 viewModelStateFlow.update {
                                     it.copy(
@@ -131,8 +182,9 @@ public class ImapSettingViewModel(
             viewModelStateFlow.update { viewModelState ->
                 viewModelState.copy(
                     textInputEvents = viewModelState.textInputEvents.plus(
-                        createEvent(
+                        createTextInputEvent(
                             title = "ユーザー名",
+                            inputType = TextFieldType.Text,
                             default = viewModelState.imapConfig?.userName,
                             complete = { text, event ->
                                 val result = runCatching {
@@ -146,11 +198,11 @@ public class ImapSettingViewModel(
                                     globalEventSender.send {
                                         it.showNativeNotification("更新に失敗しました")
                                     }
-                                    return@createEvent
-                                }.getOrNull() ?: return@createEvent
+                                    return@createTextInputEvent
+                                }.getOrNull() ?: return@createTextInputEvent
 
                                 val updateImapConfig = result.data?.userMutation?.settingsMutation?.updateImapConfig?.displayImapConfig
-                                    ?: return@createEvent
+                                    ?: return@createTextInputEvent
 
                                 viewModelStateFlow.update {
                                     it.copy(
@@ -169,8 +221,9 @@ public class ImapSettingViewModel(
             viewModelStateFlow.update { viewModelState ->
                 viewModelState.copy(
                     textInputEvents = viewModelState.textInputEvents.plus(
-                        createEvent(
+                        createTextInputEvent(
                             title = "ポート",
+                            inputType = TextFieldType.Text,
                             default = viewModelState.imapConfig?.port?.toString(),
                             complete = { text, event ->
                                 val port = text.toIntOrNull()
@@ -178,7 +231,7 @@ public class ImapSettingViewModel(
                                     globalEventSender.send {
                                         it.showNativeNotification("数値を入力してください")
                                     }
-                                    return@createEvent
+                                    return@createTextInputEvent
                                 }
                                 val result = runCatching {
                                     withContext(ioDispatchers) {
@@ -191,11 +244,11 @@ public class ImapSettingViewModel(
                                     globalEventSender.send {
                                         it.showNativeNotification("更新に失敗しました")
                                     }
-                                    return@createEvent
-                                }.getOrNull() ?: return@createEvent
+                                    return@createTextInputEvent
+                                }.getOrNull() ?: return@createTextInputEvent
 
                                 val updateImapConfig = result.data?.userMutation?.settingsMutation?.updateImapConfig?.displayImapConfig
-                                    ?: return@createEvent
+                                    ?: return@createTextInputEvent
 
                                 viewModelStateFlow.update {
                                     it.copy(
@@ -214,8 +267,9 @@ public class ImapSettingViewModel(
             viewModelStateFlow.update { viewModelState ->
                 viewModelState.copy(
                     textInputEvents = viewModelState.textInputEvents.plus(
-                        createEvent(
+                        createTextInputEvent(
                             title = "パスワード",
+                            inputType = TextFieldType.Password,
                             default = null,
                             complete = { text, event ->
                                 val result = runCatching {
@@ -229,9 +283,9 @@ public class ImapSettingViewModel(
                                     globalEventSender.send {
                                         it.showNativeNotification("更新に失敗しました")
                                     }
-                                }.getOrNull() ?: return@createEvent
+                                }.getOrNull() ?: return@createTextInputEvent
                                 val updateImapConfig = result.data?.userMutation?.settingsMutation?.updateImapConfig?.displayImapConfig
-                                    ?: return@createEvent
+                                    ?: return@createTextInputEvent
 
                                 viewModelStateFlow.update {
                                     it.copy(
@@ -245,35 +299,37 @@ public class ImapSettingViewModel(
                 )
             }
         }
+    }
 
-        private fun createEvent(
-            title: String,
-            default: String?,
-            complete: suspend (text: String, event: ImapSettingScreenUiState.TextInputUiState) -> Unit,
-        ): ImapSettingScreenUiState.TextInputUiState {
-            return ImapSettingScreenUiState.TextInputUiState(
-                title = title,
-                default = default.orEmpty(),
-                event = object : ImapSettingScreenUiState.TextInputUiState.Event {
-                    override fun complete(
-                        text: String,
-                        event: ImapSettingScreenUiState.TextInputUiState,
-                    ) {
-                        viewModelScope.launch {
-                            complete(text, event)
-                        }
+    private fun createTextInputEvent(
+        title: String,
+        default: String?,
+        inputType: TextFieldType,
+        complete: suspend (text: String, event: ImapSettingScreenUiState.TextInputUiState) -> Unit,
+    ): ImapSettingScreenUiState.TextInputUiState {
+        return ImapSettingScreenUiState.TextInputUiState(
+            title = title,
+            default = default.orEmpty(),
+            inputType = inputType,
+            event = object : ImapSettingScreenUiState.TextInputUiState.Event {
+                override fun complete(
+                    text: String,
+                    event: ImapSettingScreenUiState.TextInputUiState,
+                ) {
+                    viewModelScope.launch {
+                        complete(text, event)
                     }
+                }
 
-                    override fun cancel(event: ImapSettingScreenUiState.TextInputUiState) {
-                        viewModelStateFlow.update {
-                            it.copy(
-                                textInputEvents = it.textInputEvents.minus(event),
-                            )
-                        }
+                override fun cancel(event: ImapSettingScreenUiState.TextInputUiState) {
+                    viewModelStateFlow.update {
+                        it.copy(
+                            textInputEvents = it.textInputEvents.minus(event),
+                        )
                     }
-                },
-            )
-        }
+                }
+            },
+        )
     }
 
     private fun load() {
@@ -285,11 +341,12 @@ public class ImapSettingViewModel(
                     Logger.e(TAG, it)
                 }.getOrNull()
             } ?: return@launch
-            val displayImapConfig = configFLow.data?.user?.settings?.imapConfig?.displayImapConfig
+            val settings = configFLow.data?.user?.settings
 
             viewModelStateFlow.update {
                 it.copy(
-                    imapConfig = displayImapConfig,
+                    imapConfig = settings?.imapConfig?.displayImapConfig,
+                    hasGeminiApiKey = settings?.geminiConfig?.hasApiKey == true,
                 )
             }
         }
@@ -297,6 +354,7 @@ public class ImapSettingViewModel(
 
     private data class ViewModelState(
         val imapConfig: DisplayImapConfig? = null,
+        val hasGeminiApiKey: Boolean = false,
         val textInputEvents: List<ImapSettingScreenUiState.TextInputUiState> = listOf(),
     )
 }

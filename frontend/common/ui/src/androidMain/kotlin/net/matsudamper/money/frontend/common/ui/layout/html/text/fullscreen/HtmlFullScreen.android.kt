@@ -9,6 +9,7 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.widthIn
+import androidx.compose.foundation.text.BasicSecureTextField
 import androidx.compose.foundation.text.BasicTextField
 import androidx.compose.foundation.text.input.rememberTextFieldState
 import androidx.compose.material3.Card
@@ -57,18 +58,34 @@ public actual fun FullScreenTextInput(
                     style = MaterialTheme.typography.headlineMedium,
                 )
                 Spacer(modifier = Modifier.height(8.dp))
-                BasicTextField(
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .clip(MaterialTheme.shapes.large)
-                        .background(MaterialTheme.colorScheme.onSurface.copy(alpha = 0.1f))
-                        .padding(8.dp),
-                    textStyle = MaterialTheme.typography.bodyLarge.merge(
-                        color = MaterialTheme.colorScheme.onSurface,
-                    ),
-                    cursorBrush = SolidColor(MaterialTheme.colorScheme.onSurface),
-                    state = state,
+                val textFieldModifier = Modifier
+                    .fillMaxWidth()
+                    .clip(MaterialTheme.shapes.large)
+                    .background(MaterialTheme.colorScheme.onSurface.copy(alpha = 0.1f))
+                    .padding(8.dp)
+                val textStyle = MaterialTheme.typography.bodyLarge.merge(
+                    color = MaterialTheme.colorScheme.onSurface,
                 )
+                val cursorBrush = SolidColor(MaterialTheme.colorScheme.onSurface)
+                when (inputType) {
+                    TextFieldType.Text -> {
+                        BasicTextField(
+                            modifier = textFieldModifier,
+                            textStyle = textStyle,
+                            cursorBrush = cursorBrush,
+                            state = state,
+                        )
+                    }
+
+                    TextFieldType.Password -> {
+                        BasicSecureTextField(
+                            modifier = textFieldModifier,
+                            textStyle = textStyle,
+                            cursorBrush = cursorBrush,
+                            state = state,
+                        )
+                    }
+                }
                 Spacer(modifier = Modifier.height(24.dp))
                 Row(
                     modifier = Modifier.fillMaxWidth(),
