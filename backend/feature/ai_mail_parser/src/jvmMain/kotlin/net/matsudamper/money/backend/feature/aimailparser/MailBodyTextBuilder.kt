@@ -11,16 +11,25 @@ import org.jsoup.Jsoup
 internal object MailBodyTextBuilder {
     private const val LINE_BREAK_MARKER = "[[LINE_BREAK]]"
 
+    /**
+     * 巨大なHTMLをそのままDOMに展開するとメモリと時間を大きく消費するため、解析前に切り詰める長さ。
+     * タグや装飾を除くと本文は大きく縮むので、送信上限よりも十分大きくしておく。
+     */
+    private const val MAX_HTML_SOURCE_LENGTH = 1_000_000
+
     fun build(
         input: AiMailParseInput,
         maxBodyLength: Int,
     ): String {
         val plainText = input.plain?.let { normalizeWhitespace(it) }.orEmpty()
-        val htmlText = input.html?.let { htmlToText(it) }.orEmpty()
-
         val truncatedPlain = plainText.take(maxBodyLength)
         val remainingLength = maxBodyLength - truncatedPlain.length
-        val shouldIncludeHtml = htmlText.isNotBlank() && htmlText != plainText && remainingLength > 0
+        val htmlText = if (remainingLength > 0) {
+            input.html?.let { htmlToText(it.take(MAX_HTML_SOURCE_LENGTH)) }.orEmpty()
+        } else {
+            ""
+        }
+        val shouldIncludeHtml = htmlText.isNotBlank() && htmlText != plainText
 
         return buildString {
             appendLine("件名: ${input.subject}")
