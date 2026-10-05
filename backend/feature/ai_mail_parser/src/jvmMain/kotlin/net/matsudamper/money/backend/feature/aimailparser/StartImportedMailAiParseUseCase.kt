@@ -33,6 +33,16 @@ class StartImportedMailAiParseUseCase(
             .firstOrNull()
             ?: return Result.MailNotFound
 
+        // RUNNINGにした後で失敗すると、実行されないまま再開できない状態が残るため、準備はすべて先に終える
+        val timezoneOffset = userConfigRepository.getTimezoneOffset(userId) ?: ZoneOffset.UTC
+        val input = AiMailParseInput(
+            subject = mail.subject,
+            from = mail.from,
+            dateTime = mail.dateTime.plusSeconds(timezoneOffset.totalSeconds.toLong()),
+            plain = mail.plain,
+            html = mail.html,
+        )
+
         // DBのDATETIMEは秒単位なので、保存時の照合に使えるよう秒に揃える
         val startedDateTime = currentDateTime().truncatedTo(ChronoUnit.SECONDS)
         val isStarted = aiParseRepository.tryStartParsing(
@@ -43,14 +53,6 @@ class StartImportedMailAiParseUseCase(
         )
         if (isStarted.not()) return Result.AlreadyRunning
 
-        val timezoneOffset = userConfigRepository.getTimezoneOffset(userId) ?: ZoneOffset.UTC
-        val input = AiMailParseInput(
-            subject = mail.subject,
-            from = mail.from,
-            dateTime = mail.dateTime.plusSeconds(timezoneOffset.totalSeconds.toLong()),
-            plain = mail.plain,
-            html = mail.html,
-        )
         backgroundScope.launch {
             parseAndSave(
                 userId = userId,
