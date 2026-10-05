@@ -276,7 +276,7 @@
     "allDeclaredFields": true
   },
   {
-    "name": "net.matsudamper.money.db.schema.tables.records.JUserGeminiSettingsRecord",
+    "name": "net.matsudamper.money.db.schema.tables.records.JUserAiSettingsRecord",
     "allDeclaredConstructors": true,
     "allPublicMethods": true,
     "allDeclaredFields": true

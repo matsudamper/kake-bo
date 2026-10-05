@@ -668,7 +668,7 @@ type SettingsMutation {
   """
   nullまたは空文字の場合はAPIキーを削除する
   """
-  updateGeminiApiKey(apiKey: String): UserGeminiConfig
+  updateGeminiApiKey(apiKey: String): UserAiConfig
 }
 
 """
@@ -800,8 +800,8 @@ input UserFidoLoginInput {
   base64UserHandle: String!
 }
 
-type UserGeminiConfig {
-  hasApiKey: Boolean!
+type UserAiConfig {
+  hasGeminiApiKey: Boolean!
 }
 
 scalar UserId
@@ -939,7 +939,7 @@ type UserSettings {
 
   timezoneOffsetMinutes: Int!
 
-  geminiConfig: UserGeminiConfig!
+  aiConfig: UserAiConfig!
 }
 
 type __Directive {

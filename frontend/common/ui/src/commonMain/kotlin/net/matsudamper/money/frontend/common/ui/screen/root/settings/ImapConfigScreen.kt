@@ -45,17 +45,17 @@ public data class ImapSettingScreenUiState(
 
         public data class Loaded(
             val imapConfig: ImapConfig,
-            val geminiConfig: GeminiConfig,
+            val aiConfig: AiConfig,
         ) : LoadingState
     }
 
-    public data class GeminiConfig(
-        val apiKey: String,
+    public data class AiConfig(
+        val geminiApiKey: String,
         val event: Event,
     ) {
         @Immutable
         public interface Event {
-            public fun onClickChangeApiKey()
+            public fun onClickChangeGeminiApiKey()
         }
     }
 
@@ -192,21 +192,21 @@ private fun MainContent(
             )
             Spacer(Modifier.height(32.dp))
             Text(
-                text = "Gemini API設定",
+                text = "AI設定",
                 style = MaterialTheme.typography.titleLarge,
             )
             Spacer(Modifier.height(14.dp))
             SettingsChangeTextSection(
                 title = {
-                    Text("API Key")
+                    Text("Gemini API Key")
                 },
                 text = {
                     Text(
-                        text = uiState.geminiConfig.apiKey,
+                        text = uiState.aiConfig.geminiApiKey,
                         fontFamily = rememberCustomFontFamily(),
                     )
                 },
-                onClickChange = { uiState.geminiConfig.event.onClickChangeApiKey() },
+                onClickChange = { uiState.aiConfig.event.onClickChangeGeminiApiKey() },
             )
             Spacer(Modifier.height(8.dp))
             Text(
@@ -297,10 +297,10 @@ private fun ImapConfigScreenPreview() {
                             override fun onClickChangePassword() {}
                         },
                     ),
-                    geminiConfig = ImapSettingScreenUiState.GeminiConfig(
-                        apiKey = "****************",
-                        event = object : ImapSettingScreenUiState.GeminiConfig.Event {
-                            override fun onClickChangeApiKey() {}
+                    aiConfig = ImapSettingScreenUiState.AiConfig(
+                        geminiApiKey = "****************",
+                        event = object : ImapSettingScreenUiState.AiConfig.Event {
+                            override fun onClickChangeGeminiApiKey() {}
                         },
                     ),
                 ),

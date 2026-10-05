@@ -20,7 +20,7 @@ import net.matsudamper.money.db.schema.tables.JMoneyUsageSubCategories
 import net.matsudamper.money.db.schema.tables.JMoneyUsages
 import net.matsudamper.money.db.schema.tables.JMoneyUsagesMailsRelation
 import net.matsudamper.money.db.schema.tables.JUserImages
-import net.matsudamper.money.db.schema.tables.JUserGeminiSettings
+import net.matsudamper.money.db.schema.tables.JUserAiSettings
 import net.matsudamper.money.db.schema.tables.JUserImapSettings
 import net.matsudamper.money.db.schema.tables.JUserMails
 import net.matsudamper.money.db.schema.tables.JUserPasswordExtendData
@@ -121,9 +121,9 @@ open class JMoney : SchemaImpl(DSL.name("money"), DefaultCatalog.DEFAULT_CATALOG
     val USER_IMAGES: JUserImages get() = JUserImages.USER_IMAGES
 
     /**
-     * The table <code>money.user_gemini_settings</code>.
+     * The table <code>money.user_ai_settings</code>.
      */
-    val USER_GEMINI_SETTINGS: JUserGeminiSettings get() = JUserGeminiSettings.USER_GEMINI_SETTINGS
+    val USER_AI_SETTINGS: JUserAiSettings get() = JUserAiSettings.USER_AI_SETTINGS
 
     /**
      * The table <code>money.user_imap_settings</code>.
@@ -182,7 +182,7 @@ open class JMoney : SchemaImpl(DSL.name("money"), DefaultCatalog.DEFAULT_CATALOG
         JMoneyUsages.MONEY_USAGES,
         JMoneyUsagesMailsRelation.MONEY_USAGES_MAILS_RELATION,
         JUserImages.USER_IMAGES,
-        JUserGeminiSettings.USER_GEMINI_SETTINGS,
+        JUserAiSettings.USER_AI_SETTINGS,
         JUserImapSettings.USER_IMAP_SETTINGS,
         JUserMails.USER_MAILS,
         JUserPasswordExtendData.USER_PASSWORD_EXTEND_DATA,

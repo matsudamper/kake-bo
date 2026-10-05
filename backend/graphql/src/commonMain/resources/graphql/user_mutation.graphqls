@@ -189,7 +189,7 @@ type SettingsMutation {
     """
     nullまたは空文字の場合はAPIキーを削除する
     """
-    updateGeminiApiKey(apiKey: String): UserGeminiConfig
+    updateGeminiApiKey(apiKey: String): UserAiConfig
 }
 
 type ChangePasswordResult {

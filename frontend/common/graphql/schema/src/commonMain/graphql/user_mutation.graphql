@@ -28,7 +28,7 @@ mutation SetGeminiApiKey($apiKey: String) {
     userMutation {
         settingsMutation {
             updateGeminiApiKey(apiKey: $apiKey) {
-                hasApiKey
+                hasGeminiApiKey
             }
         }
     }

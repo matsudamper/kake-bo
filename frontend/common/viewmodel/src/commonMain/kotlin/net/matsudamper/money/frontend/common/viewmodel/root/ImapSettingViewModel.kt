@@ -75,13 +75,13 @@ public class ImapSettingViewModel(
                                 },
                                 event = imapConfigEvent,
                             ),
-                            geminiConfig = ImapSettingScreenUiState.GeminiConfig(
-                                apiKey = if (viewModelState.hasGeminiApiKey) {
+                            aiConfig = ImapSettingScreenUiState.AiConfig(
+                                geminiApiKey = if (viewModelState.hasGeminiApiKey) {
                                     "****************"
                                 } else {
                                     ""
                                 },
-                                event = geminiConfigEvent,
+                                event = aiConfigEvent,
                             ),
                         )
                     }
@@ -97,8 +97,8 @@ public class ImapSettingViewModel(
         }
     }.asStateFlow()
 
-    private val geminiConfigEvent = object : ImapSettingScreenUiState.GeminiConfig.Event {
-        override fun onClickChangeApiKey() {
+    private val aiConfigEvent = object : ImapSettingScreenUiState.AiConfig.Event {
+        override fun onClickChangeGeminiApiKey() {
             viewModelStateFlow.update { viewModelState ->
                 viewModelState.copy(
                     textInputEvents = viewModelState.textInputEvents.plus(
@@ -116,8 +116,8 @@ public class ImapSettingViewModel(
                                 }.onFailure {
                                     Logger.e(TAG, it)
                                 }.getOrNull()
-                                val geminiConfig = result?.data?.userMutation?.settingsMutation?.updateGeminiApiKey
-                                if (geminiConfig == null) {
+                                val aiConfig = result?.data?.userMutation?.settingsMutation?.updateGeminiApiKey
+                                if (aiConfig == null) {
                                     globalEventSender.send {
                                         it.showNativeNotification("更新に失敗しました")
                                     }
@@ -126,7 +126,7 @@ public class ImapSettingViewModel(
 
                                 viewModelStateFlow.update {
                                     it.copy(
-                                        hasGeminiApiKey = geminiConfig.hasApiKey,
+                                        hasGeminiApiKey = aiConfig.hasGeminiApiKey,
                                         textInputEvents = it.textInputEvents.minus(event),
                                     )
                                 }
@@ -346,7 +346,7 @@ public class ImapSettingViewModel(
             viewModelStateFlow.update {
                 it.copy(
                     imapConfig = settings?.imapConfig?.displayImapConfig,
-                    hasGeminiApiKey = settings?.geminiConfig?.hasApiKey == true,
+                    hasGeminiApiKey = settings?.aiConfig?.hasGeminiApiKey == true,
                 )
             }
         }

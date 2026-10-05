@@ -6,7 +6,7 @@ type UserSettings {
     apiTokenAttributes: ApiTokenAttributes!
     hasPassword: Boolean! @lazy
     timezoneOffsetMinutes: Int! @lazy
-    geminiConfig: UserGeminiConfig! @lazy
+    aiConfig: UserAiConfig! @lazy
 }
 
 type ApiTokenAttributes {
@@ -43,6 +43,6 @@ type UserImapConfig {
     hasPassword :Boolean
 }
 
-type UserGeminiConfig {
-    hasApiKey: Boolean!
+type UserAiConfig {
+    hasGeminiApiKey: Boolean!
 }

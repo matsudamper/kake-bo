@@ -5,7 +5,7 @@ import net.matsudamper.money.backend.app.interfaces.UserConfigRepository
 import net.matsudamper.money.backend.app.interfaces.element.ImapConfig
 import net.matsudamper.money.backend.base.DbSecretCipher
 import net.matsudamper.money.backend.datasource.db.DbConnectionImpl
-import net.matsudamper.money.db.schema.tables.JUserGeminiSettings
+import net.matsudamper.money.db.schema.tables.JUserAiSettings
 import net.matsudamper.money.db.schema.tables.JUserImapSettings
 import net.matsudamper.money.db.schema.tables.JUserTimezoneSetting
 import net.matsudamper.money.element.UserId
@@ -105,12 +105,12 @@ class DbUserConfigRepository(
     }
 
     override fun getGeminiApiKey(userId: UserId): String? {
-        val geminiSettings = JUserGeminiSettings.USER_GEMINI_SETTINGS
+        val aiSettings = JUserAiSettings.USER_AI_SETTINGS
         val encryptedApiKey = DbConnectionImpl.use {
             DSL.using(it)
-                .select(geminiSettings.ENCRYPTED_API_KEY)
-                .from(geminiSettings)
-                .where(geminiSettings.USER_ID.eq(userId.value))
+                .select(aiSettings.ENCRYPTED_GEMINI_API_KEY)
+                .from(aiSettings)
+                .where(aiSettings.USER_ID.eq(userId.value))
                 .fetchOne()
         }?.value1() ?: return null
         return runCatching {
@@ -134,14 +134,14 @@ class DbUserConfigRepository(
                     associatedData = geminiApiKeyAssociatedData(userId),
                 )
             }
-            val geminiSettings = JUserGeminiSettings.USER_GEMINI_SETTINGS
+            val aiSettings = JUserAiSettings.USER_AI_SETTINGS
             DbConnectionImpl.use {
                 DSL.using(it)
-                    .insertInto(geminiSettings)
-                    .set(geminiSettings.USER_ID, userId.value)
-                    .set(geminiSettings.ENCRYPTED_API_KEY, encryptedApiKey)
+                    .insertInto(aiSettings)
+                    .set(aiSettings.USER_ID, userId.value)
+                    .set(aiSettings.ENCRYPTED_GEMINI_API_KEY, encryptedApiKey)
                     .onDuplicateKeyUpdate()
-                    .set(geminiSettings.ENCRYPTED_API_KEY, encryptedApiKey)
+                    .set(aiSettings.ENCRYPTED_GEMINI_API_KEY, encryptedApiKey)
                     .execute()
             }
         }.fold(
@@ -191,6 +191,6 @@ class DbUserConfigRepository(
     }
 
     private fun geminiApiKeyAssociatedData(userId: UserId): String {
-        return "user_gemini_settings.encrypted_api_key:${userId.value}"
+        return "user_ai_settings.encrypted_gemini_api_key:${userId.value}"
     }
 }
