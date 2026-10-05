@@ -76,6 +76,21 @@ jobs:
             exit 1
           fi
 
+          # スキーマの読み込みとリゾルバの結線は最初の GraphQL リクエストで走る。
+          # リフレクション登録やリソース同梱の漏れは JVM では再現しないので、ここで実際に叩く
+          GRAPHQL_RESPONSE=$(curl -s --max-time 30 -X POST \
+            -H 'Content-Type: application/json' -H 'Accept: application/json' \
+            -d '{"query":"query { isAdminLoggedIn }"}' \
+            http://localhost:${PORT}/query || true)
+          echo "$GRAPHQL_RESPONSE"
+          if ! echo "$GRAPHQL_RESPONSE" | grep -q '"isAdminLoggedIn":false'; then
+            echo "GraphQLチェック失敗"
+            echo "--- サーバーログ ---"
+            cat "$SERVER_LOG" || true
+            kill $SERVER_PID 2>/dev/null || true
+            exit 1
+          fi
+
           kill $SERVER_PID 2>/dev/null || true
 
       - name: ネイティブバイナリのアップロード
