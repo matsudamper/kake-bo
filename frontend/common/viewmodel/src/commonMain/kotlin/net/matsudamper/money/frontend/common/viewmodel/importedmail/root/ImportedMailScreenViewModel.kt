@@ -325,10 +325,15 @@ public class ImportedMailScreenViewModel(
         if (result.hasMail().not()) return
 
         viewModelStateFlow.update { viewModelState ->
-            viewModelState.copy(
+            val updated = viewModelState.copy(
                 apolloResponse = result,
                 isAwaitingAiParseResult = false,
             )
+            if (updated.shouldPollAiParseResult()) {
+                updated.copy(aiParseStartErrorMessage = null)
+            } else {
+                updated
+            }
         }
     }
 
@@ -369,12 +374,14 @@ public class ImportedMailScreenViewModel(
                 }
 
                 ImportedMailScreenGraphqlApi.StartAiParseResult.Failure -> {
-                    viewModelStateFlow.update { it.copy(aiParseStartErrorMessage = "解析を開始できませんでした") }
-                    // 応答だけを受け取れずサーバー側では開始している場合があるため、状態を取り直す
-                    fetchAiParseResult()
+                    // 応答だけを受け取れずサーバー側では開始している場合があるため、状態を取得できるまで確認する
                     viewModelStateFlow.update {
-                        if (it.shouldPollAiParseResult()) it.copy(aiParseStartErrorMessage = null) else it
+                        it.copy(
+                            aiParseStartErrorMessage = "解析を開始できませんでした",
+                            isAwaitingAiParseResult = true,
+                        )
                     }
+                    fetchAiParseResult()
                 }
             }
         }
