@@ -321,10 +321,12 @@ public class ImportedMailScreenViewModel(
      * 一時的な取得失敗で実行中の判定が外れるとポーリングが止まるため、有効な応答だけを反映する
      */
     private suspend fun fetchAiParseResult() {
+        val requestedGeneration = viewModelStateFlow.value.aiParseStartGeneration
         val result = api.get(id = importedMailId)
         if (result.isValidResponse().not()) return
 
         viewModelStateFlow.update { viewModelState ->
+            if (viewModelState.aiParseStartGeneration != requestedGeneration) return@update viewModelState
             viewModelState.copy(
                 apolloResponse = result,
                 isAwaitingAiParseResult = false,
@@ -339,9 +341,11 @@ public class ImportedMailScreenViewModel(
     }
 
     private suspend fun fetchAndUpdate() {
+        val requestedGeneration = viewModelStateFlow.value.aiParseStartGeneration
         val result = api.get(id = importedMailId)
 
         viewModelStateFlow.update { viewModelState ->
+            if (viewModelState.aiParseStartGeneration != requestedGeneration) return@update viewModelState
             viewModelState.copy(
                 apolloResponse = result,
                 isAwaitingAiParseResult = if (result.isValidResponse()) {
@@ -364,7 +368,12 @@ public class ImportedMailScreenViewModel(
 
     private fun startAiParse() {
         viewModelScope.launch {
-            viewModelStateFlow.update { it.copy(aiParseStartErrorMessage = null) }
+            viewModelStateFlow.update {
+                it.copy(
+                    aiParseStartErrorMessage = null,
+                    aiParseStartGeneration = it.aiParseStartGeneration + 1,
+                )
+            }
             when (api.startAiParse(id = importedMailId)) {
                 ImportedMailScreenGraphqlApi.StartAiParseResult.Success,
                 ImportedMailScreenGraphqlApi.StartAiParseResult.AlreadyRunning,
@@ -486,6 +495,10 @@ public class ImportedMailScreenViewModel(
          * 解析開始の受付後や、実行中に取得が失敗した後は apolloResponse から実行中を判定できないため、ポーリングを続ける根拠として保持する
          */
         val isAwaitingAiParseResult: Boolean = false,
+        /**
+         * 解析開始より前に発行した取得の応答が遅れて届くと、開始前の状態で上書きしてしまうため、開始ごとに進めて古い応答を捨てる
+         */
+        val aiParseStartGeneration: Int = 0,
     ) {
         fun shouldPollAiParseResult(): Boolean {
             return isAwaitingAiParseResult || isAiParseRunning()
