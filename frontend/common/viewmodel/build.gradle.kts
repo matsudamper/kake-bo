@@ -13,7 +13,7 @@ kotlin {
     }
     sourceSets {
         jvmToolchain(libs.versions.javaToolchain.get().toInt())
-        val commonMain by getting {
+        getByName("commonMain") {
             dependencies {
                 implementation(projects.frontend.common.base)
                 api(projects.frontend.common.feature.webauth)
@@ -33,16 +33,16 @@ kotlin {
                 implementation(libs.koinCore)
             }
         }
-        val androidMain by getting {
+        getByName("androidMain") {
             dependencies {
                 implementation(projects.frontend.common.feature.localstore)
             }
         }
-        val wasmJsMain by getting {
+        getByName("wasmJsMain") {
             dependencies {
             }
         }
-        val commonTest by getting {
+        getByName("commonTest") {
             dependencies {
                 implementation(kotlin("test"))
             }

@@ -14,7 +14,7 @@ kotlin {
     }
     sourceSets {
         jvmToolchain(libs.versions.javaToolchain.get().toInt())
-        val commonMain by getting {
+        getByName("commonMain") {
             dependencies {
                 implementation(projects.shared)
                 implementation(projects.frontend.common.base)
@@ -27,7 +27,7 @@ kotlin {
                 implementation(libs.kotlin.datetime)
             }
         }
-        val wasmJsMain by getting {
+        getByName("wasmJsMain") {
             dependencies {
                 implementation(libs.kotlinxBrowser)
                 implementation(projects.shared)
@@ -40,7 +40,7 @@ kotlin {
                 implementation(libs.ktorClientJs)
             }
         }
-        val androidMain by getting {
+        getByName("androidMain") {
             dependencies {
                 implementation(projects.shared)
 
@@ -51,7 +51,7 @@ kotlin {
                 implementation(libs.androidxCredentials)
             }
         }
-        val wasmJsTest by getting {
+        getByName("wasmJsTest") {
             dependencies {
                 implementation(kotlin("test"))
             }

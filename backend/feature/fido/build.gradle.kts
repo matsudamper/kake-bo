@@ -7,7 +7,7 @@ kotlin {
     }
     sourceSets {
         jvmToolchain(libs.versions.javaToolchain.get().toInt())
-        val jvmMain by getting {
+        getByName("jvmMain") {
             dependencies {
                 implementation(projects.shared)
                 implementation(projects.backend.base)
@@ -17,7 +17,7 @@ kotlin {
                 implementation(libs.webauth4jCore)
             }
         }
-        val jvmTest by getting {
+        getByName("jvmTest") {
             dependencies {
                 implementation(kotlin("test"))
                 implementation(libs.kotestRunnerJunit5)

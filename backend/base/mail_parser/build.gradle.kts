@@ -7,7 +7,7 @@ kotlin {
     }
     sourceSets {
         jvmToolchain(libs.versions.javaToolchain.get().toInt())
-        val jvmMain by getting {
+        getByName("jvmMain") {
             dependencies {
                 implementation(kotlin("stdlib"))
                 implementation(kotlin("reflect"))
@@ -17,7 +17,7 @@ kotlin {
                 implementation(libs.angus.mail)
             }
         }
-        val jvmTest by getting {
+        getByName("jvmTest") {
             dependencies {
                 implementation(kotlin("test"))
             }

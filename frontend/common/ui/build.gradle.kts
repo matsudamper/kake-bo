@@ -29,7 +29,7 @@ kotlin {
     }
     sourceSets {
         jvmToolchain(libs.versions.javaToolchain.get().toInt())
-        val commonMain by getting {
+        getByName("commonMain") {
             dependencies {
                 implementation(projects.shared)
                 implementation(projects.frontend.common.base)
@@ -44,7 +44,7 @@ kotlin {
                 implementation(libs.composeComponentsResources)
             }
         }
-        val wasmJsMain by getting {
+        getByName("wasmJsMain") {
             dependencies {
                 implementation(libs.kotlinxBrowser)
                 implementation(libs.coilNetworkKtor3)
@@ -52,7 +52,7 @@ kotlin {
                 implementation(libs.ktorClientLogging)
             }
         }
-        val androidMain by getting {
+        getByName("androidMain") {
             dependencies {
                 implementation(projects.frontend.common.base)
                 implementation(projects.frontend.common.feature.localstore)
@@ -67,12 +67,12 @@ kotlin {
                 implementation(libs.zoomable)
             }
         }
-        val commonTest by getting {
+        getByName("commonTest") {
             dependencies {
                 implementation(kotlin("test"))
             }
         }
-        val androidHostTest by getting {
+        getByName("androidHostTest") {
             dependencies {
                 implementation(libs.paparazzi)
                 implementation(libs.composablePreviewScanner)
@@ -82,7 +82,7 @@ kotlin {
     explicitApi()
 }
 
-val byteBuddyAgent: Configuration by configurations.creating
+val byteBuddyAgent: Configuration = configurations.create("byteBuddyAgent")
 
 dependencies {
     byteBuddyAgent("net.bytebuddy:byte-buddy-agent:1.18.14")
