@@ -299,10 +299,10 @@ public class ImportedMailScreenViewModel(
         fetch()
         viewModelScope.launch {
             viewModelStateFlow
-                .map { it.isAiParseRunning() }
+                .map { it.shouldPollAiParseResult() }
                 .distinctUntilChanged()
-                .collectLatest { isAiParseRunning ->
-                    if (isAiParseRunning.not()) return@collectLatest
+                .collectLatest { shouldPoll ->
+                    if (shouldPoll.not()) return@collectLatest
                     while (true) {
                         delay(AI_PARSE_POLLING_INTERVAL_MILLIS)
                         fetchAiParseResult()
@@ -329,6 +329,7 @@ public class ImportedMailScreenViewModel(
         viewModelStateFlow.update { viewModelState ->
             viewModelState.copy(
                 apolloResponse = result,
+                isAiParseStartAccepted = false,
             )
         }
     }
@@ -346,16 +347,22 @@ public class ImportedMailScreenViewModel(
     private fun startAiParse() {
         viewModelScope.launch {
             viewModelStateFlow.update { it.copy(aiParseStartErrorMessage = null) }
-            val errorMessage = when (api.startAiParse(id = importedMailId)) {
+            when (api.startAiParse(id = importedMailId)) {
                 ImportedMailScreenGraphqlApi.StartAiParseResult.Success,
                 ImportedMailScreenGraphqlApi.StartAiParseResult.AlreadyRunning,
-                -> null
+                -> {
+                    viewModelStateFlow.update { it.copy(isAiParseStartAccepted = true) }
+                    fetchAiParseResult()
+                }
 
-                ImportedMailScreenGraphqlApi.StartAiParseResult.ApiKeyNotSet -> "Gemini APIキーが設定されていません。設定画面から登録してください"
-                ImportedMailScreenGraphqlApi.StartAiParseResult.Failure -> "解析を開始できませんでした"
+                ImportedMailScreenGraphqlApi.StartAiParseResult.ApiKeyNotSet -> {
+                    viewModelStateFlow.update { it.copy(aiParseStartErrorMessage = "Gemini APIキーが設定されていません。設定画面から登録してください") }
+                }
+
+                ImportedMailScreenGraphqlApi.StartAiParseResult.Failure -> {
+                    viewModelStateFlow.update { it.copy(aiParseStartErrorMessage = "解析を開始できませんでした") }
+                }
             }
-            viewModelStateFlow.update { it.copy(aiParseStartErrorMessage = errorMessage) }
-            fetchAndUpdate()
         }
     }
 
@@ -442,8 +449,16 @@ public class ImportedMailScreenViewModel(
         val confirmDialog: MailScreenUiState.AlertDialog? = null,
         val urlMenuDialog: MailScreenUiState.UrlMenuDialog? = null,
         val aiParseStartErrorMessage: String? = null,
+        /**
+         * 解析開始を受け付けた後、実行中の状態を取得できるまでの間もポーリングを続けるために保持する
+         */
+        val isAiParseStartAccepted: Boolean = false,
     ) {
-        fun isAiParseRunning(): Boolean {
+        fun shouldPollAiParseResult(): Boolean {
+            return isAiParseStartAccepted || isAiParseRunning()
+        }
+
+        private fun isAiParseRunning(): Boolean {
             val aiParseResult = apolloResponse?.getOrNull()?.data?.user?.importedMailAttributes?.mail?.aiParseResult
             return aiParseResult?.status == ImportedMailAiParseStatus.RUNNING
         }
