@@ -9,6 +9,16 @@ query GetConfig {
     }
 }
 
+query AiSettingScreen {
+    user {
+        settings {
+            aiConfig {
+                hasGeminiApiKey
+            }
+        }
+    }
+}
+
 fragment DisplayImapConfig on UserImapConfig {
     hasPassword
     userName

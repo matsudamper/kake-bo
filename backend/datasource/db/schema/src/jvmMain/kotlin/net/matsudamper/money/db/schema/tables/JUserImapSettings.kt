@@ -106,7 +106,7 @@ open class JUserImapSettings(
     /**
      * Create an aliased <code>money.user_imap_settings</code> table reference
      */
-    constructor(alias: Name): this(alias, null)
+    constructor(alias: Name): this(alias, USER_IMAP_SETTINGS)
 
     /**
      * Create a <code>money.user_imap_settings</code> table reference

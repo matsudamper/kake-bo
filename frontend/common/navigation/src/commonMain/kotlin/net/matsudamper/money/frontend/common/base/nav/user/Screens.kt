@@ -42,6 +42,10 @@ public enum class Screens : Direction {
         override val title: String = "タイムゾーン設定"
         override val placeholderUrl: String = "/settings/timezone"
     },
+    SettingsAi {
+        override val title: String = "AI設定"
+        override val placeholderUrl: String = "/settings/ai"
+    },
     SettingsCategory {
         override val title: String = "カテゴリ設定"
         override val placeholderUrl: String = "/settings/category"

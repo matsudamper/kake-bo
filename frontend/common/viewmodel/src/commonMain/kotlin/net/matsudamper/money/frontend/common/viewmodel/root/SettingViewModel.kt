@@ -81,6 +81,14 @@ public class SettingViewModel(
                     }
                 }
 
+                override fun onClickAiSetting() {
+                    viewModelScope.launch {
+                        backgroundEventSender.send {
+                            it.navigate(ScreenStructure.Root.Settings.Ai)
+                        }
+                    }
+                }
+
                 override fun onClickMailFilter() {
                     viewModelScope.launch {
                         backgroundEventSender.send {

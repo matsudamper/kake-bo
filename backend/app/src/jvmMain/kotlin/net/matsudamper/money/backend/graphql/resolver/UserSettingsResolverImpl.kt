@@ -14,6 +14,7 @@ import net.matsudamper.money.backend.graphql.toDataFetcher
 import net.matsudamper.money.backend.lib.ChallengeModel
 import net.matsudamper.money.graphql.model.QlFidoAddInfo
 import net.matsudamper.money.graphql.model.QlRegisteredFidoInfo
+import net.matsudamper.money.graphql.model.QlUserAiConfig
 import net.matsudamper.money.graphql.model.QlUserImapConfig
 import net.matsudamper.money.graphql.model.QlUserSettings
 import net.matsudamper.money.graphql.model.UserSettingsResolver
@@ -44,6 +45,21 @@ class UserSettingsResolverImpl : UserSettingsResolver {
                 ?.totalSeconds
                 ?.div(60)
                 ?: 0
+        }.toDataFetcher()
+    }
+
+    override fun aiConfig(
+        userSettings: QlUserSettings,
+        env: DataFetchingEnvironment,
+    ): CompletionStage<DataFetcherResult<QlUserAiConfig>> {
+        val context = env.graphQlContext.get<GraphQlContext>(GraphQlContext::class.java.name)
+        val userId = context.verifyUserSessionAndGetUserId()
+
+        return otelSupplyAsync {
+            val apiKey = context.diContainer.createUserConfigRepository().getGeminiApiKey(userId)
+            QlUserAiConfig(
+                hasGeminiApiKey = apiKey.isNullOrBlank().not(),
+            )
         }.toDataFetcher()
     }
 

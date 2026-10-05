@@ -112,7 +112,7 @@ open class JUserSessions(
     /**
      * Create an aliased <code>money.user_sessions</code> table reference
      */
-    constructor(alias: Name): this(alias, null)
+    constructor(alias: Name): this(alias, USER_SESSIONS)
 
     /**
      * Create a <code>money.user_sessions</code> table reference
