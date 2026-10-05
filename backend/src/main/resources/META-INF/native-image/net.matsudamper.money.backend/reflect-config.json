@@ -28,6 +28,10 @@
     "allDeclaredFields": true
   },
   {
+    "name": "kotlin.reflect.jvm.internal.ReflectionFactoryImpl",
+    "allDeclaredConstructors": true
+  },
+  {
     "name": "graphql.kickstart.tools.SchemaParser",
     "allPublicConstructors": true,
     "allPublicMethods": true,
