@@ -370,6 +370,11 @@ public class ImportedMailScreenViewModel(
 
                 ImportedMailScreenGraphqlApi.StartAiParseResult.Failure -> {
                     viewModelStateFlow.update { it.copy(aiParseStartErrorMessage = "解析を開始できませんでした") }
+                    // 応答だけを受け取れずサーバー側では開始している場合があるため、状態を取り直す
+                    fetchAiParseResult()
+                    viewModelStateFlow.update {
+                        if (it.shouldPollAiParseResult()) it.copy(aiParseStartErrorMessage = null) else it
+                    }
                 }
             }
         }
