@@ -18,18 +18,12 @@ query AddMoneyUsageScreen($id: ImportedMailId!) {
                     subject
                 }
                 suggestUsages {
-                    title
-                    description
-                    subCategory {
-                        id
-                        name
-                        category {
-                            id
-                            name
-                        }
+                    ...AddMoneyUsageScreenSuggestUsage
+                }
+                aiParseResult {
+                    usages {
+                        ...AddMoneyUsageScreenSuggestUsage
                     }
-                    dateTime
-                    amount
                 }
             }
         }
@@ -47,6 +41,21 @@ query AddMoneyUsageScreenGetSubCategory($subCategoryId: MoneyUsageSubCategoryId!
             }
         }
     }
+}
+
+fragment AddMoneyUsageScreenSuggestUsage on MoneyUsageSuggest {
+    title
+    description
+    subCategory {
+        id
+        name
+        category {
+            id
+            name
+        }
+    }
+    dateTime
+    amount
 }
 
 query AddMoneyUsageScreenSameDateUsages($query: MoneyUsagesQuery!) {

@@ -278,7 +278,28 @@ type ImportedMail {
 
   suggestUsages: [MoneyUsageSuggest!]!
 
+  """
+  startImportedMailAiParseで開始したAIパースの結果。一度も実行していない場合はnull
+  """
+  aiParseResult: ImportedMailAiParseResult
+
   usages: [MoneyUsage!]!
+}
+
+type ImportedMailAiParseResult {
+  status: ImportedMailAiParseStatus!
+
+  usages: [MoneyUsageSuggest!]!
+
+  errorMessage: String
+}
+
+enum ImportedMailAiParseStatus {
+  RUNNING
+
+  SUCCEEDED
+
+  FAILED
 }
 
 type ImportedMailAttributes {
@@ -671,6 +692,22 @@ type SettingsMutation {
   updateGeminiApiKey(apiKey: String): UserAiConfig
 }
 
+enum StartImportedMailAiParseError {
+  ApiKeyNotSet
+
+  MailNotFound
+
+  AlreadyRunning
+
+  InternalServerError
+}
+
+type StartImportedMailAiParseResult {
+  isSuccess: Boolean!
+
+  error: StartImportedMailAiParseError
+}
+
 """
 Built-in String
 """
@@ -870,6 +907,8 @@ type UserMutation {
   importMail(mailIds: [MailId!]!): ImportMailResult!
 
   deleteImportedMail(id: ImportedMailId!): Boolean!
+
+  startImportedMailAiParse(id: ImportedMailId!): StartImportedMailAiParseResult!
 
   deleteMail(mailIds: [MailId!]!): DeleteMailResult!
 
