@@ -112,7 +112,7 @@ open class JMoneyUsagesMailsRelation(
      * Create an aliased <code>money.money_usages_mails_relation</code> table
      * reference
      */
-    constructor(alias: Name): this(alias, null)
+    constructor(alias: Name): this(alias, MONEY_USAGES_MAILS_RELATION)
 
     /**
      * Create a <code>money.money_usages_mails_relation</code> table reference

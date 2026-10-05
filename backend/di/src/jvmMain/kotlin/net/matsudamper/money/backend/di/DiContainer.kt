@@ -23,6 +23,7 @@ import net.matsudamper.money.backend.app.interfaces.UserImageRepository
 import net.matsudamper.money.backend.app.interfaces.UserLoginRepository
 import net.matsudamper.money.backend.app.interfaces.UserRepository
 import net.matsudamper.money.backend.app.interfaces.UserSessionRepository
+import net.matsudamper.money.backend.base.DbSecretCipher
 import net.matsudamper.money.backend.base.ServerEnv
 import net.matsudamper.money.backend.base.ServerVariables
 import net.matsudamper.money.backend.base.TraceLogger
@@ -170,7 +171,9 @@ class MainDiContainer : DiContainer {
         return mailFilterRepository
     }
 
-    private val userConfigRepository = DbUserConfigRepository()
+    private val userConfigRepository = DbUserConfigRepository(
+        dbSecretCipher = ServerEnv.dbSecretEncryptionKey?.let { DbSecretCipher.fromBase64Key(it) },
+    )
 
     override fun createUserConfigRepository(): DbUserConfigRepository {
         return userConfigRepository

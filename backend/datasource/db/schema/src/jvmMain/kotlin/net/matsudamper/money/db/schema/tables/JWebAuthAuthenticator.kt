@@ -142,7 +142,7 @@ open class JWebAuthAuthenticator(
      * Create an aliased <code>money.web_auth_authenticator</code> table
      * reference
      */
-    constructor(alias: Name): this(alias, null)
+    constructor(alias: Name): this(alias, WEB_AUTH_AUTHENTICATOR)
 
     /**
      * Create a <code>money.web_auth_authenticator</code> table reference

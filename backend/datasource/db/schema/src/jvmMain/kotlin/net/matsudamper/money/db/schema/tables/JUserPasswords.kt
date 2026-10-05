@@ -103,7 +103,7 @@ open class JUserPasswords(
     /**
      * Create an aliased <code>money.user_passwords</code> table reference
      */
-    constructor(alias: Name): this(alias, null)
+    constructor(alias: Name): this(alias, USER_PASSWORDS)
 
     /**
      * Create a <code>money.user_passwords</code> table reference

@@ -47,6 +47,12 @@ public sealed interface ScreenStructure : IScreenStructure {
             }
 
             @Serializable
+            public data object Ai : Settings {
+                override val direction: Screens = Screens.SettingsAi
+                override val sameScreenId: String = "ScreenStructure#Root#Settings#Ai"
+            }
+
+            @Serializable
             public data object Categories : Settings {
                 override val direction: Screens = Screens.SettingsCategory
                 override val sameScreenId: String = "ScreenStructure#Root#Settings#Categories"

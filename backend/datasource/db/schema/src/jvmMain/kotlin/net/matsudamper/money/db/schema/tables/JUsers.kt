@@ -103,7 +103,7 @@ open class JUsers(
     /**
      * Create an aliased <code>money.users</code> table reference
      */
-    constructor(alias: Name): this(alias, null)
+    constructor(alias: Name): this(alias, USERS)
 
     /**
      * Create a <code>money.users</code> table reference

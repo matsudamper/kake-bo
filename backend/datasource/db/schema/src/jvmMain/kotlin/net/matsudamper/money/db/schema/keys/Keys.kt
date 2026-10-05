@@ -18,6 +18,7 @@ import net.matsudamper.money.db.schema.tables.JMoneyUsagePresets
 import net.matsudamper.money.db.schema.tables.JMoneyUsageSubCategories
 import net.matsudamper.money.db.schema.tables.JMoneyUsages
 import net.matsudamper.money.db.schema.tables.JMoneyUsagesMailsRelation
+import net.matsudamper.money.db.schema.tables.JUserAiSettings
 import net.matsudamper.money.db.schema.tables.JUserImages
 import net.matsudamper.money.db.schema.tables.JUserImapSettings
 import net.matsudamper.money.db.schema.tables.JUserMails
@@ -40,6 +41,7 @@ import net.matsudamper.money.db.schema.tables.records.JMoneyUsagePresetsRecord
 import net.matsudamper.money.db.schema.tables.records.JMoneyUsageSubCategoriesRecord
 import net.matsudamper.money.db.schema.tables.records.JMoneyUsagesMailsRelationRecord
 import net.matsudamper.money.db.schema.tables.records.JMoneyUsagesRecord
+import net.matsudamper.money.db.schema.tables.records.JUserAiSettingsRecord
 import net.matsudamper.money.db.schema.tables.records.JUserImagesRecord
 import net.matsudamper.money.db.schema.tables.records.JUserImapSettingsRecord
 import net.matsudamper.money.db.schema.tables.records.JUserMailsRecord
@@ -75,6 +77,7 @@ val KEY_MONEY_USAGE_PRESETS_PRIMARY: UniqueKey<JMoneyUsagePresetsRecord> = Inter
 val KEY_MONEY_USAGE_SUB_CATEGORIES_PRIMARY: UniqueKey<JMoneyUsageSubCategoriesRecord> = Internal.createUniqueKey(JMoneyUsageSubCategories.MONEY_USAGE_SUB_CATEGORIES, DSL.name("KEY_money_usage_sub_categories_PRIMARY"), arrayOf(JMoneyUsageSubCategories.MONEY_USAGE_SUB_CATEGORIES.MONEY_USAGE_SUB_CATEGORY_ID), true)
 val KEY_MONEY_USAGES_PRIMARY: UniqueKey<JMoneyUsagesRecord> = Internal.createUniqueKey(JMoneyUsages.MONEY_USAGES, DSL.name("KEY_money_usages_PRIMARY"), arrayOf(JMoneyUsages.MONEY_USAGES.MONEY_USAGE_ID), true)
 val KEY_MONEY_USAGES_MAILS_RELATION_PRIMARY: UniqueKey<JMoneyUsagesMailsRelationRecord> = Internal.createUniqueKey(JMoneyUsagesMailsRelation.MONEY_USAGES_MAILS_RELATION, DSL.name("KEY_money_usages_mails_relation_PRIMARY"), arrayOf(JMoneyUsagesMailsRelation.MONEY_USAGES_MAILS_RELATION.MONEY_USAGE_ID, JMoneyUsagesMailsRelation.MONEY_USAGES_MAILS_RELATION.USER_MAIL_ID), true)
+val KEY_USER_AI_SETTINGS_PRIMARY: UniqueKey<JUserAiSettingsRecord> = Internal.createUniqueKey(JUserAiSettings.USER_AI_SETTINGS, DSL.name("KEY_user_ai_settings_PRIMARY"), arrayOf(JUserAiSettings.USER_AI_SETTINGS.USER_ID), true)
 val KEY_USER_IMAGES_IMAGE_PATH_UNIQUE: UniqueKey<JUserImagesRecord> = Internal.createUniqueKey(JUserImages.USER_IMAGES, DSL.name("KEY_user_images_image_path_unique"), arrayOf(JUserImages.USER_IMAGES.IMAGE_PATH), true)
 val KEY_USER_IMAGES_PRIMARY: UniqueKey<JUserImagesRecord> = Internal.createUniqueKey(JUserImages.USER_IMAGES, DSL.name("KEY_user_images_PRIMARY"), arrayOf(JUserImages.USER_IMAGES.USER_IMAGE_ID), true)
 val KEY_USER_IMAGES_USER_IMAGE_DISPLAY_ID_UNIQUE: UniqueKey<JUserImagesRecord> = Internal.createUniqueKey(JUserImages.USER_IMAGES, DSL.name("KEY_user_images_user_image_display_id_unique"), arrayOf(JUserImages.USER_IMAGES.DISPLAY_ID), true)

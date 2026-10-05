@@ -128,7 +128,7 @@ open class JUserMails(
     /**
      * Create an aliased <code>money.user_mails</code> table reference
      */
-    constructor(alias: Name): this(alias, null)
+    constructor(alias: Name): this(alias, USER_MAILS)
 
     /**
      * Create a <code>money.user_mails</code> table reference
