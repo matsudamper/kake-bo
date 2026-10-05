@@ -126,7 +126,12 @@ graalvmNative {
             mainClass.set("net.matsudamper.money.backend.Main")
             imageName.set("backend")
             buildArgs.addAll(nativeBuildArgs)
-            buildArgs.add("--features=net.matsudamper.money.backend.graalvm.GraphqlReflectionFeature")
+            buildArgs.add(
+                "--features=" + listOf(
+                    "net.matsudamper.money.backend.graalvm.GraphqlReflectionFeature",
+                    "net.matsudamper.money.backend.graalvm.JooqRecordReflectionFeature",
+                ).joinToString(","),
+            )
             javaLauncher.set(graalVmLauncher)
         }
     }
