@@ -4,7 +4,7 @@ plugins {
     id("net.matsudamper.money.buildlogic.multiplatform.library")
 }
 
-val protocConfiguration: Configuration by configurations.creating
+val protocConfiguration: Configuration = configurations.create("protocConfiguration")
 
 val isWindows = System.getProperty("os.name").lowercase().contains("windows")
 val isMac = System.getProperty("os.name").lowercase().contains("mac")
@@ -52,22 +52,22 @@ kotlin {
     }
     sourceSets {
         jvmToolchain(libs.versions.javaToolchain.get().toInt())
-        val commonMain by getting {
+        getByName("commonMain") {
             dependencies {
             }
         }
-        val wasmJsMain by getting {
+        getByName("wasmJsMain") {
             dependencies {
             }
         }
-        val androidMain by getting {
+        getByName("androidMain") {
             dependencies {
                 api(libs.androidxDatastoreDatastore)
                 api(libs.protobufProtobufJavalite)
             }
             kotlin.srcDir(generateProto)
         }
-        val wasmJsTest by getting {
+        getByName("wasmJsTest") {
             dependencies {
                 implementation(kotlin("test"))
             }

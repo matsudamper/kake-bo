@@ -48,7 +48,7 @@ kotlin {
     jvm()
     sourceSets {
         jvmToolchain(libs.versions.javaToolchain.get().toInt())
-        val jvmMain by getting {
+        getByName("jvmMain") {
             kotlin.srcDir(generatedPath)
             resources.srcDir(generatedResourcesPath)
             dependencies {
@@ -62,7 +62,7 @@ kotlin {
                 api(libs.graphqlJavaKickstart.javaTools)
             }
         }
-        val jvmTest by getting {
+        getByName("jvmTest") {
             dependencies {
                 implementation(kotlin("test"))
             }

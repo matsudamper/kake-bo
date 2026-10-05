@@ -137,7 +137,7 @@ open class JCategoryMailFilterConditions(
      * Create an aliased <code>money.category_mail_filter_conditions</code>
      * table reference
      */
-    constructor(alias: Name): this(alias, null)
+    constructor(alias: Name): this(alias, CATEGORY_MAIL_FILTER_CONDITIONS)
 
     /**
      * Create a <code>money.category_mail_filter_conditions</code> table

@@ -101,7 +101,7 @@ open class JCategoryMailFilterDatasourceType(
      * Create an aliased <code>money.category_mail_filter_datasource_type</code>
      * table reference
      */
-    constructor(alias: Name): this(alias, null)
+    constructor(alias: Name): this(alias, CATEGORY_MAIL_FILTER_DATASOURCE_TYPE)
 
     /**
      * Create a <code>money.category_mail_filter_datasource_type</code> table

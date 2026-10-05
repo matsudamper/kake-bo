@@ -12,7 +12,7 @@ kotlin {
     }
     jvm {}
     sourceSets {
-        val commonMain by getting {
+        getByName("commonMain") {
             dependencies {
                 implementation(projects.shared)
                 implementation(projects.frontend.common.base)

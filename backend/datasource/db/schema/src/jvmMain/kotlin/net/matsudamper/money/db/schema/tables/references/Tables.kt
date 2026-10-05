@@ -18,6 +18,7 @@ import net.matsudamper.money.db.schema.tables.JMoneyUsagePresets
 import net.matsudamper.money.db.schema.tables.JMoneyUsageSubCategories
 import net.matsudamper.money.db.schema.tables.JMoneyUsages
 import net.matsudamper.money.db.schema.tables.JMoneyUsagesMailsRelation
+import net.matsudamper.money.db.schema.tables.JUserAiSettings
 import net.matsudamper.money.db.schema.tables.JUserImages
 import net.matsudamper.money.db.schema.tables.JUserImapSettings
 import net.matsudamper.money.db.schema.tables.JUserMails
@@ -94,6 +95,11 @@ val MONEY_USAGES: JMoneyUsages = JMoneyUsages.MONEY_USAGES
  * The table <code>money.money_usages_mails_relation</code>.
  */
 val MONEY_USAGES_MAILS_RELATION: JMoneyUsagesMailsRelation = JMoneyUsagesMailsRelation.MONEY_USAGES_MAILS_RELATION
+
+/**
+ * The table <code>money.user_ai_settings</code>.
+ */
+val USER_AI_SETTINGS: JUserAiSettings = JUserAiSettings.USER_AI_SETTINGS
 
 /**
  * The table <code>money.user_images</code>.

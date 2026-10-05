@@ -8,7 +8,7 @@ kotlin {
     }
     jvmToolchain(libs.versions.javaToolchain.get().toInt())
     sourceSets {
-        val jvmMain by getting {
+        getByName("jvmMain") {
             dependencies {
                 implementation(projects.shared)
                 implementation(projects.backend.app.interfaces)
@@ -26,7 +26,7 @@ kotlin {
                 implementation(libs.jakarta.activation.api)
             }
         }
-        val jvmTest by getting {
+        getByName("jvmTest") {
             dependencies {
                 implementation(kotlin("test"))
             }

@@ -7,7 +7,7 @@ kotlin {
     }
     sourceSets {
         jvmToolchain(libs.versions.javaToolchain.get().toInt())
-        val jvmMain by getting {
+        getByName("jvmMain") {
             dependencies {
                 implementation(kotlin("stdlib"))
 
@@ -19,7 +19,7 @@ kotlin {
                 implementation(libs.ktorServerCore)
             }
         }
-        val jvmTest by getting {
+        getByName("jvmTest") {
             dependencies {
                 implementation(kotlin("test"))
             }

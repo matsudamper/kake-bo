@@ -121,7 +121,7 @@ open class JUserPasswordExtendData(
      * Create an aliased <code>money.user_password_extend_data</code> table
      * reference
      */
-    constructor(alias: Name): this(alias, null)
+    constructor(alias: Name): this(alias, USER_PASSWORD_EXTEND_DATA)
 
     /**
      * Create a <code>money.user_password_extend_data</code> table reference

@@ -20,7 +20,7 @@ kotlin {
     }
     sourceSets {
         jvmToolchain(libs.versions.javaToolchain.get().toInt())
-        val commonMain by getting {
+        getByName("commonMain") {
             dependencies {
                 implementation(projects.shared)
                 implementation(projects.frontend.common.root)
@@ -40,7 +40,7 @@ kotlin {
                 implementation(libs.coilRuntime)
             }
         }
-        val wasmJsMain by getting {
+        getByName("wasmJsMain") {
             dependencies {
                 implementation(libs.kotlinxBrowser)
                 implementation(projects.frontend.common.navigation)

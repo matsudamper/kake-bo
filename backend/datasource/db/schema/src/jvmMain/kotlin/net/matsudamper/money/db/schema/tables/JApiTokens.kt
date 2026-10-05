@@ -129,7 +129,7 @@ open class JApiTokens(
     /**
      * Create an aliased <code>money.api_tokens</code> table reference
      */
-    constructor(alias: Name): this(alias, null)
+    constructor(alias: Name): this(alias, API_TOKENS)
 
     /**
      * Create a <code>money.api_tokens</code> table reference

@@ -129,7 +129,7 @@ open class JUserImages(
     /**
      * Create an aliased <code>money.user_images</code> table reference
      */
-    constructor(alias: Name): this(alias, null)
+    constructor(alias: Name): this(alias, USER_IMAGES)
 
     /**
      * Create a <code>money.user_images</code> table reference

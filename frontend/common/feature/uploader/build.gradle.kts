@@ -13,7 +13,7 @@ kotlin {
     }
     sourceSets {
         jvmToolchain(libs.versions.javaToolchain.get().toInt())
-        val commonMain by getting {
+        getByName("commonMain") {
             dependencies {
                 implementation(projects.shared)
                 implementation(projects.frontend.common.base)
@@ -21,7 +21,7 @@ kotlin {
                 implementation(libs.room3Runtime)
             }
         }
-        val wasmJsMain by getting {
+        getByName("wasmJsMain") {
             dependencies {
                 implementation(libs.kotlinxBrowser)
                 implementation(projects.frontend.common.base)
@@ -30,7 +30,7 @@ kotlin {
                 implementation(npm("@androidx/sqlite-web-worker", "$projectDir/sqlite-web-worker"))
             }
         }
-        val androidMain by getting {
+        getByName("androidMain") {
             dependencies {
                 implementation(libs.workRuntimeKtx)
                 implementation(libs.okHttp)
