@@ -48,3 +48,18 @@ mutation ImportedMailScreenDeleteMail($id: ImportedMailId!) {
         deleteImportedMail(id: $id)
     }
 }
+
+mutation ImportedMailScreenParseWithAi($id: ImportedMailId!) {
+    userMutation {
+        parseImportedMailWithAi(id: $id) {
+            usages {
+                title
+                description
+                amount
+                dateTime
+            }
+            error
+            errorMessage
+        }
+    }
+}
