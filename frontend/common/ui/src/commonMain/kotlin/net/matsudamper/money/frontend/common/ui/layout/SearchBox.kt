@@ -2,9 +2,11 @@ package net.matsudamper.money.frontend.common.ui.layout
 
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.RowScope
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.text.BasicTextField
 import androidx.compose.foundation.text.KeyboardActions
@@ -19,7 +21,9 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.SolidColor
 import androidx.compose.ui.text.input.ImeAction
+import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import net.matsudamper.money.frontend.common.ui.AppRoot
 import net.matsudamper.money.frontend.common.ui.generated.resources.Res
 import net.matsudamper.money.frontend.common.ui.generated.resources.ic_clear
 import net.matsudamper.money.frontend.common.ui.generated.resources.ic_search
@@ -166,5 +170,48 @@ private fun SearchBoxClearButton(
             painter = painterResource(Res.drawable.ic_clear),
             contentDescription = "clear",
         )
+    }
+}
+
+@Preview
+@Composable
+private fun SearchBoxPreview() {
+    AppRoot(isDarkTheme = true) {
+        Column(modifier = Modifier.padding(16.dp)) {
+            SearchBox(
+                modifier = Modifier.width(320.dp),
+                text = "",
+                onClick = {},
+                onClear = {},
+            )
+            SearchBox(
+                modifier = Modifier
+                    .padding(top = 12.dp)
+                    .width(320.dp),
+                text = "コンビニ",
+                onClick = {},
+                onClear = {},
+            )
+            SearchBoxField(
+                modifier = Modifier
+                    .padding(top = 12.dp)
+                    .width(320.dp),
+                text = "",
+                onTextChange = {},
+                onSearch = {},
+                onClear = {},
+                placeholder = "メールを検索",
+            )
+            SearchBoxField(
+                modifier = Modifier
+                    .padding(top = 12.dp)
+                    .width(320.dp),
+                text = "amazon",
+                onTextChange = {},
+                onSearch = {},
+                onClear = {},
+                placeholder = "メールを検索",
+            )
+        }
     }
 }

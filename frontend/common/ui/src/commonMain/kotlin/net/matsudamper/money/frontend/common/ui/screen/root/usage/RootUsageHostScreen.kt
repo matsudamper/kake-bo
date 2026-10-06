@@ -619,7 +619,7 @@ private fun ListPreview() {
         type = RootUsageHostScreenUiState.Type.List,
         header = RootUsageHostScreenUiState.Header.None,
         textInputUiState = null,
-        searchText = "",
+        searchText = "スーパー",
         categoryFilterState = RootUsageHostScreenUiState.CategoryFilterState(
             categoryDropdown = dropdownState("全てのカテゴリ", listOf("全てのカテゴリ", "食費")),
             subCategoryDropdown = dropdownState("-", listOf()),
