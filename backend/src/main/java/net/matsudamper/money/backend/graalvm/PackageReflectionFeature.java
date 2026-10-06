@@ -39,11 +39,22 @@ public abstract class PackageReflectionFeature implements Feature {
         Collections.sort(classNames);
         for (String className : classNames) {
             try {
-                register(Class.forName(className));
+                Class<?> clazz = Class.forName(className);
+                if (!shouldRegisterClass(clazz)) {
+                    continue;
+                }
+                register(clazz);
             } catch (ClassNotFoundException e) {
                 System.err.println("[" + getClass().getSimpleName() + "] Class not found: " + className);
             }
         }
+    }
+
+    /**
+     * 走査で見つかったクラスをリフレクション登録するか。デフォルトは具象クラスのみ。
+     */
+    protected boolean shouldRegisterClass(Class<?> clazz) {
+        return !clazz.isInterface() && !clazz.isSynthetic();
     }
 
     private void collectClassNames(String targetPackage, List<String> classNames) throws IOException, URISyntaxException {
