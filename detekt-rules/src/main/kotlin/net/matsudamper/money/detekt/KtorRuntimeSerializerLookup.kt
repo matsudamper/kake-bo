@@ -86,7 +86,7 @@ class KtorRuntimeSerializerLookup(config: Config) : Rule(
             "io.ktor.server.request.receiveNullable",
         )
 
-        private val routeBuilderFqNames = setOf("get", "post", "put", "patch", "delete", "head", "options", "query")
+        private val routeBuilderFqNames = setOf("post", "put", "patch", "query")
             .map { "io.ktor.server.routing.$it" }
             .toSet()
     }

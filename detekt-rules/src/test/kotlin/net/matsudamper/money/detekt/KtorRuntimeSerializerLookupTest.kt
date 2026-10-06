@@ -191,6 +191,17 @@ class KtorRuntimeSerializerLookupTest : FunSpec(
             rule.lint(code, compile = false).shouldHaveSize(1)
         }
 
+        test("型付き overload のない get と同名の型引数付き呼び出しは検知しない") {
+            val code = """
+                import io.ktor.server.routing.get
+
+                fun route() {
+                    val service = context.get<Service>()
+                }
+            """.trimIndent()
+            rule.lint(code, compile = false).shouldBeEmpty()
+        }
+
         test("Ktor 以外の同名関数は検知しない") {
             val code = """
                 import example.respond
