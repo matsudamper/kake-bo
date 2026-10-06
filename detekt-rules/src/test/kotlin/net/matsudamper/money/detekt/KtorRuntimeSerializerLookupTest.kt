@@ -54,6 +54,28 @@ class KtorRuntimeSerializerLookupTest : FunSpec(
             rule.lint(code, compile = false).shouldHaveSize(1)
         }
 
+        test("値引数として渡した型付きラムダの post を検知する") {
+            val code = """
+                import io.ktor.server.routing.post
+
+                fun route() {
+                    post("/path", { body: Body -> })
+                }
+            """.trimIndent()
+            rule.lint(code, compile = false).shouldHaveSize(1)
+        }
+
+        test("関数参照を渡した post を検知する") {
+            val code = """
+                import io.ktor.server.routing.post
+
+                fun route() {
+                    post("/path", ::handle)
+                }
+            """.trimIndent()
+            rule.lint(code, compile = false).shouldHaveSize(1)
+        }
+
         test("エイリアス付き import の respond を検知する") {
             val code = """
                 import io.ktor.server.response.respond as ktorRespond

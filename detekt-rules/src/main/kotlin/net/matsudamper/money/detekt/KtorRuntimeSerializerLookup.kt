@@ -6,6 +6,7 @@ import dev.detekt.api.Finding
 import dev.detekt.api.Rule
 import org.jetbrains.kotlin.psi.KtCallExpression
 import org.jetbrains.kotlin.psi.KtFile
+import org.jetbrains.kotlin.psi.KtLambdaExpression
 
 /**
  * Ktor の ContentNegotiation は KType から実行時に serializer を探すため、
@@ -36,13 +37,13 @@ class KtorRuntimeSerializerLookup(config: Config) : Rule(
 
     /**
      * リクエストボディ付きのオーバーロードは、型引数を省略してもラムダ引数の型から推論される。
-     * ボディなしのオーバーロードのラムダは引数を持たない。
+     * 関数参照などは PSI だけでは型が分からないため、引数なしのラムダ以外は検知対象にする。
      */
     private fun KtCallExpression.hasRequestBodyType(): Boolean {
         if (typeArguments.isNotEmpty()) return true
-        return lambdaArguments.any { lambda ->
-            lambda.getLambdaExpression()?.valueParameters?.isNotEmpty() == true
-        }
+        val handler = valueArguments.lastOrNull()?.getArgumentExpression() ?: return false
+        val handlerLambda = handler as? KtLambdaExpression ?: return true
+        return handlerLambda.valueParameters.isNotEmpty()
     }
 
     private fun KtFile.resolveImportedFqName(calledName: String): String? {
