@@ -48,14 +48,19 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.style.TextOverflow
+import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.LayoutDirection
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.window.Popup
 import androidx.compose.ui.window.PopupProperties
 import kotlinx.coroutines.delay
+import kotlinx.coroutines.flow.emptyFlow
 import kotlinx.coroutines.isActive
 import kotlinx.coroutines.launch
+import net.matsudamper.money.frontend.common.base.immutableListOf
+import net.matsudamper.money.frontend.common.ui.AppRoot
 import net.matsudamper.money.frontend.common.ui.base.KakeBoTopAppBar
+import net.matsudamper.money.frontend.common.ui.base.KakeboScaffoldListener
 import net.matsudamper.money.frontend.common.ui.base.LocalScrollToTopHandler
 import net.matsudamper.money.frontend.common.ui.base.RootScreenScaffold
 import net.matsudamper.money.frontend.common.ui.layout.GridColumn
@@ -631,5 +636,56 @@ private fun MailItem(
                 )
             }
         }
+    }
+}
+
+@Preview
+@Composable
+private fun ImportedMailListScreenPreview() {
+    val listItemEvent = object : ImportedMailListScreenUiState.ListItemEvent {
+        override fun onClickMailDetail() {}
+        override fun onClick() {}
+    }
+    val filters = ImportedMailListScreenUiState.Filters(
+        link = ImportedMailListScreenUiState.Filters.Link(
+            status = ImportedMailListScreenUiState.Filters.LinkStatus.Undefined,
+            updateState = {},
+        ),
+        textSearch = ImportedMailListScreenUiState.Filters.TextSearch(
+            text = "amazon",
+            onTextChanged = {},
+            onSearch = {},
+            onClear = {},
+        ),
+    )
+    AppRoot(isDarkTheme = true) {
+        ImportedMailListScreen(
+            uiState = ImportedMailListScreenUiState(
+                event = object : ImportedMailListScreenUiState.Event {
+                    override fun onViewInitialized() {}
+                    override fun moreLoading() {}
+                    override fun refresh() {}
+                },
+                filters = filters,
+                loadingState = ImportedMailListScreenUiState.LoadingState.Loaded(
+                    listItems = immutableListOf(
+                        ImportedMailListScreenUiState.ListItem(
+                            mail = ImportedMailListScreenUiState.ImportedMail(
+                                mailFrom = "noreply@example.com",
+                                mailSubject = "ご注文の確認",
+                            ),
+                            usages = immutableListOf(),
+                            event = listItemEvent,
+                        ),
+                    ),
+                    showLastLoading = false,
+                ),
+                kakeboScaffoldListener = object : KakeboScaffoldListener {
+                    override fun onClickTitle() {}
+                },
+                operation = emptyFlow(),
+            ),
+            windowInsets = PaddingValues(),
+        )
     }
 }
