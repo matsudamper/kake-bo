@@ -339,16 +339,6 @@ private fun MainContent(
                 }
             }
             item {
-                AiParseSection(
-                    modifier = Modifier.fillMaxWidth(),
-                    aiParse = uiState.aiParse,
-                    onClickAiParse = { uiState.event.onClickAiParse() },
-                )
-            }
-            item {
-                Spacer(modifier = Modifier.height(24.dp))
-            }
-            item {
                 Text(
                     modifier = Modifier.padding(horizontal = 12.dp),
                     text = "解析結果",
@@ -372,6 +362,14 @@ private fun MainContent(
                         item = item,
                     )
                 }
+            }
+            item {
+                Spacer(modifier = Modifier.height(24.dp))
+                AiParseSection(
+                    modifier = Modifier.fillMaxWidth(),
+                    aiParse = uiState.aiParse,
+                    onClickAiParse = { uiState.event.onClickAiParse() },
+                )
             }
             item {
                 Spacer(modifier = Modifier.height(24.dp))
