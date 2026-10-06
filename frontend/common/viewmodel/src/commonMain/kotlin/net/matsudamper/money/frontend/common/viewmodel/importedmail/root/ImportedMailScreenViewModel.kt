@@ -171,8 +171,10 @@ public class ImportedMailScreenViewModel(
             usageSuggest = mail.suggestUsages.mapIndexed { index, suggestUsage ->
                 createUsageSuggest(
                     suggestUsage = suggestUsage.importedMailScreenSuggestUsage,
-                    index = index,
-                    isAiParseResult = false,
+                    addMoneyUsageScreen = ScreenStructure.AddMoneyUsage(
+                        importedMailId = importedMailId,
+                        importedMailIndex = index,
+                    ),
                 )
             }.toImmutableList(),
             aiParse = MailScreenUiState.AiParse(
@@ -230,11 +232,19 @@ public class ImportedMailScreenViewModel(
         return when (aiParseResult.status) {
             ImportedMailAiParseStatus.RUNNING -> MailScreenUiState.AiParseState.Running
             ImportedMailAiParseStatus.SUCCEEDED -> MailScreenUiState.AiParseState.Succeeded(
-                usageSuggest = aiParseResult.usages.mapIndexed { index, suggestUsage ->
+                usageSuggest = aiParseResult.usages.map { suggestUsage ->
+                    val usage = suggestUsage.importedMailScreenSuggestUsage
                     createUsageSuggest(
-                        suggestUsage = suggestUsage.importedMailScreenSuggestUsage,
-                        index = index,
-                        isAiParseResult = true,
+                        suggestUsage = usage,
+                        // 再解析で件数や順序が変わるため、位置ではなく選んだ候補の値を引き継ぐ
+                        addMoneyUsageScreen = ScreenStructure.AddMoneyUsage(
+                            importedMailId = importedMailId,
+                            title = usage.title,
+                            price = usage.amount?.toFloat(),
+                            date = usage.dateTime,
+                            description = usage.description,
+                            subCategoryId = usage.subCategory?.id?.id?.toString(),
+                        ),
                     )
                 }.toImmutableList(),
             )
@@ -249,8 +259,7 @@ public class ImportedMailScreenViewModel(
 
     private fun createUsageSuggest(
         suggestUsage: ImportedMailScreenSuggestUsage,
-        index: Int,
-        isAiParseResult: Boolean,
+        addMoneyUsageScreen: ScreenStructure.AddMoneyUsage,
     ): MailScreenUiState.UsageSuggest {
         return MailScreenUiState.UsageSuggest(
             title = suggestUsage.title,
@@ -281,13 +290,7 @@ public class ImportedMailScreenViewModel(
                 override fun onClickRegister() {
                     viewModelScope.launch {
                         viewModelEventSender.send {
-                            it.navigate(
-                                ScreenStructure.AddMoneyUsage(
-                                    importedMailId = importedMailId,
-                                    importedMailIndex = index,
-                                    isAiParseResult = isAiParseResult,
-                                ),
-                            )
+                            it.navigate(addMoneyUsageScreen)
                         }
                     }
                 }

@@ -457,9 +457,11 @@ public class AddMoneyUsageViewModel(
         }
 
         val importedMailId = current.importedMailId
-        if (importedMailId == null) {
+        // AI解析の候補のように、遷移元が入力値を渡している場合はメールの候補を取り直さずそれを使う
+        if (importedMailId == null || current.title != null) {
             viewModelStateFlow.update { state ->
                 state.copy(
+                    importedMailId = importedMailId,
                     // 通知から遷移した場合は通知のデータで上書きするため、
                     // 通知が値を持たないフィールドは既存 state を引き継がず空にリセットする
                     usageTitle = current.title ?: if (isFromNotification) "" else state.usageTitle,
@@ -478,14 +480,9 @@ public class AddMoneyUsageViewModel(
             graphqlApi.get(importedMailId)
                 .onSuccess { result ->
                     val importedMailIndex = current.importedMailIndex
-                    val mail = result.data?.user?.importedMailAttributes?.mail
-                    val suggestUsages = if (current.isAiParseResult) {
-                        mail?.aiParseResult?.usages?.map { it.addMoneyUsageScreenSuggestUsage }
-                    } else {
-                        mail?.suggestUsages?.map { it.addMoneyUsageScreenSuggestUsage }
-                    }
 
-                    val suggestUsage = suggestUsages?.getOrNull(importedMailIndex ?: 0)
+                    val suggestUsage = result.data?.user?.importedMailAttributes?.mail?.suggestUsages
+                        ?.getOrNull(importedMailIndex ?: 0)
                     val forwardedInfo = result.data?.user?.importedMailAttributes?.mail?.forwardedInfo
                     if (suggestUsage == null) {
                         val subject = result.data?.user?.importedMailAttributes?.mail?.subject.orEmpty()
