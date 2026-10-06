@@ -226,6 +226,8 @@ object MoneyGraphQlSchema {
             .makeExecutableSchema()
     }
 
+    val operationTimeout: GraphqlOperationTimeout by lazy { GraphqlOperationTimeout(schema) }
+
     val graphql: GraphQL = GraphQL.newGraphQL(schema)
         .queryExecutionStrategy(AsyncExecutionStrategy())
         .instrumentation(

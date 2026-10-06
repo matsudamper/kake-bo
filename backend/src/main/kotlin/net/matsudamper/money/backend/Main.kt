@@ -155,13 +155,13 @@ fun Application.myApplicationModule(diContainer: DiContainer) {
                 call.respondText(
                     contentType = ContentType.Application.Json,
                 ) {
-                    return@respondText withTimeout(5.seconds) {
-                        GraphqlHandler(
-                            cookieManager = KtorCookieManager(call = call),
-                            diContainer = diContainer,
-                        ).handle(
-                            requestText = call.receiveStream().bufferedReader().readText(),
-                        )
+                    val requestText = call.receiveStream().bufferedReader().readText()
+                    val handler = GraphqlHandler(
+                        cookieManager = KtorCookieManager(call = call),
+                        diContainer = diContainer,
+                    )
+                    return@respondText withTimeout(handler.resolveTimeout(requestText)) {
+                        handler.handle(requestText = requestText)
                     }
                 }
             }
