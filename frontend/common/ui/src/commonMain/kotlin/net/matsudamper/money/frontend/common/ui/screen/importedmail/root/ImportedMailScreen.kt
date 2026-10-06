@@ -712,7 +712,7 @@ private fun MailCard(
 
 @Composable
 @Preview
-private fun ImportedMailScreenAiParseNotExecutedPreview() {
+private fun MailAiParseIdlePreview() {
     ImportedMailScreenPreviewContent(
         aiParse = MailScreenUiState.AiParse(
             state = MailScreenUiState.AiParseState.NotExecuted,
@@ -722,7 +722,7 @@ private fun ImportedMailScreenAiParseNotExecutedPreview() {
 
 @Composable
 @Preview
-private fun ImportedMailScreenAiParseRunningPreview() {
+private fun MailAiParseRunningPreview() {
     ImportedMailScreenPreviewContent(
         aiParse = MailScreenUiState.AiParse(
             state = MailScreenUiState.AiParseState.Running,
@@ -732,7 +732,7 @@ private fun ImportedMailScreenAiParseRunningPreview() {
 
 @Composable
 @Preview
-private fun ImportedMailScreenAiParseFailedPreview() {
+private fun MailAiParseFailedPreview() {
     ImportedMailScreenPreviewContent(
         aiParse = MailScreenUiState.AiParse(
             state = MailScreenUiState.AiParseState.Failed(
@@ -744,7 +744,7 @@ private fun ImportedMailScreenAiParseFailedPreview() {
 
 @Composable
 @Preview
-private fun ImportedMailScreenAiParseSucceededPreview() {
+private fun MailAiParseOkPreview() {
     ImportedMailScreenPreviewContent(
         aiParse = MailScreenUiState.AiParse(
             state = MailScreenUiState.AiParseState.Succeeded(
