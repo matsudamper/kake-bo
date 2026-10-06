@@ -157,6 +157,18 @@ class KtorRuntimeSerializerLookupTest : FunSpec(
             rule.lint(code, compile = false).shouldHaveSize(1)
         }
 
+        test("同名の明示 import があっても star import の Ktor respond を検知する") {
+            val code = """
+                import example.respond
+                import io.ktor.server.response.*
+
+                suspend fun handle(call: Any) {
+                    call.respond(Body())
+                }
+            """.trimIndent()
+            rule.lint(code, compile = false).shouldHaveSize(1)
+        }
+
         test("Ktor 以外の同名関数は検知しない") {
             val code = """
                 import example.respond

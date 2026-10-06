@@ -69,13 +69,11 @@ class KtorRuntimeSerializerLookup(config: Config) : Rule(
                 val localName = directive.aliasName ?: fqName.shortName().asString()
                 fqName.asString().takeIf { localName == calledName }
             }
-        val candidates = explicitCandidates.ifEmpty {
-            importDirectives
-                .filter { it.isAllUnder }
-                .mapNotNull { it.importedFqName?.asString() }
-                .map { packageName -> "$packageName.$calledName" }
-        }
-        return candidates.firstOrNull { it in bodyConversionFqNames || it in routeBuilderFqNames }
+        val starImportCandidates = importDirectives
+            .filter { it.isAllUnder }
+            .mapNotNull { it.importedFqName?.asString() }
+            .map { packageName -> "$packageName.$calledName" }
+        return (explicitCandidates + starImportCandidates).firstOrNull { it in bodyConversionFqNames || it in routeBuilderFqNames }
     }
 
     private companion object {
