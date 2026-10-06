@@ -51,7 +51,6 @@ import net.matsudamper.money.frontend.common.base.ImmutableList
 import net.matsudamper.money.frontend.common.ui.LocalIsLargeScreen
 import net.matsudamper.money.frontend.common.ui.base.KakeBoTopAppBar
 import net.matsudamper.money.frontend.common.ui.base.KakeboScaffoldListener
-import net.matsudamper.money.frontend.common.ui.base.LoadingErrorContent
 import net.matsudamper.money.frontend.common.ui.base.RootScreenScaffold
 import net.matsudamper.money.frontend.common.ui.generated.resources.Res
 import net.matsudamper.money.frontend.common.ui.generated.resources.ic_add
@@ -97,8 +96,6 @@ public data class LoginSettingScreenUiState(
     @Immutable
     public sealed interface LoadingState {
         public data object Loading : LoadingState
-
-        public data object Error : LoadingState
 
         public data class Loaded(
             val fidoList: ImmutableList<Fido>,
@@ -167,8 +164,6 @@ public data class LoginSettingScreenUiState(
         public fun onClickAddFido()
 
         public fun onClickLogout()
-
-        public fun onClickRetry()
     }
 }
 
@@ -232,13 +227,6 @@ public fun LoginSettingScreen(
                         modifier = Modifier,
                     )
                 }
-            }
-
-            LoginSettingScreenUiState.LoadingState.Error -> {
-                LoadingErrorContent(
-                    modifier = Modifier.fillMaxSize(),
-                    onClickRetry = { uiState.event.onClickRetry() },
-                )
             }
         }
     }
