@@ -28,6 +28,10 @@
     "allDeclaredFields": true
   },
   {
+    "name": "kotlin.reflect.jvm.internal.ReflectionFactoryImpl",
+    "allDeclaredConstructors": true
+  },
+  {
     "name": "graphql.kickstart.tools.SchemaParser",
     "allPublicConstructors": true,
     "allPublicMethods": true,
@@ -43,153 +47,6 @@
     "name": "graphql.kickstart.tools.PerFieldConfiguringObjectMapperProvider",
     "allPublicConstructors": true,
     "allPublicMethods": true
-  },
-  {
-    "name": "net.matsudamper.money.backend.graphql.resolver.QueryResolverImpl",
-    "allDeclaredConstructors": true,
-    "allPublicMethods": true,
-    "allDeclaredMethods": true,
-    "allDeclaredFields": true
-  },
-  {
-    "name": "net.matsudamper.money.backend.graphql.resolver.mutation.MutationResolverImpl",
-    "allDeclaredConstructors": true,
-    "allPublicMethods": true,
-    "allDeclaredMethods": true,
-    "allDeclaredFields": true
-  },
-  {
-    "name": "net.matsudamper.money.backend.graphql.resolver.mutation.AdminMutationResolverImpl",
-    "allDeclaredConstructors": true,
-    "allPublicMethods": true,
-    "allDeclaredMethods": true,
-    "allDeclaredFields": true
-  },
-  {
-    "name": "net.matsudamper.money.backend.graphql.resolver.mutation.UserMutationResolverImpl",
-    "allDeclaredConstructors": true,
-    "allPublicMethods": true,
-    "allDeclaredMethods": true,
-    "allDeclaredFields": true
-  },
-  {
-    "name": "net.matsudamper.money.backend.graphql.resolver.mutation.SettingsMutationResolverResolverImpl",
-    "allDeclaredConstructors": true,
-    "allPublicMethods": true,
-    "allDeclaredMethods": true,
-    "allDeclaredFields": true
-  },
-  {
-    "name": "net.matsudamper.money.backend.graphql.resolver.ImageResolverImpl",
-    "allDeclaredConstructors": true,
-    "allPublicMethods": true,
-    "allDeclaredMethods": true,
-    "allDeclaredFields": true
-  },
-  {
-    "name": "net.matsudamper.money.backend.graphql.resolver.MoneyUsageCategoryResolverImpl",
-    "allDeclaredConstructors": true,
-    "allPublicMethods": true,
-    "allDeclaredMethods": true,
-    "allDeclaredFields": true
-  },
-  {
-    "name": "net.matsudamper.money.backend.graphql.resolver.MoneyUsageResolverImpl",
-    "allDeclaredConstructors": true,
-    "allPublicMethods": true,
-    "allDeclaredMethods": true,
-    "allDeclaredFields": true
-  },
-  {
-    "name": "net.matsudamper.money.backend.graphql.resolver.MoneyUsageSubCategoryResolverImpl",
-    "allDeclaredConstructors": true,
-    "allPublicMethods": true,
-    "allDeclaredMethods": true,
-    "allDeclaredFields": true
-  },
-  {
-    "name": "net.matsudamper.money.backend.graphql.resolver.MoneyUsageSuggestResolverImpl",
-    "allDeclaredConstructors": true,
-    "allPublicMethods": true,
-    "allDeclaredMethods": true,
-    "allDeclaredFields": true
-  },
-  {
-    "name": "net.matsudamper.money.backend.graphql.resolver.SessionAttributesResolverImpl",
-    "allDeclaredConstructors": true,
-    "allPublicMethods": true,
-    "allDeclaredMethods": true,
-    "allDeclaredFields": true
-  },
-  {
-    "name": "net.matsudamper.money.backend.graphql.resolver.UserMailAttributesResolverImpl",
-    "allDeclaredConstructors": true,
-    "allPublicMethods": true,
-    "allDeclaredMethods": true,
-    "allDeclaredFields": true
-  },
-  {
-    "name": "net.matsudamper.money.backend.graphql.resolver.UserSettingsResolverImpl",
-    "allDeclaredConstructors": true,
-    "allPublicMethods": true,
-    "allDeclaredMethods": true,
-    "allDeclaredFields": true
-  },
-  {
-    "name": "net.matsudamper.money.backend.graphql.resolver.analytics.MoneyUsageAnalyticsResolverImpl",
-    "allDeclaredConstructors": true,
-    "allPublicMethods": true,
-    "allDeclaredMethods": true,
-    "allDeclaredFields": true
-  },
-  {
-    "name": "net.matsudamper.money.backend.graphql.resolver.analytics.MoneyUsageAnalyticsByCategoryResolverImpl",
-    "allDeclaredConstructors": true,
-    "allPublicMethods": true,
-    "allDeclaredMethods": true,
-    "allDeclaredFields": true
-  },
-  {
-    "name": "net.matsudamper.money.backend.graphql.resolver.importedmail.ImportedMailResolverImpl",
-    "allDeclaredConstructors": true,
-    "allPublicMethods": true,
-    "allDeclaredMethods": true,
-    "allDeclaredFields": true
-  },
-  {
-    "name": "net.matsudamper.money.backend.graphql.resolver.importedmail.ImportedMailAttributesResolverImpl",
-    "allDeclaredConstructors": true,
-    "allPublicMethods": true,
-    "allDeclaredMethods": true,
-    "allDeclaredFields": true
-  },
-  {
-    "name": "net.matsudamper.money.backend.graphql.resolver.importedmail.ImportedMailCategoryFilterResolverImpl",
-    "allDeclaredConstructors": true,
-    "allPublicMethods": true,
-    "allDeclaredMethods": true,
-    "allDeclaredFields": true
-  },
-  {
-    "name": "net.matsudamper.money.backend.graphql.resolver.importedmail.ImportedMailCategoryConditionResolverImpl",
-    "allDeclaredConstructors": true,
-    "allPublicMethods": true,
-    "allDeclaredMethods": true,
-    "allDeclaredFields": true
-  },
-  {
-    "name": "net.matsudamper.money.backend.graphql.resolver.setting.ApiTokenAttributesResolverImpl",
-    "allDeclaredConstructors": true,
-    "allPublicMethods": true,
-    "allDeclaredMethods": true,
-    "allDeclaredFields": true
-  },
-  {
-    "name": "net.matsudamper.money.backend.graphql.resolver.user.UserResolverImpl",
-    "allDeclaredConstructors": true,
-    "allPublicMethods": true,
-    "allDeclaredMethods": true,
-    "allDeclaredFields": true
   },
   {
     "name": "com.webauthn4j.data.AuthenticatorTransport",

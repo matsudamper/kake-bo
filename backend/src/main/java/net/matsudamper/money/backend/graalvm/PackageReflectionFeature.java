@@ -32,6 +32,10 @@ public abstract class PackageReflectionFeature implements Feature {
         } catch (Exception e) {
             throw new RuntimeException("Failed to scan package: " + targetPackage, e);
         }
+        // 走査に失敗しても native-image のビルドは通り、実行時に初めて落ちるので、ここで止める
+        if (classNames.isEmpty()) {
+            throw new IllegalStateException(targetPackage + " にクラスが 1 つも無い。パッケージを移したか、走査に失敗している");
+        }
         Collections.sort(classNames);
         for (String className : classNames) {
             try {
