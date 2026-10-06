@@ -19,8 +19,8 @@ import net.matsudamper.money.frontend.common.viewmodel.lib.EqualsImpl
 import net.matsudamper.money.frontend.common.viewmodel.lib.EventHandler
 import net.matsudamper.money.frontend.common.viewmodel.lib.EventSender
 import net.matsudamper.money.frontend.common.viewmodel.lib.Formatter
+import net.matsudamper.money.frontend.graphql.ImportedMailScreenParseWithAiMutation
 import net.matsudamper.money.frontend.graphql.ImportedMailScreenQuery
-import net.matsudamper.money.frontend.graphql.fragment.ImportedMailScreenSuggestUsage
 
 private const val TAG = "ImportedMailScreenViewModel"
 
@@ -165,12 +165,45 @@ public class ImportedMailScreenViewModel(
                 )
             }.toImmutableList(),
             usageSuggest = mail.suggestUsages.mapIndexed { index, suggestUsage ->
-                createUsageSuggest(
-                    suggestUsage = suggestUsage.importedMailScreenSuggestUsage,
-                    addMoneyUsageScreen = ScreenStructure.AddMoneyUsage(
-                        importedMailId = importedMailId,
-                        importedMailIndex = index,
-                    ),
+                MailScreenUiState.UsageSuggest(
+                    title = suggestUsage.title,
+                    serviceName = suggestUsage.serviceName.orEmpty(),
+                    amount = run amount@{
+                        val amount = suggestUsage.amount ?: return@amount null
+
+                        val splitAmount = Formatter.formatMoney(amount)
+                        "${splitAmount}円"
+                    },
+                    category = run category@{
+                        val subCategory = suggestUsage.subCategory ?: return@category null
+                        val category = subCategory.category
+
+                        "${category.name} / ${subCategory.name}"
+                    },
+                    description = run {
+                        MailScreenUiState.Clickable(
+                            text = suggestUsage.description,
+                            event = ClickableEventImpl(suggestUsage.description),
+                        )
+                    },
+                    dateTime = run dateTime@{
+                        val dateTIme = suggestUsage.dateTime ?: return@dateTime ""
+                        Formatter.formatDateTime(dateTIme)
+                    },
+                    event = object : MailScreenUiState.UsageSuggest.Event {
+                        override fun onClickRegister() {
+                            viewModelScope.launch {
+                                viewModelEventSender.send {
+                                    it.navigate(
+                                        ScreenStructure.AddMoneyUsage(
+                                            importedMailId = importedMailId,
+                                            importedMailIndex = index,
+                                        ),
+                                    )
+                                }
+                            }
+                        }
+                    },
                 )
             }.toImmutableList(),
             aiParse = MailScreenUiState.AiParse(
@@ -232,57 +265,37 @@ public class ImportedMailScreenViewModel(
 
             is ViewModelState.AiParse.Succeeded -> MailScreenUiState.AiParseState.Succeeded(
                 usageSuggest = aiParse.usages.map { usage ->
-                    createUsageSuggest(
-                        suggestUsage = usage,
-                        // 解析結果はサーバーに残らないため、位置ではなく選んだ候補の値を引き継ぐ
-                        addMoneyUsageScreen = ScreenStructure.AddMoneyUsage(
-                            importedMailId = importedMailId,
-                            title = usage.title,
-                            price = usage.amount?.toFloat(),
-                            date = usage.dateTime,
-                            description = usage.description,
-                            subCategoryId = usage.subCategory?.id?.id?.toString(),
-                        ),
-                    )
+                    createAiParsedUsageSuggest(usage)
                 }.toImmutableList(),
             )
         }
     }
 
-    private fun createUsageSuggest(
-        suggestUsage: ImportedMailScreenSuggestUsage,
-        addMoneyUsageScreen: ScreenStructure.AddMoneyUsage,
-    ): MailScreenUiState.UsageSuggest {
+    private fun createAiParsedUsageSuggest(usage: ImportedMailScreenParseWithAiMutation.Usage): MailScreenUiState.UsageSuggest {
         return MailScreenUiState.UsageSuggest(
-            title = suggestUsage.title,
-            serviceName = suggestUsage.serviceName.orEmpty(),
-            amount = run amount@{
-                val amount = suggestUsage.amount ?: return@amount null
-
-                val splitAmount = Formatter.formatMoney(amount)
-                "${splitAmount}円"
-            },
-            category = run category@{
-                val subCategory = suggestUsage.subCategory ?: return@category null
-                val category = subCategory.category
-
-                "${category.name} / ${subCategory.name}"
-            },
-            description = run {
-                MailScreenUiState.Clickable(
-                    text = suggestUsage.description,
-                    event = ClickableEventImpl(suggestUsage.description),
-                )
-            },
-            dateTime = run dateTime@{
-                val dateTIme = suggestUsage.dateTime ?: return@dateTime ""
-                Formatter.formatDateTime(dateTIme)
-            },
+            title = usage.title,
+            serviceName = "",
+            amount = usage.amount?.let { "${Formatter.formatMoney(it)}円" },
+            category = null,
+            description = MailScreenUiState.Clickable(
+                text = usage.description,
+                event = ClickableEventImpl(usage.description),
+            ),
+            dateTime = usage.dateTime?.let { Formatter.formatDateTime(it) }.orEmpty(),
             event = object : MailScreenUiState.UsageSuggest.Event {
                 override fun onClickRegister() {
                     viewModelScope.launch {
                         viewModelEventSender.send {
-                            it.navigate(addMoneyUsageScreen)
+                            // 解析結果はサーバーに残らないため、位置ではなく選んだ候補の値を引き継ぐ
+                            it.navigate(
+                                ScreenStructure.AddMoneyUsage(
+                                    importedMailId = importedMailId,
+                                    title = usage.title,
+                                    price = usage.amount?.toFloat(),
+                                    date = usage.dateTime,
+                                    description = usage.description,
+                                ),
+                            )
                         }
                     }
                 }
@@ -414,7 +427,7 @@ public class ImportedMailScreenViewModel(
         sealed interface AiParse {
             data object NotExecuted : AiParse
             data object Running : AiParse
-            data class Succeeded(val usages: List<ImportedMailScreenSuggestUsage>) : AiParse
+            data class Succeeded(val usages: List<ImportedMailScreenParseWithAiMutation.Usage>) : AiParse
             data class Failed(val message: String) : AiParse
         }
     }

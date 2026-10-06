@@ -179,12 +179,22 @@ enum DeleteMailResultError {
 }
 
 type ParseImportedMailWithAiResult {
-    usages: [MoneyUsageSuggest!]!
+    usages: [AiParsedMoneyUsage!]!
     error: ParseImportedMailWithAiError
     """
     errorがParseFailedの場合の詳細
     """
     errorMessage: String
+}
+
+"""
+AIで解析した、支出の入力に使う値
+"""
+type AiParsedMoneyUsage {
+    title: String!
+    description: String!
+    amount: Int
+    dateTime: LocalDateTime
 }
 
 enum ParseImportedMailWithAiError {

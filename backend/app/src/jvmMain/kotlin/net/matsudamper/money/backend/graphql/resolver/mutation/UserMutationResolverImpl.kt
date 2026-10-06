@@ -22,7 +22,6 @@ import net.matsudamper.money.backend.graphql.GraphQlContext
 import net.matsudamper.money.backend.graphql.converter.toDBElement
 import net.matsudamper.money.backend.graphql.converter.toDbElement
 import net.matsudamper.money.backend.graphql.exception.GraphqlExceptions
-import net.matsudamper.money.backend.graphql.localcontext.MoneyUsageSuggestLocalContext
 import net.matsudamper.money.backend.graphql.otelSupplyAsync
 import net.matsudamper.money.backend.graphql.otelThenApplyAsync
 import net.matsudamper.money.backend.graphql.toDataFetcher
@@ -56,6 +55,7 @@ import net.matsudamper.money.graphql.model.QlAddSubCategoryError
 import net.matsudamper.money.graphql.model.QlAddSubCategoryInput
 import net.matsudamper.money.graphql.model.QlAddSubCategoryResult
 import net.matsudamper.money.graphql.model.QlAddUsageQuery
+import net.matsudamper.money.graphql.model.QlAiParsedMoneyUsage
 import net.matsudamper.money.graphql.model.QlChangeSessionNameResult
 import net.matsudamper.money.graphql.model.QlDeleteApiTokenResult
 import net.matsudamper.money.graphql.model.QlDeleteFidoResult
@@ -69,7 +69,6 @@ import net.matsudamper.money.graphql.model.QlMoneyUsage
 import net.matsudamper.money.graphql.model.QlMoneyUsageCategory
 import net.matsudamper.money.graphql.model.QlMoneyUsagePreset
 import net.matsudamper.money.graphql.model.QlMoneyUsageSubCategory
-import net.matsudamper.money.graphql.model.QlMoneyUsageSuggest
 import net.matsudamper.money.graphql.model.QlParseImportedMailWithAiError
 import net.matsudamper.money.graphql.model.QlParseImportedMailWithAiResult
 import net.matsudamper.money.graphql.model.QlRegisterApiTokenResult
@@ -816,12 +815,11 @@ class UserMutationResolverImpl : UserMutationResolver {
             val qlResult = when (result) {
                 is ParseImportedMailWithAiUseCase.Result.Success -> QlParseImportedMailWithAiResult(
                     usages = result.usages.map { usage ->
-                        QlMoneyUsageSuggest(
+                        QlAiParsedMoneyUsage(
                             title = usage.title,
                             amount = usage.amount,
                             description = usage.description,
                             dateTime = usage.dateTime,
-                            serviceName = null,
                         )
                     },
                     error = null,
@@ -839,7 +837,6 @@ class UserMutationResolverImpl : UserMutationResolver {
             }
             DataFetcherResult.newResult<QlParseImportedMailWithAiResult>()
                 .data(qlResult)
-                .localContext(MoneyUsageSuggestLocalContext(importedMailId = id))
                 .build()
         }
     }

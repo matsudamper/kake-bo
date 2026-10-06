@@ -11,7 +11,6 @@ import net.matsudamper.money.frontend.graphql.GraphqlClient
 import net.matsudamper.money.frontend.graphql.ImportedMailScreenDeleteMailMutation
 import net.matsudamper.money.frontend.graphql.ImportedMailScreenParseWithAiMutation
 import net.matsudamper.money.frontend.graphql.ImportedMailScreenQuery
-import net.matsudamper.money.frontend.graphql.fragment.ImportedMailScreenSuggestUsage
 import net.matsudamper.money.frontend.graphql.type.ParseImportedMailWithAiError
 
 public class ImportedMailScreenGraphqlApi(
@@ -48,11 +47,13 @@ public class ImportedMailScreenGraphqlApi(
                         ?: return@fold ParseWithAiResult.Failure(message = null)
                     when (result.error) {
                         null -> ParseWithAiResult.Success(
-                            usages = result.usages.map { it.importedMailScreenSuggestUsage },
+                            usages = result.usages,
                         )
 
                         ParseImportedMailWithAiError.ApiKeyNotSet -> ParseWithAiResult.ApiKeyNotSet
+
                         ParseImportedMailWithAiError.MailNotFound -> ParseWithAiResult.MailNotFound
+
                         ParseImportedMailWithAiError.ParseFailed,
                         ParseImportedMailWithAiError.InternalServerError,
                         ParseImportedMailWithAiError.UNKNOWN__,
@@ -79,7 +80,7 @@ public class ImportedMailScreenGraphqlApi(
     }
 
     public sealed interface ParseWithAiResult {
-        public data class Success(val usages: List<ImportedMailScreenSuggestUsage>) : ParseWithAiResult
+        public data class Success(val usages: List<ImportedMailScreenParseWithAiMutation.Usage>) : ParseWithAiResult
 
         public data object ApiKeyNotSet : ParseWithAiResult
 
