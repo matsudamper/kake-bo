@@ -41,7 +41,7 @@ class KtorRuntimeSerializerLookup(config: Config) : Rule(
      */
     private fun KtCallExpression.isStatusOnlyResponse(): Boolean {
         val arguments = valueArguments.mapNotNull { it.getArgumentExpression() }
-        return arguments.isNotEmpty() && arguments.all { it.text.startsWith("HttpStatusCode.") }
+        return arguments.isNotEmpty() && arguments.all { statusCodeConstantPattern.matches(it.text) }
     }
 
     /**
@@ -77,6 +77,8 @@ class KtorRuntimeSerializerLookup(config: Config) : Rule(
     }
 
     private companion object {
+        private val statusCodeConstantPattern = Regex("""HttpStatusCode\.[A-Z]\w*""")
+
         private val bodyConversionFqNames = setOf(
             "io.ktor.server.response.respond",
             "io.ktor.server.response.respondNullable",
@@ -84,7 +86,7 @@ class KtorRuntimeSerializerLookup(config: Config) : Rule(
             "io.ktor.server.request.receiveNullable",
         )
 
-        private val routeBuilderFqNames = setOf("get", "post", "put", "patch", "delete", "head", "options")
+        private val routeBuilderFqNames = setOf("get", "post", "put", "patch", "delete", "head", "options", "query")
             .map { "io.ktor.server.routing.$it" }
             .toSet()
     }
