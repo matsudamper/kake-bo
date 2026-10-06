@@ -50,6 +50,7 @@ import androidx.compose.ui.input.pointer.PointerEventType
 import androidx.compose.ui.input.pointer.isSecondaryPressed
 import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.window.Dialog
 import androidx.compose.ui.window.Popup
@@ -59,6 +60,7 @@ import kotlinx.datetime.LocalTime
 import coil3.compose.AsyncImage
 import coil3.compose.SubcomposeAsyncImage
 import net.matsudamper.money.frontend.common.base.ImmutableList
+import net.matsudamper.money.frontend.common.ui.AppRoot
 import net.matsudamper.money.frontend.common.ui.LocalIsLargeScreen
 import net.matsudamper.money.frontend.common.ui.base.CategorySelectDialog
 import net.matsudamper.money.frontend.common.ui.base.CategorySelectDialogUiState
@@ -873,5 +875,78 @@ private fun MailsSection(
                 }
             }
         }
+    }
+}
+
+@Composable
+@Preview
+private fun MoneyUsageScreenPreview() {
+    val moneyUsageEvent = object : MoneyUsageScreenUiState.MoneyUsageEvent {
+        override fun onClickTitleChange() = Unit
+
+        override fun onClickDateChange() = Unit
+
+        override fun onClickDate() = Unit
+
+        override fun onClickTimeChange() = Unit
+
+        override fun onClickCategoryChange() = Unit
+
+        override fun onClickDescription() = Unit
+
+        override fun onClickAmountChange() = Unit
+
+        override fun onClickUploadImage() = Unit
+    }
+    AppRoot(isDarkTheme = false) {
+        MoneyUsageScreen(
+            modifier = Modifier.fillMaxSize(),
+            uiState = MoneyUsageScreenUiState(
+                event = object : MoneyUsageScreenUiState.Event {
+                    override fun onViewInitialized() = Unit
+
+                    override fun onClickRetry() = Unit
+
+                    override fun onClickBack() = Unit
+                },
+                loadingState = MoneyUsageScreenUiState.LoadingState.Loaded(
+                    moneyUsage = MoneyUsageScreenUiState.MoneyUsage(
+                        title = "スーパーマーケット",
+                        description = MoneyUsageScreenUiState.Clickable(
+                            text = "食料品の購入",
+                            event = object : MoneyUsageScreenUiState.ClickableEvent {
+                                override fun onClickUrl(url: String) = Unit
+
+                                override fun onLongClickUrl(text: String) = Unit
+                            },
+                        ),
+                        amount = "3,500円",
+                        category = "食費 / スーパー",
+                        date = "2026/10/06",
+                        time = "12:30",
+                        images = ImmutableList(emptyList()),
+                        uploadQueueItems = ImmutableList(emptyList()),
+                        event = moneyUsageEvent,
+                    ),
+                    linkedMails = ImmutableList(emptyList()),
+                    event = object : MoneyUsageScreenUiState.LoadedEvent {
+                        override fun onClickDelete() = Unit
+
+                        override fun onClickCopy() = Unit
+                    },
+                ),
+                confirmDialog = null,
+                textInputDialog = null,
+                calendarDialog = null,
+                timePickerDialog = null,
+                urlMenuDialog = null,
+                numberInputDialog = null,
+                categorySelectDialog = null,
+            ),
+            kakeboScaffoldListener = object : KakeboScaffoldListener {
+                override fun onClickTitle() = Unit
+            },
+            windowInsets = PaddingValues(),
+        )
     }
 }
