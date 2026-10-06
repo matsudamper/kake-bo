@@ -365,36 +365,11 @@ private fun MainContent(
             }
             item {
                 Spacer(modifier = Modifier.height(24.dp))
-                AiParseHeader(
+                AiParseSection(
                     modifier = Modifier.fillMaxWidth(),
-                    uiState = uiState.aiParse,
+                    aiParse = uiState.aiParse,
                     onClickAiParse = { uiState.event.onClickAiParse() },
                 )
-            }
-            when (val aiParseState = uiState.aiParse.state) {
-                is MailScreenUiState.AiParseState.Succeeded -> {
-                    if (aiParseState.usageSuggest.isEmpty()) {
-                        item {
-                            Text(
-                                modifier = Modifier.padding(8.dp),
-                                text = "支払いは見つかりませんでした",
-                                style = MaterialTheme.typography.bodyMedium,
-                            )
-                        }
-                    } else {
-                        items(aiParseState.usageSuggest) { item ->
-                            MoneyUsageSuggestItem(
-                                modifier = Modifier.fillMaxWidth(),
-                                item = item,
-                            )
-                        }
-                    }
-                }
-
-                is MailScreenUiState.AiParseState.Failed,
-                MailScreenUiState.AiParseState.NotExecuted,
-                MailScreenUiState.AiParseState.Running,
-                -> Unit
             }
             item {
                 Spacer(modifier = Modifier.height(24.dp))
@@ -427,60 +402,102 @@ private fun MoneyUsageSuggestItem(
 }
 
 @Composable
+private fun AiParseSection(
+    modifier: Modifier = Modifier,
+    aiParse: MailScreenUiState.AiParse,
+    onClickAiParse: () -> Unit,
+) {
+    Column(modifier = modifier) {
+        Text(
+            modifier = Modifier.padding(horizontal = 12.dp),
+            text = "AI解析",
+            style = MaterialTheme.typography.headlineLarge,
+        )
+        Spacer(modifier = Modifier.height(12.dp))
+        HorizontalDivider(modifier = Modifier.fillMaxWidth().height(1.dp))
+        Spacer(modifier = Modifier.height(12.dp))
+        Card(
+            modifier = Modifier.fillMaxWidth(),
+        ) {
+            AiParseHeader(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(vertical = 20.dp),
+                uiState = aiParse,
+                onClickAiParse = onClickAiParse,
+            )
+        }
+        when (val aiParseState = aiParse.state) {
+            is MailScreenUiState.AiParseState.Succeeded -> {
+                Spacer(modifier = Modifier.height(12.dp))
+                if (aiParseState.usageSuggest.isEmpty()) {
+                    Text(
+                        modifier = Modifier.padding(horizontal = 8.dp),
+                        text = "支払いは見つかりませんでした",
+                        style = MaterialTheme.typography.bodyMedium,
+                    )
+                } else {
+                    aiParseState.usageSuggest.forEach { item ->
+                        MoneyUsageSuggestItem(
+                            modifier = Modifier.fillMaxWidth(),
+                            item = item,
+                        )
+                    }
+                }
+            }
+
+            is MailScreenUiState.AiParseState.Failed,
+            MailScreenUiState.AiParseState.NotExecuted,
+            MailScreenUiState.AiParseState.Running,
+            -> Unit
+        }
+    }
+}
+
+@Composable
 private fun AiParseHeader(
     modifier: Modifier = Modifier,
     uiState: MailScreenUiState.AiParse,
     onClickAiParse: () -> Unit,
 ) {
-    Column(modifier = modifier) {
-        Row(
-            modifier = Modifier.fillMaxWidth(),
-            verticalAlignment = Alignment.CenterVertically,
-        ) {
-            Text(
-                modifier = Modifier.padding(horizontal = 12.dp)
-                    .weight(1f),
-                text = "AI解析結果",
-                style = MaterialTheme.typography.headlineLarge,
-            )
-            val isRunning = uiState.state is MailScreenUiState.AiParseState.Running
-            OutlinedButton(
-                enabled = isRunning.not(),
-                onClick = { onClickAiParse() },
-            ) {
-                if (isRunning) {
-                    CircularProgressIndicator(
-                        modifier = Modifier.size(16.dp),
-                        strokeWidth = 2.dp,
-                    )
-                    Spacer(modifier = Modifier.width(8.dp))
-                    Text("解析中")
-                } else {
-                    Text(
-                        text = when (uiState.state) {
-                            MailScreenUiState.AiParseState.NotExecuted -> "AIで解析"
-                            else -> "再解析"
-                        },
-                    )
-                }
-            }
-        }
-        Spacer(modifier = Modifier.height(12.dp))
-        HorizontalDivider(modifier = Modifier.fillMaxWidth().height(1.dp))
-        Spacer(modifier = Modifier.height(12.dp))
-        val message = when (val state = uiState.state) {
-            is MailScreenUiState.AiParseState.Failed -> state.message
-            MailScreenUiState.AiParseState.NotExecuted -> "Gemini APIでメールを解析します"
-            MailScreenUiState.AiParseState.Running,
-            is MailScreenUiState.AiParseState.Succeeded,
-            -> null
-        }
+    val isRunning = uiState.state is MailScreenUiState.AiParseState.Running
+    val message = when (val state = uiState.state) {
+        is MailScreenUiState.AiParseState.Failed -> state.message
+        MailScreenUiState.AiParseState.NotExecuted -> "Gemini APIでメールを解析します"
+        MailScreenUiState.AiParseState.Running,
+        is MailScreenUiState.AiParseState.Succeeded,
+        -> null
+    }
+    Column(
+        modifier = modifier.padding(8.dp),
+        horizontalAlignment = Alignment.CenterHorizontally,
+    ) {
         if (message != null) {
             Text(
-                modifier = Modifier.padding(8.dp),
                 text = message,
                 style = MaterialTheme.typography.bodyMedium,
             )
+            Spacer(modifier = Modifier.height(8.dp))
+        }
+        OutlinedButton(
+            enabled = isRunning.not(),
+            onClick = { onClickAiParse() },
+        ) {
+            if (isRunning) {
+                CircularProgressIndicator(
+                    modifier = Modifier.size(16.dp),
+                    strokeWidth = 2.dp,
+                )
+                Spacer(modifier = Modifier.width(8.dp))
+                Text("解析中")
+            } else {
+                Text(
+                    text = when (uiState.state) {
+                        MailScreenUiState.AiParseState.NotExecuted -> "AIで解析"
+                        else -> "再解析"
+                    },
+                )
+            }
         }
     }
 }
@@ -723,7 +740,7 @@ private fun MailCard(
 
 @Composable
 @Preview
-private fun ImportedMailScreenAiParseNotExecutedPreview() {
+private fun MailAiParseIdlePreview() {
     ImportedMailScreenPreviewContent(
         aiParse = MailScreenUiState.AiParse(
             state = MailScreenUiState.AiParseState.NotExecuted,
@@ -733,7 +750,7 @@ private fun ImportedMailScreenAiParseNotExecutedPreview() {
 
 @Composable
 @Preview
-private fun ImportedMailScreenAiParseRunningPreview() {
+private fun MailAiParseRunningPreview() {
     ImportedMailScreenPreviewContent(
         aiParse = MailScreenUiState.AiParse(
             state = MailScreenUiState.AiParseState.Running,
@@ -743,7 +760,7 @@ private fun ImportedMailScreenAiParseRunningPreview() {
 
 @Composable
 @Preview
-private fun ImportedMailScreenAiParseFailedPreview() {
+private fun MailAiParseFailedPreview() {
     ImportedMailScreenPreviewContent(
         aiParse = MailScreenUiState.AiParse(
             state = MailScreenUiState.AiParseState.Failed(
@@ -755,7 +772,7 @@ private fun ImportedMailScreenAiParseFailedPreview() {
 
 @Composable
 @Preview
-private fun ImportedMailScreenAiParseSucceededPreview() {
+private fun MailAiParseOkPreview() {
     ImportedMailScreenPreviewContent(
         aiParse = MailScreenUiState.AiParse(
             state = MailScreenUiState.AiParseState.Succeeded(

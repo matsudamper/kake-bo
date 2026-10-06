@@ -56,10 +56,9 @@ import net.matsudamper.money.frontend.common.ui.base.KakeboScaffoldListener
 import net.matsudamper.money.frontend.common.ui.base.RootScreenScaffold
 import net.matsudamper.money.frontend.common.ui.generated.resources.Res
 import net.matsudamper.money.frontend.common.ui.generated.resources.ic_add
-import net.matsudamper.money.frontend.common.ui.generated.resources.ic_clear
 import net.matsudamper.money.frontend.common.ui.generated.resources.ic_keyboard_arrow_left
 import net.matsudamper.money.frontend.common.ui.generated.resources.ic_keyboard_arrow_right
-import net.matsudamper.money.frontend.common.ui.generated.resources.ic_search
+import net.matsudamper.money.frontend.common.ui.layout.SearchBox
 import net.matsudamper.money.frontend.common.ui.layout.TextFieldType
 import net.matsudamper.money.frontend.common.ui.layout.html.text.fullscreen.FullScreenTextInput
 import net.matsudamper.money.frontend.common.ui.stickyHeader
@@ -238,7 +237,7 @@ public fun RootUsageHostScreen(
                                     .widthIn(max = 600.dp),
                                 text = uiState.searchText,
                                 onClick = { uiState.event.onClickSearchBox() },
-                                onClickClear = { uiState.event.onClickSearchBoxClear() },
+                                onClear = { uiState.event.onClickSearchBoxClear() },
                             )
                         }
                         Spacer(modifier = Modifier.width(12.dp))
@@ -269,60 +268,6 @@ public fun RootUsageHostScreen(
             }
         },
     )
-}
-
-@Composable
-private fun SearchBox(
-    text: String,
-    modifier: Modifier = Modifier,
-    onClick: () -> Unit,
-    onClickClear: () -> Unit,
-) {
-    Surface(
-        modifier = modifier,
-        shape = CircleShape,
-        color = MaterialTheme.colorScheme.surfaceVariant,
-        contentColor = MaterialTheme.colorScheme.onSurfaceVariant,
-    ) {
-        Row(
-            modifier = Modifier
-                .clickable { onClick() },
-            verticalAlignment = Alignment.CenterVertically,
-        ) {
-            Row(
-                modifier = Modifier
-                    .weight(1f)
-                    .padding(
-                        horizontal = 12.dp,
-                        vertical = 8.dp,
-                    ),
-                verticalAlignment = Alignment.CenterVertically,
-            ) {
-                Icon(
-                    painter = painterResource(Res.drawable.ic_search),
-                    contentDescription = "search",
-                )
-                Spacer(modifier = Modifier.width(8.dp))
-                Text(
-                    modifier = Modifier.weight(1f),
-                    text = text.ifEmpty { "検索" },
-                )
-            }
-            if (text.isNotEmpty()) {
-                Box(
-                    modifier = Modifier
-                        .clip(CircleShape)
-                        .clickable { onClickClear() }
-                        .padding(8.dp),
-                ) {
-                    Icon(
-                        painter = painterResource(Res.drawable.ic_clear),
-                        contentDescription = "clear",
-                    )
-                }
-            }
-        }
-    }
 }
 
 @Composable
@@ -674,7 +619,7 @@ private fun ListPreview() {
         type = RootUsageHostScreenUiState.Type.List,
         header = RootUsageHostScreenUiState.Header.None,
         textInputUiState = null,
-        searchText = "",
+        searchText = "スーパー",
         categoryFilterState = RootUsageHostScreenUiState.CategoryFilterState(
             categoryDropdown = dropdownState("全てのカテゴリ", listOf("全てのカテゴリ", "食費")),
             subCategoryDropdown = dropdownState("-", listOf()),
