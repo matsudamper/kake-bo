@@ -90,6 +90,11 @@ internal class LongRunningFieldTimeouts private constructor(
         private const val DIRECTIVE_NAME = "longRunning"
         private const val TIMEOUT_SECONDS_ARGUMENT_NAME = "timeoutSeconds"
 
+        /**
+         * クライアントの通信エンジンのタイムアウト（GraphqlClient の HTTP_ENGINE_TIMEOUT）に合わせる
+         */
+        private const val MAX_TIMEOUT_SECONDS = 120
+
         fun parse(serverSchema: String): LongRunningFieldTimeouts {
             val definitions = serverSchema.parseAsGQLDocument().getOrThrow().definitions
             val fieldsByTypeName = mutableMapOf<String, MutableMap<String, FieldInfo>>()
@@ -123,9 +128,13 @@ internal class LongRunningFieldTimeouts private constructor(
                 ?.firstOrNull { it.name == TIMEOUT_SECONDS_ARGUMENT_NAME }
                 ?.value
                 ?: return null
-            return checkNotNull((value as? GQLIntValue)?.value?.toIntOrNull()) {
+            val timeoutSeconds = checkNotNull((value as? GQLIntValue)?.value?.toIntOrNull()) {
                 "@$DIRECTIVE_NAME の $TIMEOUT_SECONDS_ARGUMENT_NAME には整数を指定してください: $name"
             }
+            check(timeoutSeconds <= MAX_TIMEOUT_SECONDS) {
+                "@$DIRECTIVE_NAME の $TIMEOUT_SECONDS_ARGUMENT_NAME は通信エンジンのタイムアウトを超えられないため、${MAX_TIMEOUT_SECONDS}以下にしてください: $name"
+            }
+            return timeoutSeconds
         }
 
         private val DEFAULT_ROOT_TYPE_NAMES = mapOf(
