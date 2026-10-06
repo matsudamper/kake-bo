@@ -75,6 +75,7 @@ import net.matsudamper.money.frontend.common.ui.layout.UrlMenuDialog
 import net.matsudamper.money.frontend.common.ui.layout.html.text.fullscreen.FullScreenTextInput
 import net.matsudamper.money.frontend.common.ui.layout.image.ImageUploadButton
 import net.matsudamper.money.frontend.common.ui.layout.image.MoneyUsageImageThumbnail
+import net.matsudamper.money.frontend.common.ui.layout.image.MoneyUsageImageThumbnailUiState
 import net.matsudamper.money.frontend.common.ui.layout.image.ZoomableImageDialog
 import org.jetbrains.compose.resources.painterResource
 
@@ -88,6 +89,7 @@ public data class MoneyUsageScreenUiState(
     val urlMenuDialog: UrlMenuDialog?,
     val numberInputDialog: NumberInputDialog?,
     val categorySelectDialog: CategorySelectDialogUiState?,
+    val zoomImageDialog: ZoomImageDialog?,
 ) {
     public data class CalendarDialog(
         val date: LocalDate,
@@ -157,15 +159,17 @@ public data class MoneyUsageScreenUiState(
     )
 
     public data class ImageItem(
-        val url: String,
-        val event: ImageItemEvent,
+        val thumbnail: MoneyUsageImageThumbnailUiState,
     )
 
-    @Immutable
-    public interface ImageItemEvent {
-        public fun onClickReplace()
-
-        public fun onClickDelete()
+    public data class ZoomImageDialog(
+        val url: String,
+        val event: Event,
+    ) {
+        @Immutable
+        public interface Event {
+            public fun onDismissRequest()
+        }
     }
 
     public data class MailItem(
@@ -256,6 +260,12 @@ public fun MoneyUsageScreen(
             onClickOpen = { uiState.urlMenuDialog.event.onClickOpen() },
             onClickCopy = { uiState.urlMenuDialog.event.onClickCopy() },
             onDismissRequest = { uiState.urlMenuDialog.event.onDismissRequest() },
+        )
+    }
+    if (uiState.zoomImageDialog != null) {
+        ZoomableImageDialog(
+            imageUrl = uiState.zoomImageDialog.url,
+            onDismissRequest = { uiState.zoomImageDialog.event.onDismissRequest() },
         )
     }
     if (uiState.confirmDialog != null) {
@@ -579,8 +589,6 @@ private fun ImagesCard(
     modifier: Modifier = Modifier,
     uiState: MoneyUsageScreenUiState.MoneyUsage,
 ) {
-    var selectedImageUrl by remember { mutableStateOf<String?>(null) }
-
     Card(modifier = modifier.fillMaxWidth()) {
         Column(modifier = Modifier.padding(16.dp)) {
             Text(
@@ -610,9 +618,9 @@ private fun ImagesCard(
                                         val item = itemPair.first
                                         if (itemPair.second == "image") {
                                             val imageItem = item as MoneyUsageScreenUiState.ImageItem
-                                            ImageItemContent(
-                                                imageItem = imageItem,
-                                                onClick = { selectedImageUrl = imageItem.url },
+                                            MoneyUsageImageThumbnail(
+                                                uiState = imageItem.thumbnail,
+                                                modifier = Modifier.fillMaxSize(),
                                             )
                                         } else {
                                             val queueItem = item as MoneyUsageScreenUiState.UploadQueueItem
@@ -657,27 +665,6 @@ private fun ImagesCard(
             )
         }
     }
-
-    selectedImageUrl?.let { imageUrl ->
-        ZoomableImageDialog(
-            imageUrl = imageUrl,
-            onDismissRequest = { selectedImageUrl = null },
-        )
-    }
-}
-
-@Composable
-private fun ImageItemContent(
-    imageItem: MoneyUsageScreenUiState.ImageItem,
-    onClick: () -> Unit,
-) {
-    MoneyUsageImageThumbnail(
-        url = imageItem.url,
-        modifier = Modifier.fillMaxSize(),
-        onClick = onClick,
-        onClickReplace = { imageItem.event.onClickReplace() },
-        onClickDelete = { imageItem.event.onClickDelete() },
-    )
 }
 
 @Composable

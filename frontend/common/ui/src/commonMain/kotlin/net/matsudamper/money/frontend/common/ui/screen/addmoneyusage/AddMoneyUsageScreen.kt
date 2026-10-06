@@ -36,10 +36,7 @@ import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.Immutable
 import androidx.compose.runtime.LaunchedEffect
-import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
-import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.TextStyle
@@ -66,6 +63,7 @@ import net.matsudamper.money.frontend.common.ui.layout.TimePickerDialog
 import net.matsudamper.money.frontend.common.ui.layout.html.text.fullscreen.FullScreenTextInput
 import net.matsudamper.money.frontend.common.ui.layout.image.ImageUploadButton
 import net.matsudamper.money.frontend.common.ui.layout.image.MoneyUsageImageThumbnail
+import net.matsudamper.money.frontend.common.ui.layout.image.MoneyUsageImageThumbnailUiState
 import net.matsudamper.money.frontend.common.ui.layout.image.ZoomableImageDialog
 import net.matsudamper.money.frontend.common.ui.lib.asWindowInsets
 import org.jetbrains.compose.resources.painterResource
@@ -74,16 +72,8 @@ public sealed interface ImageItem {
     public data object Uploading : ImageItem
 
     public data class Uploaded(
-        val url: String,
-        val event: UploadedEvent,
+        val thumbnail: MoneyUsageImageThumbnailUiState,
     ) : ImageItem
-
-    @Immutable
-    public interface UploadedEvent {
-        public fun onClickReplace()
-
-        public fun onClickDelete()
-    }
 }
 
 public data class AddMoneyUsageScreenUiState(
@@ -100,6 +90,7 @@ public data class AddMoneyUsageScreenUiState(
     val category: String,
     val amount: String,
     val images: ImmutableList<ImageItem>,
+    val zoomImageDialog: ZoomImageDialog?,
     val addButtonEnabled: Boolean,
     val handleBackPress: Boolean,
     val event: Event,
@@ -146,6 +137,16 @@ public data class AddMoneyUsageScreenUiState(
         val selectedDate: LocalDate,
     )
 
+    public data class ZoomImageDialog(
+        val url: String,
+        val event: Event,
+    ) {
+        @Immutable
+        public interface Event {
+            public fun onDismissRequest()
+        }
+    }
+
     public data class TimePickerDialog(
         val selectedTime: LocalTime,
     )
@@ -190,7 +191,6 @@ public fun AddMoneyUsageScreen(
         uiState.event.onBack()
     }
 
-    var selectedImageUrl by remember { mutableStateOf<String?>(null) }
     val snackbarHostState = remember { SnackbarHostState() }
 
     LaunchedEffect(uiState.snackbarEventState) {
@@ -401,11 +401,8 @@ public fun AddMoneyUsageScreen(
                                             }
                                             is ImageItem.Uploaded -> {
                                                 MoneyUsageImageThumbnail(
-                                                    url = image.url,
+                                                    uiState = image.thumbnail,
                                                     modifier = Modifier.size(120.dp),
-                                                    onClick = { selectedImageUrl = image.url },
-                                                    onClickReplace = { image.event.onClickReplace() },
-                                                    onClickDelete = { image.event.onClickDelete() },
                                                 )
                                             }
                                         }
@@ -472,10 +469,10 @@ public fun AddMoneyUsageScreen(
         )
     }
 
-    selectedImageUrl?.let { imageUrl ->
+    if (uiState.zoomImageDialog != null) {
         ZoomableImageDialog(
-            imageUrl = imageUrl,
-            onDismissRequest = { selectedImageUrl = null },
+            imageUrl = uiState.zoomImageDialog.url,
+            onDismissRequest = { uiState.zoomImageDialog.event.onDismissRequest() },
         )
     }
 }
@@ -584,6 +581,7 @@ private fun AddMoneyUsageScreenPreview() {
                 category = "食費",
                 amount = "¥3,500",
                 images = ImmutableList(listOf()),
+                zoomImageDialog = null,
                 addButtonEnabled = true,
                 handleBackPress = false,
                 event = object : AddMoneyUsageScreenUiState.Event {
