@@ -41,6 +41,7 @@ include(":frontend:common:graphql:schema")
 include(":frontend:common:graphql")
 
 include(":shared")
+include(":detekt-rules")
 
 pluginManagement {
     includeBuild("build-logic")

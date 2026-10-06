@@ -1,0 +1,71 @@
+package net.matsudamper.money.detekt
+
+import dev.detekt.api.Config
+import dev.detekt.test.lint
+import io.kotest.core.spec.style.FunSpec
+import io.kotest.matchers.collections.shouldBeEmpty
+import io.kotest.matchers.collections.shouldHaveSize
+
+class KtorRuntimeSerializerLookupTest : FunSpec(
+    {
+        val rule = KtorRuntimeSerializerLookup(Config.empty)
+
+        test("call.respond を検知する") {
+            val code = """
+                import io.ktor.server.response.respond
+
+                suspend fun handle(call: Any) {
+                    call.respond(Body())
+                }
+            """.trimIndent()
+            rule.lint(code, compile = false).shouldHaveSize(1)
+        }
+
+        test("star import の receive を検知する") {
+            val code = """
+                import io.ktor.server.request.*
+
+                suspend fun handle(call: Any) {
+                    val body = call.receive<Body>()
+                }
+            """.trimIndent()
+            rule.lint(code, compile = false).shouldHaveSize(1)
+        }
+
+        test("型引数付きの post を検知する") {
+            val code = """
+                import io.ktor.server.routing.post
+
+                fun route() {
+                    post<Body>("/path") { body -> }
+                }
+            """.trimIndent()
+            rule.lint(code, compile = false).shouldHaveSize(1)
+        }
+
+        test("型引数なしの post と respondText は検知しない") {
+            val code = """
+                import io.ktor.server.response.respondText
+                import io.ktor.server.routing.post
+
+                fun route() {
+                    post("/path") {
+                        call.respondText("ok")
+                    }
+                }
+            """.trimIndent()
+            rule.lint(code, compile = false).shouldBeEmpty()
+        }
+
+        test("Ktor 以外の同名関数は検知しない") {
+            val code = """
+                import example.respond
+
+                fun handle() {
+                    respond(Body())
+                }
+            """.trimIndent()
+            rule.lint(code, compile = false).shouldBeEmpty()
+        }
+    },
+)
