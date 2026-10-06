@@ -41,6 +41,7 @@ public class ImportedMailFilterCategoryScreenGraphqlApi(
         title: String? = null,
         subCategoryId: MoneyUsageSubCategoryId? = null,
         operator: ImportedMailFilterCategoryScreenUiState.Operator? = null,
+        matchExpression: String? = null,
     ): Result<ApolloResponse<ImportedMailCategoryFilterUpdateMutation.Data>> {
         return runCatching {
             apolloClient
@@ -58,6 +59,7 @@ public class ImportedMailFilterCategoryScreenGraphqlApi(
                                     null -> null
                                 },
                             ),
+                            matchExpression = Optional.presentIfNotNull(matchExpression),
                         ),
                     ),
                 ).execute()
@@ -66,6 +68,7 @@ public class ImportedMailFilterCategoryScreenGraphqlApi(
 
     public suspend fun updateMatcher(
         id: ImportedMailCategoryFilterMatcherId,
+        matcherKey: String? = null,
         text: String? = null,
         type: ImportedMailFilterCategoryScreenUiState.MatcherType? = null,
         dataSource: ImportedMailFilterCategoryScreenUiState.DataSource? = null,
@@ -75,6 +78,7 @@ public class ImportedMailFilterCategoryScreenGraphqlApi(
                 ImportedMailCategoryFilterScreenUpdateMatcherMutation(
                     input = UpdateImportedMailCategoryFilterMatcherInput(
                         id = id,
+                        matcherKey = Optional.present(matcherKey),
                         text = Optional.present(text),
                         matcherType = when (type) {
                             ImportedMailFilterCategoryScreenUiState.MatcherType.Include -> ImportedMailCategoryFilterMatcherType.Include

@@ -7,7 +7,12 @@ import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import com.apollographql.apollo.api.ApolloResponse
+import net.matsudamper.money.categoryfilter.CategoryFilterMatcherKey
+import net.matsudamper.money.categoryfilter.matchexpression.MatchExpressionAnalysis
+import net.matsudamper.money.categoryfilter.matchexpression.MatchExpressionAnalyzer
+import net.matsudamper.money.categoryfilter.matchexpression.MatchExpressionError
 import net.matsudamper.money.element.ImportedMailCategoryFilterId
+import net.matsudamper.money.element.ImportedMailCategoryFilterMatcherId
 import net.matsudamper.money.frontend.common.base.ImmutableList.Companion.toImmutableList
 import net.matsudamper.money.frontend.common.base.nav.ScopedObjectFeature
 import net.matsudamper.money.frontend.common.base.nav.user.ScreenNavController
@@ -175,6 +180,8 @@ public class ImportedMailFilterCategoryViewModel(
     }
 
     private fun createLoadedUiState(filter: ImportedMailCategoryFilterScreenQuery.ImportedMailCategoryFilter): ImportedMailFilterCategoryScreenUiState.LoadingState.Loaded {
+        val matchers = filter.importedMailCategoryFilterScreenItem.matchers.orEmpty()
+            .map { it.importedMailCategoryFilterMatcherScreenItem }
         return ImportedMailFilterCategoryScreenUiState.LoadingState.Loaded(
             title = filter.importedMailCategoryFilterScreenItem.title,
             category = run category@{
@@ -186,10 +193,10 @@ public class ImportedMailFilterCategoryViewModel(
                     subCategory = subCategory.name,
                 )
             },
-            matchers = filter.importedMailCategoryFilterScreenItem.matchers.orEmpty()
-                .map { it.importedMailCategoryFilterMatcherScreenItem }
+            matchers = matchers
                 .map { matcher ->
                     ImportedMailFilterCategoryScreenUiState.Matcher(
+                        matcherKey = matcher.matcherKey,
                         text = matcher.text,
                         source = when (matcher.dataSourceType) {
                             ImportedMailCategoryFilterDataSourceType.MailHtml -> ImportedMailFilterCategoryScreenUiState.DataSource.MailHtml
@@ -208,6 +215,27 @@ public class ImportedMailFilterCategoryViewModel(
                             ImportedMailCategoryFilterMatcherType.UNKNOWN__ -> ImportedMailFilterCategoryScreenUiState.MatcherType.Unknown
                         },
                         event = object : ImportedMailFilterCategoryScreenUiState.MatcherEvent {
+                            override fun onClickMatcherKeyChange() {
+                                viewModelStateFlow.update { viewModelState ->
+                                    viewModelState.copy(
+                                        textInput = ImportedMailFilterCategoryScreenUiState.TextInput(
+                                            title = "キーを編集（${CategoryFilterMatcherKey.ALLOWED_CHARACTERS_DESCRIPTION}）",
+                                            onCompleted = { matcherKey ->
+                                                viewModelScope.launch {
+                                                    updateMatcherKey(
+                                                        matcherId = matcher.id,
+                                                        matcherKey = matcherKey,
+                                                    )
+                                                }
+                                            },
+                                            default = matcher.matcherKey,
+                                            isMultiline = false,
+                                            dismiss = { dismissTextInput() },
+                                        ),
+                                    )
+                                }
+                            }
+
                             override fun onClickTextChange() {
                                 viewModelStateFlow.update { viewModelState ->
                                     viewModelState.copy(
@@ -228,6 +256,7 @@ public class ImportedMailFilterCategoryViewModel(
                                                 }
                                             },
                                             default = matcher.text,
+                                            isMultiline = false,
                                             dismiss = { dismissTextInput() },
                                         ),
                                     )
@@ -298,6 +327,10 @@ public class ImportedMailFilterCategoryViewModel(
                         },
                     )
                 }.toImmutableList(),
+            matchExpression = createMatchExpressionUiState(
+                matchExpression = filter.importedMailCategoryFilterScreenItem.matchExpression,
+                matcherKeys = matchers.map { it.matcherKey }.toSet(),
+            ),
             operator = when (filter.importedMailCategoryFilterScreenItem.operator) {
                 ImportedMailFilterCategoryConditionOperator.AND -> ImportedMailFilterCategoryScreenUiState.Operator.AND
                 ImportedMailFilterCategoryConditionOperator.OR -> ImportedMailFilterCategoryScreenUiState.Operator.OR
@@ -334,6 +367,7 @@ public class ImportedMailFilterCategoryViewModel(
                                     }
                                 },
                                 default = filter.importedMailCategoryFilterScreenItem.title,
+                                isMultiline = false,
                                 dismiss = { dismissTextInput() },
                             ),
                         )
@@ -358,6 +392,33 @@ public class ImportedMailFilterCategoryViewModel(
                     }
                 }
 
+                override fun onClickMatchExpressionChange() {
+                    viewModelStateFlow.update { viewModelState ->
+                        viewModelState.copy(
+                            textInput = ImportedMailFilterCategoryScreenUiState.TextInput(
+                                title = "式を編集",
+                                onCompleted = { matchExpression ->
+                                    viewModelScope.launch {
+                                        api.updateFilter(
+                                            id = id,
+                                            matchExpression = matchExpression,
+                                        ).onSuccess {
+                                            dismissTextInput()
+                                        }.onFailure {
+                                            eventSender.send {
+                                                it.showNativeAlert("更新に失敗しました。")
+                                            }
+                                        }
+                                    }
+                                },
+                                default = filter.importedMailCategoryFilterScreenItem.matchExpression.orEmpty(),
+                                isMultiline = true,
+                                dismiss = { dismissTextInput() },
+                            ),
+                        )
+                    }
+                }
+
                 override fun onClickCategoryChange() {
                     val subCategory = viewModelStateFlow.value.apolloResponseState.getSuccessOrNull()
                         ?.value?.data?.user?.importedMailCategoryFilter?.importedMailCategoryFilterScreenItem
@@ -372,6 +433,61 @@ public class ImportedMailFilterCategoryViewModel(
                 }
             },
         )
+    }
+
+    private suspend fun updateMatcherKey(
+        matcherId: ImportedMailCategoryFilterMatcherId,
+        matcherKey: String,
+    ) {
+        if (!CategoryFilterMatcherKey.isValid(matcherKey)) {
+            eventSender.send {
+                it.showNativeAlert("キーには${CategoryFilterMatcherKey.ALLOWED_CHARACTERS_DESCRIPTION}を${CategoryFilterMatcherKey.MAX_LENGTH}文字以内で入力してください")
+            }
+            return
+        }
+        val isSuccess = api.updateMatcher(
+            id = matcherId,
+            matcherKey = matcherKey,
+        ).getOrNull()?.data?.userMutation?.updateImportedMailCategoryFilterMatcher != null
+        if (isSuccess) {
+            dismissTextInput()
+        } else {
+            eventSender.send {
+                it.showNativeAlert("更新に失敗しました。同じキーが既に使われている可能性があります")
+            }
+        }
+    }
+
+    private fun createMatchExpressionUiState(
+        matchExpression: String?,
+        matcherKeys: Set<String>,
+    ): ImportedMailFilterCategoryScreenUiState.MatchExpression {
+        val errors: List<MatchExpressionError> = if (matchExpression.isNullOrBlank()) {
+            listOf()
+        } else {
+            when (val analysis = MatchExpressionAnalyzer.analyze(matchExpression, matcherKeys)) {
+                is MatchExpressionAnalysis.Valid -> listOf()
+                is MatchExpressionAnalysis.Invalid -> analysis.errors
+            }
+        }
+        return ImportedMailFilterCategoryScreenUiState.MatchExpression(
+            text = matchExpression?.takeIf { it.isNotBlank() },
+            errorRanges = errors.map { it.range }.toImmutableList(),
+            errorMessages = errors.map { createMatchExpressionErrorMessage(it) }.distinct().toImmutableList(),
+            allowedCharactersDescription = "キー（${CategoryFilterMatcherKey.ALLOWED_CHARACTERS_DESCRIPTION}）、AND、OR、!、(、)、TRUE、FALSE、空白、改行",
+        )
+    }
+
+    private fun createMatchExpressionErrorMessage(error: MatchExpressionError): String {
+        return when (error.type) {
+            MatchExpressionError.Type.Empty -> "式が空です"
+            MatchExpressionError.Type.InvalidCharacter -> "使えない文字があります: ${error.text}"
+            MatchExpressionError.Type.UnknownKeyword -> "知らないキーワードです: ${error.text}"
+            MatchExpressionError.Type.UnexpectedToken -> "ここに書けない語があります: ${error.text}"
+            MatchExpressionError.Type.MissingOperand -> "${error.text} の後に条件がありません"
+            MatchExpressionError.Type.MissingClosingParenthesis -> "閉じ括弧がありません"
+            MatchExpressionError.Type.UnknownMatcherKey -> "存在しないキーです: ${error.text}"
+        }
     }
 
     private fun dismissTextInput() {
