@@ -21,6 +21,17 @@ class KtorRuntimeSerializerLookupTest : FunSpec(
             rule.lint(code, compile = false).shouldHaveSize(1)
         }
 
+        test("respondNullable を検知する") {
+            val code = """
+                import io.ktor.server.response.respondNullable
+
+                suspend fun handle(call: Any) {
+                    call.respondNullable(Body())
+                }
+            """.trimIndent()
+            rule.lint(code, compile = false).shouldHaveSize(1)
+        }
+
         test("star import の receive を検知する") {
             val code = """
                 import io.ktor.server.request.*

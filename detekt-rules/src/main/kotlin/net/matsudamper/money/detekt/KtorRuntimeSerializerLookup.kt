@@ -65,6 +65,7 @@ class KtorRuntimeSerializerLookup(config: Config) : Rule(
     private companion object {
         private val bodyConversionFqNames = setOf(
             "io.ktor.server.response.respond",
+            "io.ktor.server.response.respondNullable",
             "io.ktor.server.request.receive",
             "io.ktor.server.request.receiveNullable",
         )
