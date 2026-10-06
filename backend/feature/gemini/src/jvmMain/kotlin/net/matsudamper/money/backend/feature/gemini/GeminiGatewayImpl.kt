@@ -36,7 +36,8 @@ class GeminiGatewayImpl : GeminiGateway {
             )
             val request = HttpRequest.newBuilder()
                 .uri(URI.create("$API_BASE_URL/models/$MODEL:generateContent"))
-                .timeout(Duration.ofSeconds(120))
+                // parseImportedMailWithAi の @longRunning(timeoutSeconds: 90) より先に切れるようにして、結果をエラーとして返せるようにする
+                .timeout(Duration.ofSeconds(80))
                 .header("Content-Type", "application/json")
                 .header("x-goog-api-key", apiKey)
                 .POST(HttpRequest.BodyPublishers.ofString(requestBody.toString()))

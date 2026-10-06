@@ -9,7 +9,7 @@ type UserMutation {
     """
     Gemini APIでメールを解析し、登録候補を返す。結果は保存しない
     """
-    parseImportedMailWithAi(id: ImportedMailId!): ParseImportedMailWithAiResult!
+    parseImportedMailWithAi(id: ImportedMailId!): ParseImportedMailWithAiResult! @longRunning(timeoutSeconds: 90)
     deleteMail(mailIds: [MailId!]!): DeleteMailResult!
 
     addUsage(usage: AddUsageQuery!): MoneyUsage!
