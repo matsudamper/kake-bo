@@ -27,6 +27,7 @@ import io.ktor.server.plugins.statuspages.StatusPages
 import io.ktor.server.request.httpMethod
 import io.ktor.server.request.path
 import io.ktor.server.request.receiveStream
+import io.ktor.server.request.receiveText
 import io.ktor.server.response.cacheControl
 import io.ktor.server.response.header
 import io.ktor.server.response.respondFile
@@ -164,7 +165,11 @@ fun Application.myApplicationModule(diContainer: DiContainer) {
                     }
                 }
             }
-            post<RegisterMailHandler.Request>("/api/register_mail/v1") { request ->
+            post("/api/register_mail/v1") {
+                val request = ObjectMapper.kotlinxSerialization.decodeFromString(
+                    RegisterMailHandler.Request.serializer(),
+                    call.receiveText(),
+                )
                 val apiKey = call.request.headers["Authorization"]
                 withTimeout(5.seconds) {
                     val result = RegisterMailHandler(
@@ -192,6 +197,7 @@ fun Application.myApplicationModule(diContainer: DiContainer) {
                             call.respondText(
                                 contentType = ContentType.Application.Json,
                                 text = Json.encodeToString(
+                                    RegisterMailHandler.Response.serializer(),
                                     result.response,
                                 ),
                             )
