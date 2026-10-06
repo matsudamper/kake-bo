@@ -67,6 +67,7 @@ public class RootUsageCalendarPagerHostViewModel(
             hostScreenUiState = rootUsageHostViewModel.uiStateFlow.value,
             event = object : RootUsageCalendarPagerHostScreenUiState.Event {
                 override fun onPageChanged(page: RootUsageCalendarPagerHostScreenUiState.Page) {
+                    updateCurrentYearMonthFromNavigation(page.navigation)
                     navController.navigateReplace(
                         ScreenStructure.Root.Usage.Calendar(
                             yearMonth = page.navigation.yearMonth,
@@ -131,6 +132,7 @@ public class RootUsageCalendarPagerHostViewModel(
 
     private fun prevMonth() {
         val prev = viewModelStateFlow.value.currentYearMonth.minusMonth()
+        viewModelStateFlow.update { it.copy(currentYearMonth = prev) }
         viewModelScope.launch {
             viewModelEventSender.send {
                 it.navigate(
@@ -147,6 +149,7 @@ public class RootUsageCalendarPagerHostViewModel(
 
     private fun nextMonth() {
         val next = viewModelStateFlow.value.currentYearMonth.plusMonth()
+        viewModelStateFlow.update { it.copy(currentYearMonth = next) }
         viewModelScope.launch {
             viewModelEventSender.send {
                 it.navigate(
@@ -162,6 +165,14 @@ public class RootUsageCalendarPagerHostViewModel(
     }
 
     private fun navigateToYearMonth(year: Int, month: Int) {
+        viewModelStateFlow.update {
+            it.copy(
+                currentYearMonth = YearMonth(
+                    year = year,
+                    month = month,
+                ),
+            )
+        }
         viewModelScope.launch {
             viewModelEventSender.send {
                 it.navigate(
@@ -178,6 +189,12 @@ public class RootUsageCalendarPagerHostViewModel(
 
     public interface Event {
         public fun navigate(screenStructure: ScreenStructure)
+    }
+
+    private fun updateCurrentYearMonthFromNavigation(calendar: ScreenStructure.Root.Usage.Calendar) {
+        viewModelStateFlow.update {
+            it.copy(currentYearMonth = getDisplayYearMonth(calendar))
+        }
     }
 
     private fun getDisplayYearMonth(calendar: ScreenStructure.Root.Usage.Calendar): YearMonth {
