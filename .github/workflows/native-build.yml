@@ -23,6 +23,7 @@ jobs:
       # native-image 生成 JVM（gradle.properties の nativeImageBuild.* を CI 向けに上書き）
       ORG_GRADLE_PROJECT_nativeImageBuild_maxHeapSizePercent: "52"
       ORG_GRADLE_PROJECT_nativeImageBuild_jvmArgs: "-Xmx9g"
+      ORG_GRADLE_PROJECT_nativeImageBuild_quickBuild: "true"
       GITHUB_ACTOR: ${{ github.actor }}
       GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
     steps:

@@ -6,7 +6,8 @@ COPY . .
 
 RUN ./gradlew :backend:nativeCompile :frontend:app:wasmJsBrowserDistribution \
     --no-daemon \
-    -Dorg.gradle.jvmargs="-Xmx6g"
+    -Dorg.gradle.jvmargs="-Xmx6g" \
+    -PnativeImageBuild.quickBuild=false
 
 FROM debian:13-slim
 

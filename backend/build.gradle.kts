@@ -31,6 +31,10 @@ val nativeImageHostJvmArgs: List<String> =
         ?.filter { it.isNotEmpty() }
         ?: emptyList()
 
+// true: GraalVM の -Ob（ビルド時間優先）。CI の native 検証向け。本番イメージは false 推奨。
+val nativeQuickBuild =
+    (findProperty("nativeImageBuild.quickBuild") as String?)?.toBooleanStrictOrNull() ?: false
+
 val nativeBuildArgs = listOf(
     "--no-fallback",
     "-H:+ReportExceptionStackTraces",
@@ -135,6 +139,7 @@ graalvmNative {
         named("main") {
             mainClass.set("net.matsudamper.money.backend.Main")
             imageName.set("backend")
+            quickBuild.set(nativeQuickBuild)
             buildArgs.addAll(nativeBuildArgs)
             nativeImageMaxHeapSizePercent?.let { percent ->
                 buildArgs.add("-H:MaximumHeapSizePercent=$percent")
