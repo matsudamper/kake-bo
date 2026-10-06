@@ -41,7 +41,9 @@ class KtorRuntimeSerializerLookup(config: Config) : Rule(
      */
     private fun KtCallExpression.hasRequestBodyType(): Boolean {
         if (typeArguments.isNotEmpty()) return true
-        val handler = valueArguments.lastOrNull()?.getArgumentExpression() ?: return false
+        val handlerArgument = valueArguments.firstOrNull { it.getArgumentName()?.asName?.asString() == "body" }
+            ?: valueArguments.lastOrNull { it.getArgumentName() == null }
+        val handler = handlerArgument?.getArgumentExpression() ?: return false
         val handlerLambda = handler as? KtLambdaExpression ?: return true
         return handlerLambda.valueParameters.isNotEmpty()
     }

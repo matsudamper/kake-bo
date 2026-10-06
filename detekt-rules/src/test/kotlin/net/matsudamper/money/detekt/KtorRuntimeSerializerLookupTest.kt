@@ -112,6 +112,17 @@ class KtorRuntimeSerializerLookupTest : FunSpec(
             rule.lint(code, compile = false).shouldBeEmpty()
         }
 
+        test("名前付き引数で body を先に渡した型なしの post は検知しない") {
+            val code = """
+                import io.ktor.server.routing.post
+
+                fun route() {
+                    post(body = { call.respondText("ok") }, path = "/path")
+                }
+            """.trimIndent()
+            rule.lint(code, compile = false).shouldBeEmpty()
+        }
+
         test("Ktor 以外の同名関数は検知しない") {
             val code = """
                 import example.respond
