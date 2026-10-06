@@ -21,7 +21,7 @@ class KtorRuntimeSerializerLookup(config: Config) : Rule(
         val calledName = expression.calleeExpression?.text ?: return
         val calledFqName = expression.containingKtFile.resolveImportedFqName(calledName) ?: return
 
-        val isReflectiveBodyCall = calledFqName in bodyConversionFqNames
+        val isReflectiveBodyCall = calledFqName in bodyConversionFqNames && !expression.isStatusOnlyResponse()
         val isTypedRouteBuilder = calledFqName in routeBuilderFqNames && expression.hasRequestBodyType()
 
         if (isReflectiveBodyCall || isTypedRouteBuilder) {
@@ -33,6 +33,15 @@ class KtorRuntimeSerializerLookup(config: Config) : Rule(
                 ),
             )
         }
+    }
+
+    /**
+     * HttpStatusCode だけを渡す respond は本文を持たず、serializer 探索をしない。
+     * OutgoingContent などは PSI だけでは判別できないため、必要なら Suppress する。
+     */
+    private fun KtCallExpression.isStatusOnlyResponse(): Boolean {
+        val arguments = valueArguments.mapNotNull { it.getArgumentExpression() }
+        return arguments.isNotEmpty() && arguments.all { it.text.startsWith("HttpStatusCode.") }
     }
 
     /**

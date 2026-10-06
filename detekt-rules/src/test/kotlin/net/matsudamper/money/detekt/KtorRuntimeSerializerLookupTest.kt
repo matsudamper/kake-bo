@@ -123,6 +123,28 @@ class KtorRuntimeSerializerLookupTest : FunSpec(
             rule.lint(code, compile = false).shouldBeEmpty()
         }
 
+        test("HttpStatusCode だけを渡す respond は検知しない") {
+            val code = """
+                import io.ktor.server.response.respond
+
+                suspend fun handle(call: Any) {
+                    call.respond(HttpStatusCode.NoContent)
+                }
+            """.trimIndent()
+            rule.lint(code, compile = false).shouldBeEmpty()
+        }
+
+        test("HttpStatusCode と本文を渡す respond を検知する") {
+            val code = """
+                import io.ktor.server.response.respond
+
+                suspend fun handle(call: Any) {
+                    call.respond(HttpStatusCode.OK, Body())
+                }
+            """.trimIndent()
+            rule.lint(code, compile = false).shouldHaveSize(1)
+        }
+
         test("Ktor 以外の同名関数は検知しない") {
             val code = """
                 import example.respond
