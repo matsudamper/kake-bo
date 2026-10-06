@@ -330,16 +330,7 @@ public class ImportedMailScreenViewModel(
 
         viewModelStateFlow.update { viewModelState ->
             if (viewModelState.aiParseStartGeneration != requestedGeneration) return@update viewModelState
-            viewModelState.copy(
-                apolloResponse = result,
-                isAwaitingAiParseResult = false,
-                // 開始結果が不明だった場合も、サーバーの状態を取得できたのでそちらの表示に任せる
-                aiParseStartErrorMessage = if (viewModelState.isAwaitingAiParseResult) {
-                    null
-                } else {
-                    viewModelState.aiParseStartErrorMessage
-                },
-            )
+            viewModelState.applyValidResponse(result)
         }
     }
 
@@ -349,15 +340,24 @@ public class ImportedMailScreenViewModel(
 
         viewModelStateFlow.update { viewModelState ->
             if (viewModelState.aiParseStartGeneration != requestedGeneration) return@update viewModelState
-            viewModelState.copy(
-                apolloResponse = result,
-                isAwaitingAiParseResult = if (result.isValidResponse()) {
-                    false
-                } else {
-                    viewModelState.shouldPollAiParseResult()
-                },
-            )
+            if (result.isValidResponse()) {
+                viewModelState.applyValidResponse(result)
+            } else {
+                viewModelState.copy(
+                    apolloResponse = result,
+                    isAwaitingAiParseResult = viewModelState.shouldPollAiParseResult(),
+                )
+            }
         }
+    }
+
+    private fun ViewModelState.applyValidResponse(result: Result<ApolloResponse<ImportedMailScreenQuery.Data>>): ViewModelState {
+        return copy(
+            apolloResponse = result,
+            isAwaitingAiParseResult = false,
+            // 開始結果が不明だった場合も、サーバーの状態を取得できたのでそちらの表示に任せる
+            aiParseStartErrorMessage = if (isAwaitingAiParseResult) null else aiParseStartErrorMessage,
+        )
     }
 
     /**
