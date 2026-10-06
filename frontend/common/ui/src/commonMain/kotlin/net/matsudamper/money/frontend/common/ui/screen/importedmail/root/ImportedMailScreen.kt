@@ -339,6 +339,16 @@ private fun MainContent(
                 }
             }
             item {
+                AiParseSection(
+                    modifier = Modifier.fillMaxWidth(),
+                    aiParse = uiState.aiParse,
+                    onClickAiParse = { uiState.event.onClickAiParse() },
+                )
+            }
+            item {
+                Spacer(modifier = Modifier.height(24.dp))
+            }
+            item {
                 Text(
                     modifier = Modifier.padding(horizontal = 12.dp),
                     text = "解析結果",
@@ -362,39 +372,6 @@ private fun MainContent(
                         item = item,
                     )
                 }
-            }
-            item {
-                Spacer(modifier = Modifier.height(24.dp))
-                AiParseHeader(
-                    modifier = Modifier.fillMaxWidth(),
-                    uiState = uiState.aiParse,
-                    onClickAiParse = { uiState.event.onClickAiParse() },
-                )
-            }
-            when (val aiParseState = uiState.aiParse.state) {
-                is MailScreenUiState.AiParseState.Succeeded -> {
-                    if (aiParseState.usageSuggest.isEmpty()) {
-                        item {
-                            Text(
-                                modifier = Modifier.padding(8.dp),
-                                text = "支払いは見つかりませんでした",
-                                style = MaterialTheme.typography.bodyMedium,
-                            )
-                        }
-                    } else {
-                        items(aiParseState.usageSuggest) { item ->
-                            MoneyUsageSuggestItem(
-                                modifier = Modifier.fillMaxWidth(),
-                                item = item,
-                            )
-                        }
-                    }
-                }
-
-                is MailScreenUiState.AiParseState.Failed,
-                MailScreenUiState.AiParseState.NotExecuted,
-                MailScreenUiState.AiParseState.Running,
-                -> Unit
             }
             item {
                 Spacer(modifier = Modifier.height(24.dp))
@@ -423,6 +400,59 @@ private fun MoneyUsageSuggestItem(
             }
         }
         Spacer(modifier = Modifier.height(16.dp))
+    }
+}
+
+@Composable
+private fun AiParseSection(
+    modifier: Modifier = Modifier,
+    aiParse: MailScreenUiState.AiParse,
+    onClickAiParse: () -> Unit,
+) {
+    Column(modifier = modifier) {
+        Text(
+            modifier = Modifier.padding(horizontal = 12.dp),
+            text = "AI解析",
+            style = MaterialTheme.typography.headlineLarge,
+        )
+        Spacer(modifier = Modifier.height(12.dp))
+        HorizontalDivider(modifier = Modifier.fillMaxWidth().height(1.dp))
+        Spacer(modifier = Modifier.height(12.dp))
+        Card(
+            modifier = Modifier.fillMaxWidth(),
+        ) {
+            AiParseHeader(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(vertical = 20.dp),
+                uiState = aiParse,
+                onClickAiParse = onClickAiParse,
+            )
+        }
+        when (val aiParseState = aiParse.state) {
+            is MailScreenUiState.AiParseState.Succeeded -> {
+                Spacer(modifier = Modifier.height(12.dp))
+                if (aiParseState.usageSuggest.isEmpty()) {
+                    Text(
+                        modifier = Modifier.padding(horizontal = 8.dp),
+                        text = "支払いは見つかりませんでした",
+                        style = MaterialTheme.typography.bodyMedium,
+                    )
+                } else {
+                    aiParseState.usageSuggest.forEach { item ->
+                        MoneyUsageSuggestItem(
+                            modifier = Modifier.fillMaxWidth(),
+                            item = item,
+                        )
+                    }
+                }
+            }
+
+            is MailScreenUiState.AiParseState.Failed,
+            MailScreenUiState.AiParseState.NotExecuted,
+            MailScreenUiState.AiParseState.Running,
+            -> Unit
+        }
     }
 }
 
