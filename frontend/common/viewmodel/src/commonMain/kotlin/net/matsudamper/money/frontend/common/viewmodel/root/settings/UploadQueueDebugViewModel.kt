@@ -9,6 +9,7 @@ import net.matsudamper.money.frontend.common.base.nav.ScopedObjectFeature
 import net.matsudamper.money.frontend.common.feature.uploader.ImageUploadQueue
 import net.matsudamper.money.frontend.common.ui.screen.root.settings.UploadQueueDebugScreenUiState
 import net.matsudamper.money.frontend.common.viewmodel.CommonViewModel
+import net.matsudamper.money.frontend.common.viewmodel.lib.Formatter
 
 public class UploadQueueDebugViewModel(
     scopedObjectFeature: ScopedObjectFeature,
@@ -100,7 +101,8 @@ public class UploadQueueDebugViewModel(
                                 },
                                 errorMessage = item.errorMessage,
                                 stackTrace = item.stackTrace,
-                                createdAt = item.createdAt,
+                                createdAtEpochMillis = item.createdAt,
+                                createdAtLabel = Formatter.formatEpochMillis(item.createdAt),
                                 workManagerId = item.workManagerId,
                             )
                         },

@@ -28,7 +28,9 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalClipboardManager
 import androidx.compose.ui.text.AnnotatedString
 import androidx.compose.ui.text.style.TextOverflow
+import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import net.matsudamper.money.frontend.common.ui.AppRoot
 import net.matsudamper.money.frontend.common.ui.base.DropDownMenuButton
 import net.matsudamper.money.frontend.common.ui.base.KakeBoTopAppBar
 import net.matsudamper.money.frontend.common.ui.base.RootScreenScaffold
@@ -242,7 +244,13 @@ private fun QueueItemRow(
         )
         Spacer(modifier = Modifier.height(2.dp))
         Text(
-            text = "createdAt: ${item.createdAt}",
+            text = "作成日時: ${item.createdAtLabel}",
+            style = MaterialTheme.typography.bodySmall,
+            color = MaterialTheme.colorScheme.onSurfaceVariant,
+        )
+        Spacer(modifier = Modifier.height(2.dp))
+        Text(
+            text = "epochMillis: ${item.createdAtEpochMillis}",
             style = MaterialTheme.typography.bodySmall,
             color = MaterialTheme.colorScheme.onSurfaceVariant,
         )
@@ -284,4 +292,52 @@ private fun StatusBadge(
         style = MaterialTheme.typography.labelMedium,
         color = color,
     )
+}
+
+@Composable
+@Preview
+private fun UploadQueueDebugPreview() {
+    AppRoot {
+        UploadQueueDebugScreen(
+            uiState = UploadQueueDebugScreenUiState(
+                items = listOf(
+                    UploadQueueDebugScreenUiState.Item(
+                        id = "01234567-89ab-cdef-0123-456789abcdef",
+                        moneyUsageId = 42,
+                        status = UploadQueueDebugScreenUiState.Status.Failed("ネットワークエラー"),
+                        errorMessage = "ネットワークエラー",
+                        stackTrace = null,
+                        createdAtEpochMillis = 1_728_244_800_123L,
+                        createdAtLabel = "2024/10/7(月) 09:00:00.123",
+                        workManagerId = "work-001",
+                    ),
+                    UploadQueueDebugScreenUiState.Item(
+                        id = "fedcba98-7654-3210-fedc-ba9876543210",
+                        moneyUsageId = 7,
+                        status = UploadQueueDebugScreenUiState.Status.Pending,
+                        errorMessage = null,
+                        stackTrace = null,
+                        createdAtEpochMillis = 1_728_244_801_000L,
+                        createdAtLabel = "2024/10/7(月) 09:00:01.000",
+                        workManagerId = null,
+                    ),
+                ),
+                selectedStatusFilter = UploadQueueDebugScreenUiState.StatusFilter.All,
+                statusFilterExpanded = false,
+                errorDialogItem = null,
+                showClearAllDialog = false,
+                event = object : UploadQueueDebugScreenUiState.Event {
+                    override fun onClickStatusFilter() {}
+                    override fun onDismissStatusFilter() {}
+                    override fun onSelectStatusFilter(filter: UploadQueueDebugScreenUiState.StatusFilter) {}
+                    override fun onClickItem(item: UploadQueueDebugScreenUiState.Item) {}
+                    override fun onDismissErrorDialog() {}
+                    override fun onClickClearAll() {}
+                    override fun onConfirmClearAll() {}
+                    override fun onDismissClearAllDialog() {}
+                },
+            ),
+            windowInsets = PaddingValues(),
+        )
+    }
 }
