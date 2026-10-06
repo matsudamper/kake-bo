@@ -2,6 +2,7 @@ package net.matsudamper.money.backend
 
 import java.io.File
 import kotlin.time.Duration.Companion.seconds
+import kotlin.time.TimeSource
 import kotlinx.coroutines.withTimeout
 import kotlinx.serialization.json.Json
 import io.ktor.http.CacheControl
@@ -155,7 +156,9 @@ fun Application.myApplicationModule(diContainer: DiContainer) {
                 call.respondText(
                     contentType = ContentType.Application.Json,
                 ) {
-                    // 本文を送り切らない接続に占有されないよう、操作のタイムアウトを決める前の読み取りも通常の期限で打ち切る
+                    // 操作のタイムアウトは本文を読むまで決まらないため、読み取りは通常の期限で打ち切り、
+                    // 実行には受信からの経過時間を差し引いた残りを使って、合計を操作のタイムアウトに収める
+                    val receivedAt = TimeSource.Monotonic.markNow()
                     val requestText = withTimeout(GraphqlOperationTimeout.DEFAULT_TIMEOUT) {
                         call.receiveText()
                     }
@@ -163,7 +166,7 @@ fun Application.myApplicationModule(diContainer: DiContainer) {
                         cookieManager = KtorCookieManager(call = call),
                         diContainer = diContainer,
                     )
-                    return@respondText withTimeout(handler.resolveTimeout(requestText)) {
+                    return@respondText withTimeout(handler.resolveTimeout(requestText) - receivedAt.elapsedNow()) {
                         handler.handle(requestText = requestText)
                     }
                 }
