@@ -34,9 +34,7 @@ public class RootUsageCalendarPagerHostViewModel(
     private val navController: ScreenNavController,
 ) : CommonViewModel(scopedObjectFeature) {
     private val viewModelStateFlow: MutableStateFlow<ViewModelState> = MutableStateFlow(
-        ViewModelState(
-            currentYearMonth = getDisplayYearMonth(initial),
-        ),
+        createInitialViewModelState(getDisplayYearMonth(initial)),
     )
 
     private val viewModelEventSender = EventSender<Event>()
@@ -103,9 +101,7 @@ public class RootUsageCalendarPagerHostViewModel(
             viewModelStateFlow.collectLatest { viewModelState ->
                 mutableUiStateFlow.update { uiState ->
                     uiState.copy(
-                        currentPage = viewModelState.pages.indexOf(viewModelState.currentYearMonth)
-                            .takeIf { it >= 0 }
-                            ?: TODO("無限スクロールをどうするか考える"),
+                        currentPage = viewModelState.pages.indexOf(viewModelState.currentYearMonth),
                         pages = viewModelState.pages.map { page ->
                             RootUsageCalendarPagerHostScreenUiState.Page(
                                 navigation = ScreenStructure.Root.Usage.Calendar(
@@ -123,16 +119,12 @@ public class RootUsageCalendarPagerHostViewModel(
     }.asStateFlow()
 
     public fun updateStructure(current: ScreenStructure.Root.Usage.Calendar) {
-        viewModelStateFlow.update {
-            it.copy(
-                currentYearMonth = getDisplayYearMonth(current),
-            )
-        }
+        setCurrentYearMonth(getDisplayYearMonth(current))
     }
 
     private fun prevMonth() {
         val prev = viewModelStateFlow.value.currentYearMonth.minusMonth()
-        viewModelStateFlow.update { it.copy(currentYearMonth = prev) }
+        setCurrentYearMonth(prev)
         viewModelScope.launch {
             viewModelEventSender.send {
                 it.navigate(
@@ -149,7 +141,7 @@ public class RootUsageCalendarPagerHostViewModel(
 
     private fun nextMonth() {
         val next = viewModelStateFlow.value.currentYearMonth.plusMonth()
-        viewModelStateFlow.update { it.copy(currentYearMonth = next) }
+        setCurrentYearMonth(next)
         viewModelScope.launch {
             viewModelEventSender.send {
                 it.navigate(
@@ -165,14 +157,12 @@ public class RootUsageCalendarPagerHostViewModel(
     }
 
     private fun navigateToYearMonth(year: Int, month: Int) {
-        viewModelStateFlow.update {
-            it.copy(
-                currentYearMonth = YearMonth(
-                    year = year,
-                    month = month,
-                ),
-            )
-        }
+        setCurrentYearMonth(
+            YearMonth(
+                year = year,
+                month = month,
+            ),
+        )
         viewModelScope.launch {
             viewModelEventSender.send {
                 it.navigate(
@@ -192,8 +182,61 @@ public class RootUsageCalendarPagerHostViewModel(
     }
 
     private fun updateCurrentYearMonthFromNavigation(calendar: ScreenStructure.Root.Usage.Calendar) {
-        viewModelStateFlow.update {
-            it.copy(currentYearMonth = getDisplayYearMonth(calendar))
+        setCurrentYearMonth(getDisplayYearMonth(calendar))
+    }
+
+    private fun createInitialViewModelState(currentYearMonth: YearMonth): ViewModelState {
+        val today = Clock.System.todayIn(TimeZone.currentSystemDefault()).yearMonth
+        return ViewModelState(
+            currentYearMonth = currentYearMonth,
+            pages = buildPagesAround(today).ensureContains(currentYearMonth),
+        )
+    }
+
+    private fun setCurrentYearMonth(yearMonth: YearMonth) {
+        viewModelStateFlow.update { it.withCurrentYearMonth(yearMonth) }
+    }
+
+    private fun ViewModelState.withCurrentYearMonth(yearMonth: YearMonth): ViewModelState {
+        return copy(
+            currentYearMonth = yearMonth,
+            pages = pages.ensureContains(yearMonth),
+        )
+    }
+
+    private fun List<YearMonth>.ensureContains(yearMonth: YearMonth): List<YearMonth> {
+        if (contains(yearMonth)) {
+            return this
+        }
+        val today = Clock.System.todayIn(TimeZone.currentSystemDefault()).yearMonth
+        val rangeStart = minOf(yearMonth, today, first(), last())
+        val rangeEnd = maxOf(yearMonth, today, first(), last())
+        return buildPagesFromTo(
+            from = rangeStart.minusMonth(BETWEEN_PAGE_COUNT),
+            to = rangeEnd.plusMonth(BETWEEN_PAGE_COUNT),
+        )
+    }
+
+    private fun buildPagesAround(center: YearMonth): List<YearMonth> {
+        return buildList {
+            for (index in -BETWEEN_PAGE_COUNT..BETWEEN_PAGE_COUNT) {
+                add(
+                    center.plus(
+                        value = index,
+                        unit = DateTimeUnit.MONTH,
+                    ),
+                )
+            }
+        }
+    }
+
+    private fun buildPagesFromTo(from: YearMonth, to: YearMonth): List<YearMonth> {
+        return buildList {
+            var current = from
+            while (current <= to) {
+                add(current)
+                current = current.plusMonth()
+            }
         }
     }
 
@@ -208,19 +251,10 @@ public class RootUsageCalendarPagerHostViewModel(
 
     public data class ViewModelState(
         val currentYearMonth: YearMonth,
-        val pages: List<YearMonth> = buildList {
-            val betweenPageCount = 100
-
-            val current = Clock.System.todayIn(TimeZone.currentSystemDefault())
-            val currentYearMonth = current.yearMonth
-
-            for (index in -betweenPageCount..betweenPageCount) {
-                val date = currentYearMonth.plus(
-                    value = index,
-                    unit = DateTimeUnit.MONTH,
-                )
-                add(date)
-            }
-        },
+        val pages: List<YearMonth>,
     )
+
+    private companion object {
+        private const val BETWEEN_PAGE_COUNT = 100
+    }
 }
