@@ -9,9 +9,10 @@ import net.matsudamper.money.element.ImportedMailId
 import net.matsudamper.money.frontend.common.base.IO
 import net.matsudamper.money.frontend.graphql.GraphqlClient
 import net.matsudamper.money.frontend.graphql.ImportedMailScreenDeleteMailMutation
+import net.matsudamper.money.frontend.graphql.ImportedMailScreenParseWithAiMutation
 import net.matsudamper.money.frontend.graphql.ImportedMailScreenQuery
-import net.matsudamper.money.frontend.graphql.ImportedMailScreenStartAiParseMutation
-import net.matsudamper.money.frontend.graphql.type.StartImportedMailAiParseError
+import net.matsudamper.money.frontend.graphql.fragment.ImportedMailScreenSuggestUsage
+import net.matsudamper.money.frontend.graphql.type.ParseImportedMailWithAiError
 
 public class ImportedMailScreenGraphqlApi(
     private val graphqlClient: GraphqlClient,
@@ -33,32 +34,32 @@ public class ImportedMailScreenGraphqlApi(
         }
     }
 
-    public suspend fun startAiParse(id: ImportedMailId): StartAiParseResult {
+    public suspend fun parseWithAi(id: ImportedMailId): ParseWithAiResult {
         return withContext(Dispatchers.IO) {
             runCatching {
                 graphqlClient.apolloClient
-                    .mutation(ImportedMailScreenStartAiParseMutation(id = id))
+                    .mutation(ImportedMailScreenParseWithAiMutation(id = id))
                     .execute()
             }.onFailure {
                 it.printStackTrace()
             }.fold(
                 onSuccess = { response ->
-                    val result = response.data?.userMutation?.startImportedMailAiParse
-                    when {
-                        result == null -> StartAiParseResult.Unknown
-                        result.isSuccess -> StartAiParseResult.Success
-                        else -> when (result.error) {
-                            StartImportedMailAiParseError.ApiKeyNotSet -> StartAiParseResult.ApiKeyNotSet
-                            StartImportedMailAiParseError.AlreadyRunning -> StartAiParseResult.AlreadyRunning
-                            StartImportedMailAiParseError.MailNotFound -> StartAiParseResult.MailNotFound
-                            StartImportedMailAiParseError.InternalServerError,
-                            StartImportedMailAiParseError.UNKNOWN__,
-                            null,
-                            -> StartAiParseResult.Failure
-                        }
+                    val result = response.data?.userMutation?.parseImportedMailWithAi
+                        ?: return@fold ParseWithAiResult.Failure(message = null)
+                    when (result.error) {
+                        null -> ParseWithAiResult.Success(
+                            usages = result.usages.map { it.importedMailScreenSuggestUsage },
+                        )
+
+                        ParseImportedMailWithAiError.ApiKeyNotSet -> ParseWithAiResult.ApiKeyNotSet
+                        ParseImportedMailWithAiError.MailNotFound -> ParseWithAiResult.MailNotFound
+                        ParseImportedMailWithAiError.ParseFailed,
+                        ParseImportedMailWithAiError.InternalServerError,
+                        ParseImportedMailWithAiError.UNKNOWN__,
+                        -> ParseWithAiResult.Failure(message = result.errorMessage)
                     }
                 },
-                onFailure = { StartAiParseResult.Unknown },
+                onFailure = { ParseWithAiResult.Failure(message = null) },
             )
         }
     }
@@ -77,20 +78,13 @@ public class ImportedMailScreenGraphqlApi(
         }
     }
 
-    public sealed interface StartAiParseResult {
-        public data object Success : StartAiParseResult
+    public sealed interface ParseWithAiResult {
+        public data class Success(val usages: List<ImportedMailScreenSuggestUsage>) : ParseWithAiResult
 
-        public data object ApiKeyNotSet : StartAiParseResult
+        public data object ApiKeyNotSet : ParseWithAiResult
 
-        public data object AlreadyRunning : StartAiParseResult
+        public data object MailNotFound : ParseWithAiResult
 
-        public data object MailNotFound : StartAiParseResult
-
-        public data object Failure : StartAiParseResult
-
-        /**
-         * 通信失敗などで、サーバー側で開始されたかどうか分からない
-         */
-        public data object Unknown : StartAiParseResult
+        public data class Failure(val message: String?) : ParseWithAiResult
     }
 }

@@ -15,13 +15,14 @@ import net.matsudamper.money.backend.app.interfaces.UserLoginRepository
 import net.matsudamper.money.backend.base.ServerVariables
 import net.matsudamper.money.backend.dataloader.ImportedMailCategoryFilterDataLoaderDefine
 import net.matsudamper.money.backend.feature.aimailparser.AiMailParser
-import net.matsudamper.money.backend.feature.aimailparser.StartImportedMailAiParseUseCase
+import net.matsudamper.money.backend.feature.aimailparser.ParseImportedMailWithAiUseCase
 import net.matsudamper.money.backend.fido.Auth4JModel
 import net.matsudamper.money.backend.fido.AuthenticatorConverter
 import net.matsudamper.money.backend.graphql.GraphQlContext
 import net.matsudamper.money.backend.graphql.converter.toDBElement
 import net.matsudamper.money.backend.graphql.converter.toDbElement
 import net.matsudamper.money.backend.graphql.exception.GraphqlExceptions
+import net.matsudamper.money.backend.graphql.localcontext.MoneyUsageSuggestLocalContext
 import net.matsudamper.money.backend.graphql.otelSupplyAsync
 import net.matsudamper.money.backend.graphql.otelThenApplyAsync
 import net.matsudamper.money.backend.graphql.toDataFetcher
@@ -68,14 +69,15 @@ import net.matsudamper.money.graphql.model.QlMoneyUsage
 import net.matsudamper.money.graphql.model.QlMoneyUsageCategory
 import net.matsudamper.money.graphql.model.QlMoneyUsagePreset
 import net.matsudamper.money.graphql.model.QlMoneyUsageSubCategory
+import net.matsudamper.money.graphql.model.QlMoneyUsageSuggest
+import net.matsudamper.money.graphql.model.QlParseImportedMailWithAiError
+import net.matsudamper.money.graphql.model.QlParseImportedMailWithAiResult
 import net.matsudamper.money.graphql.model.QlRegisterApiTokenResult
 import net.matsudamper.money.graphql.model.QlRegisterFidoInput
 import net.matsudamper.money.graphql.model.QlRegisteredFidoInfo
 import net.matsudamper.money.graphql.model.QlRegisteredFidoResult
 import net.matsudamper.money.graphql.model.QlSession
 import net.matsudamper.money.graphql.model.QlSettingsMutation
-import net.matsudamper.money.graphql.model.QlStartImportedMailAiParseError
-import net.matsudamper.money.graphql.model.QlStartImportedMailAiParseResult
 import net.matsudamper.money.graphql.model.QlUpdateCategoryQuery
 import net.matsudamper.money.graphql.model.QlUpdateImportedMailCategoryFilterConditionInput
 import net.matsudamper.money.graphql.model.QlUpdateImportedMailCategoryFilterInput
@@ -790,42 +792,67 @@ class UserMutationResolverImpl : UserMutationResolver {
         }.toDataFetcher()
     }
 
-    override fun startImportedMailAiParse(
+    override fun parseImportedMailWithAi(
         userMutation: QlUserMutation,
         id: ImportedMailId,
         env: DataFetchingEnvironment,
-    ): CompletionStage<DataFetcherResult<QlStartImportedMailAiParseResult>> {
+    ): CompletionStage<DataFetcherResult<QlParseImportedMailWithAiResult>> {
         val context = env.graphQlContext.get<GraphQlContext>(GraphQlContext::class.java.name)
         val userId = context.verifyUserSessionAndGetUserId()
 
         return CompletableFuture.allOf().otelThenApplyAsync {
             val result = runCatching {
-                StartImportedMailAiParseUseCase(
+                ParseImportedMailWithAiUseCase(
                     userConfigRepository = context.diContainer.createUserConfigRepository(),
                     importedMailRepository = context.diContainer.createDbMailRepository(),
-                    aiParseRepository = context.diContainer.createImportedMailAiParseRepository(),
                     aiMailParser = AiMailParser(geminiGateway = context.diContainer.createGeminiGateway()),
-                    clock = context.diContainer.clock(),
-                    backgroundScope = context.diContainer.backgroundScope(),
-                ).start(
+                ).parse(
                     userId = userId,
                     importedMailId = id,
                 )
             }.onFailure {
                 it.printStackTrace()
             }.getOrNull()
-            val error = when (result) {
-                StartImportedMailAiParseUseCase.Result.Started -> null
-                StartImportedMailAiParseUseCase.Result.ApiKeyNotSet -> QlStartImportedMailAiParseError.ApiKeyNotSet
-                StartImportedMailAiParseUseCase.Result.MailNotFound -> QlStartImportedMailAiParseError.MailNotFound
-                StartImportedMailAiParseUseCase.Result.AlreadyRunning -> QlStartImportedMailAiParseError.AlreadyRunning
-                null -> QlStartImportedMailAiParseError.InternalServerError
+            val qlResult = when (result) {
+                is ParseImportedMailWithAiUseCase.Result.Success -> QlParseImportedMailWithAiResult(
+                    usages = result.usages.map { usage ->
+                        QlMoneyUsageSuggest(
+                            title = usage.title,
+                            amount = usage.amount,
+                            description = usage.description,
+                            dateTime = usage.dateTime,
+                            serviceName = null,
+                        )
+                    },
+                    error = null,
+                    errorMessage = null,
+                )
+
+                ParseImportedMailWithAiUseCase.Result.ApiKeyNotSet -> createParseImportedMailWithAiError(QlParseImportedMailWithAiError.ApiKeyNotSet)
+                ParseImportedMailWithAiUseCase.Result.MailNotFound -> createParseImportedMailWithAiError(QlParseImportedMailWithAiError.MailNotFound)
+                is ParseImportedMailWithAiUseCase.Result.ParseFailed -> createParseImportedMailWithAiError(
+                    error = QlParseImportedMailWithAiError.ParseFailed,
+                    errorMessage = result.errorMessage,
+                )
+
+                null -> createParseImportedMailWithAiError(QlParseImportedMailWithAiError.InternalServerError)
             }
-            QlStartImportedMailAiParseResult(
-                isSuccess = error == null,
-                error = error,
-            )
-        }.toDataFetcher()
+            DataFetcherResult.newResult<QlParseImportedMailWithAiResult>()
+                .data(qlResult)
+                .localContext(MoneyUsageSuggestLocalContext(importedMailId = id))
+                .build()
+        }
+    }
+
+    private fun createParseImportedMailWithAiError(
+        error: QlParseImportedMailWithAiError,
+        errorMessage: String? = null,
+    ): QlParseImportedMailWithAiResult {
+        return QlParseImportedMailWithAiResult(
+            usages = listOf(),
+            error = error,
+            errorMessage = errorMessage,
+        )
     }
 
     override fun deleteUsage(

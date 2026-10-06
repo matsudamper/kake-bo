@@ -80,7 +80,6 @@ public data class MailScreenUiState(
 
     public data class AiParse(
         val state: AiParseState,
-        val startErrorMessage: String?,
     )
 
     public sealed interface AiParseState {
@@ -469,8 +468,8 @@ private fun AiParseHeader(
         Spacer(modifier = Modifier.height(12.dp))
         HorizontalDivider(modifier = Modifier.fillMaxWidth().height(1.dp))
         Spacer(modifier = Modifier.height(12.dp))
-        val message = uiState.startErrorMessage ?: when (val state = uiState.state) {
-            is MailScreenUiState.AiParseState.Failed -> "解析に失敗しました: ${state.message}"
+        val message = when (val state = uiState.state) {
+            is MailScreenUiState.AiParseState.Failed -> state.message
             MailScreenUiState.AiParseState.NotExecuted -> "Gemini APIでメールを解析します"
             MailScreenUiState.AiParseState.Running,
             is MailScreenUiState.AiParseState.Succeeded,
@@ -728,7 +727,6 @@ private fun ImportedMailScreenAiParseNotExecutedPreview() {
     ImportedMailScreenPreviewContent(
         aiParse = MailScreenUiState.AiParse(
             state = MailScreenUiState.AiParseState.NotExecuted,
-            startErrorMessage = null,
         ),
     )
 }
@@ -739,7 +737,6 @@ private fun ImportedMailScreenAiParseRunningPreview() {
     ImportedMailScreenPreviewContent(
         aiParse = MailScreenUiState.AiParse(
             state = MailScreenUiState.AiParseState.Running,
-            startErrorMessage = null,
         ),
     )
 }
@@ -750,9 +747,8 @@ private fun ImportedMailScreenAiParseFailedPreview() {
     ImportedMailScreenPreviewContent(
         aiParse = MailScreenUiState.AiParse(
             state = MailScreenUiState.AiParseState.Failed(
-                message = "Gemini APIがエラーを返しました(400): API key not valid",
+                message = "解析に失敗しました: Gemini APIがエラーを返しました(400): API key not valid",
             ),
-            startErrorMessage = null,
         ),
     )
 }
@@ -770,7 +766,6 @@ private fun ImportedMailScreenAiParseSucceededPreview() {
                     ),
                 ),
             ),
-            startErrorMessage = null,
         ),
     )
 }

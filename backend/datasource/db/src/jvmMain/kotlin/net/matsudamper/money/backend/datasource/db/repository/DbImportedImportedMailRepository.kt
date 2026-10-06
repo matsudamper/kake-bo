@@ -5,7 +5,6 @@ import net.matsudamper.money.backend.app.interfaces.ImportedMailRepository
 import net.matsudamper.money.backend.datasource.db.DbConnection
 import net.matsudamper.money.db.schema.tables.JMoneyUsages
 import net.matsudamper.money.db.schema.tables.JMoneyUsagesMailsRelation
-import net.matsudamper.money.db.schema.tables.JUserMailAiParseResults
 import net.matsudamper.money.db.schema.tables.JUserMails
 import net.matsudamper.money.db.schema.tables.records.JUserMailsRecord
 import net.matsudamper.money.element.ImportedMailId
@@ -307,28 +306,15 @@ class DbImportedImportedMailRepository(
     ): Boolean {
         return runCatching {
             dbConnection.use { connection ->
-                DSL.using(connection).transactionResult { configuration ->
-                    val transaction = DSL.using(configuration)
-                    val deletedCount = transaction
-                        .deleteFrom(userMails)
-                        .where(
-                            DSL.value(true)
-                                .and(userMails.USER_ID.eq(userId.value))
-                                .and(userMails.USER_MAIL_ID.eq(mailId.id)),
-                        )
-                        .limit(1)
-                        .execute()
-                    // AIパースの開始はメールの存在を確認して挿入するため、メールを先に削除してから結果を消すと孤立した行が残らない
-                    val aiParseResults = JUserMailAiParseResults.USER_MAIL_AI_PARSE_RESULTS
-                    transaction
-                        .deleteFrom(aiParseResults)
-                        .where(
-                            aiParseResults.USER_ID.eq(userId.value)
-                                .and(aiParseResults.USER_MAIL_ID.eq(mailId.id)),
-                        )
-                        .execute()
-                    deletedCount
-                }
+                DSL.using(connection)
+                    .deleteFrom(userMails)
+                    .where(
+                        DSL.value(true)
+                            .and(userMails.USER_ID.eq(userId.value))
+                            .and(userMails.USER_MAIL_ID.eq(mailId.id)),
+                    )
+                    .limit(1)
+                    .execute()
             } == 1
         }.fold(
             onSuccess = { it },

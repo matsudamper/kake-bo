@@ -39,10 +39,6 @@ type ImportedMail {
     forwardedInfo: ImportedMailForwardedInfo @lazy
 
     suggestUsages: [MoneyUsageSuggest!]! @lazy
-    """
-    startImportedMailAiParseで開始したAIパースの結果。一度も実行していない場合はnull
-    """
-    aiParseResult: ImportedMailAiParseResult @lazy
     usages: [MoneyUsage!]! @lazy
 }
 
@@ -50,16 +46,4 @@ type ImportedMailForwardedInfo {
     from: String!
     subject: String!
     dateTime: LocalDateTime!
-}
-
-type ImportedMailAiParseResult {
-    status: ImportedMailAiParseStatus!
-    usages: [MoneyUsageSuggest!]!
-    errorMessage: String
-}
-
-enum ImportedMailAiParseStatus {
-    RUNNING,
-    SUCCEEDED,
-    FAILED,
 }

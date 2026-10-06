@@ -21,7 +21,6 @@ import net.matsudamper.money.db.schema.tables.JMoneyUsagesMailsRelation
 import net.matsudamper.money.db.schema.tables.JUserAiSettings
 import net.matsudamper.money.db.schema.tables.JUserImages
 import net.matsudamper.money.db.schema.tables.JUserImapSettings
-import net.matsudamper.money.db.schema.tables.JUserMailAiParseResults
 import net.matsudamper.money.db.schema.tables.JUserMails
 import net.matsudamper.money.db.schema.tables.JUserPasswordExtendData
 import net.matsudamper.money.db.schema.tables.JUserPasswords
@@ -111,11 +110,6 @@ val USER_IMAGES: JUserImages = JUserImages.USER_IMAGES
  * The table <code>money.user_imap_settings</code>.
  */
 val USER_IMAP_SETTINGS: JUserImapSettings = JUserImapSettings.USER_IMAP_SETTINGS
-
-/**
- * The table <code>money.user_mail_ai_parse_results</code>.
- */
-val USER_MAIL_AI_PARSE_RESULTS: JUserMailAiParseResults = JUserMailAiParseResults.USER_MAIL_AI_PARSE_RESULTS
 
 /**
  * The table <code>money.user_mails</code>.

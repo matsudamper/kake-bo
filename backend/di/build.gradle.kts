@@ -20,8 +20,6 @@ kotlin {
                 implementation(projects.backend.feature.objectStorage)
                 implementation(projects.backend.feature.imageStorageLocal)
                 implementation(projects.backend.feature.gemini)
-
-                implementation(libs.kotlin.coroutines.core)
             }
         }
     }

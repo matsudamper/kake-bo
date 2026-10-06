@@ -13,7 +13,6 @@ kotlin {
                 implementation(projects.shared)
                 implementation(projects.backend.app.interfaces)
                 implementation(libs.kotlin.serialization.json)
-                implementation(libs.kotlin.coroutines.core)
                 implementation(libs.jsoup)
             }
         }

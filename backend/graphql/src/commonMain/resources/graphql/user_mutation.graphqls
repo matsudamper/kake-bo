@@ -6,7 +6,10 @@ type UserMutation {
 
     importMail(mailIds: [MailId!]!): ImportMailResult!
     deleteImportedMail(id: ImportedMailId!): Boolean!
-    startImportedMailAiParse(id: ImportedMailId!): StartImportedMailAiParseResult!
+    """
+    Gemini APIでメールを解析し、登録候補を返す。結果は保存しない
+    """
+    parseImportedMailWithAi(id: ImportedMailId!): ParseImportedMailWithAiResult!
     deleteMail(mailIds: [MailId!]!): DeleteMailResult!
 
     addUsage(usage: AddUsageQuery!): MoneyUsage!
@@ -175,15 +178,19 @@ enum DeleteMailResultError {
     MailServerNotConnected,
 }
 
-type StartImportedMailAiParseResult {
-    isSuccess: Boolean!
-    error: StartImportedMailAiParseError
+type ParseImportedMailWithAiResult {
+    usages: [MoneyUsageSuggest!]!
+    error: ParseImportedMailWithAiError
+    """
+    errorがParseFailedの場合の詳細
+    """
+    errorMessage: String
 }
 
-enum StartImportedMailAiParseError {
+enum ParseImportedMailWithAiError {
     ApiKeyNotSet,
     MailNotFound,
-    AlreadyRunning,
+    ParseFailed,
     InternalServerError,
 }
 

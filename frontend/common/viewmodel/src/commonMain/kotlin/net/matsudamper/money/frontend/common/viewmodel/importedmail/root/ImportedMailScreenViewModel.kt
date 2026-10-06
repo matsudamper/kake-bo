@@ -1,12 +1,9 @@
 package net.matsudamper.money.frontend.common.viewmodel.importedmail.root
 
-import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.collectLatest
-import kotlinx.coroutines.flow.distinctUntilChanged
-import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import com.apollographql.apollo.api.ApolloResponse
@@ -23,10 +20,8 @@ import net.matsudamper.money.frontend.common.viewmodel.lib.EventSender
 import net.matsudamper.money.frontend.common.viewmodel.lib.Formatter
 import net.matsudamper.money.frontend.graphql.ImportedMailScreenQuery
 import net.matsudamper.money.frontend.graphql.fragment.ImportedMailScreenSuggestUsage
-import net.matsudamper.money.frontend.graphql.type.ImportedMailAiParseStatus
 
 private const val TAG = "ImportedMailScreenViewModel"
-private const val AI_PARSE_POLLING_INTERVAL_MILLIS = 3000L
 
 public class ImportedMailScreenViewModel(
     scopedObjectFeature: ScopedObjectFeature,
@@ -120,7 +115,7 @@ public class ImportedMailScreenViewModel(
 
                             createLoadedUiState(
                                 mail = mail,
-                                aiParseStartErrorMessage = viewModelState.aiParseStartErrorMessage,
+                                aiParse = viewModelState.aiParse,
                             )
                         },
                     )
@@ -131,7 +126,7 @@ public class ImportedMailScreenViewModel(
 
     private fun createLoadedUiState(
         mail: ImportedMailScreenQuery.Mail,
-        aiParseStartErrorMessage: String?,
+        aiParse: ViewModelState.AiParse,
     ): MailScreenUiState.LoadingState.Loaded {
         return MailScreenUiState.LoadingState.Loaded(
             mail = MailScreenUiState.Mail(
@@ -178,8 +173,7 @@ public class ImportedMailScreenViewModel(
                 )
             }.toImmutableList(),
             aiParse = MailScreenUiState.AiParse(
-                state = createAiParseState(mail.aiParseResult),
-                startErrorMessage = aiParseStartErrorMessage,
+                state = createAiParseState(aiParse),
             ),
             hasHtml = mail.hasHtml,
             hasPlain = mail.hasPlain,
@@ -221,22 +215,22 @@ public class ImportedMailScreenViewModel(
                 }
 
                 override fun onClickAiParse() {
-                    startAiParse()
+                    parseWithAi()
                 }
             },
         )
     }
 
-    private fun createAiParseState(aiParseResult: ImportedMailScreenQuery.AiParseResult?): MailScreenUiState.AiParseState {
-        if (aiParseResult == null) return MailScreenUiState.AiParseState.NotExecuted
-        return when (aiParseResult.status) {
-            ImportedMailAiParseStatus.RUNNING -> MailScreenUiState.AiParseState.Running
-            ImportedMailAiParseStatus.SUCCEEDED -> MailScreenUiState.AiParseState.Succeeded(
-                usageSuggest = aiParseResult.usages.map { suggestUsage ->
-                    val usage = suggestUsage.importedMailScreenSuggestUsage
+    private fun createAiParseState(aiParse: ViewModelState.AiParse): MailScreenUiState.AiParseState {
+        return when (aiParse) {
+            ViewModelState.AiParse.NotExecuted -> MailScreenUiState.AiParseState.NotExecuted
+            ViewModelState.AiParse.Running -> MailScreenUiState.AiParseState.Running
+            is ViewModelState.AiParse.Failed -> MailScreenUiState.AiParseState.Failed(message = aiParse.message)
+            is ViewModelState.AiParse.Succeeded -> MailScreenUiState.AiParseState.Succeeded(
+                usageSuggest = aiParse.usages.map { usage ->
                     createUsageSuggest(
                         suggestUsage = usage,
-                        // 再解析で件数や順序が変わるため、位置ではなく選んだ候補の値を引き継ぐ
+                        // 解析結果はサーバーに残らないため、位置ではなく選んだ候補の値を引き継ぐ
                         addMoneyUsageScreen = ScreenStructure.AddMoneyUsage(
                             importedMailId = importedMailId,
                             title = usage.title,
@@ -247,12 +241,6 @@ public class ImportedMailScreenViewModel(
                         ),
                     )
                 }.toImmutableList(),
-            )
-
-            ImportedMailAiParseStatus.FAILED,
-            ImportedMailAiParseStatus.UNKNOWN__,
-            -> MailScreenUiState.AiParseState.Failed(
-                message = aiParseResult.errorMessage.orEmpty(),
             )
         }
     }
@@ -300,114 +288,36 @@ public class ImportedMailScreenViewModel(
 
     init {
         fetch()
-        viewModelScope.launch {
-            viewModelStateFlow
-                .map { it.shouldPollAiParseResult() }
-                .distinctUntilChanged()
-                .collectLatest { shouldPoll ->
-                    if (shouldPoll.not()) return@collectLatest
-                    while (true) {
-                        delay(AI_PARSE_POLLING_INTERVAL_MILLIS)
-                        fetchAiParseResult()
-                    }
-                }
-        }
     }
 
     private fun fetch() {
         viewModelScope.launch {
-            fetchAndUpdate()
-        }
-    }
+            val result = api.get(id = importedMailId)
 
-    /**
-     * 一時的な取得失敗で実行中の判定が外れるとポーリングが止まるため、有効な応答だけを反映する
-     */
-    private suspend fun fetchAiParseResult() {
-        val requestedGeneration = viewModelStateFlow.value.aiParseStartGeneration
-        val result = api.get(id = importedMailId)
-        if (result.isValidResponse().not()) return
-
-        viewModelStateFlow.update { viewModelState ->
-            if (viewModelState.aiParseStartGeneration != requestedGeneration) return@update viewModelState
-            viewModelState.applyValidResponse(result)
-        }
-    }
-
-    private suspend fun fetchAndUpdate() {
-        val requestedGeneration = viewModelStateFlow.value.aiParseStartGeneration
-        val result = api.get(id = importedMailId)
-
-        viewModelStateFlow.update { viewModelState ->
-            if (viewModelState.aiParseStartGeneration != requestedGeneration) return@update viewModelState
-            if (result.isValidResponse()) {
-                viewModelState.applyValidResponse(result)
-            } else {
+            viewModelStateFlow.update { viewModelState ->
                 viewModelState.copy(
                     apolloResponse = result,
-                    isAwaitingAiParseResult = viewModelState.shouldPollAiParseResult(),
                 )
             }
         }
     }
 
-    private fun ViewModelState.applyValidResponse(result: Result<ApolloResponse<ImportedMailScreenQuery.Data>>): ViewModelState {
-        return copy(
-            apolloResponse = result,
-            isAwaitingAiParseResult = false,
-            // 開始結果が不明だった場合も、サーバーの状態を取得できたのでそちらの表示に任せる
-            aiParseStartErrorMessage = if (isAwaitingAiParseResult) null else aiParseStartErrorMessage,
-        )
-    }
-
-    /**
-     * メールが削除されている場合も mail = null の正常な応答になるため、mail の有無では判定しない
-     */
-    private fun Result<ApolloResponse<ImportedMailScreenQuery.Data>>.isValidResponse(): Boolean {
-        val response = getOrNull() ?: return false
-        if (response.hasErrors()) return false
-        return response.data?.user?.importedMailAttributes != null
-    }
-
-    private fun startAiParse() {
+    private fun parseWithAi() {
+        if (viewModelStateFlow.value.aiParse == ViewModelState.AiParse.Running) return
         viewModelScope.launch {
-            viewModelStateFlow.update {
-                it.copy(
-                    aiParseStartErrorMessage = null,
-                    aiParseStartGeneration = it.aiParseStartGeneration + 1,
+            viewModelStateFlow.update { it.copy(aiParse = ViewModelState.AiParse.Running) }
+            val aiParse = when (val result = api.parseWithAi(id = importedMailId)) {
+                is ImportedMailScreenGraphqlApi.ParseWithAiResult.Success -> ViewModelState.AiParse.Succeeded(usages = result.usages)
+                ImportedMailScreenGraphqlApi.ParseWithAiResult.ApiKeyNotSet -> ViewModelState.AiParse.Failed(
+                    message = "Gemini APIキーが設定されていません。設定画面から登録してください",
+                )
+
+                ImportedMailScreenGraphqlApi.ParseWithAiResult.MailNotFound -> ViewModelState.AiParse.Failed(message = "メールが見つかりませんでした")
+                is ImportedMailScreenGraphqlApi.ParseWithAiResult.Failure -> ViewModelState.AiParse.Failed(
+                    message = listOfNotNull("解析に失敗しました", result.message).joinToString(": "),
                 )
             }
-            when (api.startAiParse(id = importedMailId)) {
-                ImportedMailScreenGraphqlApi.StartAiParseResult.Success,
-                ImportedMailScreenGraphqlApi.StartAiParseResult.AlreadyRunning,
-                -> {
-                    viewModelStateFlow.update { it.copy(isAwaitingAiParseResult = true) }
-                    fetchAiParseResult()
-                }
-
-                ImportedMailScreenGraphqlApi.StartAiParseResult.ApiKeyNotSet -> {
-                    viewModelStateFlow.update { it.copy(aiParseStartErrorMessage = "Gemini APIキーが設定されていません。設定画面から登録してください") }
-                }
-
-                ImportedMailScreenGraphqlApi.StartAiParseResult.MailNotFound -> {
-                    viewModelStateFlow.update { it.copy(aiParseStartErrorMessage = "メールが見つかりませんでした") }
-                }
-
-                ImportedMailScreenGraphqlApi.StartAiParseResult.Failure -> {
-                    viewModelStateFlow.update { it.copy(aiParseStartErrorMessage = "解析を開始できませんでした") }
-                }
-
-                ImportedMailScreenGraphqlApi.StartAiParseResult.Unknown -> {
-                    // 応答だけを受け取れずサーバー側では開始している場合があるため、状態を取得できるまで確認する
-                    viewModelStateFlow.update {
-                        it.copy(
-                            aiParseStartErrorMessage = "通信に失敗しました。解析状態を確認しています",
-                            isAwaitingAiParseResult = true,
-                        )
-                    }
-                    fetchAiParseResult()
-                }
-            }
+            viewModelStateFlow.update { it.copy(aiParse = aiParse) }
         }
     }
 
@@ -493,23 +403,13 @@ public class ImportedMailScreenViewModel(
         val apolloResponse: Result<ApolloResponse<ImportedMailScreenQuery.Data>>? = null,
         val confirmDialog: MailScreenUiState.AlertDialog? = null,
         val urlMenuDialog: MailScreenUiState.UrlMenuDialog? = null,
-        val aiParseStartErrorMessage: String? = null,
-        /**
-         * 解析開始の受付後や、実行中に取得が失敗した後は apolloResponse から実行中を判定できないため、ポーリングを続ける根拠として保持する
-         */
-        val isAwaitingAiParseResult: Boolean = false,
-        /**
-         * 解析開始より前に発行した取得の応答が遅れて届くと、開始前の状態で上書きしてしまうため、開始ごとに進めて古い応答を捨てる
-         */
-        val aiParseStartGeneration: Int = 0,
+        val aiParse: AiParse = AiParse.NotExecuted,
     ) {
-        fun shouldPollAiParseResult(): Boolean {
-            return isAwaitingAiParseResult || isAiParseRunning()
-        }
-
-        private fun isAiParseRunning(): Boolean {
-            val aiParseResult = apolloResponse?.getOrNull()?.data?.user?.importedMailAttributes?.mail?.aiParseResult
-            return aiParseResult?.status == ImportedMailAiParseStatus.RUNNING
+        sealed interface AiParse {
+            data object NotExecuted : AiParse
+            data object Running : AiParse
+            data class Succeeded(val usages: List<ImportedMailScreenSuggestUsage>) : AiParse
+            data class Failed(val message: String) : AiParse
         }
     }
 }

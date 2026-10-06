@@ -278,28 +278,7 @@ type ImportedMail {
 
   suggestUsages: [MoneyUsageSuggest!]!
 
-  """
-  startImportedMailAiParseで開始したAIパースの結果。一度も実行していない場合はnull
-  """
-  aiParseResult: ImportedMailAiParseResult
-
   usages: [MoneyUsage!]!
-}
-
-type ImportedMailAiParseResult {
-  status: ImportedMailAiParseStatus!
-
-  usages: [MoneyUsageSuggest!]!
-
-  errorMessage: String
-}
-
-enum ImportedMailAiParseStatus {
-  RUNNING
-
-  SUCCEEDED
-
-  FAILED
 }
 
 type ImportedMailAttributes {
@@ -621,6 +600,27 @@ A slightly refined version of RFC-3339 compliant DateTime Scalar
 """
 scalar OffsetDateTime
 
+enum ParseImportedMailWithAiError {
+  ApiKeyNotSet
+
+  MailNotFound
+
+  ParseFailed
+
+  InternalServerError
+}
+
+type ParseImportedMailWithAiResult {
+  usages: [MoneyUsageSuggest!]!
+
+  error: ParseImportedMailWithAiError
+
+  """
+  errorがParseFailedの場合の詳細
+  """
+  errorMessage: String
+}
+
 type Query {
   isLoggedIn: Boolean!
 
@@ -690,22 +690,6 @@ type SettingsMutation {
   nullまたは空文字の場合はAPIキーを削除する
   """
   updateGeminiApiKey(apiKey: String): UserAiConfig
-}
-
-enum StartImportedMailAiParseError {
-  ApiKeyNotSet
-
-  MailNotFound
-
-  AlreadyRunning
-
-  InternalServerError
-}
-
-type StartImportedMailAiParseResult {
-  isSuccess: Boolean!
-
-  error: StartImportedMailAiParseError
 }
 
 """
@@ -908,7 +892,10 @@ type UserMutation {
 
   deleteImportedMail(id: ImportedMailId!): Boolean!
 
-  startImportedMailAiParse(id: ImportedMailId!): StartImportedMailAiParseResult!
+  """
+  Gemini APIでメールを解析し、登録候補を返す。結果は保存しない
+  """
+  parseImportedMailWithAi(id: ImportedMailId!): ParseImportedMailWithAiResult!
 
   deleteMail(mailIds: [MailId!]!): DeleteMailResult!
 

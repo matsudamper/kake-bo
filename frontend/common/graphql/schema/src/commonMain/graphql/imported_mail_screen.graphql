@@ -26,13 +26,6 @@ query ImportedMailScreen($id: ImportedMailId!) {
                 suggestUsages {
                     ...ImportedMailScreenSuggestUsage
                 }
-                aiParseResult {
-                    status
-                    errorMessage
-                    usages {
-                        ...ImportedMailScreenSuggestUsage
-                    }
-                }
             }
         }
     }
@@ -44,11 +37,14 @@ mutation ImportedMailScreenDeleteMail($id: ImportedMailId!) {
     }
 }
 
-mutation ImportedMailScreenStartAiParse($id: ImportedMailId!) {
+mutation ImportedMailScreenParseWithAi($id: ImportedMailId!) {
     userMutation {
-        startImportedMailAiParse(id: $id) {
-            isSuccess
+        parseImportedMailWithAi(id: $id) {
+            usages {
+                ...ImportedMailScreenSuggestUsage
+            }
             error
+            errorMessage
         }
     }
 }
