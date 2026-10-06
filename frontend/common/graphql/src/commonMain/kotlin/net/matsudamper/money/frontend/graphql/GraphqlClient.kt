@@ -4,38 +4,26 @@ import kotlin.Int
 import kotlin.Long
 import kotlin.String
 import kotlin.let
-import kotlin.time.Duration
 import kotlin.time.Duration.Companion.seconds
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.awaitCancellation
-import kotlinx.coroutines.coroutineScope
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.catch
 import kotlinx.coroutines.flow.onEach
-import kotlinx.coroutines.launch
-import kotlinx.coroutines.withContext
-import kotlinx.coroutines.withTimeoutOrNull
 import com.apollographql.apollo.ApolloClient
 import com.apollographql.apollo.api.Adapter
 import com.apollographql.apollo.api.ApolloRequest
 import com.apollographql.apollo.api.ApolloResponse
 import com.apollographql.apollo.api.CustomScalarAdapters
-import com.apollographql.apollo.api.ExecutionContext
 import com.apollographql.apollo.api.Operation
-import com.apollographql.apollo.api.http.HttpRequest
-import com.apollographql.apollo.api.http.HttpResponse
 import com.apollographql.apollo.api.json.JsonReader
 import com.apollographql.apollo.api.json.JsonWriter
 import com.apollographql.apollo.cache.normalized.api.MemoryCacheFactory
 import com.apollographql.apollo.cache.normalized.normalizedCache
-import com.apollographql.apollo.exception.ApolloNetworkException
 import com.apollographql.apollo.exception.CacheMissException
 import com.apollographql.apollo.exception.DefaultApolloException
 import com.apollographql.apollo.interceptor.ApolloInterceptor
 import com.apollographql.apollo.interceptor.ApolloInterceptorChain
 import com.apollographql.apollo.network.http.DefaultHttpEngine
 import com.apollographql.apollo.network.http.HttpInterceptor
-import com.apollographql.apollo.network.http.HttpInterceptorChain
 import net.matsudamper.money.element.ApiTokenId
 import net.matsudamper.money.element.FidoId
 import net.matsudamper.money.element.ImageId
@@ -64,7 +52,6 @@ import net.matsudamper.money.frontend.graphql.type.MoneyUsagePresetId as ApolloM
 import net.matsudamper.money.frontend.graphql.type.MoneyUsageSubCategoryId as ApolloMoneyUsageSubCategoryId
 import net.matsudamper.money.frontend.graphql.type.SessionRecordId as ApolloSessionRecordId
 import net.matsudamper.money.frontend.graphql.type.UserId as ApolloUserId
-import okio.Buffer
 
 public interface GraphqlClient {
     val apolloClient: ApolloClient
@@ -260,77 +247,10 @@ class GraphqlClientImpl(
 
 /**
  * 通信エンジンのタイムアウトは全操作で共通のため、LongRunningOperation の最大値より長くしておく。
+ * 最大値は apollo-compiler-plugin の LongRunningFieldTimeouts.MAX_TIMEOUT_SECONDS で制限している。
  * 操作ごとのタイムアウトは [OperationTimeoutHttpInterceptor] で掛ける。
  */
 private val HTTP_ENGINE_TIMEOUT = 120.seconds
-private val DEFAULT_OPERATION_TIMEOUT = 5.seconds
-
-private class OperationTimeout(val timeout: Duration) : ExecutionContext.Element {
-    override val key: ExecutionContext.Key<*> = Key
-
-    companion object Key : ExecutionContext.Key<OperationTimeout>
-}
-
-/**
- * watch() の Flow は ApolloInterceptor の内側で続くため、ここでは Flow にタイムアウトを掛けず、
- * 操作のタイムアウトを [OperationTimeoutHttpInterceptor] へ渡すだけにする。
- */
-private object OperationTimeoutInterceptor : ApolloInterceptor {
-    override fun <D : Operation.Data> intercept(
-        request: ApolloRequest<D>,
-        chain: ApolloInterceptorChain,
-    ): Flow<ApolloResponse<D>> {
-        val operation = request.operation
-        val timeout = if (operation is LongRunningOperation) {
-            operation.timeoutSeconds.seconds
-        } else {
-            DEFAULT_OPERATION_TIMEOUT
-        }
-        return chain.proceed(
-            request.newBuilder()
-                .addExecutionContext(OperationTimeout(timeout))
-                .build(),
-        )
-    }
-}
-
-private object OperationTimeoutHttpInterceptor : HttpInterceptor {
-    override suspend fun intercept(
-        request: HttpRequest,
-        chain: HttpInterceptorChain,
-    ): HttpResponse {
-        val timeout = request.executionContext[OperationTimeout]?.timeout ?: DEFAULT_OPERATION_TIMEOUT
-        // HttpNetworkTransport は CancellationException をそのまま投げ直すため、通信エラーとして扱われる例外に変換する
-        return withTimeoutOrNull(timeout) { chain.proceed(request).withBufferedBody() }
-            ?: throw ApolloNetworkException(message = "Timeout: $timeout")
-    }
-
-    /**
-     * 本文は返却後に遅延して読まれるため、タイムアウトの内側で読み切る。
-     * 本文の読み取りはブロッキングでキャンセルに反応しないため、キャンセル時は本文を閉じて読み取りを中断させる。
-     */
-    private suspend fun HttpResponse.withBufferedBody(): HttpResponse {
-        val body = body ?: return this
-        val bufferedBody = coroutineScope {
-            val bodyCloser = launch {
-                try {
-                    awaitCancellation()
-                } finally {
-                    body.close()
-                }
-            }
-            try {
-                withContext(Dispatchers.Default) { Buffer().apply { writeAll(body) } }
-            } finally {
-                bodyCloser.cancel()
-            }
-        }
-        return HttpResponse.Builder(statusCode = statusCode)
-            .headers(headers)
-            .body(bufferedBody)
-            .build()
-    }
-}
 
 private object ApolloErrorLoggingInterceptor : ApolloInterceptor {
     override fun <D : Operation.Data> intercept(
