@@ -36,7 +36,7 @@
 リポジトリに存在する `docs/` 以下のエージェント向けドキュメントがあれば、必ず読んで従う。無いファイルは無視してよい。
 
 例:
-- `docs/agent-*.md`
+- `docs/agent-*.md`（UI の見た目を変えるときは `docs/agent-paparazzi.md` を含めて読む）
 - `docs/*-guidelines.md` / `docs/*_style.md` など
 
 ## 言語
