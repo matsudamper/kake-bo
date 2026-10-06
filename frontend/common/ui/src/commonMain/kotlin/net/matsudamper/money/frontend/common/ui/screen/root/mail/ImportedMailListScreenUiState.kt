@@ -29,6 +29,7 @@ public data class ImportedMailListScreenUiState(
             val text: String,
             val onTextChanged: (String) -> Unit,
             val onSearch: () -> Unit,
+            val onClear: () -> Unit,
         )
 
         public enum class LinkStatus {
