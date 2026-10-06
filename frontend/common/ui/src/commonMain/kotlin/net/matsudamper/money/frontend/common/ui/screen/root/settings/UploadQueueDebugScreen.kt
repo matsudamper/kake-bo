@@ -242,7 +242,7 @@ private fun QueueItemRow(
         )
         Spacer(modifier = Modifier.height(2.dp))
         Text(
-            text = "createdAt: ${item.createdAt}",
+            text = "作成日時: ${item.createdAt}",
             style = MaterialTheme.typography.bodySmall,
             color = MaterialTheme.colorScheme.onSurfaceVariant,
         )
