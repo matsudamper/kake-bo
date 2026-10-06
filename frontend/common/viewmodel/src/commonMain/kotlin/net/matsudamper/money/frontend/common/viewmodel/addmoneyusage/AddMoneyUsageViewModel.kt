@@ -430,20 +430,19 @@ public class AddMoneyUsageViewModel(
                     }
                     .onFailure { Logger.e(TAG, it) }
                     .getOrNull()
+                    ?: return@launch
 
-                // 入力値は取得を待たずに設定済みで、取得中にユーザーが編集している可能性があるため、カテゴリだけを更新する
+                // 入力値は取得を待たずに設定済みで、取得中にユーザーが編集している可能性があるため、
+                // 未選択のカテゴリだけを埋める
                 viewModelStateFlow.update { state ->
+                    if (state.usageCategorySet != null) return@update state
                     state.copy(
-                        usageCategorySet = if (subCategory != null) {
-                            CategorySelectDialogViewModel.SelectedResult(
-                                categoryId = subCategory.category.id,
-                                categoryName = subCategory.category.name,
-                                subCategoryId = subCategory.id,
-                                subCategoryName = subCategory.name,
-                            )
-                        } else {
-                            null
-                        },
+                        usageCategorySet = CategorySelectDialogViewModel.SelectedResult(
+                            categoryId = subCategory.category.id,
+                            categoryName = subCategory.category.name,
+                            subCategoryId = subCategory.id,
+                            subCategoryName = subCategory.name,
+                        ),
                     )
                 }
             }
