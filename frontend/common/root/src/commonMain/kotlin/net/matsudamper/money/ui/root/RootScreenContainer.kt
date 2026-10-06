@@ -87,11 +87,6 @@ internal fun RootScreenContainer(
                     navController = navController,
                 )
             }
-            LaunchedEffect(viewModel.viewModelEventHandler) {
-                viewModelEventHandlers.handleMoneyUsageCalendarHost(
-                    handler = viewModel.viewModelEventHandler,
-                )
-            }
             LaunchedEffect(viewModel, current) {
                 viewModel.updateStructure(current)
             }
