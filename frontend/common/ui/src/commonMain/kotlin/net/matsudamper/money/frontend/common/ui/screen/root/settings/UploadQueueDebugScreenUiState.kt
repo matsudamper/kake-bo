@@ -22,7 +22,8 @@ public data class UploadQueueDebugScreenUiState(
         val status: Status,
         val errorMessage: String?,
         val stackTrace: String?,
-        val createdAt: String,
+        val createdAtEpochMillis: Long,
+        val createdAtLabel: String,
         val workManagerId: String?,
     )
 

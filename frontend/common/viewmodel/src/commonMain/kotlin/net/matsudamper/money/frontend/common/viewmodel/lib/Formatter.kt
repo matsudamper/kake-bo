@@ -41,19 +41,12 @@ public object Formatter {
         }
     }
 
-    public fun formatEpochMillis(
-        epochMillis: Long,
-        timeZone: TimeZone = TimeZone.currentSystemDefault(),
-    ): String {
-        val dateTime = Instant.fromEpochMilliseconds(epochMillis).toLocalDateTime(timeZone)
+    public fun formatEpochMillis(epochMillis: Long): String {
+        val dateTime = Instant.fromEpochMilliseconds(epochMillis)
+            .toLocalDateTime(TimeZone.currentSystemDefault())
         val millis = ((epochMillis % 1_000) + 1_000) % 1_000
         return buildString {
-            append("${dateTime.year}/${dateTime.monthNumber}/${dateTime.dayOfMonth}")
-            append("(${dayOfWeekToJapanese(dateTime.date.dayOfWeek)})")
-            append(" ")
-            append(dateTime.hour.toString().padStart(2, padChar = '0'))
-            append(":")
-            append(dateTime.minute.toString().padStart(2, padChar = '0'))
+            append(formatDateTime(dateTime))
             append(":")
             append(dateTime.second.toString().padStart(2, padChar = '0'))
             append(".")

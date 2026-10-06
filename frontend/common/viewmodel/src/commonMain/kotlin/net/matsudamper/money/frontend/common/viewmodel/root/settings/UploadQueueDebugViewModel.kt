@@ -101,7 +101,8 @@ public class UploadQueueDebugViewModel(
                                 },
                                 errorMessage = item.errorMessage,
                                 stackTrace = item.stackTrace,
-                                createdAt = Formatter.formatEpochMillis(item.createdAt),
+                                createdAtEpochMillis = item.createdAt,
+                                createdAtLabel = Formatter.formatEpochMillis(item.createdAt),
                                 workManagerId = item.workManagerId,
                             )
                         },
