@@ -1,4 +1,6 @@
-schema: "schema.graphqls"
+schema:
+  - "../../../../../../../backend/graphql/src/commonMain/resources/graphql/*.graphqls"
+  - "extra.graphqls"
 
 extensions:
   endpoints:
