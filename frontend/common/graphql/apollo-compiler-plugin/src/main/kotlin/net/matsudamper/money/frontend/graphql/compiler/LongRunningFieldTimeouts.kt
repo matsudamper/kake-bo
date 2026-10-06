@@ -91,6 +91,11 @@ internal class LongRunningFieldTimeouts private constructor(
         private const val TIMEOUT_SECONDS_ARGUMENT_NAME = "timeoutSeconds"
 
         /**
+         * 通常の操作のタイムアウト（OperationTimeoutInterceptor の DEFAULT_OPERATION_TIMEOUT）に合わせる
+         */
+        private const val MIN_TIMEOUT_SECONDS = 5
+
+        /**
          * クライアントの通信エンジンのタイムアウト（GraphqlClient の HTTP_ENGINE_TIMEOUT）に合わせる
          */
         private const val MAX_TIMEOUT_SECONDS = 120
@@ -131,8 +136,9 @@ internal class LongRunningFieldTimeouts private constructor(
             val timeoutSeconds = checkNotNull((value as? GQLIntValue)?.value?.toIntOrNull()) {
                 "@$DIRECTIVE_NAME の $TIMEOUT_SECONDS_ARGUMENT_NAME には整数を指定してください: $name"
             }
-            check(timeoutSeconds <= MAX_TIMEOUT_SECONDS) {
-                "@$DIRECTIVE_NAME の $TIMEOUT_SECONDS_ARGUMENT_NAME は通信エンジンのタイムアウトを超えられないため、${MAX_TIMEOUT_SECONDS}以下にしてください: $name"
+            check(timeoutSeconds in MIN_TIMEOUT_SECONDS..MAX_TIMEOUT_SECONDS) {
+                "@$DIRECTIVE_NAME の $TIMEOUT_SECONDS_ARGUMENT_NAME は通常のタイムアウト以上かつ通信エンジンのタイムアウト以下にするため、" +
+                    "$MIN_TIMEOUT_SECONDS..${MAX_TIMEOUT_SECONDS}の範囲にしてください: $name"
             }
             return timeoutSeconds
         }
