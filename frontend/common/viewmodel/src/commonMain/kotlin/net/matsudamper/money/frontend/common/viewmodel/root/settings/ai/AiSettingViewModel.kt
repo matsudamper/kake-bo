@@ -71,7 +71,7 @@ public class AiSettingViewModel(
                             ViewModelState.LoadingState.Loading -> AiSettingScreenUiState.LoadingState.Loading
                             ViewModelState.LoadingState.Error -> AiSettingScreenUiState.LoadingState.Error
                             ViewModelState.LoadingState.Loaded -> AiSettingScreenUiState.LoadingState.Loaded(
-                                geminiApiKey = if (viewModelState.hasGeminiApiKey) "****************" else "",
+                                geminiApiKey = if (viewModelState.hasGeminiApiKey) "****************" else "（未設定）",
                             )
                         },
                         isGeminiApiKeyInputVisible = viewModelState.isGeminiApiKeyInputVisible,
