@@ -5,7 +5,7 @@ import org.slf4j.LoggerFactory
 
 public object CustomLogger {
     public object ParseFail {
-        private val logger = LoggerFactory.getLogger("ParseFail")!!
+        private val logger = LoggerFactory.getLogger(ParseFail::class.java)!!
 
         public fun log(
             clazz: KClass<*>,
@@ -16,7 +16,7 @@ public object CustomLogger {
     }
 
     public object General {
-        private val logger = LoggerFactory.getLogger("General")!!
+        private val logger = LoggerFactory.getLogger(General::class.java)!!
 
         public fun info(message: String) {
             logger.info(message)

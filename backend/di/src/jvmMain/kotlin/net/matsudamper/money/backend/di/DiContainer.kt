@@ -9,6 +9,7 @@ import net.matsudamper.money.backend.app.interfaces.ApiTokenRepository
 import net.matsudamper.money.backend.app.interfaces.ChallengeRepository
 import net.matsudamper.money.backend.app.interfaces.DeleteUsageImageRelationDao
 import net.matsudamper.money.backend.app.interfaces.FidoRepository
+import net.matsudamper.money.backend.app.interfaces.GeminiGateway
 import net.matsudamper.money.backend.app.interfaces.ImageStorageGateway
 import net.matsudamper.money.backend.app.interfaces.ImportedMailRepository
 import net.matsudamper.money.backend.app.interfaces.MailFilterRepository
@@ -23,6 +24,7 @@ import net.matsudamper.money.backend.app.interfaces.UserImageRepository
 import net.matsudamper.money.backend.app.interfaces.UserLoginRepository
 import net.matsudamper.money.backend.app.interfaces.UserRepository
 import net.matsudamper.money.backend.app.interfaces.UserSessionRepository
+import net.matsudamper.money.backend.base.DbSecretCipher
 import net.matsudamper.money.backend.base.ServerEnv
 import net.matsudamper.money.backend.base.ServerVariables
 import net.matsudamper.money.backend.base.TraceLogger
@@ -48,6 +50,7 @@ import net.matsudamper.money.backend.datasource.db.repository.DeleteUsageImageRe
 import net.matsudamper.money.backend.datasource.db.repository.EnvAdminLoginRepository
 import net.matsudamper.money.backend.datasource.session.AdminSessionRepositoryProvider
 import net.matsudamper.money.backend.datasource.session.UserSessionRepositoryProvider
+import net.matsudamper.money.backend.feature.gemini.GeminiGatewayImpl
 import net.matsudamper.money.backend.feature.imagestoragelocal.LocalImageStorageGateway
 import net.matsudamper.money.backend.feature.objectstorage.ObjectStorageConfig
 import net.matsudamper.money.backend.feature.objectstorage.S3ImageStorageGateway
@@ -69,6 +72,8 @@ interface DiContainer {
     fun createUserConfigRepository(): UserConfigRepository
 
     fun createDbMailRepository(): ImportedMailRepository
+
+    fun createGeminiGateway(): GeminiGateway
 
     fun createMoneyUsageCategoryRepository(): MoneyUsageCategoryRepository
 
@@ -170,7 +175,9 @@ class MainDiContainer : DiContainer {
         return mailFilterRepository
     }
 
-    private val userConfigRepository = DbUserConfigRepository()
+    private val userConfigRepository = DbUserConfigRepository(
+        dbSecretCipher = ServerEnv.dbSecretEncryptionKey?.let { DbSecretCipher.fromBase64Key(it) },
+    )
 
     override fun createUserConfigRepository(): DbUserConfigRepository {
         return userConfigRepository
@@ -180,6 +187,12 @@ class MainDiContainer : DiContainer {
 
     override fun createDbMailRepository(): DbImportedImportedMailRepository {
         return dbImportedMailRepository
+    }
+
+    private val geminiGateway by lazy { GeminiGatewayImpl() }
+
+    override fun createGeminiGateway(): GeminiGateway {
+        return geminiGateway
     }
 
     private val moneyUsageCategoryRepository = DbMoneyUsageCategoryRepository()

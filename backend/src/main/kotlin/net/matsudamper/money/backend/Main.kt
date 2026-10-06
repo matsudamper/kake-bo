@@ -2,10 +2,12 @@ package net.matsudamper.money.backend
 
 import java.io.File
 import kotlin.time.Duration.Companion.seconds
+import kotlin.time.TimeSource
 import kotlinx.coroutines.withTimeout
 import kotlinx.serialization.json.Json
 import io.ktor.http.CacheControl
 import io.ktor.http.ContentType
+import io.ktor.http.HttpHeaders
 import io.ktor.http.HttpMethod
 import io.ktor.http.HttpStatusCode
 import io.ktor.serialization.kotlinx.json.json
@@ -25,8 +27,9 @@ import io.ktor.server.plugins.forwardedheaders.XForwardedHeaders
 import io.ktor.server.plugins.statuspages.StatusPages
 import io.ktor.server.request.httpMethod
 import io.ktor.server.request.path
-import io.ktor.server.request.receiveStream
+import io.ktor.server.request.receiveText
 import io.ktor.server.response.cacheControl
+import io.ktor.server.response.header
 import io.ktor.server.response.respondFile
 import io.ktor.server.response.respondText
 import io.ktor.server.routing.accept
@@ -44,6 +47,7 @@ import net.matsudamper.money.backend.di.MainDiContainer
 import net.matsudamper.money.backend.feature.oidc.jwks
 import net.matsudamper.money.backend.feature.oidc.oidcDiscovery
 import net.matsudamper.money.backend.feature.session.KtorCookieManager
+import net.matsudamper.money.backend.graphql.GraphqlOperationTimeout
 import net.matsudamper.money.backend.graphql.MoneyGraphQlSchema
 import net.matsudamper.money.backend.image.ImageUploadConfig
 import net.matsudamper.money.backend.image.getImage
@@ -109,7 +113,6 @@ fun Application.myApplicationModule(diContainer: DiContainer) {
         format { call ->
             buildString {
                 appendLine("request=${call.request.path()}")
-                println("path: ${call.request.path()}")
                 appendLine(
                     call.request.headers.entries().joinToString("\n") { (key, value) ->
                         "$key=$value"
@@ -133,7 +136,7 @@ fun Application.myApplicationModule(diContainer: DiContainer) {
         }
         status(HttpStatusCode.NotFound) { call, _ ->
             if (call.request.httpMethod == HttpMethod.Get) {
-                call.response.cacheControl(CacheControl.NoCache(null))
+                call.response.cacheControl(CacheControl.NoStore(null))
                 call.respondFile(File(ServerEnv.htmlPath))
             } else {
                 call.respondText(
@@ -153,17 +156,26 @@ fun Application.myApplicationModule(diContainer: DiContainer) {
                 call.respondText(
                     contentType = ContentType.Application.Json,
                 ) {
-                    return@respondText withTimeout(5.seconds) {
-                        GraphqlHandler(
-                            cookieManager = KtorCookieManager(call = call),
-                            diContainer = diContainer,
-                        ).handle(
-                            requestText = call.receiveStream().bufferedReader().readText(),
-                        )
+                    // 操作のタイムアウトは本文を読むまで決まらないため、読み取りは通常の期限で打ち切り、
+                    // 実行には受信からの経過時間を差し引いた残りを使って、合計を操作のタイムアウトに収める
+                    val receivedAt = TimeSource.Monotonic.markNow()
+                    val requestText = withTimeout(GraphqlOperationTimeout.DEFAULT_TIMEOUT) {
+                        call.receiveText()
+                    }
+                    val handler = GraphqlHandler(
+                        cookieManager = KtorCookieManager(call = call),
+                        diContainer = diContainer,
+                    )
+                    return@respondText withTimeout(handler.resolveTimeout(requestText) - receivedAt.elapsedNow()) {
+                        handler.handle(requestText = requestText)
                     }
                 }
             }
-            post<RegisterMailHandler.Request>("/api/register_mail/v1") { request ->
+            post("/api/register_mail/v1") {
+                val request = ObjectMapper.kotlinxSerialization.decodeFromString(
+                    RegisterMailHandler.Request.serializer(),
+                    call.receiveText(),
+                )
                 val apiKey = call.request.headers["Authorization"]
                 withTimeout(5.seconds) {
                     val result = RegisterMailHandler(
@@ -191,6 +203,7 @@ fun Application.myApplicationModule(diContainer: DiContainer) {
                             call.respondText(
                                 contentType = ContentType.Application.Json,
                                 text = Json.encodeToString(
+                                    RegisterMailHandler.Response.serializer(),
                                     result.response,
                                 ),
                             )
@@ -227,8 +240,8 @@ fun Application.myApplicationModule(diContainer: DiContainer) {
             remotePath = "/",
             dir = File(ServerEnv.frontPath),
         ) {
-            cacheControl { _ ->
-                listOf(CacheControl.NoCache(null))
+            modify { file, call ->
+                call.response.header(HttpHeaders.CacheControl, staticFileCacheControlOf(file.name))
             }
             contentType { file ->
                 when (file.extension) {
@@ -240,6 +253,20 @@ fun Application.myApplicationModule(diContainer: DiContainer) {
         }
     }
 }
+
+/**
+ * ファイル名に中身のハッシュが入っているものは内容が変わらないので長期キャッシュさせる。
+ * index.html はハッシュ付きの名前を指す入口なので毎回取り直させる。
+ */
+private fun staticFileCacheControlOf(fileName: String): String {
+    return when {
+        fileName == "index.html" -> "no-store"
+        contentHashedFileNameRegex.matches(fileName) -> "public, max-age=31536000, immutable"
+        else -> "no-cache"
+    }
+}
+
+private val contentHashedFileNameRegex = Regex("""^(?:.+\.)?[0-9a-f]{16,}(?:\.module)?\.(?:js|wasm)$""")
 
 private fun getAssetLinkJson(): String {
     return """

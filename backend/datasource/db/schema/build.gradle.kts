@@ -15,7 +15,7 @@ plugins {
 
 buildscript {
     dependencies {
-        classpath("org.mariadb.jdbc:mariadb-java-client:3.5.8")
+        classpath("org.mariadb.jdbc:mariadb-java-client:3.5.10")
         classpath(libs.jooqCodegen)
         classpath(libs.jooqMeta)
     }
@@ -26,7 +26,7 @@ kotlin {
     }
     jvmToolchain(libs.versions.javaToolchain.get().toInt())
     sourceSets {
-        val jvmMain by getting {
+        getByName("jvmMain") {
             dependencies {
                 implementation(kotlin("stdlib"))
                 implementation(kotlin("reflect"))
@@ -34,7 +34,7 @@ kotlin {
                 implementation(libs.jooq)
             }
         }
-        val jvmTest by getting {
+        getByName("jvmTest") {
             dependencies {
                 implementation(kotlin("test"))
             }
@@ -56,12 +56,13 @@ tasks.register("generateDbCode") {
         val dbPass = System.getenv("DB_PASS")?.takeIf { it.isNotBlank() }
             ?: localProperties.getProperty("DB_PASS")
             ?: error("DB_PASS is not set")
-        GenerationTool.generate(
+        val jdbcUrl = "jdbc:mariadb://localhost:3306/money"
+        val configuration =
             Configuration()
                 .withJdbc(
                     Jdbc()
                         .withDriver("org.mariadb.jdbc.Driver")
-                        .withUrl("jdbc:mariadb://localhost:3306/money")
+                        .withUrl(jdbcUrl)
                         .withUser(dbUser)
                         .withPassword(dbPass),
                 )
@@ -91,7 +92,17 @@ tasks.register("generateDbCode") {
                                         .withIncludeTypes("TINYINT\\(1\\)"),
                                 ),
                         ),
-                ),
-        )
+                )
+        try {
+            GenerationTool.generate(configuration)
+        } catch (e: Exception) {
+            // jOOQは例外を "Error in code generator" で包むため、根本原因を表に出す
+            val rootCause = generateSequence<Throwable>(e) { it.cause }.last()
+            throw GradleException(
+                "DBからのコード生成に失敗しました。$jdbcUrl に user=$dbUser で接続できるか確認してください。" +
+                    "原因: ${rootCause::class.java.name}: ${rootCause.message}",
+                e,
+            )
+        }
     }
 }

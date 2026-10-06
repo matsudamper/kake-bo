@@ -8,6 +8,7 @@ internal class MoneyUsagesCursor(
     val lastId: MoneyUsageId,
     val lastDate: LocalDateTime?,
     val amount: Int?,
+    val lastCreatedDateTime: LocalDateTime?,
 ) {
     fun toCursorString(): String {
         return CursorParser.createToString(
@@ -15,6 +16,7 @@ internal class MoneyUsagesCursor(
                 LAST_ID_KEY to lastId.id.toString(),
                 LAST_DATE_KEY to lastDate?.toString().orEmpty(),
                 AMOUNT_KEY to amount?.toString().orEmpty(),
+                LAST_CREATED_DATE_TIME_KEY to lastCreatedDateTime?.toString().orEmpty(),
             ),
         )
     }
@@ -23,6 +25,7 @@ internal class MoneyUsagesCursor(
         private const val LAST_ID_KEY = "lastId"
         private const val LAST_DATE_KEY = "lastDate"
         private const val AMOUNT_KEY = "amount"
+        private const val LAST_CREATED_DATE_TIME_KEY = "lastCreatedDateTime"
 
         fun fromString(cursorString: String): MoneyUsagesCursor {
             return MoneyUsagesCursor(
@@ -36,6 +39,12 @@ internal class MoneyUsagesCursor(
                     LocalDateTime.parse(text)
                 },
                 amount = CursorParser.parseFromString(cursorString)[AMOUNT_KEY]?.toIntOrNull(),
+                lastCreatedDateTime = run createdDateTime@{
+                    val text = CursorParser.parseFromString(cursorString)[LAST_CREATED_DATE_TIME_KEY]
+                        ?.takeIf { it.isNotBlank() }
+                        ?: return@createdDateTime null
+                    LocalDateTime.parse(text)
+                },
             )
         }
     }

@@ -8,13 +8,13 @@ kotlin {
     android {
         namespace = "net.matsudamper.money.frontend.common.base"
     }
-    js(IR) {
+    wasmJs {
         browser()
     }
     jvm { }
     sourceSets {
         jvmToolchain(libs.versions.javaToolchain.get().toInt())
-        val commonMain by getting {
+        getByName("commonMain") {
             dependencies {
                 api(projects.frontend.common.feature.logging)
                 implementation(projects.shared)
@@ -28,19 +28,20 @@ kotlin {
                 implementation(libs.ktorClientCore)
             }
         }
-        val jsMain by getting {
+        getByName("wasmJsMain") {
             dependencies {
+                implementation(libs.kotlinxBrowser)
                 implementation(projects.shared)
 
                 implementation(libs.composeRuntime)
                 implementation(libs.composeUi)
 
-                implementation("io.ktor:ktor-client-logging-js:3.5.0")
+                implementation(libs.ktorClientLogging)
                 implementation(libs.ktorClientCore)
                 implementation(libs.ktorClientJs)
             }
         }
-        val jvmMain by getting {
+        getByName("jvmMain") {
             dependencies {
                 implementation(projects.shared)
 
@@ -48,7 +49,7 @@ kotlin {
                 implementation(libs.composeUi)
             }
         }
-        val androidMain by getting {
+        getByName("androidMain") {
             dependencies {
                 implementation(projects.shared)
 
@@ -58,14 +59,14 @@ kotlin {
                 implementation(libs.androidxCoreKtx)
             }
         }
-        val jvmTest by getting {
+        getByName("jvmTest") {
             dependencies {
                 implementation(kotlin("test"))
                 implementation(libs.kotestRunnerJunit5)
                 implementation(libs.kotlinRefrect)
             }
         }
-        val jsTest by getting {
+        getByName("wasmJsTest") {
             dependencies {
                 implementation(kotlin("test"))
             }

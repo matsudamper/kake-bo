@@ -1,19 +1,26 @@
+import net.matsudamper.money.buildlogic.WebpackBundleHashPlugin
+
 plugins {
     alias(libs.plugins.kotlin.multiplatform)
     alias(libs.plugins.kotlin.serialization)
     alias(libs.plugins.composeCompiler)
     alias(libs.plugins.jetbrainsCompose)
     id("net.matsudamper.money.buildlogic.compose")
+    id("net.matsudamper.money.buildlogic.webpackBundleHash")
 }
 
 kotlin {
-    js {
-        browser()
+    wasmJs {
+        browser {
+            commonWebpackConfig {
+                outputFileName = WebpackBundleHashPlugin.BUNDLE_FILE_NAME
+            }
+        }
         binaries.executable()
     }
     sourceSets {
         jvmToolchain(libs.versions.javaToolchain.get().toInt())
-        val commonMain by getting {
+        getByName("commonMain") {
             dependencies {
                 implementation(projects.shared)
                 implementation(projects.frontend.common.root)
@@ -33,13 +40,13 @@ kotlin {
                 implementation(libs.coilRuntime)
             }
         }
-        val jsMain by getting {
+        getByName("wasmJsMain") {
             dependencies {
+                implementation(libs.kotlinxBrowser)
                 implementation(projects.frontend.common.navigation)
 
                 implementation(kotlin("stdlib"))
                 implementation(libs.kotlin.serialization.json)
-                implementation(libs.composeHtmlCore)
                 implementation(libs.androidxComposeSaveable)
             }
         }

@@ -19,6 +19,13 @@ interface UserConfigRepository {
 
     fun updateTimezoneOffset(userId: UserId, offset: ZoneOffset): Boolean
 
+    fun getGeminiApiKey(userId: UserId): String?
+
+    /**
+     * @param apiKey nullの場合は削除する
+     */
+    fun updateGeminiApiKey(userId: UserId, apiKey: String?): Boolean
+
     sealed interface Optional<T> {
         class None<T> : Optional<T>
 

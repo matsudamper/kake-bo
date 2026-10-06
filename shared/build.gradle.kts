@@ -4,7 +4,7 @@ plugins {
 }
 
 kotlin {
-    js(IR) {
+    wasmJs {
         browser()
         nodejs()
     }
@@ -12,13 +12,13 @@ kotlin {
     }
     sourceSets {
         jvmToolchain(libs.versions.javaToolchain.get().toInt())
-        val commonMain by getting {
+        getByName("commonMain") {
             dependencies {
                 implementation(kotlin("stdlib"))
                 implementation(libs.kotlin.serialization.json)
             }
         }
-        val jvmTest by getting {
+        getByName("jvmTest") {
             dependencies {
                 implementation(kotlin("test"))
                 implementation(libs.kotestRunnerJunit5)

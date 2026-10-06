@@ -1,0 +1,228 @@
+package net.matsudamper.money.frontend.common.base.nav.user
+
+import androidx.compose.runtime.Composable
+import androidx.compose.runtime.remember
+import kotlinx.browser.window
+import io.ktor.http.ParametersBuilder
+import io.ktor.http.decodeURLQueryComponent
+import io.ktor.util.StringValues
+import io.ktor.util.toMap
+import net.matsudamper.money.element.ImportedMailCategoryFilterId
+import net.matsudamper.money.element.ImportedMailId
+import net.matsudamper.money.element.MoneyUsageCategoryId
+import net.matsudamper.money.element.MoneyUsageId
+import net.matsudamper.money.element.MoneyUsagePresetId
+
+private val browserHiddenScreens: Set<Screens> = setOf(
+    Screens.AddNotificationUsage,
+    Screens.AddNotificationUsageFilters,
+    Screens.NotificationUsageDetail,
+    Screens.AddNotificationUsageDebug,
+)
+
+private val parser = UrlPlaceHolderParser(
+    Screens.entries.filterNot { screen ->
+        screen in browserHiddenScreens
+    },
+)
+
+@Composable
+public actual fun rememberMainScreenNavController(initial: IScreenStructure): ScreenNavController {
+    return remember {
+        ScreenNavControllerImpl(
+            initial = initial,
+            currentScreenStructureProvider = {
+                parseBrowserScreenStructure(
+                    pathname = window.location.pathname,
+                    query = window.location.search,
+                )
+            },
+        )
+    }
+}
+
+internal fun parseBrowserScreenStructure(pathname: String, query: String): ScreenStructure {
+    return parser.parse(pathname = pathname)
+        .toScreenStructure(parseQueryParams(query))
+}
+
+private fun parseQueryParams(query: String): Map<String, List<String>> {
+    return ParametersBuilder().apply {
+        appendAll(
+            StringValues.build {
+                query.removePrefix("?")
+                    .split("&")
+                    .forEach { keyValue ->
+                        keyValue.split("=", limit = 2).let {
+                            val key = it.getOrNull(0) ?: return@forEach
+                            val value = it.getOrNull(1)
+                                .orEmpty()
+                                .decodeURLQueryComponent(plusIsSpace = true)
+
+                            append(key, value)
+                        }
+                    }
+            },
+        )
+    }.build().toMap()
+}
+
+private fun UrlPlaceHolderParser.ScreenState<Screens>.toScreenStructure(queryParams: Map<String, List<String>>): ScreenStructure {
+    return when (this.screen) {
+        Screens.HomeMonthly ->
+            RootHomeScreenStructure.Monthly.create(
+                pathParams = pathParams,
+                queryParams = queryParams,
+            )
+
+        Screens.Home, Screens.HomeRedirect ->
+            RootHomeScreenStructure.PeriodAnalytics.create(
+                pathParams = pathParams,
+                queryParams = queryParams,
+            )
+
+        Screens.HomePeriodCategory ->
+            RootHomeScreenStructure.PeriodCategory.create(
+                pathParams = pathParams,
+                queryParams = queryParams,
+            )
+
+        Screens.HomePeriodSubCategory ->
+            RootHomeScreenStructure.PeriodSubCategory.create(
+                pathParams = pathParams,
+                queryParams = queryParams,
+            ) ?: ScreenStructure.NotFound
+
+        Screens.Settings -> ScreenStructure.Root.Settings.Root
+        Screens.Api -> ScreenStructure.Root.Settings.Api
+        Screens.SettingsImap -> ScreenStructure.Root.Settings.Imap
+        Screens.SettingsTimezone -> ScreenStructure.Root.Settings.Timezone
+        Screens.SettingsAi -> ScreenStructure.Root.Settings.Ai
+        Screens.SettingsCategory -> ScreenStructure.Root.Settings.Categories
+        Screens.SettingsCategoryId ->
+            ScreenStructure.Root.Settings.Category(
+                id = this.pathParams["id"]?.toIntOrNull()?.let { MoneyUsageCategoryId(it) }
+                    ?: return ScreenStructure.NotFound,
+            )
+
+        Screens.SettingsLogin -> {
+            ScreenStructure.Root.Settings.Login
+        }
+
+        Screens.SettingsTextFieldTest -> ScreenStructure.Root.Settings.TextFieldTest
+        Screens.SettingsUploadQueueDebug -> ScreenStructure.Root.Settings.UploadQueueDebug
+        Screens.AddPresets -> ScreenStructure.Root.Add.Preset
+        Screens.AddNotificationUsage -> ScreenStructure.NotFound
+        Screens.AddNotificationUsageFilters -> ScreenStructure.NotFound
+        Screens.NotificationUsageDetail -> ScreenStructure.NotFound
+        Screens.AddNotificationUsageDebug -> ScreenStructure.NotFound
+        Screens.AddPresetDetail -> {
+            ScreenStructure.Root.Add.PresetDetail(
+                id = run id@{
+                    val id = this.pathParams["id"]?.toIntOrNull() ?: return ScreenStructure.NotFound
+                    MoneyUsagePresetId(id)
+                },
+            )
+        }
+
+        Screens.UsageList -> ScreenStructure.Root.Usage.List
+        Screens.UsageCalendar ->
+            ScreenStructure.Root.Usage.Calendar.fromQueryParams(
+                queryParams = queryParams,
+            )
+
+        Screens.CalendarDateList ->
+            ScreenStructure.CalendarDateList.fromQueryParams(
+                queryParams = queryParams,
+            ) ?: ScreenStructure.NotFound
+
+        Screens.Login -> ScreenStructure.Login
+        Screens.AdminRoot -> ScreenStructure.Admin.Root
+        Screens.AdminLogin -> ScreenStructure.Admin.Login
+        Screens.AdminAddUser -> ScreenStructure.Admin.AddUser
+        Screens.AdminUnlinkedImages -> ScreenStructure.Admin.UnlinkedImages
+        Screens.AdminUserSearch -> ScreenStructure.Admin.UserSearch
+        Screens.MailImport -> ScreenStructure.Root.Add.Import
+        Screens.Add -> {
+            ScreenStructure.Root.Add.Root
+        }
+
+        Screens.AddMoneyUsage -> {
+            ScreenStructure.AddMoneyUsage.fromQueryParams(
+                queryParams = queryParams,
+            )
+        }
+
+        Screens.ImportedMail -> {
+            ScreenStructure.ImportedMail(
+                id = run id@{
+                    val id = this.pathParams["id"]?.toIntOrNull() ?: return ScreenStructure.NotFound
+                    ImportedMailId(id)
+                },
+            )
+        }
+
+        Screens.ImportedMailPlain -> {
+            ScreenStructure.ImportedMailPlain(
+                id = run id@{
+                    val id = this.pathParams["id"]?.toIntOrNull() ?: return ScreenStructure.NotFound
+                    ImportedMailId(id)
+                },
+            )
+        }
+
+        Screens.ImportedMailHTML -> {
+            ScreenStructure.ImportedMailHTML(
+                id = run id@{
+                    val id = this.pathParams["id"]?.toIntOrNull() ?: return ScreenStructure.NotFound
+                    ImportedMailId(id)
+                },
+            )
+        }
+
+        Screens.Splash -> ScreenStructure.Splash
+
+        null,
+        Screens.NotFound,
+        -> ScreenStructure.NotFound
+
+        Screens.MailCategoryFilters -> ScreenStructure.Root.Settings.MailCategoryFilters
+        Screens.MailCategoryFilter ->
+            ScreenStructure.Root.Settings.MailCategoryFilter(
+                id = run id@{
+                    val id = this.pathParams["id"]?.toIntOrNull() ?: return ScreenStructure.NotFound
+                    ImportedMailCategoryFilterId(id)
+                },
+            )
+
+        Screens.MoneyUsage -> {
+            ScreenStructure.MoneyUsage(
+                id = run id@{
+                    val id = this.pathParams["id"]?.toIntOrNull() ?: return ScreenStructure.NotFound
+                    MoneyUsageId(id)
+                },
+            )
+        }
+
+        Screens.HomeMonthlyCategory -> {
+            RootHomeScreenStructure.MonthlyCategory.create(
+                pathParams = pathParams,
+                queryParams = queryParams,
+            ) ?: ScreenStructure.NotFound
+        }
+
+        Screens.HomeMonthlySubCategory -> {
+            RootHomeScreenStructure.MonthlySubCategory.create(
+                pathParams = pathParams,
+                queryParams = queryParams,
+            ) ?: ScreenStructure.NotFound
+        }
+
+        Screens.ImportedMailList -> {
+            ScreenStructure.Root.Add.Imported.create(
+                pathParams = pathParams,
+                queryParams = queryParams,
+            )
+        }
+    }
+}

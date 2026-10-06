@@ -170,6 +170,7 @@ class DbMoneyUsageRepository : MoneyUsageRepository {
                         jUsage.MONEY_USAGE_ID,
                         jUsage.DATETIME,
                         jUsage.AMOUNT,
+                        jUsage.CREATED_DATETIME,
                     )
                     .from(jUsage)
                     .leftJoin(jSubCategory).on(
@@ -195,6 +196,14 @@ class DbMoneyUsageRepository : MoneyUsageRepository {
                                                     DSL.row(jUsage.AMOUNT, jUsage.MONEY_USAGE_ID)
                                                         .greaterThan(cursor.amount!!, cursor.lastId.id)
                                                 }
+
+                                                MoneyUsageRepository.OrderType.CREATED_DATETIME -> {
+                                                    val lastCreatedDateTime = requireNotNull(cursor.createdDateTime) {
+                                                        "cursor does not contain createdDateTime"
+                                                    }
+                                                    DSL.row(jUsage.CREATED_DATETIME, jUsage.MONEY_USAGE_ID)
+                                                        .greaterThan(lastCreatedDateTime, cursor.lastId.id)
+                                                }
                                             }
                                         } else {
                                             when (orderType) {
@@ -206,6 +215,14 @@ class DbMoneyUsageRepository : MoneyUsageRepository {
                                                 MoneyUsageRepository.OrderType.AMOUNT -> {
                                                     DSL.row(jUsage.AMOUNT, jUsage.MONEY_USAGE_ID)
                                                         .lessThan(cursor.amount!!, cursor.lastId.id)
+                                                }
+
+                                                MoneyUsageRepository.OrderType.CREATED_DATETIME -> {
+                                                    val lastCreatedDateTime = requireNotNull(cursor.createdDateTime) {
+                                                        "cursor does not contain createdDateTime"
+                                                    }
+                                                    DSL.row(jUsage.CREATED_DATETIME, jUsage.MONEY_USAGE_ID)
+                                                        .lessThan(lastCreatedDateTime, cursor.lastId.id)
                                                 }
                                             }
                                         }
@@ -264,6 +281,14 @@ class DbMoneyUsageRepository : MoneyUsageRepository {
                                     jUsage.DATETIME.desc()
                                 }
                             }
+
+                            MoneyUsageRepository.OrderType.CREATED_DATETIME -> {
+                                if (isAsc) {
+                                    jUsage.CREATED_DATETIME.asc()
+                                } else {
+                                    jUsage.CREATED_DATETIME.desc()
+                                }
+                            }
                         },
                         if (isAsc) {
                             jUsage.MONEY_USAGE_ID.asc()
@@ -279,6 +304,7 @@ class DbMoneyUsageRepository : MoneyUsageRepository {
                 }
                 val lastDate = results.lastOrNull()?.get(jUsage.DATETIME)
                 val lastAmount = results.lastOrNull()?.get(jUsage.AMOUNT)
+                val lastCreatedDateTime = results.lastOrNull()?.get(jUsage.CREATED_DATETIME)
                 val cursorLastId = resultMoneyUsageIds.lastOrNull()
                 MoneyUsageRepository.GetMoneyUsageByQueryResult.Success(
                     ids = resultMoneyUsageIds,
@@ -289,6 +315,7 @@ class DbMoneyUsageRepository : MoneyUsageRepository {
                                     lastId = cursorLastId ?: return@cursor null,
                                     date = lastDate ?: return@cursor null,
                                     amount = null,
+                                    createdDateTime = null,
                                 )
                             }
 
@@ -297,6 +324,16 @@ class DbMoneyUsageRepository : MoneyUsageRepository {
                                     lastId = cursorLastId ?: return@cursor null,
                                     date = null,
                                     amount = lastAmount,
+                                    createdDateTime = null,
+                                )
+                            }
+
+                            MoneyUsageRepository.OrderType.CREATED_DATETIME -> {
+                                MoneyUsageRepository.GetMoneyUsageByQueryResult.Cursor(
+                                    lastId = cursorLastId ?: return@cursor null,
+                                    date = null,
+                                    amount = null,
+                                    createdDateTime = lastCreatedDateTime ?: return@cursor null,
                                 )
                             }
                         }

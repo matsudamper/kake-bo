@@ -28,6 +28,10 @@
     "allDeclaredFields": true
   },
   {
+    "name": "kotlin.reflect.jvm.internal.ReflectionFactoryImpl",
+    "allDeclaredConstructors": true
+  },
+  {
     "name": "graphql.kickstart.tools.SchemaParser",
     "allPublicConstructors": true,
     "allPublicMethods": true,
@@ -43,285 +47,6 @@
     "name": "graphql.kickstart.tools.PerFieldConfiguringObjectMapperProvider",
     "allPublicConstructors": true,
     "allPublicMethods": true
-  },
-  {
-    "name": "net.matsudamper.money.backend.graphql.resolver.QueryResolverImpl",
-    "allDeclaredConstructors": true,
-    "allPublicMethods": true,
-    "allDeclaredMethods": true,
-    "allDeclaredFields": true
-  },
-  {
-    "name": "net.matsudamper.money.backend.graphql.resolver.mutation.MutationResolverImpl",
-    "allDeclaredConstructors": true,
-    "allPublicMethods": true,
-    "allDeclaredMethods": true,
-    "allDeclaredFields": true
-  },
-  {
-    "name": "net.matsudamper.money.backend.graphql.resolver.mutation.AdminMutationResolverImpl",
-    "allDeclaredConstructors": true,
-    "allPublicMethods": true,
-    "allDeclaredMethods": true,
-    "allDeclaredFields": true
-  },
-  {
-    "name": "net.matsudamper.money.backend.graphql.resolver.mutation.UserMutationResolverImpl",
-    "allDeclaredConstructors": true,
-    "allPublicMethods": true,
-    "allDeclaredMethods": true,
-    "allDeclaredFields": true
-  },
-  {
-    "name": "net.matsudamper.money.backend.graphql.resolver.mutation.SettingsMutationResolverResolverImpl",
-    "allDeclaredConstructors": true,
-    "allPublicMethods": true,
-    "allDeclaredMethods": true,
-    "allDeclaredFields": true
-  },
-  {
-    "name": "net.matsudamper.money.backend.graphql.resolver.ImageResolverImpl",
-    "allDeclaredConstructors": true,
-    "allPublicMethods": true,
-    "allDeclaredMethods": true,
-    "allDeclaredFields": true
-  },
-  {
-    "name": "net.matsudamper.money.backend.graphql.resolver.MoneyUsageCategoryResolverImpl",
-    "allDeclaredConstructors": true,
-    "allPublicMethods": true,
-    "allDeclaredMethods": true,
-    "allDeclaredFields": true
-  },
-  {
-    "name": "net.matsudamper.money.backend.graphql.resolver.MoneyUsageResolverImpl",
-    "allDeclaredConstructors": true,
-    "allPublicMethods": true,
-    "allDeclaredMethods": true,
-    "allDeclaredFields": true
-  },
-  {
-    "name": "net.matsudamper.money.backend.graphql.resolver.MoneyUsageSubCategoryResolverImpl",
-    "allDeclaredConstructors": true,
-    "allPublicMethods": true,
-    "allDeclaredMethods": true,
-    "allDeclaredFields": true
-  },
-  {
-    "name": "net.matsudamper.money.backend.graphql.resolver.MoneyUsageSuggestResolverImpl",
-    "allDeclaredConstructors": true,
-    "allPublicMethods": true,
-    "allDeclaredMethods": true,
-    "allDeclaredFields": true
-  },
-  {
-    "name": "net.matsudamper.money.backend.graphql.resolver.SessionAttributesResolverImpl",
-    "allDeclaredConstructors": true,
-    "allPublicMethods": true,
-    "allDeclaredMethods": true,
-    "allDeclaredFields": true
-  },
-  {
-    "name": "net.matsudamper.money.backend.graphql.resolver.UserMailAttributesResolverImpl",
-    "allDeclaredConstructors": true,
-    "allPublicMethods": true,
-    "allDeclaredMethods": true,
-    "allDeclaredFields": true
-  },
-  {
-    "name": "net.matsudamper.money.backend.graphql.resolver.UserSettingsResolverImpl",
-    "allDeclaredConstructors": true,
-    "allPublicMethods": true,
-    "allDeclaredMethods": true,
-    "allDeclaredFields": true
-  },
-  {
-    "name": "net.matsudamper.money.backend.graphql.resolver.analytics.MoneyUsageAnalyticsResolverImpl",
-    "allDeclaredConstructors": true,
-    "allPublicMethods": true,
-    "allDeclaredMethods": true,
-    "allDeclaredFields": true
-  },
-  {
-    "name": "net.matsudamper.money.backend.graphql.resolver.analytics.MoneyUsageAnalyticsByCategoryResolverImpl",
-    "allDeclaredConstructors": true,
-    "allPublicMethods": true,
-    "allDeclaredMethods": true,
-    "allDeclaredFields": true
-  },
-  {
-    "name": "net.matsudamper.money.backend.graphql.resolver.importedmail.ImportedMailResolverImpl",
-    "allDeclaredConstructors": true,
-    "allPublicMethods": true,
-    "allDeclaredMethods": true,
-    "allDeclaredFields": true
-  },
-  {
-    "name": "net.matsudamper.money.backend.graphql.resolver.importedmail.ImportedMailAttributesResolverImpl",
-    "allDeclaredConstructors": true,
-    "allPublicMethods": true,
-    "allDeclaredMethods": true,
-    "allDeclaredFields": true
-  },
-  {
-    "name": "net.matsudamper.money.backend.graphql.resolver.importedmail.ImportedMailCategoryFilterResolverImpl",
-    "allDeclaredConstructors": true,
-    "allPublicMethods": true,
-    "allDeclaredMethods": true,
-    "allDeclaredFields": true
-  },
-  {
-    "name": "net.matsudamper.money.backend.graphql.resolver.importedmail.ImportedMailCategoryConditionResolverImpl",
-    "allDeclaredConstructors": true,
-    "allPublicMethods": true,
-    "allDeclaredMethods": true,
-    "allDeclaredFields": true
-  },
-  {
-    "name": "net.matsudamper.money.backend.graphql.resolver.setting.ApiTokenAttributesResolverImpl",
-    "allDeclaredConstructors": true,
-    "allPublicMethods": true,
-    "allDeclaredMethods": true,
-    "allDeclaredFields": true
-  },
-  {
-    "name": "net.matsudamper.money.backend.graphql.resolver.user.UserResolverImpl",
-    "allDeclaredConstructors": true,
-    "allPublicMethods": true,
-    "allDeclaredMethods": true,
-    "allDeclaredFields": true
-  },
-  {
-    "name": "net.matsudamper.money.db.schema.tables.records.JCategoryMailFilterConditionsRecord",
-    "allDeclaredConstructors": true,
-    "allPublicMethods": true,
-    "allDeclaredFields": true
-  },
-  {
-    "name": "net.matsudamper.money.db.schema.tables.records.JUserPasswordsRecord",
-    "allDeclaredConstructors": true,
-    "allPublicMethods": true,
-    "allDeclaredFields": true
-  },
-  {
-    "name": "net.matsudamper.money.db.schema.tables.records.JApiTokensRecord",
-    "allDeclaredConstructors": true,
-    "allPublicMethods": true,
-    "allDeclaredFields": true
-  },
-  {
-    "name": "net.matsudamper.money.db.schema.tables.records.JMoneyUsageCategoriesRecord",
-    "allDeclaredConstructors": true,
-    "allPublicMethods": true,
-    "allDeclaredFields": true
-  },
-  {
-    "name": "net.matsudamper.money.db.schema.tables.records.JMoneyUsageImagesRelationRecord",
-    "allDeclaredConstructors": true,
-    "allPublicMethods": true,
-    "allDeclaredFields": true
-  },
-  {
-    "name": "net.matsudamper.money.db.schema.tables.records.JMoneyUsagePresetsRecord",
-    "allDeclaredConstructors": true,
-    "allPublicMethods": true,
-    "allDeclaredFields": true
-  },
-  {
-    "name": "net.matsudamper.money.db.schema.tables.records.JUserMailsRecord",
-    "allDeclaredConstructors": true,
-    "allPublicMethods": true,
-    "allDeclaredFields": true
-  },
-  {
-    "name": "net.matsudamper.money.db.schema.tables.records.JAdminSessionsRecord",
-    "allDeclaredConstructors": true,
-    "allPublicMethods": true,
-    "allDeclaredFields": true
-  },
-  {
-    "name": "net.matsudamper.money.db.schema.tables.records.JUserImagesRecord",
-    "allDeclaredConstructors": true,
-    "allPublicMethods": true,
-    "allDeclaredFields": true
-  },
-  {
-    "name": "net.matsudamper.money.db.schema.tables.records.JMoneyUsagesRecord",
-    "allDeclaredConstructors": true,
-    "allPublicMethods": true,
-    "allDeclaredFields": true
-  },
-  {
-    "name": "net.matsudamper.money.db.schema.tables.records.JMoneyUsagesMailsRelationRecord",
-    "allDeclaredConstructors": true,
-    "allPublicMethods": true,
-    "allDeclaredFields": true
-  },
-  {
-    "name": "net.matsudamper.money.db.schema.tables.records.JUsersRecord",
-    "allDeclaredConstructors": true,
-    "allPublicMethods": true,
-    "allDeclaredFields": true
-  },
-  {
-    "name": "net.matsudamper.money.db.schema.tables.records.JUserSessionsRecord",
-    "allDeclaredConstructors": true,
-    "allPublicMethods": true,
-    "allDeclaredFields": true
-  },
-  {
-    "name": "net.matsudamper.money.db.schema.tables.records.JMoneyUsageSubCategoriesRecord",
-    "allDeclaredConstructors": true,
-    "allPublicMethods": true,
-    "allDeclaredFields": true
-  },
-  {
-    "name": "net.matsudamper.money.db.schema.tables.records.JUserImapSettingsRecord",
-    "allDeclaredConstructors": true,
-    "allPublicMethods": true,
-    "allDeclaredFields": true
-  },
-  {
-    "name": "net.matsudamper.money.db.schema.tables.records.JUserTimezoneSettingRecord",
-    "allDeclaredConstructors": true,
-    "allPublicMethods": true,
-    "allDeclaredFields": true
-  },
-  {
-    "name": "net.matsudamper.money.db.schema.tables.records.JWebAuthAuthenticatorRecord",
-    "allDeclaredConstructors": true,
-    "allPublicMethods": true,
-    "allDeclaredFields": true
-  },
-  {
-    "name": "net.matsudamper.money.db.schema.tables.records.JCategoryMailFiltersRecord",
-    "allDeclaredConstructors": true,
-    "allPublicMethods": true,
-    "allDeclaredFields": true
-  },
-  {
-    "name": "net.matsudamper.money.db.schema.tables.records.JCategoryMailFilterConditionTypeRecord",
-    "allDeclaredConstructors": true,
-    "allPublicMethods": true,
-    "allDeclaredFields": true
-  },
-  {
-    "name": "net.matsudamper.money.db.schema.tables.records.JCategoryMailFilterConditionOperatorTypeRecord",
-    "allDeclaredConstructors": true,
-    "allPublicMethods": true,
-    "allDeclaredFields": true
-  },
-  {
-    "name": "net.matsudamper.money.db.schema.tables.records.JUserPasswordExtendDataRecord",
-    "allDeclaredConstructors": true,
-    "allPublicMethods": true,
-    "allDeclaredFields": true
-  },
-  {
-    "name": "net.matsudamper.money.db.schema.tables.records.JCategoryMailFilterDatasourceTypeRecord",
-    "allDeclaredConstructors": true,
-    "allPublicMethods": true,
-    "allDeclaredFields": true
   },
   {
     "name": "com.webauthn4j.data.AuthenticatorTransport",
@@ -444,6 +169,72 @@
     "allDeclaredMethods": true,
     "allPublicMethods": true,
     "allDeclaredFields": true
+  },
+  {
+    "name": "[Ljava.lang.Boolean;"
+  },
+  {
+    "name": "[Ljava.lang.Byte;"
+  },
+  {
+    "name": "[Ljava.lang.Double;"
+  },
+  {
+    "name": "[Ljava.lang.Float;"
+  },
+  {
+    "name": "[Ljava.lang.Integer;"
+  },
+  {
+    "name": "[Ljava.lang.Long;"
+  },
+  {
+    "name": "[Ljava.lang.Object;"
+  },
+  {
+    "name": "[Ljava.lang.Short;"
+  },
+  {
+    "name": "[Ljava.lang.String;"
+  },
+  {
+    "name": "[Ljava.math.BigDecimal;"
+  },
+  {
+    "name": "[Ljava.math.BigInteger;"
+  },
+  {
+    "name": "[Ljava.sql.Date;"
+  },
+  {
+    "name": "[Ljava.sql.Time;"
+  },
+  {
+    "name": "[Ljava.sql.Timestamp;"
+  },
+  {
+    "name": "[Ljava.time.Instant;"
+  },
+  {
+    "name": "[Ljava.time.LocalDate;"
+  },
+  {
+    "name": "[Ljava.time.LocalDateTime;"
+  },
+  {
+    "name": "[Ljava.time.LocalTime;"
+  },
+  {
+    "name": "[Ljava.time.OffsetDateTime;"
+  },
+  {
+    "name": "[Ljava.time.OffsetTime;"
+  },
+  {
+    "name": "[Ljava.time.Year;"
+  },
+  {
+    "name": "[Ljava.util.UUID;"
   },
   {
     "name": "[Lorg.jooq.types.UByte;"

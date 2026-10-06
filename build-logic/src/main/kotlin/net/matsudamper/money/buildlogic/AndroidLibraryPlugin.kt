@@ -15,7 +15,7 @@ class AndroidLibraryPlugin : Plugin<Project> {
                 apply("com.android.library")
             }
             androidLibrary {
-                compileSdk = 36
+                compileSdk = 37
                 defaultConfig {
                     minSdk = 34
                 }

@@ -1,3 +1,5 @@
+import com.android.build.api.dsl.LibraryExtension
+
 plugins {
     id("net.matsudamper.money.buildlogic.androidLibrary")
     alias(libs.plugins.ksp)
@@ -22,7 +24,7 @@ dependencies {
     testImplementation(libs.kotestRunnerJunit5)
 }
 
-android {
+configure<LibraryExtension> {
     namespace = "net.matsudamper.money.frontend.android.feature.notificationusage"
 }
 

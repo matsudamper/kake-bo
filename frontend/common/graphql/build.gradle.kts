@@ -43,12 +43,12 @@ kotlin {
     android {
         namespace = "net.matsudamper.money.frontend.graphql"
     }
-    js(IR) {
+    wasmJs {
         browser()
     }
     sourceSets {
         jvmToolchain(libs.versions.javaToolchain.get().toInt())
-        val commonMain by getting {
+        getByName("commonMain") {
             dependencies {
                 implementation(projects.shared)
                 implementation(projects.frontend.common.base)
@@ -59,6 +59,11 @@ kotlin {
                 api(libs.apolloNormalizedCache)
                 implementation(libs.apolloAdapters)
                 implementation(libs.apolloAdaptersCore)
+            }
+        }
+        getByName("wasmJsMain") {
+            dependencies {
+                implementation(libs.kotlinxBrowser)
             }
         }
     }

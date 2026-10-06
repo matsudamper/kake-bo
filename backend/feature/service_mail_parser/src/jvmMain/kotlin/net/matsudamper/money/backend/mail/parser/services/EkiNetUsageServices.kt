@@ -1,6 +1,9 @@
 package net.matsudamper.money.backend.mail.parser.services
 
+import java.text.Normalizer
+import java.time.LocalDate
 import java.time.LocalDateTime
+import java.time.LocalTime
 import net.matsudamper.money.backend.base.element.MoneyUsageServiceType
 import net.matsudamper.money.backend.mail.parser.MoneyUsage
 import net.matsudamper.money.backend.mail.parser.MoneyUsageServices
@@ -37,6 +40,7 @@ internal object EkiNetUsageServices : MoneyUsageServices {
         val trainInfo = getTrainInfo(lines)
         val section = getSection(lines)
         val price = getPrice(lines)
+        val rideDateTime = getRideDateTime(plain)
 
         return listOf(
             MoneyUsage(
@@ -44,7 +48,7 @@ internal object EkiNetUsageServices : MoneyUsageServices {
                 price = price,
                 description = trainInfo,
                 service = MoneyUsageServiceType.EkiNet,
-                dateTime = forwardedInfo?.date ?: date,
+                dateTime = rideDateTime ?: forwardedInfo?.date ?: date,
             ),
         )
     }
@@ -75,6 +79,28 @@ internal object EkiNetUsageServices : MoneyUsageServices {
         }["区　間"]!!
     }
 
+    private fun getRideDateTime(plain: String): LocalDateTime? {
+        // 全角の括弧・コロン・数字の表記ゆれを吸収する
+        val normalized = Normalizer.normalize(plain, Normalizer.Form.NFKC)
+        val rideDateMatch = rideDateRegex.find(normalized) ?: return null
+        // 乗車券情報の区間には時刻が無いので、乗車日の直後にある最初の時刻を出発時刻とする
+        val departureTimeMatch = departureTimeRegex.find(normalized, rideDateMatch.range.last + 1) ?: return null
+
+        return runCatching {
+            LocalDateTime.of(
+                LocalDate.of(
+                    rideDateMatch.groupValues[1].toInt(),
+                    rideDateMatch.groupValues[2].toInt(),
+                    rideDateMatch.groupValues[3].toInt(),
+                ),
+                LocalTime.of(
+                    departureTimeMatch.groupValues[1].toInt(),
+                    departureTimeMatch.groupValues[2].toInt(),
+                ),
+            )
+        }.getOrNull()
+    }
+
     private fun getTrainInfo(lines: List<String>): String {
         val startIndex = lines.indexOf("==列車情報==")
             .takeIf { it >= 0 }!!
@@ -94,4 +120,8 @@ internal object EkiNetUsageServices : MoneyUsageServices {
     ): Boolean {
         return from == "reservation@eki-net.com" && subject.contains("【申込完了】申込内容（JRきっぷ）のご案内")
     }
+
+    private val rideDateRegex = """乗車日\s*:\s*(\d{4})\s*年\s*(\d{1,2})\s*月\s*(\d{1,2})\s*日""".toRegex()
+
+    private val departureTimeRegex = """\(\s*(\d{1,2})\s*時\s*(\d{1,2})\s*分\s*\)""".toRegex()
 }

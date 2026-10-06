@@ -98,7 +98,7 @@ open class JAdminSessions(
     /**
      * Create an aliased <code>money.admin_sessions</code> table reference
      */
-    constructor(alias: Name): this(alias, null)
+    constructor(alias: Name): this(alias, ADMIN_SESSIONS)
 
     /**
      * Create a <code>money.admin_sessions</code> table reference

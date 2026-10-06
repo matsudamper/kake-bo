@@ -15,8 +15,9 @@ base.archivesName.set("money")
 group = "net.matsudamper.money.backend"
 
 val graalVmLanguageVersion = JavaLanguageVersion.of(24)
+val graalVmNativeLanguageVersion = JavaLanguageVersion.of(25)
 val graalVmLauncher = javaToolchains.launcherFor {
-    languageVersion = graalVmLanguageVersion
+    languageVersion = graalVmNativeLanguageVersion
     vendor = JvmVendorSpec.GRAAL_VM
 }
 
@@ -108,11 +109,11 @@ dependencies {
     implementation(libs.opentelemetryKtor3)
     implementation(libs.opentelemetryKotlinExtension)
 
-    compileOnly("org.graalvm.sdk:nativeimage:24.2.2")
+    compileOnly("org.graalvm.sdk:nativeimage:25.4.4.1.1")
 
     testImplementation(kotlin("test"))
     testImplementation(libs.kotestRunnerJunit5)
-    testImplementation("io.mockk:mockk:1.14.9")
+    testImplementation("io.mockk:mockk:1.14.11")
 }
 
 tasks.withType<Test>().configureEach {
@@ -125,7 +126,14 @@ graalvmNative {
             mainClass.set("net.matsudamper.money.backend.Main")
             imageName.set("backend")
             buildArgs.addAll(nativeBuildArgs)
-            buildArgs.add("--features=net.matsudamper.money.backend.graalvm.GraphqlReflectionFeature")
+            buildArgs.add(
+                "--features=" + listOf(
+                    "net.matsudamper.money.backend.graalvm.GraphqlReflectionFeature",
+                    "net.matsudamper.money.backend.graalvm.JooqRecordReflectionFeature",
+                    "net.matsudamper.money.backend.graalvm.GraphqlResolverReflectionFeature",
+                    "net.matsudamper.money.backend.graalvm.SharedElementReflectionFeature",
+                ).joinToString(","),
+            )
             javaLauncher.set(graalVmLauncher)
         }
     }

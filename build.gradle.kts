@@ -1,7 +1,6 @@
 import org.gradle.api.tasks.testing.logging.TestExceptionFormat
 import org.gradle.api.tasks.testing.logging.TestLogEvent
 import org.jetbrains.kotlin.gradle.dsl.KotlinMultiplatformExtension
-import org.jetbrains.kotlin.gradle.plugin.KotlinPlatformType
 
 plugins {
     alias(libs.plugins.kotlinJvm) apply false
@@ -13,29 +12,36 @@ plugins {
     alias(libs.plugins.composeCompiler) apply false
     alias(libs.plugins.jetbrainsCompose) apply false
     alias(libs.plugins.ktlint)
+    alias(libs.plugins.detekt) apply false
 }
 
 dependencies {
 }
 
+val detektExcludedProjectPaths = setOf(
+    ":backend:datasource:db:schema",
+    ":backend:graphql",
+)
+
 subprojects {
+    if (path.startsWith(":backend") && path !in detektExcludedProjectPaths) {
+        apply(plugin = "dev.detekt")
+
+        configure<dev.detekt.gradle.extensions.DetektExtension> {
+            disableDefaultRuleSets.set(true)
+            config.setFrom(rootProject.file("config/detekt/detekt.yml"))
+            source.setFrom("src")
+        }
+
+        dependencies {
+            add("detektPlugins", project(":detekt-rules"))
+        }
+    }
+
     pluginManager.withPlugin("org.jetbrains.kotlin.multiplatform") {
         extensions.configure<KotlinMultiplatformExtension> {
             sourceSets.all {
                 languageSettings.optIn("kotlin.time.ExperimentalTime")
-            }
-        }
-    }
-
-    afterEvaluate {
-        extensions.findByType<KotlinMultiplatformExtension>()?.apply {
-            if (
-                targets.any {
-                    it.platformType == KotlinPlatformType.js
-                }
-            ) {
-                js(IR) {
-                }
             }
         }
     }

@@ -8,12 +8,12 @@ kotlin {
     android {
         namespace = "net.matsudamper.money.frontend.feature.admin"
     }
-    js(IR) {
+    wasmJs {
         browser()
     }
     sourceSets {
         jvmToolchain(libs.versions.javaToolchain.get().toInt())
-        val commonMain by getting {
+        getByName("commonMain") {
             dependencies {
                 implementation(projects.shared)
                 implementation(projects.frontend.common.base)

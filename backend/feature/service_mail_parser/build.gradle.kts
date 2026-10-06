@@ -7,7 +7,7 @@ kotlin {
     }
     sourceSets {
         jvmToolchain(libs.versions.javaToolchain.get().toInt())
-        val jvmMain by getting {
+        getByName("jvmMain") {
             dependencies {
                 implementation(kotlin("stdlib"))
                 implementation(kotlin("reflect"))
@@ -22,7 +22,7 @@ kotlin {
                 implementation(libs.log4j.api)
             }
         }
-        val jvmTest by getting {
+        getByName("jvmTest") {
             dependencies {
                 implementation(kotlin("test"))
             }

@@ -11,13 +11,13 @@ kotlin {
     android {
         namespace = "net.matsudamper.money.frontend.common.base.nav"
     }
-    js(IR) {
+    wasmJs {
         browser()
     }
     jvm { }
     jvmToolchain(libs.versions.javaToolchain.get().toInt())
     sourceSets {
-        val commonMain by getting {
+        getByName("commonMain") {
             dependencies {
                 implementation(projects.shared)
                 implementation(projects.frontend.common.base)
@@ -34,19 +34,20 @@ kotlin {
                 api(libs.jetbrainsNavigation3Ui)
             }
         }
-        val jsMain by getting {
+        getByName("wasmJsMain") {
             dependencies {
+                implementation(libs.kotlinxBrowser)
                 implementation(projects.shared)
 
                 implementation(libs.composeRuntime)
                 implementation(libs.composeUi)
 
-                implementation("io.ktor:ktor-client-logging-js:3.5.0")
+                implementation(libs.ktorClientLogging)
                 implementation(libs.ktorClientCore)
                 implementation(libs.ktorClientJs)
             }
         }
-        val jvmMain by getting {
+        getByName("jvmMain") {
             dependencies {
                 implementation(projects.shared)
 
@@ -56,7 +57,7 @@ kotlin {
                 implementation(libs.androidxLifecycleViewModelCompose)
             }
         }
-        val androidMain by getting {
+        getByName("androidMain") {
             dependencies {
                 implementation(projects.shared)
 
@@ -66,14 +67,14 @@ kotlin {
                 implementation(libs.androidxLifecycleViewModelCompose)
             }
         }
-        val jvmTest by getting {
+        getByName("jvmTest") {
             dependencies {
                 implementation(kotlin("test"))
                 implementation(libs.kotestRunnerJunit5)
                 implementation(libs.kotlinRefrect)
             }
         }
-        val jsTest by getting {
+        getByName("wasmJsTest") {
             dependencies {
                 implementation(libs.kotestFrameworkEngine)
                 implementation(libs.kotestAssertionsCore)

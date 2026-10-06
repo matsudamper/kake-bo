@@ -1,4 +1,5 @@
 import java.util.Properties
+import com.android.build.api.dsl.ApplicationExtension
 
 plugins {
     alias(libs.plugins.androidApplication)
@@ -14,8 +15,8 @@ val localProperties = Properties().also { properties ->
     }
 }
 
-android {
-    compileSdk = 36
+configure<ApplicationExtension> {
+    compileSdk = 37
     namespace = "net.matsudamper.money"
 
     buildFeatures {

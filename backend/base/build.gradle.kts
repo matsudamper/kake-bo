@@ -7,7 +7,7 @@ kotlin {
     }
     sourceSets {
         jvmToolchain(libs.versions.javaToolchain.get().toInt())
-        val jvmMain by getting {
+        getByName("jvmMain") {
             dependencies {
                 implementation(kotlin("stdlib"))
                 implementation(kotlin("reflect"))
@@ -19,13 +19,14 @@ kotlin {
                 implementation(libs.jackson.kotlin)
                 implementation(libs.log4j.api)
                 implementation(libs.opentelemetryApi)
+                implementation("io.opentelemetry:opentelemetry-api-incubator:${libs.versions.opentelemetry.get()}-alpha")
                 implementation(libs.opentelemetrySdk)
                 implementation(libs.opentelemetryExporterOtlp)
                 implementation(libs.opentelemetrySdkAutoconfigure)
                 implementation(libs.opentelemetryRuntimeTelemetry)
             }
         }
-        val jvmTest by getting {
+        getByName("jvmTest") {
             dependencies {
                 implementation(kotlin("test"))
             }

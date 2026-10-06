@@ -13,12 +13,12 @@ kotlin {
     android {
         namespace = "net.matsudamper.money.ui.root"
     }
-    js(IR) {
+    wasmJs {
         browser()
     }
     sourceSets {
         jvmToolchain(libs.versions.javaToolchain.get().toInt())
-        val commonMain by getting {
+        getByName("commonMain") {
             dependencies {
                 implementation(projects.shared)
                 implementation(projects.frontend.common.base)
@@ -41,7 +41,7 @@ kotlin {
                 implementation(libs.koinCore)
             }
         }
-        val androidMain by getting {
+        getByName("androidMain") {
             dependencies {
                 implementation(libs.androidxCoreKtx)
                 implementation(libs.androidxLifecycleViewModelKtx)

@@ -134,7 +134,7 @@ open class JMoneyUsagePresets(
     /**
      * Create an aliased <code>money.money_usage_presets</code> table reference
      */
-    constructor(alias: Name): this(alias, null)
+    constructor(alias: Name): this(alias, MONEY_USAGE_PRESETS)
 
     /**
      * Create a <code>money.money_usage_presets</code> table reference

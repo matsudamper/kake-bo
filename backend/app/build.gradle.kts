@@ -1,6 +1,14 @@
+import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
+
 plugins {
     alias(libs.plugins.kotlin.multiplatform)
     alias(libs.plugins.kotlin.serialization)
+}
+
+tasks.withType<KotlinCompile>().configureEach {
+    compilerOptions {
+        freeCompilerArgs.add("-Xnullability-annotations=@org.jspecify.annotations:ignore")
+    }
 }
 
 kotlin {
@@ -8,7 +16,7 @@ kotlin {
     }
     sourceSets {
         jvmToolchain(libs.versions.javaToolchain.get().toInt())
-        val jvmMain by getting {
+        getByName("jvmMain") {
             dependencies {
                 implementation(projects.shared)
                 implementation(projects.backend.di)
@@ -23,6 +31,7 @@ kotlin {
                 implementation(projects.backend.feature.oidc)
                 implementation(projects.backend.feature.objectStorage)
                 implementation(projects.backend.feature.imageStorageLocal)
+                implementation(projects.backend.feature.aiMailParser)
 
                 implementation(kotlin("stdlib"))
                 implementation(libs.graphqlJava.extendedScalars)
@@ -37,11 +46,11 @@ kotlin {
                 implementation(libs.opentelemetryGraphqlJava)
             }
         }
-        val jvmTest by getting {
+        getByName("jvmTest") {
             dependencies {
                 implementation(kotlin("test"))
                 implementation(libs.kotestRunnerJunit5)
-                implementation("io.mockk:mockk:1.14.9")
+                implementation("io.mockk:mockk:1.14.11")
             }
         }
     }

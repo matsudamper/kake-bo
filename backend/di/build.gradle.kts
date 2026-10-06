@@ -7,7 +7,7 @@ kotlin {
     }
     sourceSets {
         jvmToolchain(libs.versions.javaToolchain.get().toInt())
-        val jvmMain by getting {
+        getByName("jvmMain") {
             dependencies {
                 implementation(kotlin("stdlib"))
 
@@ -19,6 +19,7 @@ kotlin {
                 implementation(projects.backend.feature.oidc)
                 implementation(projects.backend.feature.objectStorage)
                 implementation(projects.backend.feature.imageStorageLocal)
+                implementation(projects.backend.feature.gemini)
             }
         }
     }

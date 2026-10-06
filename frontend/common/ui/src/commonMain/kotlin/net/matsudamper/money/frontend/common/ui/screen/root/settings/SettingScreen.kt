@@ -55,6 +55,7 @@ public data class RootSettingScreenUiState(
         public fun onClickTextFieldTest()
         public fun onClickUploadQueueDebug()
         public fun onClickTimezoneSetting()
+        public fun onClickAiSetting()
     }
 }
 
@@ -157,6 +158,11 @@ private fun MainContent(
                     Text("タイムゾーン")
                 }
                 SettingListMenuItemButton(
+                    onClick = { uiState.event.onClickAiSetting() },
+                ) {
+                    Text("AI設定")
+                }
+                SettingListMenuItemButton(
                     onClick = { uiState.event.onClickLoginSetting() },
                 ) {
                     Text("ログイン設定")
@@ -219,6 +225,7 @@ private fun Preview() {
                     override fun onClickTextFieldTest() {}
                     override fun onClickUploadQueueDebug() {}
                     override fun onClickTimezoneSetting() {}
+                    override fun onClickAiSetting() {}
                 },
             ),
             windowInsets = PaddingValues(),

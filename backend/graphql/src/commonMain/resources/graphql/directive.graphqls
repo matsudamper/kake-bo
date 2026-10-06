@@ -1,2 +1,6 @@
 directive @lazy on FIELD_DEFINITION
 directive @optional on INPUT_FIELD_DEFINITION
+"""
+通常のタイムアウトに収まらない処理であることを示す。サーバーとクライアントはこのフィールドを含む操作のタイムアウトをtimeoutSecondsに延ばす
+"""
+directive @longRunning(timeoutSeconds: Int!) on FIELD_DEFINITION

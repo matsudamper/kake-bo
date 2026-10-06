@@ -1,6 +1,7 @@
 package net.matsudamper.money.backend
 
 import java.lang.reflect.UndeclaredThrowableException
+import kotlin.time.Duration
 import kotlin.time.TimeSource
 import com.fasterxml.jackson.module.kotlin.jacksonObjectMapper
 import com.fasterxml.jackson.module.kotlin.readValue
@@ -23,6 +24,7 @@ import net.matsudamper.money.backend.feature.session.UserSessionManagerImpl
 import net.matsudamper.money.backend.graphql.DataLoaders
 import net.matsudamper.money.backend.graphql.GraphQlContext
 import net.matsudamper.money.backend.graphql.GraphqlMoneyException
+import net.matsudamper.money.backend.graphql.GraphqlOperationTimeout
 import net.matsudamper.money.backend.graphql.MoneyGraphQlSchema
 import net.matsudamper.money.backend.graphql.exception.GraphQlMultiException
 import org.dataloader.DataLoaderRegistry
@@ -37,6 +39,20 @@ class GraphqlHandler(
         .setDescription("GraphQLのOperationNameごとのHTTPアクセス合計処理時間")
         .setUnit("ms")
         .build()
+
+    /**
+     * リクエストが選択するフィールドの @longRunning に応じたタイムアウトを返す
+     */
+    fun resolveTimeout(requestText: String): Duration {
+        val request = runCatching { jacksonObjectMapper().readValue<GraphQlRequest>(requestText) }
+            .getOrNull()
+            ?: return GraphqlOperationTimeout.DEFAULT_TIMEOUT
+        return MoneyGraphQlSchema.operationTimeout.resolve(
+            query = request.query,
+            operationName = request.operationName,
+            variables = request.variables,
+        )
+    }
 
     fun handle(requestText: String): String {
         val mark = TimeSource.Monotonic.markNow()

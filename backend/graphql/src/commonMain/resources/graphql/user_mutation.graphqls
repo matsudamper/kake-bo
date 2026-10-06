@@ -6,6 +6,10 @@ type UserMutation {
 
     importMail(mailIds: [MailId!]!): ImportMailResult!
     deleteImportedMail(id: ImportedMailId!): Boolean!
+    """
+    Gemini APIでメールを解析し、登録候補を返す。結果は保存しない
+    """
+    parseImportedMailWithAi(id: ImportedMailId!): ParseImportedMailWithAiResult! @longRunning(timeoutSeconds: 90)
     deleteMail(mailIds: [MailId!]!): DeleteMailResult!
 
     addUsage(usage: AddUsageQuery!): MoneyUsage!
@@ -174,6 +178,32 @@ enum DeleteMailResultError {
     MailServerNotConnected,
 }
 
+type ParseImportedMailWithAiResult {
+    usages: [AiParsedMoneyUsage!]!
+    error: ParseImportedMailWithAiError
+    """
+    errorがParseFailedの場合の詳細
+    """
+    errorMessage: String
+}
+
+"""
+AIで解析した、支出の入力に使う値
+"""
+type AiParsedMoneyUsage {
+    title: String!
+    description: String!
+    amount: Int
+    dateTime: LocalDateTime
+}
+
+enum ParseImportedMailWithAiError {
+    ApiKeyNotSet,
+    MailNotFound,
+    ParseFailed,
+    InternalServerError,
+}
+
 type ImportMailResult {
     isSuccess: Boolean!
 }
@@ -186,6 +216,10 @@ type SettingsMutation {
     updateImapConfig(config: UpdateUserImapConfigInput!) : UserImapConfig
     changePassword(password: String): ChangePasswordResult! @lazy
     updateTimezoneOffset(offsetMinutes: Int!): Int
+    """
+    nullまたは空文字の場合はAPIキーを削除する
+    """
+    updateGeminiApiKey(apiKey: String): UserAiConfig
 }
 
 type ChangePasswordResult {

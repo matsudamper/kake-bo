@@ -16,7 +16,7 @@ class MultiplatformLibraryPlugin : Plugin<Project> {
             }
             extensions.configure<KotlinMultiplatformExtension> {
                 targets.withType<KotlinMultiplatformAndroidLibraryTarget>().configureEach {
-                    compileSdk = 36
+                    compileSdk = 37
                     minSdk = 34
                 }
             }

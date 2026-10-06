@@ -2,10 +2,12 @@ package net.matsudamper.money.backend.feature.oidc
 
 import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
+import io.ktor.http.ContentType
 import io.ktor.server.application.call
-import io.ktor.server.response.respond
+import io.ktor.server.response.respondText
 import io.ktor.server.routing.Route
 import io.ktor.server.routing.get
+import net.matsudamper.money.backend.base.ObjectMapper
 
 /**
  * issuerにパスが含まれる場合（例: https://example.com/oidc）、
@@ -16,13 +18,17 @@ import io.ktor.server.routing.get
 public fun Route.oidcDiscovery(issuer: String) {
     val normalizedIssuer = issuer.removeSuffix("/")
     get("/.well-known/openid-configuration") {
-        call.respond(
-            OidcDiscoveryDocument(
-                issuer = normalizedIssuer,
-                jwksUri = "$normalizedIssuer/jwks",
-                responseTypesSupported = listOf("id_token"),
-                subjectTypesSupported = listOf("public"),
-                idTokenSigningAlgValuesSupported = listOf("RS256"),
+        call.respondText(
+            contentType = ContentType.Application.Json,
+            text = ObjectMapper.kotlinxSerialization.encodeToString(
+                OidcDiscoveryDocument.serializer(),
+                OidcDiscoveryDocument(
+                    issuer = normalizedIssuer,
+                    jwksUri = "$normalizedIssuer/jwks",
+                    responseTypesSupported = listOf("id_token"),
+                    subjectTypesSupported = listOf("public"),
+                    idTokenSigningAlgValuesSupported = listOf("RS256"),
+                ),
             ),
         )
     }

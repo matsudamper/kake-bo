@@ -17,9 +17,8 @@
 
 # 使用技術
 - フロント
-  - [Kotlin/JS](https://kotlinlang.org/docs/js-overview.html)
+  - [Kotlin/Wasm](https://kotlinlang.org/docs/wasm-overview.html)
   - [Jetbrains Compose Multiplatform Web](https://www.jetbrains.com/lp/compose-multiplatform/)
-  - [Jetbrains Compose HTML](https://github.com/JetBrains/compose-multiplatform#compose-html)
   - [Apollo](https://www.apollographql.com/)
 - バックエンド
   - [Ktor](https://ktor.io/)
@@ -38,16 +37,10 @@
 # 動作手順
 まずはフロントをビルドする。その後にバックエンドを起動する。
 ```shell
-./gradlew :frontend:app:jsBrowserProductionWebpack
+./gradlew :frontend:app:wasmJsBrowserDistribution
 ```
+出力先は`frontend/app/build/dist/wasmJs/productionExecutable`。バックエンドの配信元の既定は`developmentExecutable`なので、環境変数`HTML_PATH`にこのディレクトリを指定する。
 必要な環境変数は[ServerEnv.kt](https://github.com/matsudamper/kake-bo/blob/563272f802d15d6620432a53ada88fbdd5cf9561/backend/base/src/jvmMain/java/net/matsudamper/money/backend/base/ServerEnv.kt)を参照
-
-# Download Schema
-サーバー側の環境変数は`IS_DEBUG=true`は必須。
-`schema_update_local.env`を使用してbackendを立ち上げれば良い。
-```shell
-./gradlew :frontend:common:graphql:schema:downloadSchema
-```
 
 # Update Code
 DB

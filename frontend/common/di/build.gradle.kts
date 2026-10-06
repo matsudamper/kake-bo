@@ -9,12 +9,12 @@ kotlin {
     android {
         namespace = "net.matsudamper.money.frontend.common.di"
     }
-    js(IR) {
+    wasmJs {
         browser()
     }
     sourceSets {
         jvmToolchain(libs.versions.javaToolchain.get().toInt())
-        val commonMain by getting {
+        getByName("commonMain") {
             dependencies {
                 implementation(projects.shared)
                 implementation(projects.frontend.common.base)
@@ -29,7 +29,12 @@ kotlin {
                 implementation(libs.kotlin.serialization.json)
             }
         }
-        val androidMain by getting {
+        getByName("wasmJsMain") {
+            dependencies {
+                implementation(libs.kotlinxBrowser)
+            }
+        }
+        getByName("androidMain") {
             dependencies {
                 implementation(libs.okHttp)
                 implementation(libs.workRuntimeKtx)

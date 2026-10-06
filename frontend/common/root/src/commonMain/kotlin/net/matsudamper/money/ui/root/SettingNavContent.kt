@@ -16,6 +16,7 @@ import net.matsudamper.money.frontend.common.base.nav.user.ScreenNavController
 import net.matsudamper.money.frontend.common.base.nav.user.ScreenStructure
 import net.matsudamper.money.frontend.common.di.LocalKoin
 import net.matsudamper.money.frontend.common.feature.webauth.WebAuthModel
+import net.matsudamper.money.frontend.common.ui.screen.root.settings.AiSettingScreen
 import net.matsudamper.money.frontend.common.ui.screen.root.settings.ApiSettingScreen
 import net.matsudamper.money.frontend.common.ui.screen.root.settings.ImapConfigScreen
 import net.matsudamper.money.frontend.common.ui.screen.root.settings.ImportedMailFilterCategoryScreen
@@ -33,6 +34,8 @@ import net.matsudamper.money.frontend.common.viewmodel.lib.EventSender
 import net.matsudamper.money.frontend.common.viewmodel.root.GlobalEvent
 import net.matsudamper.money.frontend.common.viewmodel.root.ImapSettingViewModel
 import net.matsudamper.money.frontend.common.viewmodel.root.settings.UploadQueueDebugViewModel
+import net.matsudamper.money.frontend.common.viewmodel.root.settings.ai.AiSettingGraphqlApi
+import net.matsudamper.money.frontend.common.viewmodel.root.settings.ai.AiSettingViewModel
 import net.matsudamper.money.frontend.common.viewmodel.root.settings.api.ApiSettingScreenApi
 import net.matsudamper.money.frontend.common.viewmodel.root.settings.api.ApiSettingScreenViewModel
 import net.matsudamper.money.frontend.common.viewmodel.root.settings.categoryfilter.ImportedMailFilterCategoryScreenGraphqlApi
@@ -257,6 +260,25 @@ internal fun SettingNavContent(
                     )
                 }
                 TimezoneSettingScreen(
+                    uiState = viewModel.uiStateFlow.collectAsState().value,
+                    modifier = modifier.fillMaxSize(),
+                    windowInsets = windowInsets,
+                )
+            }
+        }
+
+        ScreenStructure.Root.Settings.Ai -> {
+            holder.SaveableStateProvider(state::class.toString()) {
+                val viewModel = LocalScopedObjectStore.current.putOrGet<AiSettingViewModel>(Unit) {
+                    AiSettingViewModel(
+                        scopedObjectFeature = it,
+                        graphqlApi = AiSettingGraphqlApi(
+                            apolloClient = koin.get<GraphqlClient>().apolloClient,
+                        ),
+                        navController = navController,
+                    )
+                }
+                AiSettingScreen(
                     uiState = viewModel.uiStateFlow.collectAsState().value,
                     modifier = modifier.fillMaxSize(),
                     windowInsets = windowInsets,

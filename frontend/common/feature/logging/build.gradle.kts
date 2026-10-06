@@ -7,13 +7,13 @@ kotlin {
     android {
         namespace = "net.matsudamper.money.frontend.common.feature.logging"
     }
-    js(IR) {
+    wasmJs {
         browser()
     }
     jvm { }
     sourceSets {
         jvmToolchain(libs.versions.javaToolchain.get().toInt())
-        val androidMain by getting {
+        getByName("androidMain") {
             dependencies {
                 implementation(libs.timber)
             }

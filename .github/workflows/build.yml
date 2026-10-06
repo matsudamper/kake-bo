@@ -25,14 +25,15 @@ jobs:
       GITHUB_ACTOR: ${{ github.actor }}
       GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
     steps:
-      - uses: actions/checkout@v6
-      - uses: actions/setup-java@v5
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+      - uses: actions/setup-java@de7274f081f381c8f8158605e0321c36c376e2e6 # v6.0.1
         with:
           distribution: 'temurin'
           java-version: '24'
       - name: Setup Gradle
-        uses: gradle/actions/setup-gradle@v6
+        uses: gradle/actions/setup-gradle@3f5f9adaf7d9fecd50b5935e54106014257a94e6 # v6.4.0
       - run: ./gradlew ktlintCheck --continue
+      - run: ./gradlew detekt --continue
       - env:
           CI: true
         run: ./gradlew :frontend:android:app:assembleDebug
@@ -50,14 +51,14 @@ jobs:
           echo "APK_NAME=${APK_NAME}" >> "$GITHUB_ENV"
           echo "APK_PATH=frontend/android/app/build/outputs/apk/debug/${APK_NAME}" >> "$GITHUB_ENV"
       - id: upload_apk
-        uses: actions/upload-artifact@v7
+        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
         with:
           name: ${{ env.APK_NAME }}
           path: ${{ env.APK_PATH }}
           compression-level: 9
       - name: Upload APK to S3
         id: upload_s3
-        uses: matsudamper/actions/upload-matsudamper-s3@a1ecf81b1a0ce320824a49711e456f396e4e8fea # v1.0.0
+        uses: matsudamper/actions/upload-matsudamper-s3@6f7068834e08294360d6e5987869a5f50c924c66 # v1.0.1
         continue-on-error: true
         with:
           file_path: ${{ env.APK_PATH }}
@@ -69,7 +70,7 @@ jobs:
       - name: Upload GitHub QR artifact
         if: github.event_name == 'pull_request'
         id: github_qr_artifact
-        uses: actions/upload-artifact@v7
+        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
         with:
           name: apk-qr-code-github
           path: qrcode-github.png
@@ -81,16 +82,17 @@ jobs:
       - name: Upload S3 QR artifact
         if: github.event_name == 'pull_request' && steps.upload_s3.outputs.url != ''
         id: s3_qr_artifact
-        uses: actions/upload-artifact@v7
+        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
         with:
           name: apk-qr-code-s3
           path: qrcode-s3.png
           archive: false
       - name: APKダウンロードURLをコメント
         if: github.event_name == 'pull_request'
-        uses: marocchino/sticky-pull-request-comment@v3
+        uses: marocchino/sticky-pull-request-comment@5770ad5eb8f42dd2c4f34da00c94c5381e49af88 # v3.0.5
         with:
           header: apk-download
+          recreate: true
           message: |
             ✅ **Debug APK is ready!**
 
@@ -144,14 +146,14 @@ jobs:
           fi
 
           kill $SERVER_PID 2>/dev/null || true
-      - run: ./gradlew :frontend:app:jsBrowserDevelopmentWebpack
+      - run: ./gradlew :frontend:app:wasmJsBrowserDevelopmentWebpack
       - run: ./gradlew allTests
       - name: collect reports file
         if: failure()
         run: |
           mkdir -p .tmp/reports
           find -wholename "*/build/reports" | xargs -I {} bash -c "mkdir -p .tmp/reports/{} && cp -r {} .tmp/reports/{}"
-      - uses: actions/upload-artifact@v7
+      - uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
         if: failure()
         with:
           name: reports

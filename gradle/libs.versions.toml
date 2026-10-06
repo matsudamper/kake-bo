@@ -3,32 +3,34 @@ awsSdk = "2.30.20"
 nimbusJoseJwt = "10.9.1"
 java = "24"
 javaToolchain = "24"
-kotlin = "2.4.0"
-apollo = "5.1.0"
-ktor = "3.5.0"
+kotlin = "2.4.20"
+apollo = "5.2.0"
+ktor = "3.6.0"
 activity = "1.13.0"
-appcompat = "1.7.1"
-agp = "9.0.0"
-jackson = "2.21.3"
-compose = "1.11.1"
-protoBuf = "4.35.1"
-lifecycle = "2.10.0"
-jooq = "3.21.4"
-nav3 = "1.1.4"
-jetbrainsNav3 = "1.1.1"
-coil3 = "3.5.0"
-zoomable = "2.12.0"
-okhttp = "5.4.0"
-graalvmNative = "0.10.6"
-opentelemetry = "1.62.0"
-paparazzi = "2.0.0-alpha05"
+appcompat = "1.8.0"
+agp = "9.2.1"
+jackson = "2.22.3"
+compose = "1.12.1"
+protoBuf = "4.36.2"
+lifecycle = "2.11.0"
+jooq = "3.21.9"
+nav3 = "1.2.0"
+jetbrainsNav3 = "1.1.2"
+coil3 = "3.6.3"
+zoomable = "2.16.0"
+okhttp = "5.5.0"
+graalvmNative = "1.1.14"
+opentelemetry = "1.66.0"
+opentelemetryInstrumentation = "2.29.0-alpha"
+paparazzi = "2.0.0-alpha05.1"
 composablePreviewScanner = "0.9.3"
-room = "2.8.4"
-room3 = "3.0.0-alpha05"
-sqlite = "2.7.0-alpha05"
-workmanager = "2.11.2"
+room = "2.8.5"
+room3 = "3.0.3"
+sqlite = "2.7.1"
+workmanager = "2.12.0"
 timber = "5.0.1"
-ksp = "2.3.11"
+ksp = "2.3.12"
+detekt = "2.0.0-alpha.6"
 
 [plugins]
 apollo = { id = "com.apollographql.apollo", version.ref = "apollo" }
@@ -41,14 +43,15 @@ kotlin-serialization = { id = "org.jetbrains.kotlin.plugin.serialization", versi
 kotlinJvm = { id = "org.jetbrains.kotlin.jvm", version.ref = "kotlin" }
 kotlinAndroid = { id = "org.jetbrains.kotlin.android", version.ref = "kotlin" }
 ktlint = { id = "org.jlleitschuh.gradle.ktlint", version.require = "14.2.0" }
-kotest = { id = "io.kotest", version.require = "6.1.11" }
+kotest = { id = "io.kotest", version.require = "6.2.5" }
+detekt = { id = "dev.detekt", version.ref = "detekt" }
 kobylynskyi-graphqlCodegen = { id = "io.github.kobylynskyi.graphql.codegen", version.require = "5.10.1-BUILD-2dd014e63d18dcb3c0fcd704b1f3b6db2ac18b1e" }
 jetbrainsCompose = { id = "org.jetbrains.compose", version.ref = "compose" }
 protobuf = { id = "com.google.protobuf", version.require = "0.10.0" }
 paparazzi = { id = "app.cash.paparazzi", version.ref = "paparazzi" }
 graalvmNative = { id = "org.graalvm.buildtools.native", version.ref = "graalvmNative" }
 ksp = { id = "com.google.devtools.ksp", version.ref = "ksp" }
-buildkonfig = { id = "com.codingfeline.buildkonfig", version.require = "0.22.0" }
+buildkonfig = { id = "com.codingfeline.buildkonfig", version.require = "0.23.0" }
 
 [libraries]
 awsS3 = { module = "software.amazon.awssdk:s3", version.ref = "awsSdk" }
@@ -56,11 +59,14 @@ awsSts = { module = "software.amazon.awssdk:sts", version.ref = "awsSdk" }
 nimbusJoseJwt = { module = "com.nimbusds:nimbus-jose-jwt", version.ref = "nimbusJoseJwt" }
 kotlinRefrect = { module = "org.jetbrains.kotlin:kotlin-reflect", version.ref = "kotlin" }
 kotlin-coroutines-core = { module = "org.jetbrains.kotlinx:kotlinx-coroutines-core", version.require = "1.11.0" }
-kotlin-datetime = { module = "org.jetbrains.kotlinx:kotlinx-datetime", version.require = "0.7.1-0.6.x-compat" }
+kotlin-datetime = { module = "org.jetbrains.kotlinx:kotlinx-datetime", version.require = "0.8.0-0.6.x-compat" }
 kotlin-serialization-json = { module = "org.jetbrains.kotlinx:kotlinx-serialization-json", version.require = "1.11.0" }
+kotlinxBrowser = { module = "org.jetbrains.kotlinx:kotlinx-browser", version = "0.5.0" }
 
 # Plugin
 androidGradlePlugin = { module = "com.android.application:com.android.application.gradle.plugin", version.ref = "agp" }
+androidLibraryGradlePlugin = { module = "com.android.library:com.android.library.gradle.plugin", version.ref = "agp" }
+androidKotlinMultiplatformLibraryGradlePlugin = { module = "com.android.kotlin.multiplatform.library:com.android.kotlin.multiplatform.library.gradle.plugin", version.ref = "agp" }
 
 # Jooq
 jooq = { module = "org.jooq:jooq", version.ref = "jooq" }
@@ -91,9 +97,10 @@ ktorClientLogging = { module = "io.ktor:ktor-client-logging", version.ref = "kto
 
 # Apollo
 apolloRuntime = { module = "com.apollographql.apollo:apollo-runtime", version.ref = "apollo" }
+apolloCompiler = { module = "com.apollographql.apollo:apollo-compiler", version.ref = "apollo" }
 apolloNormalizedCache = { module = "com.apollographql.apollo:apollo-normalized-cache", version.ref = "apollo" }
-apolloAdapters = { module = "com.apollographql.adapters:apollo-adapters-kotlinx-datetime", version = "0.7.0" }
-apolloAdaptersCore = { module = "com.apollographql.adapters:apollo-adapters-core", version = "0.7.0" }
+apolloAdapters = { module = "com.apollographql.adapters:apollo-adapters-kotlinx-datetime", version = "0.8.0" }
+apolloAdaptersCore = { module = "com.apollographql.adapters:apollo-adapters-core", version = "0.8.0" }
 
 # Jackson
 jackson-databind = { module = "com.fasterxml.jackson.core:jackson-databind", version.ref = "jackson" }
@@ -106,42 +113,43 @@ composeUi = { module = "org.jetbrains.compose.ui:ui", version.ref = "compose" }
 composeFoundation = { module = "org.jetbrains.compose.foundation:foundation", version.ref = "compose" }
 composeMaterial3 = { module = "org.jetbrains.compose.material3:material3", version.require = "1.9.0" }
 composeAnimation = { module = "org.jetbrains.compose.animation:animation", version.ref = "compose" }
-composeHtmlCore = { module = "org.jetbrains.compose.html:html-core", version.ref = "compose" }
 composeComponentsResources = { module = "org.jetbrains.compose.components:components-resources", version.ref = "compose" }
 
 # WebAUth4J
-webauth4jCore = { module = "com.webauthn4j:webauthn4j-core", version.require = "0.31.6.RELEASE" }
+webauth4jCore = { module = "com.webauthn4j:webauthn4j-core", version.require = "0.31.10.RELEASE" }
 
 opentelemetryApi = { module = "io.opentelemetry:opentelemetry-api", version.ref = "opentelemetry" }
 opentelemetrySdk = { module = "io.opentelemetry:opentelemetry-sdk", version.ref = "opentelemetry" }
 opentelemetryExporterOtlp = { module = "io.opentelemetry:opentelemetry-exporter-otlp", version.ref = "opentelemetry" }
 opentelemetrySdkAutoconfigure = { module = "io.opentelemetry:opentelemetry-sdk-extension-autoconfigure", version.ref = "opentelemetry" }
 opentelemetryKotlinExtension = { module = "io.opentelemetry:opentelemetry-extension-kotlin", version.ref = "opentelemetry" }
-opentelemetryKtor3 = { module = "io.opentelemetry.instrumentation:opentelemetry-ktor-3.0", version = "2.26.0-alpha" }
-opentelemetryJdbc = { module = "io.opentelemetry.instrumentation:opentelemetry-jdbc", version = "2.26.0-alpha" }
-opentelemetryHikariCp3 = { module = "io.opentelemetry.instrumentation:opentelemetry-hikaricp-3.0", version = "2.26.0-alpha" }
-opentelemetryGraphqlJava = { module = "io.opentelemetry.instrumentation:opentelemetry-graphql-java-20.0", version = "2.26.0-alpha" }
-opentelemetryLettuce = { module = "io.opentelemetry.instrumentation:opentelemetry-lettuce-5.1", version = "2.26.0-alpha" }
-opentelemetryRuntimeTelemetry = { module = "io.opentelemetry.instrumentation:opentelemetry-runtime-telemetry", version = "2.26.0-alpha" }
+opentelemetryKtor3 = { module = "io.opentelemetry.instrumentation:opentelemetry-ktor-3.0", version.ref = "opentelemetryInstrumentation" }
+opentelemetryJdbc = { module = "io.opentelemetry.instrumentation:opentelemetry-jdbc", version.ref = "opentelemetryInstrumentation" }
+opentelemetryHikariCp3 = { module = "io.opentelemetry.instrumentation:opentelemetry-hikaricp-3.0", version.ref = "opentelemetryInstrumentation" }
+opentelemetryGraphqlJava = { module = "io.opentelemetry.instrumentation:opentelemetry-graphql-java-20.0", version.ref = "opentelemetryInstrumentation" }
+opentelemetryLettuce = { module = "io.opentelemetry.instrumentation:opentelemetry-lettuce-5.1", version.ref = "opentelemetryInstrumentation" }
+opentelemetryRuntimeTelemetry = { module = "io.opentelemetry.instrumentation:opentelemetry-runtime-telemetry", version.ref = "opentelemetryInstrumentation" }
 
 # Android
 androidActivityActivityCompose = { module = "androidx.activity:activity-compose", version.ref = "activity" }
 androidAppCompatAppCompat = { module = "androidx.appcompat:appcompat", version.ref = "appcompat" }
-androidxCoreKtx = { module = "androidx.core:core-ktx", version.require = "1.18.0" }
+androidxCoreKtx = { module = "androidx.core:core-ktx", version.require = "1.19.1" }
 androidxLifecycleViewModelKtx = { module = "androidx.lifecycle:lifecycle-viewmodel-ktx", version.ref = "lifecycle" }
 androidxLifecycleViewModelCompose = { module = "androidx.lifecycle:lifecycle-viewmodel-compose", version.ref = "lifecycle" }
 androidxLifecycleRuntimeCompose = { module = "androidx.lifecycle:lifecycle-runtime-compose", version.ref = "lifecycle" }
 androidxNavigation3Runtime = { module = "androidx.navigation3:navigation3-runtime", version.ref = "nav3" }
 androidxNavigation3Ui = { module = "androidx.navigation3:navigation3-ui", version.ref = "nav3" }
 jetbrainsNavigation3Ui = { module = "org.jetbrains.androidx.navigation3:navigation3-ui", version.ref = "jetbrainsNav3" }
-androidxComposeSaveable = { module = "androidx.compose.runtime:runtime-saveable", version = "1.12.0" }
-composeUiToolingPreview = { module = "org.jetbrains.compose.ui:ui-tooling-preview", version = "1.11.1" }
+androidxComposeSaveable = { module = "androidx.compose.runtime:runtime-saveable", version = "1.12.1" }
+composeUiToolingPreview = { module = "org.jetbrains.compose.ui:ui-tooling-preview", version = "1.12.1" }
 composeUiTooling = { module = "org.jetbrains.compose.ui:ui-tooling", version.ref = "compose" }
 
 # Test
-kotestAssertionsCore = { module = "io.kotest:kotest-assertions-core", version.require = "6.1.11" }
-kotestFrameworkEngine = { module = "io.kotest:kotest-framework-engine", version.require = "6.1.11" }
-kotestRunnerJunit5 = { module = "io.kotest:kotest-runner-junit5", version.require = "6.1.11" }
+detektApi = { module = "dev.detekt:detekt-api", version.ref = "detekt" }
+detektTest = { module = "dev.detekt:detekt-test", version.ref = "detekt" }
+kotestAssertionsCore = { module = "io.kotest:kotest-assertions-core", version.require = "6.2.5" }
+kotestFrameworkEngine = { module = "io.kotest:kotest-framework-engine", version.require = "6.2.5" }
+kotestRunnerJunit5 = { module = "io.kotest:kotest-runner-junit5", version.require = "6.2.5" }
 paparazzi = { module = "app.cash.paparazzi:paparazzi", version.ref = "paparazzi" }
 composablePreviewScanner = { module = "io.github.sergio-sastre.ComposablePreviewScanner:android", version.ref = "composablePreviewScanner" }
 
@@ -164,13 +172,13 @@ okHttp = { module = "com.squareup.okhttp3:okhttp", version.ref = "okhttp" }
 zoomable = { module = "net.engawapg.lib:zoomable", version.ref = "zoomable" }
 
 # Log
-log4j-api = { module = "org.slf4j:slf4j-api", version.require = "2.0.18" }
-logback-classic = { module = "ch.qos.logback:logback-classic", version.require = "1.5.35" }
+log4j-api = { module = "org.slf4j:slf4j-api", version.require = "2.0.20" }
+logback-classic = { module = "ch.qos.logback:logback-classic", version.require = "1.6.3" }
 logstashLogbackEncoder = { module = "net.logstash.logback:logstash-logback-encoder", version.require = "9.0" }
 
 # Graphql
 graphqlJava-extendedScalars = { module = "com.graphql-java:graphql-java-extended-scalars", version.require = "2023-01-24T02-11-56-babda5f" }
-graphqlJava = { module = "com.graphql-java:graphql-java", version.require = "25.0" }
+graphqlJava = { module = "com.graphql-java:graphql-java", version.require = "26.1" }
 graphqlJavaKickstart-JavaTools = { module = "com.graphql-java-kickstart:graphql-java-tools", version.require = "14.0.1" }
 
 # DataStore
@@ -192,10 +200,10 @@ workRuntimeKtx = { module = "androidx.work:work-runtime-ktx", version.ref = "wor
 timber = { module = "com.jakewharton.timber:timber", version.ref = "timber" }
 
 # Other
-lettuce = { module = "io.lettuce:lettuce-core", version.require = "7.5.2.RELEASE" }
-jsoup = { module = "org.jsoup:jsoup", version.require = "1.22.2" }
-hikariCP = { module = "com.zaxxer:HikariCP", version.require = "7.0.2" }
-mariadbClient = { module = "org.mariadb.jdbc:mariadb-java-client", version.require = "3.5.8" }
+lettuce = { module = "io.lettuce:lettuce-core", version.require = "7.8.0.RELEASE" }
+jsoup = { module = "org.jsoup:jsoup", version.require = "1.23.2" }
+hikariCP = { module = "com.zaxxer:HikariCP", version.require = "7.1.0" }
+mariadbClient = { module = "org.mariadb.jdbc:mariadb-java-client", version.require = "3.5.10" }
 
 # Play
 androidxCredentialsPlayServicesAuth = { module = "androidx.credentials:credentials-play-services-auth", version.require = "1.6.0" }

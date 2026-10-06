@@ -7,12 +7,12 @@ kotlin {
     android {
         namespace = "net.matsudamper.money.frontend.common.usecase"
     }
-    js(IR) {
+    wasmJs {
         browser()
     }
     sourceSets {
         jvmToolchain(libs.versions.javaToolchain.get().toInt())
-        val commonMain by getting {
+        getByName("commonMain") {
             dependencies {
                 implementation(projects.frontend.common.base)
                 api(projects.frontend.common.feature.webauth)
@@ -24,7 +24,7 @@ kotlin {
                 implementation(libs.koinCore)
             }
         }
-        val commonTest by getting {
+        getByName("commonTest") {
             dependencies {
                 implementation(kotlin("test"))
             }
