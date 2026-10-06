@@ -26,7 +26,6 @@ import io.ktor.server.plugins.forwardedheaders.XForwardedHeaders
 import io.ktor.server.plugins.statuspages.StatusPages
 import io.ktor.server.request.httpMethod
 import io.ktor.server.request.path
-import io.ktor.server.request.receiveStream
 import io.ktor.server.request.receiveText
 import io.ktor.server.response.cacheControl
 import io.ktor.server.response.header
@@ -47,6 +46,7 @@ import net.matsudamper.money.backend.di.MainDiContainer
 import net.matsudamper.money.backend.feature.oidc.jwks
 import net.matsudamper.money.backend.feature.oidc.oidcDiscovery
 import net.matsudamper.money.backend.feature.session.KtorCookieManager
+import net.matsudamper.money.backend.graphql.GraphqlOperationTimeout
 import net.matsudamper.money.backend.graphql.MoneyGraphQlSchema
 import net.matsudamper.money.backend.image.ImageUploadConfig
 import net.matsudamper.money.backend.image.getImage
@@ -155,7 +155,10 @@ fun Application.myApplicationModule(diContainer: DiContainer) {
                 call.respondText(
                     contentType = ContentType.Application.Json,
                 ) {
-                    val requestText = call.receiveStream().bufferedReader().readText()
+                    // 本文を送り切らない接続に占有されないよう、操作のタイムアウトを決める前の読み取りも通常の期限で打ち切る
+                    val requestText = withTimeout(GraphqlOperationTimeout.DEFAULT_TIMEOUT) {
+                        call.receiveText()
+                    }
                     val handler = GraphqlHandler(
                         cookieManager = KtorCookieManager(call = call),
                         diContainer = diContainer,
