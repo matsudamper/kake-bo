@@ -212,8 +212,14 @@ public class RootUsageCalendarPagerHostViewModel(
         val rangeStart = minOf(yearMonth, today, first(), last())
         val rangeEnd = maxOf(yearMonth, today, first(), last())
         return buildPagesFromTo(
-            from = rangeStart.minusMonth(BETWEEN_PAGE_COUNT),
-            to = rangeEnd.plusMonth(BETWEEN_PAGE_COUNT),
+            from = rangeStart.plus(
+                value = -BETWEEN_PAGE_COUNT,
+                unit = DateTimeUnit.MONTH,
+            ),
+            to = rangeEnd.plus(
+                value = BETWEEN_PAGE_COUNT,
+                unit = DateTimeUnit.MONTH,
+            ),
         )
     }
 
