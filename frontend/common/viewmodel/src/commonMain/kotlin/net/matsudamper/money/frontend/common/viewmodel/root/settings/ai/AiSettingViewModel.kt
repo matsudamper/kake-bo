@@ -11,15 +11,12 @@ import net.matsudamper.money.frontend.common.base.nav.user.ScreenNavController
 import net.matsudamper.money.frontend.common.ui.base.KakeboScaffoldListener
 import net.matsudamper.money.frontend.common.ui.screen.root.settings.AiSettingScreenUiState
 import net.matsudamper.money.frontend.common.viewmodel.CommonViewModel
-import net.matsudamper.money.frontend.common.viewmodel.lib.EventSender
-import net.matsudamper.money.frontend.common.viewmodel.root.GlobalEvent
 
 private const val TAG = "AiSettingViewModel"
 
 public class AiSettingViewModel(
     scopedObjectFeature: ScopedObjectFeature,
     private val graphqlApi: AiSettingGraphqlApi,
-    private val globalEventSender: EventSender<GlobalEvent>,
     navController: ScreenNavController,
 ) : CommonViewModel(scopedObjectFeature) {
     private val viewModelStateFlow = MutableStateFlow(ViewModelState())
@@ -28,6 +25,7 @@ public class AiSettingViewModel(
         AiSettingScreenUiState(
             loadingState = AiSettingScreenUiState.LoadingState.Loading,
             isGeminiApiKeyInputVisible = false,
+            geminiApiKeyInputErrorMessage = null,
             kakeboScaffoldListener = object : KakeboScaffoldListener {
                 override fun onClickTitle() {
                     navController.navigateToHome()
@@ -55,7 +53,12 @@ public class AiSettingViewModel(
                 }
 
                 override fun onCancelGeminiApiKeyInput() {
-                    viewModelStateFlow.update { it.copy(isGeminiApiKeyInputVisible = false) }
+                    viewModelStateFlow.update {
+                        it.copy(
+                            isGeminiApiKeyInputVisible = false,
+                            geminiApiKeyInputErrorMessage = null,
+                        )
+                    }
                 }
             },
         ),
@@ -72,6 +75,7 @@ public class AiSettingViewModel(
                             )
                         },
                         isGeminiApiKeyInputVisible = viewModelState.isGeminiApiKeyInputVisible,
+                        geminiApiKeyInputErrorMessage = viewModelState.geminiApiKeyInputErrorMessage,
                     )
                 }
             }
@@ -106,15 +110,14 @@ public class AiSettingViewModel(
                 .getOrNull()
                 ?.data?.userMutation?.settingsMutation?.updateGeminiApiKey
             if (aiConfig == null) {
-                globalEventSender.send {
-                    it.showNativeNotification("更新に失敗しました")
-                }
+                viewModelStateFlow.update { it.copy(geminiApiKeyInputErrorMessage = "Gemini API Keyの更新に失敗しました") }
                 return@launch
             }
             viewModelStateFlow.update {
                 it.copy(
                     hasGeminiApiKey = aiConfig.hasGeminiApiKey,
                     isGeminiApiKeyInputVisible = false,
+                    geminiApiKeyInputErrorMessage = null,
                 )
             }
         }
@@ -123,6 +126,7 @@ public class AiSettingViewModel(
     private data class ViewModelState(
         val hasGeminiApiKey: Boolean = false,
         val isGeminiApiKeyInputVisible: Boolean = false,
+        val geminiApiKeyInputErrorMessage: String? = null,
         val loadingState: LoadingState = LoadingState.Loading,
     ) {
         enum class LoadingState {

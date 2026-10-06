@@ -37,6 +37,7 @@ public actual fun FullScreenTextInput(
     inputType: TextFieldType,
     isMultiline: Boolean,
     autocomplete: String?,
+    errorMessage: String?,
 ) {
     val state = rememberTextFieldState(initialText = default)
     Dialog(onDismissRequest = { canceled() }) {
@@ -85,6 +86,14 @@ public actual fun FullScreenTextInput(
                             state = state,
                         )
                     }
+                }
+                if (errorMessage != null) {
+                    Spacer(modifier = Modifier.height(8.dp))
+                    Text(
+                        text = errorMessage,
+                        color = MaterialTheme.colorScheme.error,
+                        style = MaterialTheme.typography.bodyMedium,
+                    )
                 }
                 Spacer(modifier = Modifier.height(24.dp))
                 Row(

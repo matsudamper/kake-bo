@@ -38,6 +38,7 @@ import org.jetbrains.compose.resources.painterResource
 public data class AiSettingScreenUiState(
     val loadingState: LoadingState,
     val isGeminiApiKeyInputVisible: Boolean,
+    val geminiApiKeyInputErrorMessage: String?,
     val kakeboScaffoldListener: KakeboScaffoldListener,
     val event: Event,
 ) {
@@ -77,6 +78,7 @@ public fun AiSettingScreen(
             inputType = TextFieldType.Password,
             onComplete = { uiState.event.onCompleteGeminiApiKeyInput(it) },
             canceled = { uiState.event.onCancelGeminiApiKeyInput() },
+            errorMessage = uiState.geminiApiKeyInputErrorMessage,
         )
     }
 
@@ -173,13 +175,34 @@ private fun LoadedContent(
 @Composable
 @Preview
 private fun AiSettingScreenPreview() {
+    AiSettingScreenPreviewContent(
+        isGeminiApiKeyInputVisible = false,
+        geminiApiKeyInputErrorMessage = null,
+    )
+}
+
+@Composable
+@Preview
+private fun AiSettingScreenInputErrorPreview() {
+    AiSettingScreenPreviewContent(
+        isGeminiApiKeyInputVisible = true,
+        geminiApiKeyInputErrorMessage = "Gemini API Keyの更新に失敗しました",
+    )
+}
+
+@Composable
+private fun AiSettingScreenPreviewContent(
+    isGeminiApiKeyInputVisible: Boolean,
+    geminiApiKeyInputErrorMessage: String?,
+) {
     AppRoot {
         AiSettingScreen(
             uiState = AiSettingScreenUiState(
                 loadingState = AiSettingScreenUiState.LoadingState.Loaded(
                     geminiApiKey = "****************",
                 ),
-                isGeminiApiKeyInputVisible = false,
+                isGeminiApiKeyInputVisible = isGeminiApiKeyInputVisible,
+                geminiApiKeyInputErrorMessage = geminiApiKeyInputErrorMessage,
                 kakeboScaffoldListener = object : KakeboScaffoldListener {
                     override fun onClickTitle() {}
                 },
