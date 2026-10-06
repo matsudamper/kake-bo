@@ -457,16 +457,19 @@ public class AddMoneyUsageViewModel(
         }
 
         val importedMailId = current.importedMailId
-        if (importedMailId == null) {
+        // AI解析の候補のように、遷移元が入力値を渡している場合はメールの候補を取り直さずそれを使う
+        if (importedMailId == null || current.title != null) {
+            // 通知やAI解析の候補から遷移した場合は遷移元のデータで上書きするため、
+            // 遷移元が値を持たないフィールドは既存 state を引き継がず空にリセットする
+            val resetsMissingFields = isFromNotification || importedMailId != null
             viewModelStateFlow.update { state ->
                 state.copy(
-                    // 通知から遷移した場合は通知のデータで上書きするため、
-                    // 通知が値を持たないフィールドは既存 state を引き継がず空にリセットする
-                    usageTitle = current.title ?: if (isFromNotification) "" else state.usageTitle,
-                    usageDate = current.date?.date ?: if (isFromNotification) Clock.System.todayIn(TimeZone.currentSystemDefault()) else state.usageDate,
-                    usageTime = current.date?.time ?: if (isFromNotification) LocalTime(0, 0, 0, 0) else state.usageTime,
-                    usageAmount = current.price?.let { NumberInputValue.default(it.toInt()) } ?: if (isFromNotification) NumberInputValue.default() else state.usageAmount,
-                    usageDescription = current.description ?: if (isFromNotification) "" else state.usageDescription,
+                    importedMailId = importedMailId,
+                    usageTitle = current.title ?: if (resetsMissingFields) "" else state.usageTitle,
+                    usageDate = current.date?.date ?: if (resetsMissingFields) Clock.System.todayIn(TimeZone.currentSystemDefault()) else state.usageDate,
+                    usageTime = current.date?.time ?: if (resetsMissingFields) LocalTime(0, 0, 0, 0) else state.usageTime,
+                    usageAmount = current.price?.let { NumberInputValue.default(it.toInt()) } ?: if (resetsMissingFields) NumberInputValue.default() else state.usageAmount,
+                    usageDescription = current.description ?: if (resetsMissingFields) "" else state.usageDescription,
                     usageImages = listOf(),
                     usageCategorySet = null,
                 )
