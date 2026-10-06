@@ -4,6 +4,7 @@ import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.collectLatest
+import kotlinx.coroutines.flow.getAndUpdate
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import com.apollographql.apollo.api.ApolloResponse
@@ -224,8 +225,11 @@ public class ImportedMailScreenViewModel(
     private fun createAiParseState(aiParse: ViewModelState.AiParse): MailScreenUiState.AiParseState {
         return when (aiParse) {
             ViewModelState.AiParse.NotExecuted -> MailScreenUiState.AiParseState.NotExecuted
+
             ViewModelState.AiParse.Running -> MailScreenUiState.AiParseState.Running
+
             is ViewModelState.AiParse.Failed -> MailScreenUiState.AiParseState.Failed(message = aiParse.message)
+
             is ViewModelState.AiParse.Succeeded -> MailScreenUiState.AiParseState.Succeeded(
                 usageSuggest = aiParse.usages.map { usage ->
                     createUsageSuggest(
@@ -303,16 +307,18 @@ public class ImportedMailScreenViewModel(
     }
 
     private fun parseWithAi() {
-        if (viewModelStateFlow.value.aiParse == ViewModelState.AiParse.Running) return
+        val previousState = viewModelStateFlow.getAndUpdate { it.copy(aiParse = ViewModelState.AiParse.Running) }
+        if (previousState.aiParse == ViewModelState.AiParse.Running) return
         viewModelScope.launch {
-            viewModelStateFlow.update { it.copy(aiParse = ViewModelState.AiParse.Running) }
             val aiParse = when (val result = api.parseWithAi(id = importedMailId)) {
                 is ImportedMailScreenGraphqlApi.ParseWithAiResult.Success -> ViewModelState.AiParse.Succeeded(usages = result.usages)
+
                 ImportedMailScreenGraphqlApi.ParseWithAiResult.ApiKeyNotSet -> ViewModelState.AiParse.Failed(
                     message = "Gemini APIキーが設定されていません。設定画面から登録してください",
                 )
 
                 ImportedMailScreenGraphqlApi.ParseWithAiResult.MailNotFound -> ViewModelState.AiParse.Failed(message = "メールが見つかりませんでした")
+
                 is ImportedMailScreenGraphqlApi.ParseWithAiResult.Failure -> ViewModelState.AiParse.Failed(
                     message = listOfNotNull("解析に失敗しました", result.message).joinToString(": "),
                 )
