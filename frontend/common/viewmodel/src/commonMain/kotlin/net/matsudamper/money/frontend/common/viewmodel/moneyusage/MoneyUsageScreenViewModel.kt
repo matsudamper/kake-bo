@@ -8,6 +8,8 @@ import kotlinx.coroutines.flow.catch
 import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.sync.Mutex
+import kotlinx.coroutines.sync.withLock
 import kotlinx.datetime.LocalDateTime
 import com.apollographql.apollo.api.ApolloResponse
 import com.apollographql.apollo.cache.normalized.FetchPolicy
@@ -522,27 +524,31 @@ public class MoneyUsageScreenViewModel(
             contentType = newImage.contentType,
         ) ?: return false
 
-        val currentImageIds = runCatchingWithoutCancel {
-            apolloClient
-                .query(MoneyUsageScreenQuery(id = moneyUsageId))
-                .fetchPolicy(FetchPolicy.NetworkOnly)
-                .execute()
-                .data?.user?.moneyUsage?.moneyUsageScreenMoneyUsage?.images
-                ?.map { it.id }
-        }.onFailure {
-            it.printStackTrace()
-        }.getOrNull() ?: return false
-        if (currentImageIds.contains(oldImageId).not()) return false
+        // 複数画像の入れ替えが並行すると、同じ一覧を元にした更新が互いの置換を打ち消すため直列化する
+        return imageIdsUpdateMutex.withLock {
+            val currentImageIds = runCatchingWithoutCancel {
+                apolloClient
+                    .query(MoneyUsageScreenQuery(id = moneyUsageId))
+                    .fetchPolicy(FetchPolicy.NetworkOnly)
+                    .execute()
+                    .data?.user?.moneyUsage?.moneyUsageScreenMoneyUsage?.images
+                    ?.map { it.id }
+            }.onFailure {
+                it.printStackTrace()
+            }.getOrNull() ?: return@withLock false
+            if (currentImageIds.contains(oldImageId).not()) return@withLock false
 
-        return api.updateUsage(
-            id = moneyUsageId,
-            imageIds = currentImageIds
-                .map { if (it == oldImageId) uploadResult.imageId else it }
-                .distinctBy { it.value },
-        )
+            api.updateUsage(
+                id = moneyUsageId,
+                imageIds = currentImageIds
+                    .map { if (it == oldImageId) uploadResult.imageId else it }
+                    .distinctBy { it.value },
+            )
+        }
     }
 
     private val apolloClient = graphqlClient.apolloClient
+    private val imageIdsUpdateMutex = Mutex()
     private var fetchJob: Job = Job()
 
     private fun fetch(policy: FetchPolicy = FetchPolicy.CacheAndNetwork) {

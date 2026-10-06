@@ -354,7 +354,17 @@ public class AddMoneyUsageViewModel(
                     }
 
                     try {
-                        val newUploadedImage = uploadImage(newImage) ?: return@launch
+                        val newUploadedImage = uploadImage(newImage)
+                        if (newUploadedImage == null) {
+                            viewModelScope.launch {
+                                snackbarEventState.show(
+                                    SnackbarEventState.Event(
+                                        message = "画像の入れ替えに失敗しました",
+                                    ),
+                                )
+                            }
+                            return@launch
+                        }
                         viewModelStateFlow.update { viewModelState ->
                             viewModelState.copy(
                                 usageImages = viewModelState.usageImages
