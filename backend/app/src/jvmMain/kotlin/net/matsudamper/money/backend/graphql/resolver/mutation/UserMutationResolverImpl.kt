@@ -821,7 +821,7 @@ class UserMutationResolverImpl : UserMutationResolver {
                             amount = usage.amount,
                             description = usage.description,
                             dateTime = usage.dateTime,
-                            serviceName = null,
+                            serviceName = usage.serviceName,
                         )
                     },
                     error = null,
@@ -829,7 +829,9 @@ class UserMutationResolverImpl : UserMutationResolver {
                 )
 
                 ParseImportedMailWithAiUseCase.Result.ApiKeyNotSet -> createParseImportedMailWithAiError(QlParseImportedMailWithAiError.ApiKeyNotSet)
+
                 ParseImportedMailWithAiUseCase.Result.MailNotFound -> createParseImportedMailWithAiError(QlParseImportedMailWithAiError.MailNotFound)
+
                 is ParseImportedMailWithAiUseCase.Result.ParseFailed -> createParseImportedMailWithAiError(
                     error = QlParseImportedMailWithAiError.ParseFailed,
                     errorMessage = result.errorMessage,
