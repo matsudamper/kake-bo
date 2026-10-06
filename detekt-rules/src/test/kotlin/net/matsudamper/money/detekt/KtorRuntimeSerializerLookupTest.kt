@@ -145,6 +145,18 @@ class KtorRuntimeSerializerLookupTest : FunSpec(
             rule.lint(code, compile = false).shouldHaveSize(1)
         }
 
+        test("クライアントの post と同時に import したサーバーの型付き post を検知する") {
+            val code = """
+                import io.ktor.client.request.post
+                import io.ktor.server.routing.post
+
+                fun route() {
+                    post<Body>("/path") { body -> }
+                }
+            """.trimIndent()
+            rule.lint(code, compile = false).shouldHaveSize(1)
+        }
+
         test("Ktor 以外の同名関数は検知しない") {
             val code = """
                 import example.respond

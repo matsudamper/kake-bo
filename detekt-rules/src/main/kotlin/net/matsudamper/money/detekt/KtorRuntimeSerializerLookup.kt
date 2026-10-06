@@ -19,7 +19,7 @@ class KtorRuntimeSerializerLookup(config: Config) : Rule(
     override fun visitCallExpression(expression: KtCallExpression) {
         super.visitCallExpression(expression)
         val calledName = expression.calleeExpression?.text ?: return
-        val calledFqName = expression.containingKtFile.resolveImportedFqName(calledName) ?: return
+        val calledFqName = expression.containingKtFile.resolveDetectionTargetFqName(calledName) ?: return
 
         val isReflectiveBodyCall = calledFqName in bodyConversionFqNames && !expression.isStatusOnlyResponse()
         val isTypedRouteBuilder = calledFqName in routeBuilderFqNames && expression.hasRequestBodyType()
@@ -57,20 +57,25 @@ class KtorRuntimeSerializerLookup(config: Config) : Rule(
         return handlerLambda.valueParameters.isNotEmpty()
     }
 
-    private fun KtFile.resolveImportedFqName(calledName: String): String? {
-        val directives = importDirectives
-        directives.firstNotNullOfOrNull { directive ->
-            if (directive.isAllUnder) return@firstNotNullOfOrNull null
-            val fqName = directive.importedFqName ?: return@firstNotNullOfOrNull null
-            val localName = directive.aliasName ?: fqName.shortName().asString()
-            fqName.asString().takeIf { localName == calledName }
-        }?.let { return it }
-
-        return directives
-            .filter { it.isAllUnder }
-            .mapNotNull { it.importedFqName?.asString() }
-            .map { packageName -> "$packageName.$calledName" }
-            .firstOrNull { it in bodyConversionFqNames || it in routeBuilderFqNames }
+    /**
+     * 同名の callable が複数 import されていると、どれが呼ばれるかは PSI だけでは決まらない。
+     * そのため検知対象の FQ 名が候補に含まれていれば、それを返す。
+     */
+    private fun KtFile.resolveDetectionTargetFqName(calledName: String): String? {
+        val explicitCandidates = importDirectives
+            .filterNot { it.isAllUnder }
+            .mapNotNull { directive ->
+                val fqName = directive.importedFqName ?: return@mapNotNull null
+                val localName = directive.aliasName ?: fqName.shortName().asString()
+                fqName.asString().takeIf { localName == calledName }
+            }
+        val candidates = explicitCandidates.ifEmpty {
+            importDirectives
+                .filter { it.isAllUnder }
+                .mapNotNull { it.importedFqName?.asString() }
+                .map { packageName -> "$packageName.$calledName" }
+        }
+        return candidates.firstOrNull { it in bodyConversionFqNames || it in routeBuilderFqNames }
     }
 
     private companion object {
