@@ -5,6 +5,7 @@ query NotificationUsageCategoryFilters($query: ImportedMailCategoryFiltersQuery!
                 id
                 orderNumber
                 operator
+                matchExpression
                 subCategory {
                     id
                     name
@@ -12,11 +13,12 @@ query NotificationUsageCategoryFilters($query: ImportedMailCategoryFiltersQuery!
                         name
                     }
                 }
-                conditions {
+                matchers {
                     id
+                    matcherKey
                     text
                     dataSourceType
-                    conditionType
+                    matcherType
                 }
             }
         }

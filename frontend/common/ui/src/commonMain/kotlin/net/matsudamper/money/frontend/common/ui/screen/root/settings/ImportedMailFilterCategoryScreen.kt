@@ -92,7 +92,7 @@ public data class ImportedMailFilterCategoryScreenUiState(
         public data class Loaded(
             val title: String,
             val category: Category?,
-            val conditions: ImmutableList<Condition>,
+            val matchers: ImmutableList<Matcher>,
             val operator: Operator,
             val event: LoadedEvent,
         ) : LoadingState
@@ -136,7 +136,7 @@ public data class ImportedMailFilterCategoryScreenUiState(
         }
     }
 
-    public enum class ConditionType {
+    public enum class MatcherType {
         Include,
         NotInclude,
         Equal,
@@ -155,11 +155,11 @@ public data class ImportedMailFilterCategoryScreenUiState(
         }
     }
 
-    public data class Condition(
+    public data class Matcher(
         val text: String,
         val source: DataSource,
-        val conditionType: ConditionType,
-        val event: ConditionEvent,
+        val matcherType: MatcherType,
+        val event: MatcherEvent,
     )
 
     public data class Category(
@@ -175,19 +175,19 @@ public data class ImportedMailFilterCategoryScreenUiState(
     )
 
     @Immutable
-    public interface ConditionEvent {
+    public interface MatcherEvent {
         public fun onClickTextChange()
 
         public fun selectedSource(source: DataSource)
 
-        public fun selectedConditionType(type: ConditionType)
+        public fun selectedMatcherType(type: MatcherType)
 
         public fun onClickDeleteMenu()
     }
 
     @Immutable
     public interface LoadedEvent {
-        public fun onClickAddCondition()
+        public fun onClickAddMatcher()
 
         public fun onClickNameChange()
 
@@ -487,7 +487,7 @@ private fun LoadedContent(
                     Spacer(modifier = Modifier.weight(1f))
                     OutlinedButton(
                         modifier = Modifier.padding(8.dp),
-                        onClick = { uiState.event.onClickAddCondition() },
+                        onClick = { uiState.event.onClickAddMatcher() },
                     ) {
                         Icon(painter = painterResource(Res.drawable.ic_add), contentDescription = null)
                         Text("追加")
@@ -495,7 +495,7 @@ private fun LoadedContent(
                 }
                 HorizontalDivider(modifier = Modifier.fillMaxWidth().height(1.dp))
             }
-            if (uiState.conditions.isEmpty()) {
+            if (uiState.matchers.isEmpty()) {
                 item {
                     Box(
                         modifier = Modifier.fillMaxWidth()
@@ -508,8 +508,8 @@ private fun LoadedContent(
                     }
                 }
             } else {
-                items(uiState.conditions) { item ->
-                    ConditionCard(
+                items(uiState.matchers) { item ->
+                    MatcherCard(
                         modifier = Modifier.fillMaxWidth()
                             .padding(vertical = 8.dp),
                         item = item,
@@ -522,9 +522,9 @@ private fun LoadedContent(
 
 @OptIn(ExperimentalLayoutApi::class)
 @Composable
-private fun ConditionCard(
+private fun MatcherCard(
     modifier: Modifier = Modifier,
-    item: ImportedMailFilterCategoryScreenUiState.Condition,
+    item: ImportedMailFilterCategoryScreenUiState.Matcher,
 ) {
     Card(modifier = modifier) {
         Row(modifier = Modifier.padding(8.dp)) {
@@ -584,7 +584,7 @@ private fun ConditionCard(
                         DropDownButton(
                             modifier = Modifier.padding(end = 4.dp),
                             item = {
-                                Text(item.conditionType.getDisplayText())
+                                Text(item.matcherType.getDisplayText())
                             },
                             visibleDropDown = visibleDropDown,
                             onDismissRequest = {
@@ -596,17 +596,17 @@ private fun ConditionCard(
                             dropDown = {
                                 Column(modifier = Modifier.width(IntrinsicSize.Max)) {
                                     immutableListOf(
-                                        ImportedMailFilterCategoryScreenUiState.ConditionType.Include,
-                                        ImportedMailFilterCategoryScreenUiState.ConditionType.NotInclude,
-                                        ImportedMailFilterCategoryScreenUiState.ConditionType.Equal,
-                                        ImportedMailFilterCategoryScreenUiState.ConditionType.NotEqual,
+                                        ImportedMailFilterCategoryScreenUiState.MatcherType.Include,
+                                        ImportedMailFilterCategoryScreenUiState.MatcherType.NotInclude,
+                                        ImportedMailFilterCategoryScreenUiState.MatcherType.Equal,
+                                        ImportedMailFilterCategoryScreenUiState.MatcherType.NotEqual,
                                     ).forEach { type ->
                                         Box(
                                             modifier = Modifier
                                                 .fillMaxWidth()
                                                 .clickable {
                                                     visibleDropDown = false
-                                                    item.event.selectedConditionType(type)
+                                                    item.event.selectedMatcherType(type)
                                                 }
                                                 .padding(8.dp),
                                         ) {

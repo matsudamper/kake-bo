@@ -3,35 +3,35 @@ package net.matsudamper.money.backend.dataloader
 import net.matsudamper.money.backend.app.interfaces.MailFilterRepository
 import net.matsudamper.money.backend.di.DiContainer
 import net.matsudamper.money.backend.graphql.otelSupplyAsync
-import net.matsudamper.money.element.ImportedMailCategoryFilterConditionId
+import net.matsudamper.money.element.ImportedMailCategoryFilterMatcherId
 import net.matsudamper.money.element.UserId
 import net.matsudamper.money.lib.flatten
 import org.dataloader.DataLoader
 import org.dataloader.DataLoaderFactory
 
-class ImportedMailCategoryFilterConditionDataLoaderDefine(
+class ImportedMailCategoryFilterMatcherDataLoaderDefine(
     private val repositoryFactory: DiContainer,
-) : DataLoaderDefine<ImportedMailCategoryFilterConditionDataLoaderDefine.Key, MailFilterRepository.Condition> {
+) : DataLoaderDefine<ImportedMailCategoryFilterMatcherDataLoaderDefine.Key, MailFilterRepository.Matcher> {
     override val key: String = this::class.java.name
 
-    override fun getDataLoader(): DataLoader<Key, MailFilterRepository.Condition> {
+    override fun getDataLoader(): DataLoader<Key, MailFilterRepository.Matcher> {
         return DataLoaderFactory.newMappedDataLoader { keys, _ ->
             otelSupplyAsync {
                 val repository = repositoryFactory.createMailFilterRepository()
 
                 val results = keys.groupBy { it.userId }
                     .mapNotNull { (userId, keys) ->
-                        val results = repository.getConditions(
+                        val results = repository.getMatchers(
                             userId = userId,
-                            filterIds = keys.map { it.conditionId },
+                            matcherIds = keys.map { it.matcherId },
                         ).map {
-                            it.associateBy { it.conditionId }
+                            it.associateBy { it.matcherId }
                         }.onFailure {
                             it.printStackTrace()
                         }.getOrNull() ?: return@mapNotNull null
 
                         keys.associateWith { key ->
-                            results[key.conditionId]
+                            results[key.matcherId]
                         }
                     }.flatten()
 
@@ -44,6 +44,6 @@ class ImportedMailCategoryFilterConditionDataLoaderDefine(
 
     data class Key(
         val userId: UserId,
-        val conditionId: ImportedMailCategoryFilterConditionId,
+        val matcherId: ImportedMailCategoryFilterMatcherId,
     )
 }

@@ -40,7 +40,7 @@ apollo {
         mapScalar("Long", "kotlin.Long")
         mapScalar("MoneyUsageCategoryId", "net.matsudamper.money.element.MoneyUsageCategoryId")
         mapScalar("MoneyUsageSubCategoryId", "net.matsudamper.money.element.MoneyUsageSubCategoryId")
-        mapScalar("ImportedMailCategoryFilterConditionId", "net.matsudamper.money.element.ImportedMailCategoryFilterConditionId")
+        mapScalar("ImportedMailCategoryFilterMatcherId", "net.matsudamper.money.element.ImportedMailCategoryFilterMatcherId")
         mapScalar("MoneyUsageId", "net.matsudamper.money.element.MoneyUsageId")
         mapScalar("MoneyUsagePresetId", "net.matsudamper.money.element.MoneyUsagePresetId")
         mapScalar("SessionRecordId", "net.matsudamper.money.element.SessionRecordId")

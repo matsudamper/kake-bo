@@ -1,21 +1,22 @@
 package net.matsudamper.money.backend.datasource.db.repository
 
 import net.matsudamper.money.backend.app.interfaces.MailFilterRepository
-import net.matsudamper.money.backend.app.interfaces.element.ImportedMailCategoryFilterConditionType
+import net.matsudamper.money.backend.app.interfaces.UpdateValue
 import net.matsudamper.money.backend.app.interfaces.element.ImportedMailCategoryFilterDatasourceType
+import net.matsudamper.money.backend.app.interfaces.element.ImportedMailCategoryFilterMatcherType
 import net.matsudamper.money.backend.app.interfaces.element.ImportedMailFilterCategoryConditionOperator
 import net.matsudamper.money.backend.datasource.db.DbConnection
-import net.matsudamper.money.backend.datasource.db.element.DbImportedMailCategoryFilterConditionType
 import net.matsudamper.money.backend.datasource.db.element.DbImportedMailCategoryFilterDatasourceType
+import net.matsudamper.money.backend.datasource.db.element.DbImportedMailCategoryFilterMatcherType
 import net.matsudamper.money.backend.datasource.db.element.DbImportedMailFilterCategoryConditionOperator
 import net.matsudamper.money.backend.datasource.db.element.toDbDefine
-import net.matsudamper.money.db.schema.tables.JCategoryMailFilterConditions
+import net.matsudamper.money.db.schema.tables.JCategoryMailFilterMatchers
 import net.matsudamper.money.db.schema.tables.JCategoryMailFilters
 import net.matsudamper.money.db.schema.tables.JMoneyUsageSubCategories
-import net.matsudamper.money.db.schema.tables.records.JCategoryMailFilterConditionsRecord
+import net.matsudamper.money.db.schema.tables.records.JCategoryMailFilterMatchersRecord
 import net.matsudamper.money.db.schema.tables.records.JCategoryMailFiltersRecord
-import net.matsudamper.money.element.ImportedMailCategoryFilterConditionId
 import net.matsudamper.money.element.ImportedMailCategoryFilterId
+import net.matsudamper.money.element.ImportedMailCategoryFilterMatcherId
 import net.matsudamper.money.element.MoneyUsageSubCategoryId
 import net.matsudamper.money.element.UserId
 import org.jooq.impl.DSL
@@ -25,7 +26,7 @@ class DbMailFilterRepository(
     private val dbConnection: DbConnection,
 ) : MailFilterRepository {
     private val filters = JCategoryMailFilters.CATEGORY_MAIL_FILTERS
-    private val conditions = JCategoryMailFilterConditions.CATEGORY_MAIL_FILTER_CONDITIONS
+    private val matchers = JCategoryMailFilterMatchers.CATEGORY_MAIL_FILTER_MATCHERS
     private val subCategories = JMoneyUsageSubCategories.MONEY_USAGE_SUB_CATEGORIES
 
     override fun addFilter(
@@ -66,6 +67,7 @@ class DbMailFilterRepository(
                         filters.TITLE,
                         subCategories.MONEY_USAGE_SUB_CATEGORY_ID,
                         filters.CATEGORY_MAIL_FILTER_CONDITION_OPERATOR_TYPE_ID,
+                        filters.MATCH_EXPRESSION,
                         filters.ORDER_NUMBER,
                     )
                     .from(filters)
@@ -89,6 +91,7 @@ class DbMailFilterRepository(
                             operator = DbImportedMailFilterCategoryConditionOperator.fromDbValue(
                                 record.get(filters.CATEGORY_MAIL_FILTER_CONDITION_OPERATOR_TYPE_ID)!!,
                             ).toLogicValue(),
+                            matchExpression = record.get(filters.MATCH_EXPRESSION),
                             orderNumber = record.get(filters.ORDER_NUMBER)!!,
                         )
                     }
@@ -112,6 +115,7 @@ class DbMailFilterRepository(
                         filters.TITLE,
                         subCategories.MONEY_USAGE_SUB_CATEGORY_ID,
                         filters.CATEGORY_MAIL_FILTER_CONDITION_OPERATOR_TYPE_ID,
+                        filters.MATCH_EXPRESSION,
                         filters.ORDER_NUMBER,
                     )
                     .from(filters)
@@ -170,6 +174,7 @@ class DbMailFilterRepository(
                             operator = DbImportedMailFilterCategoryConditionOperator.fromDbValue(
                                 record.get(filters.CATEGORY_MAIL_FILTER_CONDITION_OPERATOR_TYPE_ID)!!,
                             ).toLogicValue(),
+                            matchExpression = record.get(filters.MATCH_EXPRESSION),
                             orderNumber = record.get(filters.ORDER_NUMBER)!!,
                         )
                     }
@@ -191,41 +196,41 @@ class DbMailFilterRepository(
         }
     }
 
-    override fun getConditions(
+    override fun getMatchers(
         userId: UserId,
         filterId: ImportedMailCategoryFilterId,
-    ): Result<MailFilterRepository.MailFilterConditionResult> {
+    ): Result<MailFilterRepository.MailFilterMatcherResult> {
         return dbConnection.use {
             runCatching {
                 val result = DSL.using(it)
-                    .selectFrom(conditions)
+                    .selectFrom(matchers)
                     .where(
                         DSL.value(true)
-                            .and(conditions.USER_ID.eq(userId.value))
-                            .and(conditions.CATEGORY_MAIL_FILTER_ID.eq(filterId.id)),
+                            .and(matchers.USER_ID.eq(userId.value))
+                            .and(matchers.CATEGORY_MAIL_FILTER_ID.eq(filterId.id)),
                     )
                     .fetch()
 
-                MailFilterRepository.MailFilterConditionResult(
+                MailFilterRepository.MailFilterMatcherResult(
                     filterId = filterId,
-                    conditions = result.map { mapResult(it) },
+                    matchers = result.map { mapResult(it) },
                 )
             }
         }
     }
 
-    override fun getConditions(
+    override fun getMatchers(
         userId: UserId,
-        filterIds: List<ImportedMailCategoryFilterConditionId>,
-    ): Result<List<MailFilterRepository.Condition>> {
+        matcherIds: List<ImportedMailCategoryFilterMatcherId>,
+    ): Result<List<MailFilterRepository.Matcher>> {
         return dbConnection.use {
             runCatching {
                 val result = DSL.using(it)
-                    .selectFrom(conditions)
+                    .selectFrom(matchers)
                     .where(
                         DSL.value(true)
-                            .and(conditions.USER_ID.eq(userId.value))
-                            .and(conditions.CATEGORY_MAIL_FILTER_CONDITION_ID.`in`(filterIds.map { it.id })),
+                            .and(matchers.USER_ID.eq(userId.value))
+                            .and(matchers.CATEGORY_MAIL_FILTER_MATCHER_ID.`in`(matcherIds.map { it.id })),
                     )
                     .fetch()
 
@@ -245,20 +250,22 @@ class DbMailFilterRepository(
             operator = DbImportedMailFilterCategoryConditionOperator.fromDbValue(
                 record.get(filters.CATEGORY_MAIL_FILTER_CONDITION_OPERATOR_TYPE_ID)!!,
             ).toLogicValue(),
+            matchExpression = record.get(filters.MATCH_EXPRESSION),
             orderNumber = record.get(filters.ORDER_NUMBER)!!,
         )
     }
 
-    private fun mapResult(record: JCategoryMailFilterConditionsRecord): MailFilterRepository.Condition {
-        return MailFilterRepository.Condition(
-            filterId = ImportedMailCategoryFilterId(record.get(conditions.CATEGORY_MAIL_FILTER_ID)!!),
-            conditionId = ImportedMailCategoryFilterConditionId(record.get(conditions.CATEGORY_MAIL_FILTER_CONDITION_ID)!!),
-            text = record.get(conditions.TEXT)!!,
-            conditionType = DbImportedMailCategoryFilterConditionType.fromDbValue(
-                record.get(conditions.CATEGORY_MAIL_FILTER_CONDITION_TYPE_ID)!!,
+    private fun mapResult(record: JCategoryMailFilterMatchersRecord): MailFilterRepository.Matcher {
+        return MailFilterRepository.Matcher(
+            filterId = ImportedMailCategoryFilterId(record.get(matchers.CATEGORY_MAIL_FILTER_ID)!!),
+            matcherId = ImportedMailCategoryFilterMatcherId(record.get(matchers.CATEGORY_MAIL_FILTER_MATCHER_ID)!!),
+            matcherKey = record.get(matchers.MATCHER_KEY)!!,
+            text = record.get(matchers.TEXT)!!,
+            matcherType = DbImportedMailCategoryFilterMatcherType.fromDbValue(
+                record.get(matchers.CATEGORY_MAIL_FILTER_MATCHER_TYPE_ID)!!,
             ).toLogicValue(),
             dataSourceType = DbImportedMailCategoryFilterDatasourceType.fromDbValue(
-                record.get(conditions.CATEGORY_MAIL_FILTER_DATASOURCE_TYPE_ID)!!,
+                record.get(matchers.CATEGORY_MAIL_FILTER_DATASOURCE_TYPE_ID)!!,
             ).toLogicValue(),
         )
     }
@@ -273,6 +280,7 @@ class DbMailFilterRepository(
         orderNum: Int?,
         subCategory: MoneyUsageSubCategoryId?,
         operator: ImportedMailFilterCategoryConditionOperator?,
+        matchExpression: UpdateValue<String?>,
     ): Boolean {
         return runCatching {
             dbConnection.use {
@@ -309,6 +317,10 @@ class DbMailFilterRepository(
                             if (operator != null) {
                                 put(filters.CATEGORY_MAIL_FILTER_CONDITION_OPERATOR_TYPE_ID, operator.toDbDefine().dbValue)
                             }
+                            when (matchExpression) {
+                                is UpdateValue.Update -> put(filters.MATCH_EXPRESSION, matchExpression.value?.takeIf { it.isNotBlank() })
+                                is UpdateValue.NotUpdate -> Unit
+                            }
                         },
                     )
                     .where(
@@ -334,11 +346,11 @@ class DbMailFilterRepository(
         return runCatching {
             dbConnection.use {
                 DSL.using(it)
-                    .deleteFrom(conditions)
+                    .deleteFrom(matchers)
                     .where(
                         DSL.value(true)
-                            .and(conditions.USER_ID.eq(userId.value))
-                            .and(conditions.CATEGORY_MAIL_FILTER_ID.eq(filterId.id)),
+                            .and(matchers.USER_ID.eq(userId.value))
+                            .and(matchers.CATEGORY_MAIL_FILTER_ID.eq(filterId.id)),
                     )
                     .execute()
 
@@ -363,29 +375,40 @@ class DbMailFilterRepository(
     /**
      * @return insert success or not
      */
-    override fun addCondition(
+    override fun addMatcher(
         userId: UserId,
         filterId: ImportedMailCategoryFilterId,
-        condition: ImportedMailCategoryFilterConditionType?,
+        matcherType: ImportedMailCategoryFilterMatcherType?,
         text: String?,
         dataSource: ImportedMailCategoryFilterDatasourceType?,
     ): Boolean {
         return runCatching {
             // TODO filterIdが存在するかチェックする
             dbConnection.use {
+                val existingMatcherKeys = DSL.using(it)
+                    .select(matchers.MATCHER_KEY)
+                    .from(matchers)
+                    .where(
+                        DSL.value(true)
+                            .and(matchers.USER_ID.eq(userId.value))
+                            .and(matchers.CATEGORY_MAIL_FILTER_ID.eq(filterId.id)),
+                    )
+                    .fetch(matchers.MATCHER_KEY)
+                    .filterNotNull()
                 val resultRowCount = DSL.using(it)
-                    .insertInto(conditions)
+                    .insertInto(matchers)
                     .set(
                         buildMap {
-                            put(conditions.USER_ID, userId.value)
-                            put(conditions.CATEGORY_MAIL_FILTER_ID, filterId.id)
+                            put(matchers.USER_ID, userId.value)
+                            put(matchers.CATEGORY_MAIL_FILTER_ID, filterId.id)
+                            put(matchers.MATCHER_KEY, createNewMatcherKey(existingMatcherKeys))
                             put(
-                                conditions.CATEGORY_MAIL_FILTER_CONDITION_TYPE_ID,
-                                (condition ?: ImportedMailCategoryFilterConditionType.Include).toDbDefine().dbValue,
+                                matchers.CATEGORY_MAIL_FILTER_MATCHER_TYPE_ID,
+                                (matcherType ?: ImportedMailCategoryFilterMatcherType.Include).toDbDefine().dbValue,
                             )
-                            put(conditions.TEXT, text.orEmpty())
+                            put(matchers.TEXT, text.orEmpty())
                             put(
-                                conditions.CATEGORY_MAIL_FILTER_DATASOURCE_TYPE_ID,
+                                matchers.CATEGORY_MAIL_FILTER_DATASOURCE_TYPE_ID,
                                 (dataSource ?: ImportedMailCategoryFilterDatasourceType.Title).toDbDefine().dbValue,
                             )
                         },
@@ -401,34 +424,38 @@ class DbMailFilterRepository(
         )
     }
 
-    override fun updateCondition(
+    override fun updateMatcher(
         userId: UserId,
-        conditionId: ImportedMailCategoryFilterConditionId,
+        matcherId: ImportedMailCategoryFilterMatcherId,
+        matcherKey: String?,
         text: String?,
-        conditionType: ImportedMailCategoryFilterConditionType?,
+        matcherType: ImportedMailCategoryFilterMatcherType?,
         dataSource: ImportedMailCategoryFilterDatasourceType?,
     ): Boolean {
         return runCatching {
             dbConnection.use {
                 val resultRowCount = DSL.using(it)
-                    .update(conditions)
+                    .update(matchers)
                     .set(
                         buildMap {
-                            if (text != null) {
-                                put(conditions.TEXT, text)
+                            if (matcherKey != null) {
+                                put(matchers.MATCHER_KEY, matcherKey)
                             }
-                            if (conditionType != null) {
-                                put(conditions.CATEGORY_MAIL_FILTER_CONDITION_TYPE_ID, conditionType.toDbDefine().dbValue)
+                            if (text != null) {
+                                put(matchers.TEXT, text)
+                            }
+                            if (matcherType != null) {
+                                put(matchers.CATEGORY_MAIL_FILTER_MATCHER_TYPE_ID, matcherType.toDbDefine().dbValue)
                             }
                             if (dataSource != null) {
-                                put(conditions.CATEGORY_MAIL_FILTER_DATASOURCE_TYPE_ID, dataSource.toDbDefine().dbValue)
+                                put(matchers.CATEGORY_MAIL_FILTER_DATASOURCE_TYPE_ID, dataSource.toDbDefine().dbValue)
                             }
                         },
                     )
                     .where(
                         DSL.value(true)
-                            .and(conditions.USER_ID.eq(userId.value))
-                            .and(conditions.CATEGORY_MAIL_FILTER_CONDITION_ID.eq(conditionId.id)),
+                            .and(matchers.USER_ID.eq(userId.value))
+                            .and(matchers.CATEGORY_MAIL_FILTER_MATCHER_ID.eq(matcherId.id)),
                     )
                     .limit(1)
                     .execute()
@@ -442,18 +469,18 @@ class DbMailFilterRepository(
         )
     }
 
-    override fun deleteCondition(
+    override fun deleteMatcher(
         userId: UserId,
-        conditionId: ImportedMailCategoryFilterConditionId,
+        matcherId: ImportedMailCategoryFilterMatcherId,
     ): Boolean {
         return runCatching {
             dbConnection.use {
                 val resultRowCount = DSL.using(it)
-                    .deleteFrom(conditions)
+                    .deleteFrom(matchers)
                     .where(
                         DSL.value(true)
-                            .and(conditions.USER_ID.eq(userId.value))
-                            .and(conditions.CATEGORY_MAIL_FILTER_CONDITION_ID.eq(conditionId.id)),
+                            .and(matchers.USER_ID.eq(userId.value))
+                            .and(matchers.CATEGORY_MAIL_FILTER_MATCHER_ID.eq(matcherId.id)),
                     )
                     .limit(1)
                     .execute()
@@ -477,6 +504,7 @@ class DbMailFilterRepository(
                         filters.TITLE,
                         subCategories.MONEY_USAGE_SUB_CATEGORY_ID,
                         filters.CATEGORY_MAIL_FILTER_CONDITION_OPERATOR_TYPE_ID,
+                        filters.MATCH_EXPRESSION,
                         filters.ORDER_NUMBER,
                     )
                     .from(filters)
@@ -500,6 +528,7 @@ class DbMailFilterRepository(
                             operator = DbImportedMailFilterCategoryConditionOperator.fromDbValue(
                                 record.get(filters.CATEGORY_MAIL_FILTER_CONDITION_OPERATOR_TYPE_ID)!!,
                             ).toLogicValue(),
+                            matchExpression = record.get(filters.MATCH_EXPRESSION),
                             orderNumber = record.get(filters.ORDER_NUMBER)!!,
                         )
                     }
@@ -512,14 +541,14 @@ class DbMailFilterRepository(
         )
     }
 
-    override fun getConditions(userId: UserId): List<MailFilterRepository.Condition> {
+    override fun getMatchers(userId: UserId): List<MailFilterRepository.Matcher> {
         return runCatching {
             dbConnection.use {
                 DSL.using(it)
-                    .selectFrom(conditions)
+                    .selectFrom(matchers)
                     .where(
                         DSL.value(true)
-                            .and(conditions.USER_ID.eq(userId.value)),
+                            .and(matchers.USER_ID.eq(userId.value)),
                     )
                     .fetch()
                     .map { record ->
@@ -532,5 +561,17 @@ class DbMailFilterRepository(
             onSuccess = { it },
             onFailure = { listOf() },
         )
+    }
+
+    private fun createNewMatcherKey(existingMatcherKeys: List<String>): String {
+        val usedNumbers = existingMatcherKeys
+            .filter { it.startsWith(DEFAULT_MATCHER_KEY_PREFIX) }
+            .mapNotNull { it.removePrefix(DEFAULT_MATCHER_KEY_PREFIX).toIntOrNull() }
+        val nextNumber = (usedNumbers.maxOrNull() ?: 0) + 1
+        return "$DEFAULT_MATCHER_KEY_PREFIX$nextNumber"
+    }
+
+    companion object {
+        private const val DEFAULT_MATCHER_KEY_PREFIX = "id"
     }
 }

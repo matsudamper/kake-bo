@@ -25,8 +25,8 @@ import net.matsudamper.money.frontend.graphql.GraphqlClient
 import net.matsudamper.money.frontend.graphql.ImportedMailCategoryFilterScreenQuery
 import net.matsudamper.money.frontend.graphql.lib.ApolloResponseCollector
 import net.matsudamper.money.frontend.graphql.lib.ApolloResponseState
-import net.matsudamper.money.frontend.graphql.type.ImportedMailCategoryFilterConditionType
 import net.matsudamper.money.frontend.graphql.type.ImportedMailCategoryFilterDataSourceType
+import net.matsudamper.money.frontend.graphql.type.ImportedMailCategoryFilterMatcherType
 import net.matsudamper.money.frontend.graphql.type.ImportedMailFilterCategoryConditionOperator
 
 public class ImportedMailFilterCategoryViewModel(
@@ -186,12 +186,12 @@ public class ImportedMailFilterCategoryViewModel(
                     subCategory = subCategory.name,
                 )
             },
-            conditions = filter.importedMailCategoryFilterScreenItem.conditions.orEmpty()
-                .map { it.importedMailCategoryConditionScreenItem }
-                .map { condition ->
-                    ImportedMailFilterCategoryScreenUiState.Condition(
-                        text = condition.text,
-                        source = when (condition.dataSourceType) {
+            matchers = filter.importedMailCategoryFilterScreenItem.matchers.orEmpty()
+                .map { it.importedMailCategoryFilterMatcherScreenItem }
+                .map { matcher ->
+                    ImportedMailFilterCategoryScreenUiState.Matcher(
+                        text = matcher.text,
+                        source = when (matcher.dataSourceType) {
                             ImportedMailCategoryFilterDataSourceType.MailHtml -> ImportedMailFilterCategoryScreenUiState.DataSource.MailHtml
                             ImportedMailCategoryFilterDataSourceType.MailPlain -> ImportedMailFilterCategoryScreenUiState.DataSource.MailPlain
                             ImportedMailCategoryFilterDataSourceType.MailFrom -> ImportedMailFilterCategoryScreenUiState.DataSource.MailFrom
@@ -200,14 +200,14 @@ public class ImportedMailFilterCategoryViewModel(
                             ImportedMailCategoryFilterDataSourceType.Title -> ImportedMailFilterCategoryScreenUiState.DataSource.Title
                             ImportedMailCategoryFilterDataSourceType.UNKNOWN__ -> ImportedMailFilterCategoryScreenUiState.DataSource.Unknown
                         },
-                        conditionType = when (condition.conditionType) {
-                            ImportedMailCategoryFilterConditionType.Equal -> ImportedMailFilterCategoryScreenUiState.ConditionType.Equal
-                            ImportedMailCategoryFilterConditionType.Include -> ImportedMailFilterCategoryScreenUiState.ConditionType.Include
-                            ImportedMailCategoryFilterConditionType.NotEqual -> ImportedMailFilterCategoryScreenUiState.ConditionType.NotEqual
-                            ImportedMailCategoryFilterConditionType.NotInclude -> ImportedMailFilterCategoryScreenUiState.ConditionType.NotInclude
-                            ImportedMailCategoryFilterConditionType.UNKNOWN__ -> ImportedMailFilterCategoryScreenUiState.ConditionType.Unknown
+                        matcherType = when (matcher.matcherType) {
+                            ImportedMailCategoryFilterMatcherType.Equal -> ImportedMailFilterCategoryScreenUiState.MatcherType.Equal
+                            ImportedMailCategoryFilterMatcherType.Include -> ImportedMailFilterCategoryScreenUiState.MatcherType.Include
+                            ImportedMailCategoryFilterMatcherType.NotEqual -> ImportedMailFilterCategoryScreenUiState.MatcherType.NotEqual
+                            ImportedMailCategoryFilterMatcherType.NotInclude -> ImportedMailFilterCategoryScreenUiState.MatcherType.NotInclude
+                            ImportedMailCategoryFilterMatcherType.UNKNOWN__ -> ImportedMailFilterCategoryScreenUiState.MatcherType.Unknown
                         },
-                        event = object : ImportedMailFilterCategoryScreenUiState.ConditionEvent {
+                        event = object : ImportedMailFilterCategoryScreenUiState.MatcherEvent {
                             override fun onClickTextChange() {
                                 viewModelStateFlow.update { viewModelState ->
                                     viewModelState.copy(
@@ -215,8 +215,8 @@ public class ImportedMailFilterCategoryViewModel(
                                             title = "条件のテキストを編集",
                                             onCompleted = { text ->
                                                 viewModelScope.launch {
-                                                    api.updateCondition(
-                                                        id = condition.id,
+                                                    api.updateMatcher(
+                                                        id = matcher.id,
                                                         text = text,
                                                     ).onFailure {
                                                         eventSender.send {
@@ -227,7 +227,7 @@ public class ImportedMailFilterCategoryViewModel(
                                                     }
                                                 }
                                             },
-                                            default = condition.text,
+                                            default = matcher.text,
                                             dismiss = { dismissTextInput() },
                                         ),
                                     )
@@ -236,8 +236,8 @@ public class ImportedMailFilterCategoryViewModel(
 
                             override fun selectedSource(source: ImportedMailFilterCategoryScreenUiState.DataSource) {
                                 viewModelScope.launch {
-                                    api.updateCondition(
-                                        id = condition.id,
+                                    api.updateMatcher(
+                                        id = matcher.id,
                                         dataSource = source,
                                     ).onFailure {
                                         eventSender.send {
@@ -247,10 +247,10 @@ public class ImportedMailFilterCategoryViewModel(
                                 }
                             }
 
-                            override fun selectedConditionType(type: ImportedMailFilterCategoryScreenUiState.ConditionType) {
+                            override fun selectedMatcherType(type: ImportedMailFilterCategoryScreenUiState.MatcherType) {
                                 viewModelScope.launch {
-                                    api.updateCondition(
-                                        id = condition.id,
+                                    api.updateMatcher(
+                                        id = matcher.id,
                                         type = type,
                                     ).onFailure {
                                         eventSender.send {
@@ -271,7 +271,7 @@ public class ImportedMailFilterCategoryViewModel(
                                             },
                                             onConfirm = {
                                                 viewModelScope.launch {
-                                                    val isSuccess = api.deleteCondition(id = condition.id)
+                                                    val isSuccess = api.deleteMatcher(id = matcher.id)
                                                     dismissConfirmDialog()
                                                     if (isSuccess) {
                                                         launch {
@@ -304,9 +304,9 @@ public class ImportedMailFilterCategoryViewModel(
                 ImportedMailFilterCategoryConditionOperator.UNKNOWN__ -> ImportedMailFilterCategoryScreenUiState.Operator.UNKNOWN
             },
             event = object : ImportedMailFilterCategoryScreenUiState.LoadedEvent {
-                override fun onClickAddCondition() {
+                override fun onClickAddMatcher() {
                     viewModelScope.launch {
-                        api.addCondition(id = id)
+                        api.addMatcher(id = id)
                             .onFailure {
                                 eventSender.send {
                                     it.showNativeAlert("追加に失敗しました。")
