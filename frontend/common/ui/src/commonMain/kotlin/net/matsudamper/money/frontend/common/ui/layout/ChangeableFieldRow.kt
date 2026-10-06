@@ -21,7 +21,7 @@ import androidx.compose.ui.graphics.SolidColor
 import androidx.compose.ui.unit.dp
 
 @Composable
-public fun ChangeableFieldRow(
+internal fun ChangeableFieldRow(
     modifier: Modifier = Modifier,
     multiline: Boolean = false,
     title: String,
