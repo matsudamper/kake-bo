@@ -185,6 +185,8 @@ public data class MoneyUsageScreenUiState(
 
         public fun onClickDateChange()
 
+        public fun onClickDate()
+
         public fun onClickTimeChange()
 
         public fun onClickCategoryChange()
@@ -501,6 +503,7 @@ private fun MainCard(
             MoneyUsageSection(
                 title = "日付",
                 content = { Text(uiState.date) },
+                onClickContent = { uiState.event.onClickDate() },
                 onClickChange = { uiState.event.onClickDateChange() },
             )
             HorizontalDivider(modifier = Modifier.fillMaxWidth().height(1.dp))
@@ -543,6 +546,7 @@ private fun MoneyUsageSection(
     modifier: Modifier = Modifier,
     multiline: Boolean = false,
     title: String,
+    onClickContent: (() -> Unit)? = null,
     onClickChange: () -> Unit,
     content: @Composable () -> Unit,
 ) {
@@ -558,7 +562,15 @@ private fun MoneyUsageSection(
             )
             Spacer(modifier = Modifier.height(4.dp))
             ProvideTextStyle(MaterialTheme.typography.bodyLarge) {
-                content()
+                if (onClickContent != null) {
+                    Box(
+                        modifier = Modifier.clickable { onClickContent() },
+                    ) {
+                        content()
+                    }
+                } else {
+                    content()
+                }
             }
         }
         OutlinedButton(
