@@ -183,6 +183,16 @@ private fun AiSettingScreenPreview() {
 
 @Composable
 @Preview
+private fun AiSettingScreenNotSetPreview() {
+    AiSettingScreenPreviewContent(
+        geminiApiKey = "（未設定）",
+        isGeminiApiKeyInputVisible = false,
+        geminiApiKeyInputErrorMessage = null,
+    )
+}
+
+@Composable
+@Preview
 private fun AiSettingScreenInputErrorPreview() {
     AiSettingScreenPreviewContent(
         isGeminiApiKeyInputVisible = true,
@@ -192,6 +202,7 @@ private fun AiSettingScreenInputErrorPreview() {
 
 @Composable
 private fun AiSettingScreenPreviewContent(
+    geminiApiKey: String = "****************",
     isGeminiApiKeyInputVisible: Boolean,
     geminiApiKeyInputErrorMessage: String?,
 ) {
@@ -199,7 +210,7 @@ private fun AiSettingScreenPreviewContent(
         AiSettingScreen(
             uiState = AiSettingScreenUiState(
                 loadingState = AiSettingScreenUiState.LoadingState.Loaded(
-                    geminiApiKey = "****************",
+                    geminiApiKey = geminiApiKey,
                 ),
                 isGeminiApiKeyInputVisible = isGeminiApiKeyInputVisible,
                 geminiApiKeyInputErrorMessage = geminiApiKeyInputErrorMessage,
