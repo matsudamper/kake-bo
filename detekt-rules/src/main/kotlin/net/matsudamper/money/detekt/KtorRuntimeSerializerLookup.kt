@@ -5,6 +5,7 @@ import dev.detekt.api.Entity
 import dev.detekt.api.Finding
 import dev.detekt.api.Rule
 import org.jetbrains.kotlin.psi.KtCallExpression
+import org.jetbrains.kotlin.psi.KtFile
 
 /**
  * Ktor の ContentNegotiation は KType から実行時に serializer を探すため、
@@ -16,44 +17,59 @@ class KtorRuntimeSerializerLookup(config: Config) : Rule(
 ) {
     override fun visitCallExpression(expression: KtCallExpression) {
         super.visitCallExpression(expression)
-        val functionName = expression.calleeExpression?.text ?: return
-        val importedFqNames = expression.containingKtFile.importDirectives
-            .mapNotNull { directive ->
-                val fqName = directive.importedFqName?.asString() ?: return@mapNotNull null
-                if (directive.isAllUnder) "$fqName.*" else fqName
-            }
-            .toSet()
+        val calledName = expression.calleeExpression?.text ?: return
+        val calledFqName = expression.containingKtFile.resolveImportedFqName(calledName) ?: return
 
-        val isReflectiveBodyCall = bodyConversionFunctions.any { (packageName, names) ->
-            functionName in names && importedFqNames.isImported(packageName, functionName)
-        }
-        val isTypedRouteBuilder = functionName in typedRouteBuilderNames &&
-            expression.typeArguments.isNotEmpty() &&
-            importedFqNames.isImported(ROUTING_PACKAGE, functionName)
+        val isReflectiveBodyCall = calledFqName in bodyConversionFqNames
+        val isTypedRouteBuilder = calledFqName in routeBuilderFqNames && expression.hasRequestBodyType()
 
         if (isReflectiveBodyCall || isTypedRouteBuilder) {
             report(
                 Finding(
                     entity = Entity.from(expression),
-                    message = "$functionName は実行時に serializer を探すため native image で失敗する。" +
+                    message = "$calledFqName は実行時に serializer を探すため native image で失敗する。" +
                         "serializer() を明示して respondText / receiveText と組み合わせる",
                 ),
             )
         }
     }
 
-    private fun Set<String>.isImported(packageName: String, functionName: String): Boolean {
-        return "$packageName.$functionName" in this || "$packageName.*" in this
+    /**
+     * リクエストボディ付きのオーバーロードは、型引数を省略してもラムダ引数の型から推論される。
+     * ボディなしのオーバーロードのラムダは引数を持たない。
+     */
+    private fun KtCallExpression.hasRequestBodyType(): Boolean {
+        if (typeArguments.isNotEmpty()) return true
+        return lambdaArguments.any { lambda ->
+            lambda.getLambdaExpression()?.valueParameters?.isNotEmpty() == true
+        }
+    }
+
+    private fun KtFile.resolveImportedFqName(calledName: String): String? {
+        val directives = importDirectives
+        directives.firstNotNullOfOrNull { directive ->
+            if (directive.isAllUnder) return@firstNotNullOfOrNull null
+            val fqName = directive.importedFqName ?: return@firstNotNullOfOrNull null
+            val localName = directive.aliasName ?: fqName.shortName().asString()
+            fqName.asString().takeIf { localName == calledName }
+        }?.let { return it }
+
+        return directives
+            .filter { it.isAllUnder }
+            .mapNotNull { it.importedFqName?.asString() }
+            .map { packageName -> "$packageName.$calledName" }
+            .firstOrNull { it in bodyConversionFqNames || it in routeBuilderFqNames }
     }
 
     private companion object {
-        private const val ROUTING_PACKAGE = "io.ktor.server.routing"
-
-        private val bodyConversionFunctions = mapOf(
-            "io.ktor.server.response" to setOf("respond"),
-            "io.ktor.server.request" to setOf("receive", "receiveNullable"),
+        private val bodyConversionFqNames = setOf(
+            "io.ktor.server.response.respond",
+            "io.ktor.server.request.receive",
+            "io.ktor.server.request.receiveNullable",
         )
 
-        private val typedRouteBuilderNames = setOf("get", "post", "put", "patch", "delete", "head", "options")
+        private val routeBuilderFqNames = setOf("get", "post", "put", "patch", "delete", "head", "options")
+            .map { "io.ktor.server.routing.$it" }
+            .toSet()
     }
 }
