@@ -432,55 +432,44 @@ private fun AiParseHeader(
     uiState: MailScreenUiState.AiParse,
     onClickAiParse: () -> Unit,
 ) {
-    Column(modifier = modifier) {
-        Row(
-            modifier = Modifier.fillMaxWidth(),
-            verticalAlignment = Alignment.CenterVertically,
-        ) {
-            Text(
-                modifier = Modifier.padding(horizontal = 12.dp)
-                    .weight(1f),
-                text = "AI解析結果",
-                style = MaterialTheme.typography.headlineLarge,
-            )
-            val isRunning = uiState.state is MailScreenUiState.AiParseState.Running
-            OutlinedButton(
-                enabled = isRunning.not(),
-                onClick = { onClickAiParse() },
-            ) {
-                if (isRunning) {
-                    CircularProgressIndicator(
-                        modifier = Modifier.size(16.dp),
-                        strokeWidth = 2.dp,
-                    )
-                    Spacer(modifier = Modifier.width(8.dp))
-                    Text("解析中")
-                } else {
-                    Text(
-                        text = when (uiState.state) {
-                            MailScreenUiState.AiParseState.NotExecuted -> "AIで解析"
-                            else -> "再解析"
-                        },
-                    )
-                }
-            }
-        }
-        Spacer(modifier = Modifier.height(12.dp))
-        HorizontalDivider(modifier = Modifier.fillMaxWidth().height(1.dp))
-        Spacer(modifier = Modifier.height(12.dp))
-        val message = when (val state = uiState.state) {
-            is MailScreenUiState.AiParseState.Failed -> state.message
-            MailScreenUiState.AiParseState.NotExecuted -> "Gemini APIでメールを解析します"
-            MailScreenUiState.AiParseState.Running,
-            is MailScreenUiState.AiParseState.Succeeded,
-            -> null
-        }
+    val isRunning = uiState.state is MailScreenUiState.AiParseState.Running
+    val message = when (val state = uiState.state) {
+        is MailScreenUiState.AiParseState.Failed -> state.message
+        MailScreenUiState.AiParseState.NotExecuted -> "Gemini APIでメールを解析します"
+        MailScreenUiState.AiParseState.Running,
+        is MailScreenUiState.AiParseState.Succeeded,
+        -> null
+    }
+    Column(
+        modifier = modifier.padding(8.dp),
+        horizontalAlignment = Alignment.CenterHorizontally,
+    ) {
         if (message != null) {
             Text(
-                modifier = Modifier.padding(8.dp),
                 text = message,
                 style = MaterialTheme.typography.bodyMedium,
             )
+            Spacer(modifier = Modifier.height(8.dp))
+        }
+        OutlinedButton(
+            enabled = isRunning.not(),
+            onClick = { onClickAiParse() },
+        ) {
+            if (isRunning) {
+                CircularProgressIndicator(
+                    modifier = Modifier.size(16.dp),
+                    strokeWidth = 2.dp,
+                )
+                Spacer(modifier = Modifier.width(8.dp))
+                Text("解析中")
+            } else {
+                Text(
+                    text = when (uiState.state) {
+                        MailScreenUiState.AiParseState.NotExecuted -> "AIで解析"
+                        else -> "再解析"
+                    },
+                )
+            }
         }
     }
 }
