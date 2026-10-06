@@ -40,6 +40,7 @@ include(":frontend:common:viewmodel")
 include(":frontend:common:usecase")
 include(":frontend:common:navigation")
 include(":frontend:common:graphql:schema")
+include(":frontend:common:graphql:apollo-compiler-plugin")
 include(":frontend:common:graphql")
 
 include(":shared")

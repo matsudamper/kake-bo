@@ -50,6 +50,17 @@ apollo {
             endpointUrl.set("http://localhost/query")
             schemaFile.set(file("src/commonMain/graphql/schema.graphqls"))
         }
+        plugin(project(":frontend:common:graphql:apollo-compiler-plugin"))
+        // イントロスペクションのスキーマにはフィールドのディレクティブが含まれないため、@longRunning はサーバーのスキーマから読む
+        pluginArgument(
+            "net.matsudamper.money.longRunning.serverSchema",
+            rootProject.layout.projectDirectory.dir("backend/graphql/src/commonMain/resources/graphql")
+                .asFileTree
+                .matching { include("*.graphqls") }
+                .files
+                .sortedBy { it.name }
+                .joinToString("\n") { it.readText() },
+        )
     }
 }
 

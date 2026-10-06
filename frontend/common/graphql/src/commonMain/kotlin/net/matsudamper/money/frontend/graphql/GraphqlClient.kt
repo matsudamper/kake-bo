@@ -4,9 +4,13 @@ import kotlin.Int
 import kotlin.Long
 import kotlin.String
 import kotlin.let
+import kotlin.time.Duration.Companion.seconds
+import kotlinx.coroutines.FlowPreview
+import kotlinx.coroutines.TimeoutCancellationException
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.catch
 import kotlinx.coroutines.flow.onEach
+import kotlinx.coroutines.flow.timeout
 import com.apollographql.apollo.ApolloClient
 import com.apollographql.apollo.api.Adapter
 import com.apollographql.apollo.api.ApolloRequest
@@ -17,6 +21,7 @@ import com.apollographql.apollo.api.json.JsonReader
 import com.apollographql.apollo.api.json.JsonWriter
 import com.apollographql.apollo.cache.normalized.api.MemoryCacheFactory
 import com.apollographql.apollo.cache.normalized.normalizedCache
+import com.apollographql.apollo.exception.ApolloNetworkException
 import com.apollographql.apollo.exception.CacheMissException
 import com.apollographql.apollo.exception.DefaultApolloException
 import com.apollographql.apollo.interceptor.ApolloInterceptor
@@ -76,9 +81,9 @@ class GraphqlClientImpl(
 
     private fun buildClient(serverUrl: String): ApolloClient = ApolloClient.Builder()
         .serverUrl(serverUrl)
-        .httpEngine(DefaultHttpEngine(timeoutMillis = 5000))
+        .httpEngine(DefaultHttpEngine(timeoutMillis = HTTP_ENGINE_TIMEOUT.inWholeMilliseconds))
         .httpInterceptors(httpInterceptors)
-        .interceptors(listOf(ApolloErrorLoggingInterceptor) + interceptors)
+        .interceptors(listOf(OperationTimeoutInterceptor, ApolloErrorLoggingInterceptor) + interceptors)
         .normalizedCache(cacheFactory)
         .addCustomScalarAdapter(
             ApolloLong.type,
@@ -242,6 +247,38 @@ class GraphqlClientImpl(
             ),
         )
         .build()
+}
+
+/**
+ * 通信エンジンのタイムアウトは全操作で共通のため、LongRunningOperation の最大値より長くしておく。
+ * 操作ごとのタイムアウトは [OperationTimeoutInterceptor] で掛ける。
+ */
+private val HTTP_ENGINE_TIMEOUT = 120.seconds
+private val DEFAULT_OPERATION_TIMEOUT = 5.seconds
+
+private object OperationTimeoutInterceptor : ApolloInterceptor {
+    @OptIn(FlowPreview::class)
+    override fun <D : Operation.Data> intercept(
+        request: ApolloRequest<D>,
+        chain: ApolloInterceptorChain,
+    ): Flow<ApolloResponse<D>> {
+        val operation = request.operation
+        val timeout = if (operation is LongRunningOperation) {
+            operation.timeoutSeconds.seconds
+        } else {
+            DEFAULT_OPERATION_TIMEOUT
+        }
+        return chain.proceed(request)
+            .timeout(timeout)
+            .catch { throwable ->
+                if (throwable !is TimeoutCancellationException) throw throwable
+                emit(
+                    ApolloResponse.Builder(operation = operation, requestUuid = request.requestUuid)
+                        .exception(ApolloNetworkException(message = "Timeout: $timeout", platformCause = throwable))
+                        .build(),
+                )
+            }
+    }
 }
 
 private object ApolloErrorLoggingInterceptor : ApolloInterceptor {
