@@ -3,6 +3,7 @@ package net.matsudamper.money.backend.feature.aimailparser
 import java.time.ZoneOffset
 import net.matsudamper.money.backend.app.interfaces.ImportedMailRepository
 import net.matsudamper.money.backend.app.interfaces.UserConfigRepository
+import net.matsudamper.money.backend.base.TraceLogger
 import net.matsudamper.money.element.ImportedMailId
 import net.matsudamper.money.element.UserId
 
@@ -34,7 +35,7 @@ class ParseImportedMailWithAiUseCase(
         return aiMailParser.parse(apiKey = apiKey, input = input).fold(
             onSuccess = { usages -> Result.Success(usages) },
             onFailure = { throwable ->
-                throwable.printStackTrace()
+                TraceLogger.impl().noticeThrowable(throwable, isError = false)
                 Result.ParseFailed(errorMessage = throwable.message ?: throwable::class.java.simpleName)
             },
         )

@@ -13,6 +13,7 @@ import net.matsudamper.money.backend.app.interfaces.MoneyUsageRepository
 import net.matsudamper.money.backend.app.interfaces.MoneyUsageSubCategoryRepository
 import net.matsudamper.money.backend.app.interfaces.UserLoginRepository
 import net.matsudamper.money.backend.base.ServerVariables
+import net.matsudamper.money.backend.base.TraceLogger
 import net.matsudamper.money.backend.dataloader.ImportedMailCategoryFilterDataLoaderDefine
 import net.matsudamper.money.backend.feature.aimailparser.AiMailParser
 import net.matsudamper.money.backend.feature.aimailparser.ParseImportedMailWithAiUseCase
@@ -810,7 +811,7 @@ class UserMutationResolverImpl : UserMutationResolver {
                     importedMailId = id,
                 )
             }.onFailure {
-                it.printStackTrace()
+                TraceLogger.impl().noticeThrowable(it, isError = true)
             }.getOrNull()
             val qlResult = when (result) {
                 is ParseImportedMailWithAiUseCase.Result.Success -> QlParseImportedMailWithAiResult(

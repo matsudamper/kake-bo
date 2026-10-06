@@ -11,6 +11,7 @@ kotlin {
         jvmMain {
             dependencies {
                 implementation(projects.shared)
+                implementation(projects.backend.base)
                 implementation(projects.backend.app.interfaces)
                 implementation(libs.kotlin.serialization.json)
                 implementation(libs.jsoup)
