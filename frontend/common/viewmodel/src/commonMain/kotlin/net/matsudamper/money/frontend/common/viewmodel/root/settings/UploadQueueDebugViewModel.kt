@@ -5,9 +5,6 @@ import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
-import kotlinx.datetime.Instant
-import kotlinx.datetime.TimeZone
-import kotlinx.datetime.toLocalDateTime
 import net.matsudamper.money.frontend.common.base.nav.ScopedObjectFeature
 import net.matsudamper.money.frontend.common.feature.uploader.ImageUploadQueue
 import net.matsudamper.money.frontend.common.ui.screen.root.settings.UploadQueueDebugScreenUiState
@@ -104,10 +101,7 @@ public class UploadQueueDebugViewModel(
                                 },
                                 errorMessage = item.errorMessage,
                                 stackTrace = item.stackTrace,
-                                createdAt = Formatter.formatDateTime(
-                                    Instant.fromEpochMilliseconds(item.createdAt)
-                                        .toLocalDateTime(TimeZone.currentSystemDefault()),
-                                ),
+                                createdAt = Formatter.formatEpochMillis(item.createdAt),
                                 workManagerId = item.workManagerId,
                             )
                         },

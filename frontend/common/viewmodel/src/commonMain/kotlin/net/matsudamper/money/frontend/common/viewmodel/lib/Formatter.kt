@@ -1,9 +1,12 @@
 package net.matsudamper.money.frontend.common.viewmodel.lib
 
 import kotlinx.datetime.DayOfWeek
+import kotlinx.datetime.Instant
 import kotlinx.datetime.LocalDateTime
 import kotlinx.datetime.LocalTime
+import kotlinx.datetime.TimeZone
 import kotlinx.datetime.number
+import kotlinx.datetime.toLocalDateTime
 
 public object Formatter {
     public fun formatMoney(value: Number): String {
@@ -35,6 +38,26 @@ public object Formatter {
             append(dateTime.hour.toString().padStart(2, padChar = '0'))
             append(":")
             append(dateTime.minute.toString().padStart(2, padChar = '0'))
+        }
+    }
+
+    public fun formatEpochMillis(
+        epochMillis: Long,
+        timeZone: TimeZone = TimeZone.currentSystemDefault(),
+    ): String {
+        val dateTime = Instant.fromEpochMilliseconds(epochMillis).toLocalDateTime(timeZone)
+        val millis = ((epochMillis % 1_000) + 1_000) % 1_000
+        return buildString {
+            append("${dateTime.year}/${dateTime.monthNumber}/${dateTime.dayOfMonth}")
+            append("(${dayOfWeekToJapanese(dateTime.date.dayOfWeek)})")
+            append(" ")
+            append(dateTime.hour.toString().padStart(2, padChar = '0'))
+            append(":")
+            append(dateTime.minute.toString().padStart(2, padChar = '0'))
+            append(":")
+            append(dateTime.second.toString().padStart(2, padChar = '0'))
+            append(".")
+            append(millis.toString().padStart(3, padChar = '0'))
         }
     }
 
