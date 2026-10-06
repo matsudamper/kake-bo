@@ -20,7 +20,6 @@
 - ViewModelStateに情報を詰め、それをデータソースにUiStateを作る。combine多用は兆候
 - UIイベントはUiState内のイベントハンドラ（`@Immutable interface`）。Lambda直置きしない
 - Apollo Pagingは `updateOperation()` で最初のOperationに連結し `watch()` する
-- UI 変更時は `docs/agent-paparazzi.md` に従い Paparazzi でスクリーンショットを撮り、作業完了報告に含める（参照画像はコミットしない）
 
 ## ビルド
 ```sh
