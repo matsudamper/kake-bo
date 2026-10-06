@@ -22,6 +22,7 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
+import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.CircularProgressIndicator
@@ -32,7 +33,9 @@ import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedButton
+import androidx.compose.material3.ProvideTextStyle
 import androidx.compose.material3.Text
+import androidx.compose.material3.ripple
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.Immutable
 import androidx.compose.runtime.LaunchedEffect
@@ -43,6 +46,7 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.SolidColor
 import androidx.compose.ui.input.pointer.PointerEventType
 import androidx.compose.ui.input.pointer.isSecondaryPressed
 import androidx.compose.ui.input.pointer.pointerInput
@@ -72,7 +76,6 @@ import net.matsudamper.money.frontend.common.ui.generated.resources.ic_image
 import net.matsudamper.money.frontend.common.ui.generated.resources.ic_more_vert
 import net.matsudamper.money.frontend.common.ui.layout.AlertDialog
 import net.matsudamper.money.frontend.common.ui.layout.CalendarDialog
-import net.matsudamper.money.frontend.common.ui.layout.ChangeableFieldRow
 import net.matsudamper.money.frontend.common.ui.layout.NumberInput
 import net.matsudamper.money.frontend.common.ui.layout.NumberInputValue
 import net.matsudamper.money.frontend.common.ui.layout.TimePickerDialog
@@ -543,6 +546,63 @@ private fun MainCard(
                     )
                 },
             )
+        }
+    }
+}
+
+@Composable
+private fun ChangeableFieldRow(
+    modifier: Modifier = Modifier,
+    multiline: Boolean = false,
+    title: String,
+    onClickBody: (() -> Unit)? = null,
+    onClickChange: () -> Unit,
+    body: @Composable () -> Unit,
+) {
+    val bodyInteractionSource = remember { MutableInteractionSource() }
+    val primaryColor = MaterialTheme.colorScheme.primary
+    Row(
+        modifier = modifier,
+        verticalAlignment = if (multiline) Alignment.Top else Alignment.CenterVertically,
+    ) {
+        Column(
+            modifier = Modifier
+                .weight(1f)
+                .then(
+                    if (onClickBody != null) {
+                        Modifier.clickable(
+                            interactionSource = bodyInteractionSource,
+                            indication = ripple(color = primaryColor),
+                            onClick = onClickBody,
+                        )
+                    } else {
+                        Modifier
+                    },
+                ),
+        ) {
+            Text(
+                text = title,
+                style = MaterialTheme.typography.labelLarge,
+                color = MaterialTheme.colorScheme.primary,
+            )
+            Spacer(modifier = Modifier.height(4.dp))
+            ProvideTextStyle(MaterialTheme.typography.bodyLarge) {
+                body()
+            }
+        }
+        OutlinedButton(
+            onClick = onClickChange,
+            contentPadding = PaddingValues(horizontal = 12.dp, vertical = 0.dp),
+            modifier = Modifier.height(32.dp),
+            shape = MaterialTheme.shapes.small,
+            colors = ButtonDefaults.outlinedButtonColors(
+                contentColor = MaterialTheme.colorScheme.primary,
+            ),
+            border = ButtonDefaults.outlinedButtonBorder(true).copy(
+                brush = SolidColor(MaterialTheme.colorScheme.primary),
+            ),
+        ) {
+            Text("変更", style = MaterialTheme.typography.labelMedium)
         }
     }
 }
