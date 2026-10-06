@@ -21,6 +21,11 @@ mutation LoginScreenChangeSessionName($id: SessionRecordId!, $name: String!) {
     userMutation {
         changeSessionName(id: $id, name: $name) {
             isSuccess
+            session {
+                id
+                name
+                lastAccess
+            }
         }
     }
 }

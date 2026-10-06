@@ -31,8 +31,16 @@ public class LoginSettingScreenApi(
             .query(
                 LoginSettingScreenQuery(),
             )
-            .fetchPolicy(FetchPolicy.NetworkFirst)
             .watch()
+    }
+
+    public suspend fun refreshFromNetwork(): ApolloResponse<LoginSettingScreenQuery.Data> {
+        return apolloClient
+            .query(
+                LoginSettingScreenQuery(),
+            )
+            .fetchPolicy(FetchPolicy.NetworkOnly)
+            .execute()
     }
 
     public suspend fun logout(): Boolean {
