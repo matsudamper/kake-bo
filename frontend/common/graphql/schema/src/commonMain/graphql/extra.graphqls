@@ -1,3 +1,6 @@
+# バックエンドの @optional と衝突するため、kotlin_labs からは @typePolicy だけを取り込む
+extend schema @link(url: "https://specs.apollo.dev/kotlin_labs/v0.3", import: ["@typePolicy"])
+
 extend type UserMail @typePolicy(keyFields: "id")
 extend type MoneyUsageCategory @typePolicy(keyFields: "id")
 extend type MoneyUsageSubCategory @typePolicy(keyFields: "id")
