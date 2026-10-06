@@ -1,6 +1,7 @@
 package net.matsudamper.money.frontend.common.ui.layout
 
 import androidx.compose.foundation.clickable
+import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
@@ -11,7 +12,9 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.ProvideTextStyle
 import androidx.compose.material3.Text
+import androidx.compose.material3.ripple
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.SolidColor
@@ -26,6 +29,8 @@ public fun ChangeableFieldRow(
     onClickChange: () -> Unit,
     body: @Composable () -> Unit,
 ) {
+    val bodyInteractionSource = remember { MutableInteractionSource() }
+    val primaryColor = MaterialTheme.colorScheme.primary
     Row(
         modifier = modifier,
         verticalAlignment = if (multiline) Alignment.Top else Alignment.CenterVertically,
@@ -35,7 +40,11 @@ public fun ChangeableFieldRow(
                 .weight(1f)
                 .then(
                     if (onClickBody != null) {
-                        Modifier.clickable { onClickBody() }
+                        Modifier.clickable(
+                            interactionSource = bodyInteractionSource,
+                            indication = ripple(color = primaryColor),
+                            onClick = onClickBody,
+                        )
                     } else {
                         Modifier
                     },
