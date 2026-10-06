@@ -46,6 +46,10 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.text.SpanStyle
+import androidx.compose.ui.text.buildAnnotatedString
+import androidx.compose.ui.text.font.FontFamily
+import androidx.compose.ui.text.style.TextDecoration
 import androidx.compose.ui.unit.DpOffset
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.window.PopupProperties
@@ -93,6 +97,7 @@ public data class ImportedMailFilterCategoryScreenUiState(
             val title: String,
             val category: Category?,
             val matchers: ImmutableList<Matcher>,
+            val matchExpression: MatchExpression,
             val operator: Operator,
             val event: LoadedEvent,
         ) : LoadingState
@@ -156,10 +161,22 @@ public data class ImportedMailFilterCategoryScreenUiState(
     }
 
     public data class Matcher(
+        val matcherKey: String,
         val text: String,
         val source: DataSource,
         val matcherType: MatcherType,
         val event: MatcherEvent,
+    )
+
+    /**
+     * @param text 未設定の場合はnull
+     * @param errorRanges textの中でエラーになっている文字範囲
+     */
+    public data class MatchExpression(
+        val text: String?,
+        val errorRanges: ImmutableList<IntRange>,
+        val errorMessages: ImmutableList<String>,
+        val allowedCharactersDescription: String,
     )
 
     public data class Category(
@@ -171,11 +188,14 @@ public data class ImportedMailFilterCategoryScreenUiState(
         val title: String,
         val onCompleted: (String) -> Unit,
         val default: String,
+        val isMultiline: Boolean,
         val dismiss: () -> Unit,
     )
 
     @Immutable
     public interface MatcherEvent {
+        public fun onClickMatcherKeyChange()
+
         public fun onClickTextChange()
 
         public fun selectedSource(source: DataSource)
@@ -192,6 +212,8 @@ public data class ImportedMailFilterCategoryScreenUiState(
         public fun onClickNameChange()
 
         public fun onSelectedOperator(operator: Operator)
+
+        public fun onClickMatchExpressionChange()
 
         public fun onClickCategoryChange()
     }
@@ -253,7 +275,7 @@ public fun ImportedMailFilterCategoryScreen(
             onComplete = { textInput.onCompleted(it) },
             canceled = { textInput.dismiss() },
             default = textInput.default,
-            isMultiline = false,
+            isMultiline = textInput.isMultiline,
         )
     }
     RootScreenScaffold(
@@ -516,6 +538,14 @@ private fun LoadedContent(
                     )
                 }
             }
+            item {
+                MatchExpressionSection(
+                    modifier = Modifier.fillMaxWidth()
+                        .padding(top = 16.dp),
+                    matchExpression = uiState.matchExpression,
+                    onClickChange = { uiState.event.onClickMatchExpressionChange() },
+                )
+            }
         }
     }
 }
@@ -626,6 +656,24 @@ private fun MatcherCard(
                 Row(
                     modifier = Modifier
                         .clip(MaterialTheme.shapes.medium)
+                        .clickable { item.event.onClickMatcherKeyChange() }
+                        .padding(8.dp),
+                ) {
+                    Text("キー")
+                    Spacer(modifier = Modifier.width(8.dp))
+                    Column(
+                        modifier = Modifier.weight(1f),
+                    ) {
+                        Text(
+                            text = item.matcherKey,
+                            fontFamily = FontFamily.Monospace,
+                        )
+                        HorizontalDivider(modifier = Modifier.fillMaxWidth().height(1.dp))
+                    }
+                }
+                Row(
+                    modifier = Modifier
+                        .clip(MaterialTheme.shapes.medium)
                         .clickable { item.event.onClickTextChange() }
                         .padding(8.dp),
                 ) {
@@ -674,6 +722,80 @@ private fun MatcherCard(
                     }
                 }
             }
+        }
+    }
+}
+
+@Composable
+private fun MatchExpressionSection(
+    modifier: Modifier = Modifier,
+    matchExpression: ImportedMailFilterCategoryScreenUiState.MatchExpression,
+    onClickChange: () -> Unit,
+) {
+    Column(modifier = modifier) {
+        Row(
+            verticalAlignment = Alignment.CenterVertically,
+        ) {
+            Text(
+                modifier = Modifier.padding(8.dp),
+                text = "式",
+                style = MaterialTheme.typography.titleMedium,
+            )
+            Spacer(modifier = Modifier.weight(1f))
+            OutlinedButton(
+                modifier = Modifier.padding(8.dp),
+                onClick = { onClickChange() },
+            ) {
+                Text("変更")
+            }
+        }
+        HorizontalDivider(modifier = Modifier.fillMaxWidth().height(1.dp))
+        Text(
+            modifier = Modifier.padding(8.dp),
+            text = "例: id1 AND (id2 OR id3)。空にすると上のAND/ORで全ての条件をつないで判定します",
+            style = MaterialTheme.typography.bodySmall,
+        )
+        Text(
+            modifier = Modifier.padding(horizontal = 8.dp),
+            text = "使える文字: ${matchExpression.allowedCharactersDescription}",
+            style = MaterialTheme.typography.bodySmall,
+        )
+        if (matchExpression.text == null) {
+            Text(
+                modifier = Modifier.padding(8.dp),
+                text = "未設定",
+            )
+        } else {
+            val errorTextColor = MaterialTheme.colorScheme.onErrorContainer
+            val errorBackgroundColor = MaterialTheme.colorScheme.errorContainer
+            Text(
+                modifier = Modifier.padding(8.dp),
+                text = buildAnnotatedString {
+                    append(matchExpression.text)
+                    matchExpression.errorRanges
+                        .filter { range -> !range.isEmpty() && range.last < matchExpression.text.length }
+                        .forEach { range ->
+                            addStyle(
+                                style = SpanStyle(
+                                    color = errorTextColor,
+                                    background = errorBackgroundColor,
+                                    textDecoration = TextDecoration.Underline,
+                                ),
+                                start = range.first,
+                                end = range.last + 1,
+                            )
+                        }
+                },
+                fontFamily = FontFamily.Monospace,
+            )
+        }
+        matchExpression.errorMessages.forEach { errorMessage ->
+            Text(
+                modifier = Modifier.padding(horizontal = 8.dp),
+                text = errorMessage,
+                color = MaterialTheme.colorScheme.error,
+                style = MaterialTheme.typography.bodySmall,
+            )
         }
     }
 }
