@@ -59,7 +59,7 @@ import net.matsudamper.money.frontend.common.ui.base.KakeBoTopAppBar
 import net.matsudamper.money.frontend.common.ui.base.LocalScrollToTopHandler
 import net.matsudamper.money.frontend.common.ui.base.RootScreenScaffold
 import net.matsudamper.money.frontend.common.ui.layout.GridColumn
-import net.matsudamper.money.frontend.common.ui.layout.Input
+import net.matsudamper.money.frontend.common.ui.layout.SearchBoxField
 import net.matsudamper.money.frontend.common.ui.rememberCustomFontFamily
 @Composable
 public fun ImportedMailListScreen(
@@ -241,7 +241,7 @@ private fun Filter(
     contentPadding: PaddingValues,
 ) {
     Column(modifier = modifier) {
-        Input(
+        SearchBoxField(
             modifier = Modifier.fillMaxWidth()
                 .padding(
                     start = contentPadding.calculateStartPadding(LayoutDirection.Ltr),
