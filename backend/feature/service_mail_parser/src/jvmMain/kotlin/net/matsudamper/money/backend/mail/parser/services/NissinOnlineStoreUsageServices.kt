@@ -19,11 +19,8 @@ internal object NissinOnlineStoreUsageServices : MoneyUsageServices {
         val forwardedInfo = ParseUtil.parseForwarded(plain)
         val orderDate = forwardedInfo?.date ?: date
 
-        val canHandle = sequence {
-            yield(canHandleFrom(forwardedInfo?.from ?: from))
-            yield(canHandleSubject(forwardedInfo?.subject ?: subject))
-        }
-        if (canHandle.any { it }.not()) return listOf()
+        if (canHandleFrom(forwardedInfo?.from ?: from).not()) return listOf()
+        if (canHandleSubject(forwardedInfo?.subject ?: subject).not()) return listOf()
 
         val lines = ParseUtil.splitByNewLine(plain)
 
