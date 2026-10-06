@@ -5,20 +5,20 @@ import java.util.concurrent.CompletionStage
 import graphql.execution.DataFetcherResult
 import graphql.schema.DataFetchingEnvironment
 import net.matsudamper.money.backend.app.interfaces.MailFilterRepository
-import net.matsudamper.money.backend.app.interfaces.element.ImportedMailCategoryFilterConditionType
 import net.matsudamper.money.backend.app.interfaces.element.ImportedMailCategoryFilterDatasourceType
-import net.matsudamper.money.backend.dataloader.ImportedMailCategoryFilterConditionDataLoaderDefine
+import net.matsudamper.money.backend.app.interfaces.element.ImportedMailCategoryFilterMatcherType
+import net.matsudamper.money.backend.dataloader.ImportedMailCategoryFilterMatcherDataLoaderDefine
 import net.matsudamper.money.backend.graphql.GraphQlContext
 import net.matsudamper.money.backend.graphql.otelThenApplyAsync
 import net.matsudamper.money.backend.graphql.toDataFetcher
-import net.matsudamper.money.graphql.model.ImportedMailCategoryConditionResolver
-import net.matsudamper.money.graphql.model.QlImportedMailCategoryCondition
-import net.matsudamper.money.graphql.model.QlImportedMailCategoryFilterConditionType
+import net.matsudamper.money.graphql.model.ImportedMailCategoryFilterMatcherResolver
 import net.matsudamper.money.graphql.model.QlImportedMailCategoryFilterDataSourceType
+import net.matsudamper.money.graphql.model.QlImportedMailCategoryFilterMatcher
+import net.matsudamper.money.graphql.model.QlImportedMailCategoryFilterMatcherType
 
-class ImportedMailCategoryConditionResolverImpl : ImportedMailCategoryConditionResolver {
-    override fun text(
-        importedMailCategoryCondition: QlImportedMailCategoryCondition,
+class ImportedMailCategoryFilterMatcherResolverImpl : ImportedMailCategoryFilterMatcherResolver {
+    override fun matcherKey(
+        importedMailCategoryFilterMatcher: QlImportedMailCategoryFilterMatcher,
         env: DataFetchingEnvironment,
     ): CompletionStage<DataFetcherResult<String>> {
         val context = env.graphQlContext.get<GraphQlContext>(GraphQlContext::class.java.name)
@@ -26,7 +26,24 @@ class ImportedMailCategoryConditionResolverImpl : ImportedMailCategoryConditionR
 
         val future = getFuture(
             env = env,
-            importedMailCategoryCondition = importedMailCategoryCondition,
+            importedMailCategoryFilterMatcher = importedMailCategoryFilterMatcher,
+        )
+
+        return CompletableFuture.allOf(future).otelThenApplyAsync {
+            future.get().matcherKey
+        }.toDataFetcher()
+    }
+
+    override fun text(
+        importedMailCategoryFilterMatcher: QlImportedMailCategoryFilterMatcher,
+        env: DataFetchingEnvironment,
+    ): CompletionStage<DataFetcherResult<String>> {
+        val context = env.graphQlContext.get<GraphQlContext>(GraphQlContext::class.java.name)
+        context.verifyUserSessionAndGetUserId()
+
+        val future = getFuture(
+            env = env,
+            importedMailCategoryFilterMatcher = importedMailCategoryFilterMatcher,
         )
 
         return CompletableFuture.allOf(future).otelThenApplyAsync {
@@ -35,7 +52,7 @@ class ImportedMailCategoryConditionResolverImpl : ImportedMailCategoryConditionR
     }
 
     override fun dataSourceType(
-        importedMailCategoryCondition: QlImportedMailCategoryCondition,
+        importedMailCategoryFilterMatcher: QlImportedMailCategoryFilterMatcher,
         env: DataFetchingEnvironment,
     ): CompletionStage<DataFetcherResult<QlImportedMailCategoryFilterDataSourceType>> {
         val context = env.graphQlContext.get<GraphQlContext>(GraphQlContext::class.java.name)
@@ -43,7 +60,7 @@ class ImportedMailCategoryConditionResolverImpl : ImportedMailCategoryConditionR
 
         val future = getFuture(
             env = env,
-            importedMailCategoryCondition = importedMailCategoryCondition,
+            importedMailCategoryFilterMatcher = importedMailCategoryFilterMatcher,
         )
 
         return CompletableFuture.allOf(future).otelThenApplyAsync {
@@ -58,39 +75,39 @@ class ImportedMailCategoryConditionResolverImpl : ImportedMailCategoryConditionR
         }.toDataFetcher()
     }
 
-    override fun conditionType(
-        importedMailCategoryCondition: QlImportedMailCategoryCondition,
+    override fun matcherType(
+        importedMailCategoryFilterMatcher: QlImportedMailCategoryFilterMatcher,
         env: DataFetchingEnvironment,
-    ): CompletionStage<DataFetcherResult<QlImportedMailCategoryFilterConditionType>> {
+    ): CompletionStage<DataFetcherResult<QlImportedMailCategoryFilterMatcherType>> {
         val context = env.graphQlContext.get<GraphQlContext>(GraphQlContext::class.java.name)
         context.verifyUserSessionAndGetUserId()
 
         val future = getFuture(
             env = env,
-            importedMailCategoryCondition = importedMailCategoryCondition,
+            importedMailCategoryFilterMatcher = importedMailCategoryFilterMatcher,
         )
 
         return CompletableFuture.allOf(future).otelThenApplyAsync {
-            when (future.get()!!.conditionType) {
-                ImportedMailCategoryFilterConditionType.Include -> QlImportedMailCategoryFilterConditionType.Include
-                ImportedMailCategoryFilterConditionType.NotInclude -> QlImportedMailCategoryFilterConditionType.NotInclude
-                ImportedMailCategoryFilterConditionType.Equal -> QlImportedMailCategoryFilterConditionType.Equal
-                ImportedMailCategoryFilterConditionType.NotEqual -> QlImportedMailCategoryFilterConditionType.NotEqual
+            when (future.get()!!.matcherType) {
+                ImportedMailCategoryFilterMatcherType.Include -> QlImportedMailCategoryFilterMatcherType.Include
+                ImportedMailCategoryFilterMatcherType.NotInclude -> QlImportedMailCategoryFilterMatcherType.NotInclude
+                ImportedMailCategoryFilterMatcherType.Equal -> QlImportedMailCategoryFilterMatcherType.Equal
+                ImportedMailCategoryFilterMatcherType.NotEqual -> QlImportedMailCategoryFilterMatcherType.NotEqual
             }
         }.toDataFetcher()
     }
 
     private fun getFuture(
         env: DataFetchingEnvironment,
-        importedMailCategoryCondition: QlImportedMailCategoryCondition,
-    ): CompletableFuture<MailFilterRepository.Condition> {
+        importedMailCategoryFilterMatcher: QlImportedMailCategoryFilterMatcher,
+    ): CompletableFuture<MailFilterRepository.Matcher> {
         val context = env.graphQlContext.get<GraphQlContext>(GraphQlContext::class.java.name)
         val userId = context.verifyUserSessionAndGetUserId()
-        return context.dataLoaders.importedMailCategoryFilterConditionDataLoader.get(env)
+        return context.dataLoaders.importedMailCategoryFilterMatcherDataLoader.get(env)
             .load(
-                ImportedMailCategoryFilterConditionDataLoaderDefine.Key(
+                ImportedMailCategoryFilterMatcherDataLoaderDefine.Key(
                     userId = userId,
-                    conditionId = importedMailCategoryCondition.id,
+                    matcherId = importedMailCategoryFilterMatcher.id,
                 ),
             )
     }

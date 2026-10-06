@@ -6,15 +6,15 @@ import graphql.execution.DataFetcherResult
 import graphql.schema.DataFetchingEnvironment
 import net.matsudamper.money.backend.app.interfaces.MailFilterRepository
 import net.matsudamper.money.backend.app.interfaces.element.ImportedMailFilterCategoryConditionOperator
-import net.matsudamper.money.backend.dataloader.ImportedMailCategoryFilterConditionDataLoaderDefine
 import net.matsudamper.money.backend.dataloader.ImportedMailCategoryFilterDataLoaderDefine
+import net.matsudamper.money.backend.dataloader.ImportedMailCategoryFilterMatcherDataLoaderDefine
 import net.matsudamper.money.backend.graphql.GraphQlContext
 import net.matsudamper.money.backend.graphql.otelThenApplyAsync
 import net.matsudamper.money.backend.graphql.toDataFetcher
 import net.matsudamper.money.element.UserId
 import net.matsudamper.money.graphql.model.ImportedMailCategoryFilterResolver
-import net.matsudamper.money.graphql.model.QlImportedMailCategoryCondition
 import net.matsudamper.money.graphql.model.QlImportedMailCategoryFilter
+import net.matsudamper.money.graphql.model.QlImportedMailCategoryFilterMatcher
 import net.matsudamper.money.graphql.model.QlImportedMailFilterCategoryConditionOperator
 import net.matsudamper.money.graphql.model.QlMoneyUsageSubCategory
 
@@ -98,35 +98,53 @@ class ImportedMailCategoryFilterResolverImpl : ImportedMailCategoryFilterResolve
         }.toDataFetcher()
     }
 
-    override fun conditions(
+    override fun matchExpression(
         importedMailCategoryFilter: QlImportedMailCategoryFilter,
         env: DataFetchingEnvironment,
-    ): CompletionStage<DataFetcherResult<List<QlImportedMailCategoryCondition>?>> {
+    ): CompletionStage<DataFetcherResult<String?>> {
+        val context = env.graphQlContext.get<GraphQlContext>(GraphQlContext::class.java.name)
+        val userId = context.verifyUserSessionAndGetUserId()
+        val future = getImportedMailCategoryFilterFuture(
+            context = context,
+            userId = userId,
+            importedMailCategoryFilter = importedMailCategoryFilter,
+            env = env,
+        )
+
+        return CompletableFuture.allOf(future).otelThenApplyAsync {
+            future.get().matchExpression
+        }.toDataFetcher()
+    }
+
+    override fun matchers(
+        importedMailCategoryFilter: QlImportedMailCategoryFilter,
+        env: DataFetchingEnvironment,
+    ): CompletionStage<DataFetcherResult<List<QlImportedMailCategoryFilterMatcher>?>> {
         val context = env.graphQlContext.get<GraphQlContext>(GraphQlContext::class.java.name)
         val userId = context.verifyUserSessionAndGetUserId()
 
-        val dataLoader = context.dataLoaders.importedMailCategoryFilterConditionDataLoader.get(env)
+        val dataLoader = context.dataLoaders.importedMailCategoryFilterMatcherDataLoader.get(env)
 
         return CompletableFuture.allOf().otelThenApplyAsync {
             val result = context.diContainer.createMailFilterRepository()
-                .getConditions(
+                .getMatchers(
                     userId = userId,
                     filterId = importedMailCategoryFilter.id,
                 ).onFailure {
                     it.printStackTrace()
                 }.getOrNull() ?: return@otelThenApplyAsync null
 
-            result.conditions.map { condition ->
+            result.matchers.map { matcher ->
                 dataLoader.prime(
-                    ImportedMailCategoryFilterConditionDataLoaderDefine.Key(
+                    ImportedMailCategoryFilterMatcherDataLoaderDefine.Key(
                         userId = userId,
-                        conditionId = condition.conditionId,
+                        matcherId = matcher.matcherId,
                     ),
-                    condition,
+                    matcher,
                 )
 
-                QlImportedMailCategoryCondition(
-                    id = condition.conditionId,
+                QlImportedMailCategoryFilterMatcher(
+                    id = matcher.matcherId,
                 )
             }
         }.toDataFetcher()

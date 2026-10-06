@@ -8,9 +8,9 @@ package net.matsudamper.money.db.schema.keys
 import net.matsudamper.money.db.schema.tables.JAdminSessions
 import net.matsudamper.money.db.schema.tables.JApiTokens
 import net.matsudamper.money.db.schema.tables.JCategoryMailFilterConditionOperatorType
-import net.matsudamper.money.db.schema.tables.JCategoryMailFilterConditionType
-import net.matsudamper.money.db.schema.tables.JCategoryMailFilterConditions
 import net.matsudamper.money.db.schema.tables.JCategoryMailFilterDatasourceType
+import net.matsudamper.money.db.schema.tables.JCategoryMailFilterMatcherType
+import net.matsudamper.money.db.schema.tables.JCategoryMailFilterMatchers
 import net.matsudamper.money.db.schema.tables.JCategoryMailFilters
 import net.matsudamper.money.db.schema.tables.JMoneyUsageCategories
 import net.matsudamper.money.db.schema.tables.JMoneyUsageImagesRelation
@@ -31,9 +31,9 @@ import net.matsudamper.money.db.schema.tables.JWebAuthAuthenticator
 import net.matsudamper.money.db.schema.tables.records.JAdminSessionsRecord
 import net.matsudamper.money.db.schema.tables.records.JApiTokensRecord
 import net.matsudamper.money.db.schema.tables.records.JCategoryMailFilterConditionOperatorTypeRecord
-import net.matsudamper.money.db.schema.tables.records.JCategoryMailFilterConditionTypeRecord
-import net.matsudamper.money.db.schema.tables.records.JCategoryMailFilterConditionsRecord
 import net.matsudamper.money.db.schema.tables.records.JCategoryMailFilterDatasourceTypeRecord
+import net.matsudamper.money.db.schema.tables.records.JCategoryMailFilterMatcherTypeRecord
+import net.matsudamper.money.db.schema.tables.records.JCategoryMailFilterMatchersRecord
 import net.matsudamper.money.db.schema.tables.records.JCategoryMailFiltersRecord
 import net.matsudamper.money.db.schema.tables.records.JMoneyUsageCategoriesRecord
 import net.matsudamper.money.db.schema.tables.records.JMoneyUsageImagesRelationRecord
@@ -67,9 +67,10 @@ val KEY_API_TOKENS_PRIMARY: UniqueKey<JApiTokensRecord> = Internal.createUniqueK
 val KEY_API_TOKENS_TOKEN: UniqueKey<JApiTokensRecord> = Internal.createUniqueKey(JApiTokens.API_TOKENS, DSL.name("KEY_api_tokens_token"), arrayOf(JApiTokens.API_TOKENS.TOKEN_HASH), true)
 val KEY_API_TOKENS_UNIQUE_NAME: UniqueKey<JApiTokensRecord> = Internal.createUniqueKey(JApiTokens.API_TOKENS, DSL.name("KEY_api_tokens_unique_name"), arrayOf(JApiTokens.API_TOKENS.USER_ID, JApiTokens.API_TOKENS.DISPLAY_NAME), true)
 val KEY_CATEGORY_MAIL_FILTER_CONDITION_OPERATOR_TYPE_PRIMARY: UniqueKey<JCategoryMailFilterConditionOperatorTypeRecord> = Internal.createUniqueKey(JCategoryMailFilterConditionOperatorType.CATEGORY_MAIL_FILTER_CONDITION_OPERATOR_TYPE, DSL.name("KEY_category_mail_filter_condition_operator_type_PRIMARY"), arrayOf(JCategoryMailFilterConditionOperatorType.CATEGORY_MAIL_FILTER_CONDITION_OPERATOR_TYPE.CATEGORY_MAIL_FILTER_CONDITION_OPERATOR_TYPE_ID), true)
-val KEY_CATEGORY_MAIL_FILTER_CONDITION_TYPE_PRIMARY: UniqueKey<JCategoryMailFilterConditionTypeRecord> = Internal.createUniqueKey(JCategoryMailFilterConditionType.CATEGORY_MAIL_FILTER_CONDITION_TYPE, DSL.name("KEY_category_mail_filter_condition_type_PRIMARY"), arrayOf(JCategoryMailFilterConditionType.CATEGORY_MAIL_FILTER_CONDITION_TYPE.CATEGORY_MAIL_FILTER_CONDITION_TYPE_ID), true)
-val KEY_CATEGORY_MAIL_FILTER_CONDITIONS_PRIMARY: UniqueKey<JCategoryMailFilterConditionsRecord> = Internal.createUniqueKey(JCategoryMailFilterConditions.CATEGORY_MAIL_FILTER_CONDITIONS, DSL.name("KEY_category_mail_filter_conditions_PRIMARY"), arrayOf(JCategoryMailFilterConditions.CATEGORY_MAIL_FILTER_CONDITIONS.CATEGORY_MAIL_FILTER_CONDITION_ID), true)
 val KEY_CATEGORY_MAIL_FILTER_DATASOURCE_TYPE_PRIMARY: UniqueKey<JCategoryMailFilterDatasourceTypeRecord> = Internal.createUniqueKey(JCategoryMailFilterDatasourceType.CATEGORY_MAIL_FILTER_DATASOURCE_TYPE, DSL.name("KEY_category_mail_filter_datasource_type_PRIMARY"), arrayOf(JCategoryMailFilterDatasourceType.CATEGORY_MAIL_FILTER_DATASOURCE_TYPE.CATEGORY_MAIL_FILTER_DATASOURCE_TYPE_ID), true)
+val KEY_CATEGORY_MAIL_FILTER_MATCHER_TYPE_PRIMARY: UniqueKey<JCategoryMailFilterMatcherTypeRecord> = Internal.createUniqueKey(JCategoryMailFilterMatcherType.CATEGORY_MAIL_FILTER_MATCHER_TYPE, DSL.name("KEY_category_mail_filter_matcher_type_PRIMARY"), arrayOf(JCategoryMailFilterMatcherType.CATEGORY_MAIL_FILTER_MATCHER_TYPE.CATEGORY_MAIL_FILTER_MATCHER_TYPE_ID), true)
+val KEY_CATEGORY_MAIL_FILTER_MATCHERS_CATEGORY_MAIL_FILTER_MATCHER_KEY_UNIQUE: UniqueKey<JCategoryMailFilterMatchersRecord> = Internal.createUniqueKey(JCategoryMailFilterMatchers.CATEGORY_MAIL_FILTER_MATCHERS, DSL.name("KEY_category_mail_filter_matchers_category_mail_filter_matcher_key_unique"), arrayOf(JCategoryMailFilterMatchers.CATEGORY_MAIL_FILTER_MATCHERS.CATEGORY_MAIL_FILTER_ID, JCategoryMailFilterMatchers.CATEGORY_MAIL_FILTER_MATCHERS.MATCHER_KEY), true)
+val KEY_CATEGORY_MAIL_FILTER_MATCHERS_PRIMARY: UniqueKey<JCategoryMailFilterMatchersRecord> = Internal.createUniqueKey(JCategoryMailFilterMatchers.CATEGORY_MAIL_FILTER_MATCHERS, DSL.name("KEY_category_mail_filter_matchers_PRIMARY"), arrayOf(JCategoryMailFilterMatchers.CATEGORY_MAIL_FILTER_MATCHERS.CATEGORY_MAIL_FILTER_MATCHER_ID), true)
 val KEY_CATEGORY_MAIL_FILTERS_PRIMARY: UniqueKey<JCategoryMailFiltersRecord> = Internal.createUniqueKey(JCategoryMailFilters.CATEGORY_MAIL_FILTERS, DSL.name("KEY_category_mail_filters_PRIMARY"), arrayOf(JCategoryMailFilters.CATEGORY_MAIL_FILTERS.CATEGORY_MAIL_FILTER_ID), true)
 val KEY_MONEY_USAGE_CATEGORIES_PRIMARY: UniqueKey<JMoneyUsageCategoriesRecord> = Internal.createUniqueKey(JMoneyUsageCategories.MONEY_USAGE_CATEGORIES, DSL.name("KEY_money_usage_categories_PRIMARY"), arrayOf(JMoneyUsageCategories.MONEY_USAGE_CATEGORIES.MONEY_USAGE_CATEGORY_ID), true)
 val KEY_MONEY_USAGE_IMAGES_RELATION_PRIMARY: UniqueKey<JMoneyUsageImagesRelationRecord> = Internal.createUniqueKey(JMoneyUsageImagesRelation.MONEY_USAGE_IMAGES_RELATION, DSL.name("KEY_money_usage_images_relation_PRIMARY"), arrayOf(JMoneyUsageImagesRelation.MONEY_USAGE_IMAGES_RELATION.USER_ID, JMoneyUsageImagesRelation.MONEY_USAGE_IMAGES_RELATION.MONEY_USAGE_ID, JMoneyUsageImagesRelation.MONEY_USAGE_IMAGES_RELATION.IMAGE_ORDER), true)

@@ -5,9 +5,9 @@ import kotlin.reflect.KProperty
 import graphql.schema.DataFetchingEnvironment
 import io.opentelemetry.context.Context
 import net.matsudamper.money.backend.dataloader.DataLoaderDefine
-import net.matsudamper.money.backend.dataloader.ImportedMailCategoryFilterConditionDataLoaderDefine
-import net.matsudamper.money.backend.dataloader.ImportedMailCategoryFilterConditionsDataLoaderDefine
 import net.matsudamper.money.backend.dataloader.ImportedMailCategoryFilterDataLoaderDefine
+import net.matsudamper.money.backend.dataloader.ImportedMailCategoryFilterMatcherDataLoaderDefine
+import net.matsudamper.money.backend.dataloader.ImportedMailCategoryFilterMatchersDataLoaderDefine
 import net.matsudamper.money.backend.dataloader.ImportedMailCategoryFiltersDataLoaderDefine
 import net.matsudamper.money.backend.dataloader.ImportedMailDataLoaderDefine
 import net.matsudamper.money.backend.dataloader.MoneyUsageAnalyticsBySubCategoryLoaderWithCategoryId
@@ -58,11 +58,11 @@ internal class DataLoaders(
         ImportedMailCategoryFiltersDataLoaderDefine(diContainer)
     }
 
-    val importedMailCategoryFilterConditionDataLoader by register {
-        ImportedMailCategoryFilterConditionDataLoaderDefine(diContainer)
+    val importedMailCategoryFilterMatcherDataLoader by register {
+        ImportedMailCategoryFilterMatcherDataLoaderDefine(diContainer)
     }
-    val importedMailCategoryFilterConditionsDataLoader by register {
-        ImportedMailCategoryFilterConditionsDataLoaderDefine(diContainer)
+    val importedMailCategoryFilterMatchersDataLoader by register {
+        ImportedMailCategoryFilterMatchersDataLoaderDefine(diContainer)
     }
 
     val moneyUsageAnalyticsBySubCategoryLoaderWithCategoryId by register {

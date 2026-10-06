@@ -110,7 +110,7 @@ val graphqlCodegen = tasks.named<GraphQLCodegenGradleTask>("graphqlCodegen") {
         "MoneyUsageCategoryId" to "net.matsudamper.money.element.MoneyUsageCategoryId",
         "MoneyUsageSubCategoryId" to "net.matsudamper.money.element.MoneyUsageSubCategoryId",
         "ImportedMailId" to "net.matsudamper.money.element.ImportedMailId",
-        "ImportedMailCategoryFilterConditionId" to "net.matsudamper.money.element.ImportedMailCategoryFilterConditionId",
+        "ImportedMailCategoryFilterMatcherId" to "net.matsudamper.money.element.ImportedMailCategoryFilterMatcherId",
         "ImportedMailCategoryFilterId" to "net.matsudamper.money.element.ImportedMailCategoryFilterId",
         "Long" to "Long",
         "MoneyUsageId" to "net.matsudamper.money.element.MoneyUsageId",

@@ -1,6 +1,6 @@
 package net.matsudamper.money.categoryfilter
 
-enum class CategoryFilterConditionType {
+enum class CategoryFilterMatcherType {
     Include,
     NotInclude,
     Equal,

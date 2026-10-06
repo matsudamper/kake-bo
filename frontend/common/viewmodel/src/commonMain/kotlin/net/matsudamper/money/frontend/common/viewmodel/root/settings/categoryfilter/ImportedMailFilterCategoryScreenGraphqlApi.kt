@@ -3,31 +3,31 @@ package net.matsudamper.money.frontend.common.viewmodel.root.settings.categoryfi
 import com.apollographql.apollo.ApolloClient
 import com.apollographql.apollo.api.ApolloResponse
 import com.apollographql.apollo.api.Optional
-import net.matsudamper.money.element.ImportedMailCategoryFilterConditionId
 import net.matsudamper.money.element.ImportedMailCategoryFilterId
+import net.matsudamper.money.element.ImportedMailCategoryFilterMatcherId
 import net.matsudamper.money.element.MoneyUsageSubCategoryId
 import net.matsudamper.money.frontend.common.ui.screen.root.settings.ImportedMailFilterCategoryScreenUiState
-import net.matsudamper.money.frontend.graphql.ImportedMailCategoryFilterScreenAddConditionMutation
-import net.matsudamper.money.frontend.graphql.ImportedMailCategoryFilterScreenDeleteConditionMutation
+import net.matsudamper.money.frontend.graphql.ImportedMailCategoryFilterScreenAddMatcherMutation
 import net.matsudamper.money.frontend.graphql.ImportedMailCategoryFilterScreenDeleteFilterMutation
-import net.matsudamper.money.frontend.graphql.ImportedMailCategoryFilterScreenUpdateConditionMutation
+import net.matsudamper.money.frontend.graphql.ImportedMailCategoryFilterScreenDeleteMatcherMutation
+import net.matsudamper.money.frontend.graphql.ImportedMailCategoryFilterScreenUpdateMatcherMutation
 import net.matsudamper.money.frontend.graphql.ImportedMailCategoryFilterUpdateMutation
-import net.matsudamper.money.frontend.graphql.type.AddImportedMailCategoryFilterConditionInput
-import net.matsudamper.money.frontend.graphql.type.ImportedMailCategoryFilterConditionType
+import net.matsudamper.money.frontend.graphql.type.AddImportedMailCategoryFilterMatcherInput
 import net.matsudamper.money.frontend.graphql.type.ImportedMailCategoryFilterDataSourceType
+import net.matsudamper.money.frontend.graphql.type.ImportedMailCategoryFilterMatcherType
 import net.matsudamper.money.frontend.graphql.type.ImportedMailFilterCategoryConditionOperator
-import net.matsudamper.money.frontend.graphql.type.UpdateImportedMailCategoryFilterConditionInput
 import net.matsudamper.money.frontend.graphql.type.UpdateImportedMailCategoryFilterInput
+import net.matsudamper.money.frontend.graphql.type.UpdateImportedMailCategoryFilterMatcherInput
 
 public class ImportedMailFilterCategoryScreenGraphqlApi(
     private val apolloClient: ApolloClient,
 ) {
-    public suspend fun addCondition(id: ImportedMailCategoryFilterId): Result<ApolloResponse<ImportedMailCategoryFilterScreenAddConditionMutation.Data>> {
+    public suspend fun addMatcher(id: ImportedMailCategoryFilterId): Result<ApolloResponse<ImportedMailCategoryFilterScreenAddMatcherMutation.Data>> {
         return runCatching {
             apolloClient
                 .mutation(
-                    ImportedMailCategoryFilterScreenAddConditionMutation(
-                        input = AddImportedMailCategoryFilterConditionInput(
+                    ImportedMailCategoryFilterScreenAddMatcherMutation(
+                        input = AddImportedMailCategoryFilterMatcherInput(
                             id = id,
                         ),
                     ),
@@ -64,24 +64,24 @@ public class ImportedMailFilterCategoryScreenGraphqlApi(
         }
     }
 
-    public suspend fun updateCondition(
-        id: ImportedMailCategoryFilterConditionId,
+    public suspend fun updateMatcher(
+        id: ImportedMailCategoryFilterMatcherId,
         text: String? = null,
-        type: ImportedMailFilterCategoryScreenUiState.ConditionType? = null,
+        type: ImportedMailFilterCategoryScreenUiState.MatcherType? = null,
         dataSource: ImportedMailFilterCategoryScreenUiState.DataSource? = null,
-    ): Result<ApolloResponse<ImportedMailCategoryFilterScreenUpdateConditionMutation.Data>> {
+    ): Result<ApolloResponse<ImportedMailCategoryFilterScreenUpdateMatcherMutation.Data>> {
         return runCatching {
             apolloClient.mutation(
-                ImportedMailCategoryFilterScreenUpdateConditionMutation(
-                    input = UpdateImportedMailCategoryFilterConditionInput(
+                ImportedMailCategoryFilterScreenUpdateMatcherMutation(
+                    input = UpdateImportedMailCategoryFilterMatcherInput(
                         id = id,
                         text = Optional.present(text),
-                        conditionType = when (type) {
-                            ImportedMailFilterCategoryScreenUiState.ConditionType.Include -> ImportedMailCategoryFilterConditionType.Include
-                            ImportedMailFilterCategoryScreenUiState.ConditionType.NotInclude -> ImportedMailCategoryFilterConditionType.NotInclude
-                            ImportedMailFilterCategoryScreenUiState.ConditionType.Equal -> ImportedMailCategoryFilterConditionType.Equal
-                            ImportedMailFilterCategoryScreenUiState.ConditionType.NotEqual -> ImportedMailCategoryFilterConditionType.NotEqual
-                            ImportedMailFilterCategoryScreenUiState.ConditionType.Unknown,
+                        matcherType = when (type) {
+                            ImportedMailFilterCategoryScreenUiState.MatcherType.Include -> ImportedMailCategoryFilterMatcherType.Include
+                            ImportedMailFilterCategoryScreenUiState.MatcherType.NotInclude -> ImportedMailCategoryFilterMatcherType.NotInclude
+                            ImportedMailFilterCategoryScreenUiState.MatcherType.Equal -> ImportedMailCategoryFilterMatcherType.Equal
+                            ImportedMailFilterCategoryScreenUiState.MatcherType.NotEqual -> ImportedMailCategoryFilterMatcherType.NotEqual
+                            ImportedMailFilterCategoryScreenUiState.MatcherType.Unknown,
                             null,
                             -> null
                         }.let { Optional.present(it) },
@@ -119,17 +119,17 @@ public class ImportedMailFilterCategoryScreenGraphqlApi(
         )
     }
 
-    public suspend fun deleteCondition(id: ImportedMailCategoryFilterConditionId): Boolean {
+    public suspend fun deleteMatcher(id: ImportedMailCategoryFilterMatcherId): Boolean {
         return runCatching {
             apolloClient
                 .mutation(
-                    ImportedMailCategoryFilterScreenDeleteConditionMutation(
+                    ImportedMailCategoryFilterScreenDeleteMatcherMutation(
                         id = id,
                     ),
                 )
                 .execute()
         }.map {
-            it.data?.userMutation?.deleteImportedMailCategoryFilterCondition == true
+            it.data?.userMutation?.deleteImportedMailCategoryFilterMatcher == true
         }.fold(
             onSuccess = { it },
             onFailure = { false },

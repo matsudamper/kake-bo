@@ -104,6 +104,11 @@ open class JCategoryMailFilters(
     val CATEGORY_MAIL_FILTER_CONDITION_OPERATOR_TYPE_ID: TableField<JCategoryMailFiltersRecord, Int?> = createField(DSL.name("category_mail_filter_condition_operator_type_id"), SQLDataType.INTEGER.nullable(false), this, "")
 
     /**
+     * The column <code>money.category_mail_filters.match_expression</code>.
+     */
+    val MATCH_EXPRESSION: TableField<JCategoryMailFiltersRecord, String?> = createField(DSL.name("match_expression"), SQLDataType.CLOB(65535).defaultValue(DSL.field(DSL.raw("NULL"), SQLDataType.CLOB)), this, "")
+
+    /**
      * The column <code>money.category_mail_filters.created_datetime</code>.
      */
     val CREATED_DATETIME: TableField<JCategoryMailFiltersRecord, LocalDateTime?> = createField(DSL.name("created_datetime"), SQLDataType.LOCALDATETIME(0).nullable(false).defaultValue(DSL.field(DSL.raw("current_timestamp()"), SQLDataType.LOCALDATETIME)), this, "")

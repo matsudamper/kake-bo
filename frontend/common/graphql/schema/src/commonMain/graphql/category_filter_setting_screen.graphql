@@ -43,18 +43,18 @@ query ImportedMailCategoryFilterScreen($id: ImportedMailCategoryFilterId!) {
     }
 }
 
-mutation ImportedMailCategoryFilterScreenAddCondition($input: AddImportedMailCategoryFilterConditionInput!) {
+mutation ImportedMailCategoryFilterScreenAddMatcher($input: AddImportedMailCategoryFilterMatcherInput!) {
     userMutation {
-        addImportedMailCategoryFilterCondition(input: $input) {
+        addImportedMailCategoryFilterMatcher(input: $input) {
             ... ImportedMailCategoryFilterScreenItem
         }
     }
 }
 
-mutation ImportedMailCategoryFilterScreenUpdateCondition($input: UpdateImportedMailCategoryFilterConditionInput!) {
+mutation ImportedMailCategoryFilterScreenUpdateMatcher($input: UpdateImportedMailCategoryFilterMatcherInput!) {
     userMutation {
-        updateImportedMailCategoryFilterCondition(input: $input) {
-            ... ImportedMailCategoryConditionScreenItem
+        updateImportedMailCategoryFilterMatcher(input: $input) {
+            ... ImportedMailCategoryFilterMatcherScreenItem
         }
     }
 }
@@ -65,9 +65,9 @@ mutation ImportedMailCategoryFilterScreenDeleteFilter($id: ImportedMailCategoryF
     }
 }
 
-mutation ImportedMailCategoryFilterScreenDeleteCondition($id: ImportedMailCategoryFilterConditionId!) {
+mutation ImportedMailCategoryFilterScreenDeleteMatcher($id: ImportedMailCategoryFilterMatcherId!) {
     userMutation {
-        deleteImportedMailCategoryFilterCondition(id: $id)
+        deleteImportedMailCategoryFilterMatcher(id: $id)
     }
 }
 
@@ -75,6 +75,7 @@ fragment ImportedMailCategoryFilterScreenItem on ImportedMailCategoryFilter {
     id
     title
     operator
+    matchExpression
     subCategory {
         id
         name
@@ -83,14 +84,15 @@ fragment ImportedMailCategoryFilterScreenItem on ImportedMailCategoryFilter {
             name
         }
     }
-    conditions {
-        ... ImportedMailCategoryConditionScreenItem
+    matchers {
+        ... ImportedMailCategoryFilterMatcherScreenItem
     }
 }
 
-fragment ImportedMailCategoryConditionScreenItem on ImportedMailCategoryCondition {
+fragment ImportedMailCategoryFilterMatcherScreenItem on ImportedMailCategoryFilterMatcher {
     id
-    conditionType
+    matcherKey
+    matcherType
     dataSourceType
     text
 }
