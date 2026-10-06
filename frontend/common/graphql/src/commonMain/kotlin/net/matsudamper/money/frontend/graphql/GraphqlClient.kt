@@ -4,19 +4,21 @@ import kotlin.Int
 import kotlin.Long
 import kotlin.String
 import kotlin.let
+import kotlin.time.Duration
 import kotlin.time.Duration.Companion.seconds
-import kotlinx.coroutines.FlowPreview
-import kotlinx.coroutines.TimeoutCancellationException
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.catch
 import kotlinx.coroutines.flow.onEach
-import kotlinx.coroutines.flow.timeout
+import kotlinx.coroutines.withTimeoutOrNull
 import com.apollographql.apollo.ApolloClient
 import com.apollographql.apollo.api.Adapter
 import com.apollographql.apollo.api.ApolloRequest
 import com.apollographql.apollo.api.ApolloResponse
 import com.apollographql.apollo.api.CustomScalarAdapters
+import com.apollographql.apollo.api.ExecutionContext
 import com.apollographql.apollo.api.Operation
+import com.apollographql.apollo.api.http.HttpRequest
+import com.apollographql.apollo.api.http.HttpResponse
 import com.apollographql.apollo.api.json.JsonReader
 import com.apollographql.apollo.api.json.JsonWriter
 import com.apollographql.apollo.cache.normalized.api.MemoryCacheFactory
@@ -28,6 +30,7 @@ import com.apollographql.apollo.interceptor.ApolloInterceptor
 import com.apollographql.apollo.interceptor.ApolloInterceptorChain
 import com.apollographql.apollo.network.http.DefaultHttpEngine
 import com.apollographql.apollo.network.http.HttpInterceptor
+import com.apollographql.apollo.network.http.HttpInterceptorChain
 import net.matsudamper.money.element.ApiTokenId
 import net.matsudamper.money.element.FidoId
 import net.matsudamper.money.element.ImageId
@@ -82,7 +85,7 @@ class GraphqlClientImpl(
     private fun buildClient(serverUrl: String): ApolloClient = ApolloClient.Builder()
         .serverUrl(serverUrl)
         .httpEngine(DefaultHttpEngine(timeoutMillis = HTTP_ENGINE_TIMEOUT.inWholeMilliseconds))
-        .httpInterceptors(httpInterceptors)
+        .httpInterceptors(listOf(OperationTimeoutHttpInterceptor) + httpInterceptors)
         .interceptors(listOf(OperationTimeoutInterceptor, ApolloErrorLoggingInterceptor) + interceptors)
         .normalizedCache(cacheFactory)
         .addCustomScalarAdapter(
@@ -251,13 +254,22 @@ class GraphqlClientImpl(
 
 /**
  * 通信エンジンのタイムアウトは全操作で共通のため、LongRunningOperation の最大値より長くしておく。
- * 操作ごとのタイムアウトは [OperationTimeoutInterceptor] で掛ける。
+ * 操作ごとのタイムアウトは [OperationTimeoutHttpInterceptor] で掛ける。
  */
 private val HTTP_ENGINE_TIMEOUT = 120.seconds
 private val DEFAULT_OPERATION_TIMEOUT = 5.seconds
 
+private class OperationTimeout(val timeout: Duration) : ExecutionContext.Element {
+    override val key: ExecutionContext.Key<*> = Key
+
+    companion object Key : ExecutionContext.Key<OperationTimeout>
+}
+
+/**
+ * watch() の Flow は ApolloInterceptor の内側で続くため、ここでは Flow にタイムアウトを掛けず、
+ * 操作のタイムアウトを [OperationTimeoutHttpInterceptor] へ渡すだけにする。
+ */
 private object OperationTimeoutInterceptor : ApolloInterceptor {
-    @OptIn(FlowPreview::class)
     override fun <D : Operation.Data> intercept(
         request: ApolloRequest<D>,
         chain: ApolloInterceptorChain,
@@ -268,16 +280,23 @@ private object OperationTimeoutInterceptor : ApolloInterceptor {
         } else {
             DEFAULT_OPERATION_TIMEOUT
         }
-        return chain.proceed(request)
-            .timeout(timeout)
-            .catch { throwable ->
-                if (throwable !is TimeoutCancellationException) throw throwable
-                emit(
-                    ApolloResponse.Builder(operation = operation, requestUuid = request.requestUuid)
-                        .exception(ApolloNetworkException(message = "Timeout: $timeout", platformCause = throwable))
-                        .build(),
-                )
-            }
+        return chain.proceed(
+            request.newBuilder()
+                .addExecutionContext(OperationTimeout(timeout))
+                .build(),
+        )
+    }
+}
+
+private object OperationTimeoutHttpInterceptor : HttpInterceptor {
+    override suspend fun intercept(
+        request: HttpRequest,
+        chain: HttpInterceptorChain,
+    ): HttpResponse {
+        val timeout = request.executionContext[OperationTimeout]?.timeout ?: DEFAULT_OPERATION_TIMEOUT
+        // HttpNetworkTransport は CancellationException をそのまま投げ直すため、通信エラーとして扱われる例外に変換する
+        return withTimeoutOrNull(timeout) { chain.proceed(request) }
+            ?: throw ApolloNetworkException(message = "Timeout: $timeout")
     }
 }
 
