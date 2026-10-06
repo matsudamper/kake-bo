@@ -22,7 +22,6 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
-import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.CircularProgressIndicator
@@ -33,7 +32,6 @@ import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedButton
-import androidx.compose.material3.ProvideTextStyle
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.Immutable
@@ -45,7 +43,6 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.graphics.SolidColor
 import androidx.compose.ui.input.pointer.PointerEventType
 import androidx.compose.ui.input.pointer.isSecondaryPressed
 import androidx.compose.ui.input.pointer.pointerInput
@@ -75,6 +72,7 @@ import net.matsudamper.money.frontend.common.ui.generated.resources.ic_image
 import net.matsudamper.money.frontend.common.ui.generated.resources.ic_more_vert
 import net.matsudamper.money.frontend.common.ui.layout.AlertDialog
 import net.matsudamper.money.frontend.common.ui.layout.CalendarDialog
+import net.matsudamper.money.frontend.common.ui.layout.ChangeableFieldRow
 import net.matsudamper.money.frontend.common.ui.layout.NumberInput
 import net.matsudamper.money.frontend.common.ui.layout.NumberInputValue
 import net.matsudamper.money.frontend.common.ui.layout.TimePickerDialog
@@ -496,98 +494,55 @@ private fun MainCard(
 ) {
     Card(modifier = modifier.fillMaxWidth()) {
         Column(modifier = Modifier.padding(horizontal = 16.dp, vertical = 8.dp)) {
-            MoneyUsageSection(
+            ChangeableFieldRow(
+                modifier = Modifier.padding(vertical = 12.dp),
                 title = "タイトル",
-                content = { Text(uiState.title) },
                 onClickChange = { uiState.event.onClickTitleChange() },
+                body = { Text(uiState.title) },
             )
             HorizontalDivider(modifier = Modifier.fillMaxWidth().height(1.dp))
-            MoneyUsageSection(
+            ChangeableFieldRow(
+                modifier = Modifier.padding(vertical = 12.dp),
                 title = "日付",
-                content = { Text(uiState.date) },
-                onClickContent = { uiState.event.onClickDate() },
+                onClickBody = { uiState.event.onClickDate() },
                 onClickChange = { uiState.event.onClickDateChange() },
+                body = { Text(uiState.date) },
             )
             HorizontalDivider(modifier = Modifier.fillMaxWidth().height(1.dp))
-            MoneyUsageSection(
+            ChangeableFieldRow(
+                modifier = Modifier.padding(vertical = 12.dp),
                 title = "時間",
-                content = { Text(uiState.time) },
                 onClickChange = { uiState.event.onClickTimeChange() },
+                body = { Text(uiState.time) },
             )
             HorizontalDivider(modifier = Modifier.fillMaxWidth().height(1.dp))
-            MoneyUsageSection(
+            ChangeableFieldRow(
+                modifier = Modifier.padding(vertical = 12.dp),
                 title = "カテゴリ",
-                content = { Text(uiState.category) },
                 onClickChange = { uiState.event.onClickCategoryChange() },
+                body = { Text(uiState.category) },
             )
             HorizontalDivider(modifier = Modifier.fillMaxWidth().height(1.dp))
-            MoneyUsageSection(
+            ChangeableFieldRow(
+                modifier = Modifier.padding(vertical = 12.dp),
                 title = "金額",
-                content = { Text(uiState.amount) },
                 onClickChange = { uiState.event.onClickAmountChange() },
+                body = { Text(uiState.amount) },
             )
             HorizontalDivider(modifier = Modifier.fillMaxWidth().height(1.dp))
-            MoneyUsageSection(
-                title = "説明",
+            ChangeableFieldRow(
+                modifier = Modifier.padding(vertical = 12.dp),
                 multiline = true,
-                content = {
+                title = "説明",
+                onClickChange = { uiState.event.onClickDescription() },
+                body = {
                     UrlClickableText(
                         text = uiState.description.text,
                         onClickUrl = { uiState.description.event.onClickUrl(it) },
                         onLongClickUrl = { uiState.description.event.onLongClickUrl(it) },
                     )
                 },
-                onClickChange = { uiState.event.onClickDescription() },
             )
-        }
-    }
-}
-
-@Composable
-private fun MoneyUsageSection(
-    modifier: Modifier = Modifier,
-    multiline: Boolean = false,
-    title: String,
-    onClickContent: (() -> Unit)? = null,
-    onClickChange: () -> Unit,
-    content: @Composable () -> Unit,
-) {
-    Row(
-        modifier = modifier.padding(vertical = 12.dp),
-        verticalAlignment = if (multiline) Alignment.Top else Alignment.CenterVertically,
-    ) {
-        Column(modifier = Modifier.weight(1f)) {
-            Text(
-                text = title,
-                style = MaterialTheme.typography.labelLarge,
-                color = MaterialTheme.colorScheme.primary,
-            )
-            Spacer(modifier = Modifier.height(4.dp))
-            ProvideTextStyle(MaterialTheme.typography.bodyLarge) {
-                if (onClickContent != null) {
-                    Box(
-                        modifier = Modifier.clickable { onClickContent() },
-                    ) {
-                        content()
-                    }
-                } else {
-                    content()
-                }
-            }
-        }
-        OutlinedButton(
-            onClick = onClickChange,
-            contentPadding = PaddingValues(horizontal = 12.dp, vertical = 0.dp),
-            modifier = Modifier.height(32.dp),
-            shape = MaterialTheme.shapes.small,
-            colors = ButtonDefaults.outlinedButtonColors(
-                contentColor = MaterialTheme.colorScheme.primary,
-            ),
-            border = ButtonDefaults.outlinedButtonBorder(true).copy(
-                brush = SolidColor(MaterialTheme.colorScheme.primary),
-            ),
-        ) {
-            Text("変更", style = MaterialTheme.typography.labelMedium)
         }
     }
 }
