@@ -431,16 +431,9 @@ public class AddMoneyUsageViewModel(
                     .onFailure { Logger.e(TAG, it) }
                     .getOrNull()
 
+                // 入力値は取得を待たずに設定済みで、取得中にユーザーが編集している可能性があるため、カテゴリだけを更新する
                 viewModelStateFlow.update { state ->
                     state.copy(
-                        // 通知から遷移した場合は通知のデータで上書きするため、
-                        // 通知が値を持たないフィールドは既存 state を引き継がず空にリセットする
-                        usageTitle = current.title ?: if (isFromNotification) "" else state.usageTitle,
-                        usageDate = current.date?.date ?: if (isFromNotification) Clock.System.todayIn(TimeZone.currentSystemDefault()) else state.usageDate,
-                        usageTime = current.date?.time ?: if (isFromNotification) LocalTime(0, 0, 0, 0) else state.usageTime,
-                        usageAmount = current.price?.let { NumberInputValue.default(it.toInt()) } ?: if (isFromNotification) NumberInputValue.default() else state.usageAmount,
-                        usageDescription = current.description ?: if (isFromNotification) "" else state.usageDescription,
-                        usageImages = listOf(),
                         usageCategorySet = if (subCategory != null) {
                             CategorySelectDialogViewModel.SelectedResult(
                                 categoryId = subCategory.category.id,
