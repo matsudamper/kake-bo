@@ -6,9 +6,14 @@ import kotlin.String
 import kotlin.let
 import kotlin.time.Duration
 import kotlin.time.Duration.Companion.seconds
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.awaitCancellation
+import kotlinx.coroutines.coroutineScope
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.catch
 import kotlinx.coroutines.flow.onEach
+import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 import kotlinx.coroutines.withTimeoutOrNull
 import com.apollographql.apollo.ApolloClient
 import com.apollographql.apollo.api.Adapter
@@ -59,6 +64,7 @@ import net.matsudamper.money.frontend.graphql.type.MoneyUsagePresetId as ApolloM
 import net.matsudamper.money.frontend.graphql.type.MoneyUsageSubCategoryId as ApolloMoneyUsageSubCategoryId
 import net.matsudamper.money.frontend.graphql.type.SessionRecordId as ApolloSessionRecordId
 import net.matsudamper.money.frontend.graphql.type.UserId as ApolloUserId
+import okio.Buffer
 
 public interface GraphqlClient {
     val apolloClient: ApolloClient
@@ -295,8 +301,34 @@ private object OperationTimeoutHttpInterceptor : HttpInterceptor {
     ): HttpResponse {
         val timeout = request.executionContext[OperationTimeout]?.timeout ?: DEFAULT_OPERATION_TIMEOUT
         // HttpNetworkTransport は CancellationException をそのまま投げ直すため、通信エラーとして扱われる例外に変換する
-        return withTimeoutOrNull(timeout) { chain.proceed(request) }
+        return withTimeoutOrNull(timeout) { chain.proceed(request).withBufferedBody() }
             ?: throw ApolloNetworkException(message = "Timeout: $timeout")
+    }
+
+    /**
+     * 本文は返却後に遅延して読まれるため、タイムアウトの内側で読み切る。
+     * 本文の読み取りはブロッキングでキャンセルに反応しないため、キャンセル時は本文を閉じて読み取りを中断させる。
+     */
+    private suspend fun HttpResponse.withBufferedBody(): HttpResponse {
+        val body = body ?: return this
+        val bufferedBody = coroutineScope {
+            val bodyCloser = launch {
+                try {
+                    awaitCancellation()
+                } finally {
+                    body.close()
+                }
+            }
+            try {
+                withContext(Dispatchers.Default) { Buffer().apply { writeAll(body) } }
+            } finally {
+                bodyCloser.cancel()
+            }
+        }
+        return HttpResponse.Builder(statusCode = statusCode)
+            .headers(headers)
+            .body(bufferedBody)
+            .build()
     }
 }
 
