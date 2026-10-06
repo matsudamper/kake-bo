@@ -46,10 +46,14 @@ apollo {
         mapScalar("SessionRecordId", "net.matsudamper.money.element.SessionRecordId")
         mapScalar("LocalDateTime", "kotlinx.datetime.LocalDateTime", "com.apollographql.adapter.datetime.KotlinxLocalDateTimeAdapter")
         mapScalar("OffsetDateTime", "kotlin.time.Instant", "com.apollographql.adapter.core.KotlinInstantAdapter")
-        introspection {
-            endpointUrl.set("http://localhost/query")
-            schemaFile.set(file("src/commonMain/graphql/schema.graphqls"))
-        }
+        // 適用済みのディレクティブを使うため、イントロスペクションではなくバックエンドのスキーマを直接参照する
+        schemaFiles.from(
+            rootProject.layout.projectDirectory.dir("backend/graphql/src/commonMain/resources/graphql")
+                .asFileTree
+                .matching { include("*.graphqls") },
+            file("src/commonMain/graphql/extra.graphqls"),
+        )
+        plugin(project(":frontend:common:graphql:apollo-compiler-plugin"))
     }
 }
 

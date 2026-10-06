@@ -28,7 +28,7 @@
 ./gradlew allTests --quiet
 ```
 - Android依存なし: Kotest (JUnit 5) / Android・Robolectric: JUnit 4
-- GraphQL: skill `@.claude/skills/download-graphql-schema`、`./gradlew generateApolloSources`
+- GraphQL: フロントはバックエンドの `backend/graphql/src/commonMain/resources/graphql/*.graphqls` を直接参照する。`./gradlew generateApolloSources`
 
 # 共通ルール
 

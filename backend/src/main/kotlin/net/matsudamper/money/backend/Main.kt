@@ -2,6 +2,7 @@ package net.matsudamper.money.backend
 
 import java.io.File
 import kotlin.time.Duration.Companion.seconds
+import kotlin.time.TimeSource
 import kotlinx.coroutines.withTimeout
 import kotlinx.serialization.json.Json
 import io.ktor.http.CacheControl
@@ -26,7 +27,6 @@ import io.ktor.server.plugins.forwardedheaders.XForwardedHeaders
 import io.ktor.server.plugins.statuspages.StatusPages
 import io.ktor.server.request.httpMethod
 import io.ktor.server.request.path
-import io.ktor.server.request.receiveStream
 import io.ktor.server.request.receiveText
 import io.ktor.server.response.cacheControl
 import io.ktor.server.response.header
@@ -47,6 +47,7 @@ import net.matsudamper.money.backend.di.MainDiContainer
 import net.matsudamper.money.backend.feature.oidc.jwks
 import net.matsudamper.money.backend.feature.oidc.oidcDiscovery
 import net.matsudamper.money.backend.feature.session.KtorCookieManager
+import net.matsudamper.money.backend.graphql.GraphqlOperationTimeout
 import net.matsudamper.money.backend.graphql.MoneyGraphQlSchema
 import net.matsudamper.money.backend.image.ImageUploadConfig
 import net.matsudamper.money.backend.image.getImage
@@ -155,13 +156,18 @@ fun Application.myApplicationModule(diContainer: DiContainer) {
                 call.respondText(
                     contentType = ContentType.Application.Json,
                 ) {
-                    return@respondText withTimeout(5.seconds) {
-                        GraphqlHandler(
-                            cookieManager = KtorCookieManager(call = call),
-                            diContainer = diContainer,
-                        ).handle(
-                            requestText = call.receiveStream().bufferedReader().readText(),
-                        )
+                    // 操作のタイムアウトは本文を読むまで決まらないため、読み取りは通常の期限で打ち切り、
+                    // 実行には受信からの経過時間を差し引いた残りを使って、合計を操作のタイムアウトに収める
+                    val receivedAt = TimeSource.Monotonic.markNow()
+                    val requestText = withTimeout(GraphqlOperationTimeout.DEFAULT_TIMEOUT) {
+                        call.receiveText()
+                    }
+                    val handler = GraphqlHandler(
+                        cookieManager = KtorCookieManager(call = call),
+                        diContainer = diContainer,
+                    )
+                    return@respondText withTimeout(handler.resolveTimeout(requestText) - receivedAt.elapsedNow()) {
+                        handler.handle(requestText = requestText)
                     }
                 }
             }

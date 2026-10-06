@@ -4,6 +4,7 @@ import kotlin.Int
 import kotlin.Long
 import kotlin.String
 import kotlin.let
+import kotlin.time.Duration.Companion.seconds
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.catch
 import kotlinx.coroutines.flow.onEach
@@ -76,9 +77,9 @@ class GraphqlClientImpl(
 
     private fun buildClient(serverUrl: String): ApolloClient = ApolloClient.Builder()
         .serverUrl(serverUrl)
-        .httpEngine(DefaultHttpEngine(timeoutMillis = 5000))
-        .httpInterceptors(httpInterceptors)
-        .interceptors(listOf(ApolloErrorLoggingInterceptor) + interceptors)
+        .httpEngine(DefaultHttpEngine(timeoutMillis = HTTP_ENGINE_TIMEOUT.inWholeMilliseconds))
+        .httpInterceptors(listOf(OperationTimeoutHttpInterceptor) + httpInterceptors)
+        .interceptors(listOf(OperationTimeoutInterceptor, ApolloErrorLoggingInterceptor) + interceptors)
         .normalizedCache(cacheFactory)
         .addCustomScalarAdapter(
             ApolloLong.type,
@@ -243,6 +244,13 @@ class GraphqlClientImpl(
         )
         .build()
 }
+
+/**
+ * 通信エンジンのタイムアウトは全操作で共通のため、LongRunningOperation の最大値より長くしておく。
+ * 最大値は apollo-compiler-plugin の LongRunningFieldTimeouts.MAX_TIMEOUT_SECONDS で制限している。
+ * 操作ごとのタイムアウトは [OperationTimeoutHttpInterceptor] で掛ける。
+ */
+private val HTTP_ENGINE_TIMEOUT = 120.seconds
 
 private object ApolloErrorLoggingInterceptor : ApolloInterceptor {
     override fun <D : Operation.Data> intercept(
