@@ -137,6 +137,6 @@ class GeminiGatewayImpl : GeminiGateway {
 
     private companion object {
         private const val API_BASE_URL = "https://generativelanguage.googleapis.com/v1beta"
-        private const val MODEL = "gemini-2.5-flash"
+        private const val MODEL = "gemini-flash-lite-latest"
     }
 }
