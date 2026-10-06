@@ -7,5 +7,4 @@ data class AiParsedUsage(
     val description: String,
     val amount: Int?,
     val dateTime: LocalDateTime?,
-    val serviceName: String?,
 )

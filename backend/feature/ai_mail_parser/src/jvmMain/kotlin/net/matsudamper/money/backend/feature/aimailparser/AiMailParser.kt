@@ -41,7 +41,6 @@ class AiMailParser(
                     description = usage.description.orEmpty().trim(),
                     amount = usage.amount,
                     dateTime = usage.dateTime?.let { parseDateTime(it) },
-                    serviceName = usage.serviceName?.trim()?.ifEmpty { null },
                 )
             }
     }
@@ -65,7 +64,6 @@ class AiMailParser(
         @SerialName("description") val description: String? = null,
         @SerialName("amount") val amount: Int? = null,
         @SerialName("dateTime") val dateTime: String? = null,
-        @SerialName("serviceName") val serviceName: String? = null,
     )
 
     private companion object {
@@ -79,7 +77,6 @@ class AiMailParser(
             - 同じ注文の商品明細は1つの支出にまとめ、商品名などは description に記載してください。
             - title は家計簿に表示する短い名前にしてください。店名やサービス名を含めてください。
             - amount は日本円の支払金額を整数で入れてください。返金の場合は負の値にしてください。不明な場合は null にしてください。
-            - serviceName は支払先の店名やサービス名を入れてください。不明な場合は null にしてください。
             - dateTime は利用日時を yyyy-MM-ddTHH:mm:ss 形式で入れてください。時刻が不明な場合は 00:00:00、日付が不明な場合は null にしてください。年が書かれていない場合は受信日時から補ってください。
             - 広告、キャンペーン案内、ポイント付与のお知らせなど支払いが発生していないメールの場合は空の配列を返してください。
         """.trimIndent()
@@ -102,17 +99,12 @@ class AiMailParser(
                                 put("type", "STRING")
                                 put("nullable", true)
                             }
-                            putJsonObject("serviceName") {
-                                put("type", "STRING")
-                                put("nullable", true)
-                            }
                         }
                         putJsonArray("required") {
                             add("title")
                             add("description")
                             add("amount")
                             add("dateTime")
-                            add("serviceName")
                         }
                     }
                 }
