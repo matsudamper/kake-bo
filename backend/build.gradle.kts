@@ -21,6 +21,16 @@ val graalVmLauncher = javaToolchains.launcherFor {
     vendor = JvmVendorSpec.GRAAL_VM
 }
 
+val nativeImageMaxHeapSizePercent =
+    (findProperty("nativeImageBuild.maxHeapSizePercent") as String?)?.toIntOrNull()
+
+val nativeImageHostJvmArgs: List<String> =
+    (findProperty("nativeImageBuild.jvmArgs") as String?)
+        ?.split(',')
+        ?.map { it.trim() }
+        ?.filter { it.isNotEmpty() }
+        ?: emptyList()
+
 val nativeBuildArgs = listOf(
     "--no-fallback",
     "-H:+ReportExceptionStackTraces",
@@ -126,6 +136,12 @@ graalvmNative {
             mainClass.set("net.matsudamper.money.backend.Main")
             imageName.set("backend")
             buildArgs.addAll(nativeBuildArgs)
+            nativeImageMaxHeapSizePercent?.let { percent ->
+                buildArgs.add("-H:MaximumHeapSizePercent=$percent")
+            }
+            if (nativeImageHostJvmArgs.isNotEmpty()) {
+                jvmArgs.addAll(nativeImageHostJvmArgs)
+            }
             buildArgs.add(
                 "--features=" + listOf(
                     "net.matsudamper.money.backend.graalvm.GraphqlReflectionFeature",
