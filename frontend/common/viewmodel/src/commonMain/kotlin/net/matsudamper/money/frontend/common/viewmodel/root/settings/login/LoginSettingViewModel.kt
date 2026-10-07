@@ -160,7 +160,10 @@ public class LoginSettingViewModel(
             api.getScreen().collectLatest { apolloResponse ->
                 viewModelStateFlow.update { viewModelState ->
                     viewModelState.copy(
-                        apolloScreenResponse = apolloResponse,
+                        apolloScreenResponse = screenResponseOrKeep(
+                            current = viewModelState.apolloScreenResponse,
+                            incoming = apolloResponse,
+                        ),
                     )
                 }
             }
@@ -212,12 +215,32 @@ public class LoginSettingViewModel(
     }
 
     private suspend fun refreshScreen() {
-        val response = api.refreshFromNetwork()
+        val response = runCatching {
+            api.refreshFromNetwork()
+        }.onFailure {
+            Logger.e(TAG, it)
+        }.getOrNull() ?: return
         viewModelStateFlow.update { viewModelState ->
             viewModelState.copy(
-                apolloScreenResponse = response,
+                apolloScreenResponse = screenResponseOrKeep(
+                    current = viewModelState.apolloScreenResponse,
+                    incoming = response,
+                ),
             )
         }
+    }
+
+    private fun screenResponseOrKeep(
+        current: ApolloResponse<LoginSettingScreenQuery.Data>?,
+        incoming: ApolloResponse<LoginSettingScreenQuery.Data>,
+    ): ApolloResponse<LoginSettingScreenQuery.Data>? {
+        if (incoming.data?.user?.settings?.sessionAttributes?.currentSession != null) {
+            return incoming
+        }
+        if (current?.data?.user?.settings?.sessionAttributes?.currentSession != null) {
+            return current
+        }
+        return incoming
     }
 
     private fun showAddFidoFailToast() {
