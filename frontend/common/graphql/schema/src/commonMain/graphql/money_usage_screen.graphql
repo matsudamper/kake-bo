@@ -26,6 +26,14 @@ mutation MoneyUsageScreenDeleteImage($usageId: MoneyUsageId!, $imageId: ImageId!
     }
 }
 
+mutation MoneyUsageScreenAddImage($usageId: MoneyUsageId!, $imageId: ImageId!) {
+    userMutation {
+        addMoneyUsageImage(usageId: $usageId, imageId: $imageId) {
+            ... MoneyUsageScreenMoneyUsage
+        }
+    }
+}
+
 fragment MoneyUsageScreenMoneyUsage on MoneyUsage {
     id
     title
