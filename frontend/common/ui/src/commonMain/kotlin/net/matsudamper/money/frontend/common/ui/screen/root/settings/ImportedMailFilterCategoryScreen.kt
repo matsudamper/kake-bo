@@ -507,6 +507,25 @@ private fun MatcherCard(
             Column(
                 modifier = Modifier.weight(1f),
             ) {
+                Row(
+                    modifier = Modifier
+                        .clip(MaterialTheme.shapes.medium)
+                        .clickable { item.event.onClickMatcherKeyChange() }
+                        .padding(8.dp),
+                ) {
+                    Text("キー")
+                    Spacer(modifier = Modifier.width(8.dp))
+                    Column(
+                        modifier = Modifier.weight(1f),
+                    ) {
+                        Text(
+                            text = item.matcherKey,
+                            fontFamily = FontFamily.Monospace,
+                        )
+                        HorizontalDivider(modifier = Modifier.fillMaxWidth().height(1.dp))
+                    }
+                }
+                Spacer(modifier = Modifier.height(8.dp))
                 FlowRow(
                     verticalArrangement = Arrangement.Center,
                 ) {
@@ -552,7 +571,9 @@ private fun MatcherCard(
                         )
                     }
                     Text(
-                        modifier = Modifier.padding(end = 4.dp),
+                        modifier = Modifier
+                            .align(Alignment.CenterVertically)
+                            .padding(end = 4.dp),
                         text = "に以下のテキストが",
                     )
                     run {
@@ -595,28 +616,11 @@ private fun MatcherCard(
                         )
                     }
                     Text(
+                        modifier = Modifier.align(Alignment.CenterVertically),
                         text = "とき",
                     )
                 }
                 Spacer(modifier = Modifier.height(8.dp))
-                Row(
-                    modifier = Modifier
-                        .clip(MaterialTheme.shapes.medium)
-                        .clickable { item.event.onClickMatcherKeyChange() }
-                        .padding(8.dp),
-                ) {
-                    Text("キー")
-                    Spacer(modifier = Modifier.width(8.dp))
-                    Column(
-                        modifier = Modifier.weight(1f),
-                    ) {
-                        Text(
-                            text = item.matcherKey,
-                            fontFamily = FontFamily.Monospace,
-                        )
-                        HorizontalDivider(modifier = Modifier.fillMaxWidth().height(1.dp))
-                    }
-                }
                 Row(
                     modifier = Modifier
                         .clip(MaterialTheme.shapes.medium)
