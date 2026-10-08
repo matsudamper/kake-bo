@@ -98,24 +98,8 @@ public data class ImportedMailFilterCategoryScreenUiState(
             val category: Category?,
             val matchers: ImmutableList<Matcher>,
             val matchExpression: MatchExpression,
-            val operator: Operator,
             val event: LoadedEvent,
         ) : LoadingState
-    }
-
-    public enum class Operator {
-        AND,
-        OR,
-        UNKNOWN,
-        ;
-
-        internal fun getDisplayText(): String {
-            return when (this) {
-                AND -> "AND"
-                OR -> "OR"
-                UNKNOWN -> ""
-            }
-        }
     }
 
     public enum class DataSource {
@@ -210,8 +194,6 @@ public data class ImportedMailFilterCategoryScreenUiState(
         public fun onClickAddMatcher()
 
         public fun onClickNameChange()
-
-        public fun onSelectedOperator(operator: Operator)
 
         public fun onClickMatchExpressionChange()
 
@@ -470,42 +452,6 @@ private fun LoadedContent(
                         text = "条件",
                         style = MaterialTheme.typography.titleMedium,
                     )
-                    run {
-                        var visibleDropDown by remember { mutableStateOf(false) }
-                        DropDownButton(
-                            modifier = Modifier.padding(8.dp),
-                            item = {
-                                Text(uiState.operator.name)
-                            },
-                            visibleDropDown = visibleDropDown,
-                            onDismissRequest = {
-                                visibleDropDown = false
-                            },
-                            onClick = {
-                                visibleDropDown = !visibleDropDown
-                            },
-                            dropDown = {
-                                Column(modifier = Modifier.width(IntrinsicSize.Max)) {
-                                    immutableListOf(
-                                        ImportedMailFilterCategoryScreenUiState.Operator.AND,
-                                        ImportedMailFilterCategoryScreenUiState.Operator.OR,
-                                    ).forEach { operator ->
-                                        Box(
-                                            modifier = Modifier.fillMaxWidth()
-                                                .clickable {
-                                                    visibleDropDown = false
-                                                    uiState.event.onSelectedOperator(operator)
-                                                }
-                                                .padding(8.dp),
-                                        ) {
-                                            Text(text = operator.getDisplayText())
-                                        }
-                                    }
-                                }
-                            },
-                            contentDescription = "演算子を選択",
-                        )
-                    }
                     Spacer(modifier = Modifier.weight(1f))
                     OutlinedButton(
                         modifier = Modifier.padding(8.dp),
@@ -752,7 +698,7 @@ private fun MatchExpressionSection(
         HorizontalDivider(modifier = Modifier.fillMaxWidth().height(1.dp))
         Text(
             modifier = Modifier.padding(8.dp),
-            text = "例: id1 AND (id2 OR id3)。空にすると上のAND/ORで全ての条件をつないで判定します",
+            text = "例: id1 AND (id2 OR id3)",
             style = MaterialTheme.typography.bodySmall,
         )
         Text(

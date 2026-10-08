@@ -15,7 +15,6 @@ import net.matsudamper.money.frontend.graphql.ImportedMailCategoryFilterUpdateMu
 import net.matsudamper.money.frontend.graphql.type.AddImportedMailCategoryFilterMatcherInput
 import net.matsudamper.money.frontend.graphql.type.ImportedMailCategoryFilterDataSourceType
 import net.matsudamper.money.frontend.graphql.type.ImportedMailCategoryFilterMatcherType
-import net.matsudamper.money.frontend.graphql.type.ImportedMailFilterCategoryConditionOperator
 import net.matsudamper.money.frontend.graphql.type.UpdateImportedMailCategoryFilterInput
 import net.matsudamper.money.frontend.graphql.type.UpdateImportedMailCategoryFilterMatcherInput
 
@@ -40,7 +39,6 @@ public class ImportedMailFilterCategoryScreenGraphqlApi(
         id: ImportedMailCategoryFilterId,
         title: String? = null,
         subCategoryId: MoneyUsageSubCategoryId? = null,
-        operator: ImportedMailFilterCategoryScreenUiState.Operator? = null,
         matchExpression: String? = null,
     ): Result<ApolloResponse<ImportedMailCategoryFilterUpdateMutation.Data>> {
         return runCatching {
@@ -51,14 +49,6 @@ public class ImportedMailFilterCategoryScreenGraphqlApi(
                             id = id,
                             title = Optional.present(title),
                             subCategoryId = Optional.present(subCategoryId),
-                            operator = Optional.present(
-                                when (operator) {
-                                    ImportedMailFilterCategoryScreenUiState.Operator.AND -> ImportedMailFilterCategoryConditionOperator.AND
-                                    ImportedMailFilterCategoryScreenUiState.Operator.OR -> ImportedMailFilterCategoryConditionOperator.OR
-                                    ImportedMailFilterCategoryScreenUiState.Operator.UNKNOWN -> null
-                                    null -> null
-                                },
-                            ),
                             matchExpression = Optional.presentIfNotNull(matchExpression),
                         ),
                     ),
