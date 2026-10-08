@@ -142,6 +142,7 @@ public class ImportedMailFilterCategoryViewModel(
 
                                 createLoadedUiState(
                                     filter = filter,
+                                    matchExpressionInput = viewModelState.matchExpressionInput,
                                 )
                             }
                         }
@@ -178,7 +179,10 @@ public class ImportedMailFilterCategoryViewModel(
         }
     }
 
-    private fun createLoadedUiState(filter: ImportedMailCategoryFilterScreenQuery.ImportedMailCategoryFilter): ImportedMailFilterCategoryScreenUiState.LoadingState.Loaded {
+    private fun createLoadedUiState(
+        filter: ImportedMailCategoryFilterScreenQuery.ImportedMailCategoryFilter,
+        matchExpressionInput: String?,
+    ): ImportedMailFilterCategoryScreenUiState.LoadingState.Loaded {
         val matchers = filter.importedMailCategoryFilterScreenItem.matchers.orEmpty()
             .map { it.importedMailCategoryFilterMatcherScreenItem }
         return ImportedMailFilterCategoryScreenUiState.LoadingState.Loaded(
@@ -228,7 +232,6 @@ public class ImportedMailFilterCategoryViewModel(
                                                 }
                                             },
                                             default = matcher.matcherKey,
-                                            isMultiline = false,
                                             dismiss = { dismissTextInput() },
                                         ),
                                     )
@@ -255,7 +258,6 @@ public class ImportedMailFilterCategoryViewModel(
                                                 }
                                             },
                                             default = matcher.text,
-                                            isMultiline = false,
                                             dismiss = { dismissTextInput() },
                                         ),
                                     )
@@ -327,7 +329,8 @@ public class ImportedMailFilterCategoryViewModel(
                     )
                 }.toImmutableList(),
             matchExpression = createMatchExpressionUiState(
-                matchExpression = filter.importedMailCategoryFilterScreenItem.matchExpression,
+                savedMatchExpression = filter.importedMailCategoryFilterScreenItem.matchExpression.orEmpty(),
+                matchExpressionInput = matchExpressionInput,
                 matcherKeys = matchers.map { it.matcherKey }.toSet(),
             ),
             event = object : ImportedMailFilterCategoryScreenUiState.LoadedEvent {
@@ -361,34 +364,6 @@ public class ImportedMailFilterCategoryViewModel(
                                     }
                                 },
                                 default = filter.importedMailCategoryFilterScreenItem.title,
-                                isMultiline = false,
-                                dismiss = { dismissTextInput() },
-                            ),
-                        )
-                    }
-                }
-
-                override fun onClickMatchExpressionChange() {
-                    viewModelStateFlow.update { viewModelState ->
-                        viewModelState.copy(
-                            textInput = ImportedMailFilterCategoryScreenUiState.TextInput(
-                                title = "式を編集",
-                                onCompleted = { matchExpression ->
-                                    viewModelScope.launch {
-                                        api.updateFilter(
-                                            id = id,
-                                            matchExpression = matchExpression,
-                                        ).onSuccess {
-                                            dismissTextInput()
-                                        }.onFailure {
-                                            eventSender.send {
-                                                it.showNativeAlert("更新に失敗しました。")
-                                            }
-                                        }
-                                    }
-                                },
-                                default = filter.importedMailCategoryFilterScreenItem.matchExpression.orEmpty(),
-                                isMultiline = true,
                                 dismiss = { dismissTextInput() },
                             ),
                         )
@@ -435,22 +410,53 @@ public class ImportedMailFilterCategoryViewModel(
     }
 
     private fun createMatchExpressionUiState(
-        matchExpression: String?,
+        savedMatchExpression: String,
+        matchExpressionInput: String?,
         matcherKeys: Set<String>,
     ): ImportedMailFilterCategoryScreenUiState.MatchExpression {
-        val errors: List<MatchExpressionError> = if (matchExpression.isNullOrBlank()) {
+        val inputText = matchExpressionInput ?: savedMatchExpression
+        val errors: List<MatchExpressionError> = if (inputText.isBlank()) {
             listOf()
         } else {
-            when (val analysis = MatchExpressionAnalyzer.analyze(matchExpression, matcherKeys)) {
+            when (val analysis = MatchExpressionAnalyzer.analyze(inputText, matcherKeys)) {
                 is MatchExpressionAnalysis.Valid -> listOf()
                 is MatchExpressionAnalysis.Invalid -> analysis.errors
             }
         }
         return ImportedMailFilterCategoryScreenUiState.MatchExpression(
-            text = matchExpression?.takeIf { it.isNotBlank() },
+            inputText = inputText,
             errorRanges = errors.map { it.range }.toImmutableList(),
             errorMessages = errors.map { createMatchExpressionErrorMessage(it) }.distinct().toImmutableList(),
             allowedCharactersDescription = "キー（${CategoryFilterMatcherKey.ALLOWED_CHARACTERS_DESCRIPTION}）、AND、OR、!、(、)、TRUE、FALSE、空白、改行",
+            isSaveEnabled = inputText != savedMatchExpression,
+            event = object : ImportedMailFilterCategoryScreenUiState.MatchExpressionEvent {
+                override fun onInputChange(text: String) {
+                    viewModelStateFlow.update { viewModelState ->
+                        viewModelState.copy(
+                            matchExpressionInput = text,
+                        )
+                    }
+                }
+
+                override fun onClickSave() {
+                    viewModelScope.launch {
+                        api.updateFilter(
+                            id = id,
+                            matchExpression = inputText,
+                        ).onSuccess {
+                            viewModelStateFlow.update { viewModelState ->
+                                viewModelState.copy(
+                                    matchExpressionInput = null,
+                                )
+                            }
+                        }.onFailure {
+                            eventSender.send {
+                                it.showNativeAlert("更新に失敗しました。")
+                            }
+                        }
+                    }
+                }
+            },
         )
     }
 
@@ -495,5 +501,7 @@ public class ImportedMailFilterCategoryViewModel(
         val textInput: ImportedMailFilterCategoryScreenUiState.TextInput? = null,
         val categoryDialogUiState: CategorySelectDialogUiState? = null,
         val confirmDialog: ImportedMailFilterCategoryScreenUiState.ConfirmDialog? = null,
+        /** 未編集の場合はnull */
+        val matchExpressionInput: String? = null,
     )
 }

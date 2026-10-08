@@ -20,6 +20,7 @@ import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.lazy.rememberLazyListState
+import androidx.compose.material3.Button
 import androidx.compose.material3.Card
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.DropdownMenu
@@ -28,9 +29,11 @@ import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.LocalContentColor
+import androidx.compose.material3.LocalTextStyle
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.MenuDefaults
 import androidx.compose.material3.OutlinedButton
+import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.SnackbarDuration
 import androidx.compose.material3.SnackbarHostState
 import androidx.compose.material3.SnackbarResult
@@ -49,6 +52,8 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.text.SpanStyle
 import androidx.compose.ui.text.buildAnnotatedString
 import androidx.compose.ui.text.font.FontFamily
+import androidx.compose.ui.text.input.OffsetMapping
+import androidx.compose.ui.text.input.TransformedText
 import androidx.compose.ui.text.style.TextDecoration
 import androidx.compose.ui.unit.DpOffset
 import androidx.compose.ui.unit.dp
@@ -153,15 +158,23 @@ public data class ImportedMailFilterCategoryScreenUiState(
     )
 
     /**
-     * @param text 未設定の場合はnull
-     * @param errorRanges textの中でエラーになっている文字範囲
+     * @param errorRanges inputTextの中でエラーになっている文字範囲
      */
     public data class MatchExpression(
-        val text: String?,
+        val inputText: String,
         val errorRanges: ImmutableList<IntRange>,
         val errorMessages: ImmutableList<String>,
         val allowedCharactersDescription: String,
+        val isSaveEnabled: Boolean,
+        val event: MatchExpressionEvent,
     )
+
+    @Immutable
+    public interface MatchExpressionEvent {
+        public fun onInputChange(text: String)
+
+        public fun onClickSave()
+    }
 
     public data class Category(
         val category: String,
@@ -172,7 +185,6 @@ public data class ImportedMailFilterCategoryScreenUiState(
         val title: String,
         val onCompleted: (String) -> Unit,
         val default: String,
-        val isMultiline: Boolean,
         val dismiss: () -> Unit,
     )
 
@@ -194,8 +206,6 @@ public data class ImportedMailFilterCategoryScreenUiState(
         public fun onClickAddMatcher()
 
         public fun onClickNameChange()
-
-        public fun onClickMatchExpressionChange()
 
         public fun onClickCategoryChange()
     }
@@ -257,7 +267,7 @@ public fun ImportedMailFilterCategoryScreen(
             onComplete = { textInput.onCompleted(it) },
             canceled = { textInput.dismiss() },
             default = textInput.default,
-            isMultiline = textInput.isMultiline,
+            isMultiline = false,
         )
     }
     RootScreenScaffold(
@@ -489,7 +499,6 @@ private fun LoadedContent(
                     modifier = Modifier.fillMaxWidth()
                         .padding(top = 16.dp),
                     matchExpression = uiState.matchExpression,
-                    onClickChange = { uiState.event.onClickMatchExpressionChange() },
                 )
             }
         }
@@ -680,7 +689,6 @@ private fun MatcherCard(
 private fun MatchExpressionSection(
     modifier: Modifier = Modifier,
     matchExpression: ImportedMailFilterCategoryScreenUiState.MatchExpression,
-    onClickChange: () -> Unit,
 ) {
     Column(modifier = modifier) {
         Row(
@@ -692,11 +700,12 @@ private fun MatchExpressionSection(
                 style = MaterialTheme.typography.titleMedium,
             )
             Spacer(modifier = Modifier.weight(1f))
-            OutlinedButton(
+            Button(
                 modifier = Modifier.padding(8.dp),
-                onClick = { onClickChange() },
+                enabled = matchExpression.isSaveEnabled,
+                onClick = { matchExpression.event.onClickSave() },
             ) {
-                Text("変更")
+                Text("保存")
             }
         }
         HorizontalDivider(modifier = Modifier.fillMaxWidth().height(1.dp))
@@ -710,35 +719,39 @@ private fun MatchExpressionSection(
             text = "使える文字: ${matchExpression.allowedCharactersDescription}",
             style = MaterialTheme.typography.bodySmall,
         )
-        if (matchExpression.text == null) {
-            Text(
-                modifier = Modifier.padding(8.dp),
-                text = "未設定",
-            )
-        } else {
-            val errorTextColor = MaterialTheme.colorScheme.onErrorContainer
-            val errorBackgroundColor = MaterialTheme.colorScheme.errorContainer
-            Text(
-                modifier = Modifier.padding(8.dp),
-                text = buildAnnotatedString {
-                    append(matchExpression.text)
-                    matchExpression.errorRanges
-                        .filter { range -> !range.isEmpty() && range.last < matchExpression.text.length }
-                        .forEach { range ->
-                            addStyle(
-                                style = SpanStyle(
-                                    color = errorTextColor,
-                                    background = errorBackgroundColor,
-                                    textDecoration = TextDecoration.Underline,
-                                ),
-                                start = range.first,
-                                end = range.last + 1,
-                            )
-                        }
-                },
-                fontFamily = FontFamily.Monospace,
-            )
-        }
+        val errorTextColor = MaterialTheme.colorScheme.onErrorContainer
+        val errorBackgroundColor = MaterialTheme.colorScheme.errorContainer
+        OutlinedTextField(
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(8.dp),
+            value = matchExpression.inputText,
+            onValueChange = { matchExpression.event.onInputChange(it) },
+            textStyle = LocalTextStyle.current.copy(fontFamily = FontFamily.Monospace),
+            isError = matchExpression.errorMessages.isNotEmpty(),
+            minLines = 2,
+            visualTransformation = { text ->
+                TransformedText(
+                    text = buildAnnotatedString {
+                        append(text)
+                        matchExpression.errorRanges
+                            .filter { range -> !range.isEmpty() && range.last < text.length }
+                            .forEach { range ->
+                                addStyle(
+                                    style = SpanStyle(
+                                        color = errorTextColor,
+                                        background = errorBackgroundColor,
+                                        textDecoration = TextDecoration.Underline,
+                                    ),
+                                    start = range.first,
+                                    end = range.last + 1,
+                                )
+                            }
+                    },
+                    offsetMapping = OffsetMapping.Identity,
+                )
+            },
+        )
         matchExpression.errorMessages.forEach { errorMessage ->
             Text(
                 modifier = Modifier.padding(horizontal = 8.dp),
