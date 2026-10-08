@@ -30,7 +30,8 @@ class DeleteUsageImageRelationDaoImpl(
             DbConnectionImpl.use { connection ->
                 DSL.using(connection).transaction(
                     TransactionalRunnable {
-                        val relationDeleteCount = DSL.using(it)
+                        val context = DSL.using(it)
+                        val relationDeleteCount = context
                             .deleteFrom(usageImagesRelation)
                             .where(
                                 usageImagesRelation.USER_ID.eq(userId.value)
@@ -42,8 +43,8 @@ class DeleteUsageImageRelationDaoImpl(
 
                         if (relationDeleteCount <= 0) throw IllegalStateException("削除対象の関連が見つかりませんでした: userId=${userId.value}, moneyUsageId=${moneyUsageId.id}, imageId=${imageId.value}")
 
-                        userImageDeleter.delete(
-                            context = DSL.using(connection),
+                        userImageDeleter.deleteIfUnlinked(
+                            context = context,
                             userId = userId,
                             imageId = imageId,
                         )

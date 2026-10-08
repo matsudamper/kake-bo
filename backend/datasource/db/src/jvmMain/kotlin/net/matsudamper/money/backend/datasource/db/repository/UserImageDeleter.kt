@@ -3,6 +3,7 @@ package net.matsudamper.money.backend.datasource.db.repository
 import java.io.IOException
 import net.matsudamper.money.backend.app.interfaces.ImageStorageGateway
 import net.matsudamper.money.backend.datasource.db.element.DbStorageType
+import net.matsudamper.money.db.schema.tables.JMoneyUsageImagesRelation
 import net.matsudamper.money.db.schema.tables.JUserImages
 import net.matsudamper.money.element.ImageId
 import net.matsudamper.money.element.UserId
@@ -12,11 +13,25 @@ internal class UserImageDeleter(
     private val localImageStorageGateway: ImageStorageGateway,
     private val s3ImageStorageGateway: ImageStorageGateway?,
 ) {
-    fun delete(
+    /**
+     * どの利用にも紐付いていない場合だけ、画像ファイルとレコードを削除する
+     */
+    fun deleteIfUnlinked(
         context: DSLContext,
         userId: UserId,
         imageId: ImageId,
     ) {
+        val usageImagesRelation = JMoneyUsageImagesRelation.MONEY_USAGE_IMAGES_RELATION
+        val linkedCount = context
+            .selectCount()
+            .from(usageImagesRelation)
+            .where(
+                usageImagesRelation.USER_ID.eq(userId.value)
+                    .and(usageImagesRelation.USER_IMAGE_ID.eq(imageId.value)),
+            )
+            .fetchOne(0, Int::class.java) ?: 0
+        if (linkedCount > 0) return
+
         val userImages = JUserImages.USER_IMAGES
         val record = context
             .select(userImages.IMAGE_PATH, userImages.STORAGE_TYPE)

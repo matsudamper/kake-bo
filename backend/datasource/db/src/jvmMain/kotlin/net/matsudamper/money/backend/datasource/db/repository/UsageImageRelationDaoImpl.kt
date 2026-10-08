@@ -76,8 +76,8 @@ class UsageImageRelationDaoImpl(
                     moneyUsageId = moneyUsageId,
                     imageId = newImageId,
                 )
-            } else if (isUnlinked(context = context, userId = userId, imageId = oldImageId)) {
-                userImageDeleter.delete(
+            } else {
+                userImageDeleter.deleteIfUnlinked(
                     context = context,
                     userId = userId,
                     imageId = oldImageId,
@@ -130,22 +130,6 @@ class UsageImageRelationDaoImpl(
             )
             .fetchOne(0, Int::class.java) ?: 0
         if (imageCount != 1) throw IllegalStateException("ユーザー画像が見つかりませんでした: userId=${userId.value}, imageId=${imageId.value}")
-    }
-
-    private fun isUnlinked(
-        context: DSLContext,
-        userId: UserId,
-        imageId: ImageId,
-    ): Boolean {
-        val linkedCount = context
-            .selectCount()
-            .from(jUsageImagesRelation)
-            .where(
-                jUsageImagesRelation.USER_ID.eq(userId.value)
-                    .and(jUsageImagesRelation.USER_IMAGE_ID.eq(imageId.value)),
-            )
-            .fetchOne(0, Int::class.java) ?: 0
-        return linkedCount == 0
     }
 
     private fun insertToLast(
