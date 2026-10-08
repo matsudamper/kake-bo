@@ -14,12 +14,22 @@ plugins {
 base.archivesName.set("money")
 group = "net.matsudamper.money.backend"
 
-val graalVmLanguageVersion = JavaLanguageVersion.of(24)
+val jvmLanguageVersion = JavaLanguageVersion.of(24)
 val graalVmNativeLanguageVersion = JavaLanguageVersion.of(25)
 val graalVmLauncher = javaToolchains.launcherFor {
     languageVersion = graalVmNativeLanguageVersion
     vendor = JvmVendorSpec.GRAAL_VM
 }
+
+val nativeImageMaxHeapSizePercent =
+    (findProperty("nativeImageBuild.maxHeapSizePercent") as String?)?.toIntOrNull()
+
+val nativeImageHostJvmArgs: List<String> =
+    (findProperty("nativeImageBuild.jvmArgs") as String?)
+        ?.split(',')
+        ?.map { it.trim() }
+        ?.filter { it.isNotEmpty() }
+        ?: emptyList()
 
 val nativeBuildArgs = listOf(
     "--no-fallback",
@@ -53,15 +63,13 @@ val nativeBuildArgs = listOf(
 
 java {
     toolchain {
-        languageVersion = graalVmLanguageVersion
-        vendor = JvmVendorSpec.GRAAL_VM
+        languageVersion = jvmLanguageVersion
     }
 }
 
 kotlin {
     jvmToolchain {
-        languageVersion = graalVmLanguageVersion
-        vendor = JvmVendorSpec.GRAAL_VM
+        languageVersion = jvmLanguageVersion
     }
 }
 
@@ -126,6 +134,12 @@ graalvmNative {
             mainClass.set("net.matsudamper.money.backend.Main")
             imageName.set("backend")
             buildArgs.addAll(nativeBuildArgs)
+            nativeImageMaxHeapSizePercent?.let { percent ->
+                buildArgs.add("-H:MaximumHeapSizePercent=$percent")
+            }
+            if (nativeImageHostJvmArgs.isNotEmpty()) {
+                jvmArgs.addAll(nativeImageHostJvmArgs)
+            }
             buildArgs.add(
                 "--features=" + listOf(
                     "net.matsudamper.money.backend.graalvm.GraphqlReflectionFeature",

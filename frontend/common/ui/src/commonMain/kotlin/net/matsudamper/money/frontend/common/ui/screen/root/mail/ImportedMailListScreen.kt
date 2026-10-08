@@ -26,19 +26,14 @@ import androidx.compose.foundation.lazy.LazyListState
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.foundation.rememberScrollState
-import androidx.compose.foundation.text.KeyboardActions
-import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.FilterChip
 import androidx.compose.material3.HorizontalDivider
-import androidx.compose.material3.Icon
-import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedButton
-import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Text
 import androidx.compose.material3.pulltorefresh.PullToRefreshBox
 import androidx.compose.material3.pulltorefresh.rememberPullToRefreshState
@@ -52,24 +47,25 @@ import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.style.TextOverflow
+import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.LayoutDirection
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.window.Popup
 import androidx.compose.ui.window.PopupProperties
 import kotlinx.coroutines.delay
+import kotlinx.coroutines.flow.emptyFlow
 import kotlinx.coroutines.isActive
 import kotlinx.coroutines.launch
+import net.matsudamper.money.frontend.common.base.immutableListOf
+import net.matsudamper.money.frontend.common.ui.AppRoot
 import net.matsudamper.money.frontend.common.ui.base.KakeBoTopAppBar
+import net.matsudamper.money.frontend.common.ui.base.KakeboScaffoldListener
 import net.matsudamper.money.frontend.common.ui.base.LocalScrollToTopHandler
 import net.matsudamper.money.frontend.common.ui.base.RootScreenScaffold
-import net.matsudamper.money.frontend.common.ui.generated.resources.Res
-import net.matsudamper.money.frontend.common.ui.generated.resources.ic_search
 import net.matsudamper.money.frontend.common.ui.layout.GridColumn
+import net.matsudamper.money.frontend.common.ui.layout.SearchBoxField
 import net.matsudamper.money.frontend.common.ui.rememberCustomFontFamily
-import org.jetbrains.compose.resources.painterResource
-
 @Composable
 public fun ImportedMailListScreen(
     modifier: Modifier = Modifier,
@@ -250,32 +246,18 @@ private fun Filter(
     contentPadding: PaddingValues,
 ) {
     Column(modifier = modifier) {
-        OutlinedTextField(
+        SearchBoxField(
             modifier = Modifier.fillMaxWidth()
                 .padding(
                     start = contentPadding.calculateStartPadding(LayoutDirection.Ltr),
                     end = contentPadding.calculateEndPadding(LayoutDirection.Ltr),
                     top = contentPadding.calculateTopPadding(),
                 ),
-            value = uiState.textSearch.text,
-            onValueChange = uiState.textSearch.onTextChanged,
-            placeholder = {
-                Text(
-                    text = "メールを検索",
-                    fontFamily = rememberCustomFontFamily(),
-                )
-            },
-            singleLine = true,
-            trailingIcon = {
-                IconButton(onClick = uiState.textSearch.onSearch) {
-                    Icon(
-                        painter = painterResource(Res.drawable.ic_search),
-                        contentDescription = null,
-                    )
-                }
-            },
-            keyboardOptions = KeyboardOptions(imeAction = ImeAction.Search),
-            keyboardActions = KeyboardActions(onSearch = { uiState.textSearch.onSearch() }),
+            text = uiState.textSearch.text,
+            onTextChange = uiState.textSearch.onTextChanged,
+            onSearch = uiState.textSearch.onSearch,
+            onClear = uiState.textSearch.onClear,
+            placeholder = "メールを検索",
         )
         Row(
             modifier = Modifier.fillMaxWidth()
@@ -654,5 +636,56 @@ private fun MailItem(
                 )
             }
         }
+    }
+}
+
+@Preview
+@Composable
+private fun ImportedMailListScreenPreview() {
+    val listItemEvent = object : ImportedMailListScreenUiState.ListItemEvent {
+        override fun onClickMailDetail() {}
+        override fun onClick() {}
+    }
+    val filters = ImportedMailListScreenUiState.Filters(
+        link = ImportedMailListScreenUiState.Filters.Link(
+            status = ImportedMailListScreenUiState.Filters.LinkStatus.Undefined,
+            updateState = {},
+        ),
+        textSearch = ImportedMailListScreenUiState.Filters.TextSearch(
+            text = "amazon",
+            onTextChanged = {},
+            onSearch = {},
+            onClear = {},
+        ),
+    )
+    AppRoot(isDarkTheme = true) {
+        ImportedMailListScreen(
+            uiState = ImportedMailListScreenUiState(
+                event = object : ImportedMailListScreenUiState.Event {
+                    override fun onViewInitialized() {}
+                    override fun moreLoading() {}
+                    override fun refresh() {}
+                },
+                filters = filters,
+                loadingState = ImportedMailListScreenUiState.LoadingState.Loaded(
+                    listItems = immutableListOf(
+                        ImportedMailListScreenUiState.ListItem(
+                            mail = ImportedMailListScreenUiState.ImportedMail(
+                                mailFrom = "noreply@example.com",
+                                mailSubject = "ご注文の確認",
+                            ),
+                            usages = immutableListOf(),
+                            event = listItemEvent,
+                        ),
+                    ),
+                    showLastLoading = false,
+                ),
+                kakeboScaffoldListener = object : KakeboScaffoldListener {
+                    override fun onClickTitle() {}
+                },
+                operation = emptyFlow(),
+            ),
+            windowInsets = PaddingValues(),
+        )
     }
 }

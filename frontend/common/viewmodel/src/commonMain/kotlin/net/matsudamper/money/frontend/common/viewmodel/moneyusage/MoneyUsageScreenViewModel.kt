@@ -340,6 +340,22 @@ public class MoneyUsageScreenViewModel(
                 }
             }
 
+            override fun onClickDate() {
+                val moneyUsage = currentMoneyUsage() ?: return
+                val date = moneyUsage.date.date
+                viewModelScope.launch {
+                    eventSender.send {
+                        it.navigate(
+                            ScreenStructure.CalendarDateList(
+                                year = date.year,
+                                month = date.monthNumber,
+                                day = date.dayOfMonth,
+                            ),
+                        )
+                    }
+                }
+            }
+
             override fun onClickTimeChange() {
                 viewModelStateFlow.update { viewModelState ->
                     viewModelState.copy(

@@ -53,6 +53,7 @@ public class ImportedMailListViewModel(
                     text = "",
                     onTextChanged = { searchInputTextFlow.value = it },
                     onSearch = { searchText() },
+                    onClear = { clearSearchText() },
                 ),
             ),
             event = object : ImportedMailListScreenUiState.Event {
@@ -169,6 +170,11 @@ public class ImportedMailListViewModel(
             )
         }
         fetch()
+    }
+
+    private fun clearSearchText() {
+        searchInputTextFlow.value = ""
+        searchText()
     }
 
     private fun searchText() {

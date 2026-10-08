@@ -32,6 +32,7 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.ProvideTextStyle
 import androidx.compose.material3.Text
+import androidx.compose.material3.ripple
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.Immutable
 import androidx.compose.runtime.LaunchedEffect
@@ -45,6 +46,7 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.SolidColor
 import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.window.Dialog
 import androidx.compose.ui.window.Popup
@@ -53,6 +55,7 @@ import kotlinx.datetime.LocalDate
 import kotlinx.datetime.LocalTime
 import coil3.compose.AsyncImage
 import net.matsudamper.money.frontend.common.base.ImmutableList
+import net.matsudamper.money.frontend.common.ui.AppRoot
 import net.matsudamper.money.frontend.common.ui.LocalIsLargeScreen
 import net.matsudamper.money.frontend.common.ui.base.CategorySelectDialog
 import net.matsudamper.money.frontend.common.ui.base.CategorySelectDialogUiState
@@ -185,6 +188,8 @@ public data class MoneyUsageScreenUiState(
         public fun onClickTitleChange()
 
         public fun onClickDateChange()
+
+        public fun onClickDate()
 
         public fun onClickTimeChange()
 
@@ -501,65 +506,89 @@ private fun MainCard(
 ) {
     Card(modifier = modifier.fillMaxWidth()) {
         Column(modifier = Modifier.padding(horizontal = 16.dp, vertical = 8.dp)) {
-            MoneyUsageSection(
+            ChangeableFieldRow(
+                modifier = Modifier.padding(vertical = 12.dp),
                 title = "タイトル",
-                content = { Text(uiState.title) },
                 onClickChange = { uiState.event.onClickTitleChange() },
+                body = { Text(uiState.title) },
             )
             HorizontalDivider(modifier = Modifier.fillMaxWidth().height(1.dp))
-            MoneyUsageSection(
+            ChangeableFieldRow(
+                modifier = Modifier.padding(vertical = 12.dp),
                 title = "日付",
-                content = { Text(uiState.date) },
+                onClickBody = { uiState.event.onClickDate() },
                 onClickChange = { uiState.event.onClickDateChange() },
+                body = { Text(uiState.date) },
             )
             HorizontalDivider(modifier = Modifier.fillMaxWidth().height(1.dp))
-            MoneyUsageSection(
+            ChangeableFieldRow(
+                modifier = Modifier.padding(vertical = 12.dp),
                 title = "時間",
-                content = { Text(uiState.time) },
                 onClickChange = { uiState.event.onClickTimeChange() },
+                body = { Text(uiState.time) },
             )
             HorizontalDivider(modifier = Modifier.fillMaxWidth().height(1.dp))
-            MoneyUsageSection(
+            ChangeableFieldRow(
+                modifier = Modifier.padding(vertical = 12.dp),
                 title = "カテゴリ",
-                content = { Text(uiState.category) },
                 onClickChange = { uiState.event.onClickCategoryChange() },
+                body = { Text(uiState.category) },
             )
             HorizontalDivider(modifier = Modifier.fillMaxWidth().height(1.dp))
-            MoneyUsageSection(
+            ChangeableFieldRow(
+                modifier = Modifier.padding(vertical = 12.dp),
                 title = "金額",
-                content = { Text(uiState.amount) },
                 onClickChange = { uiState.event.onClickAmountChange() },
+                body = { Text(uiState.amount) },
             )
             HorizontalDivider(modifier = Modifier.fillMaxWidth().height(1.dp))
-            MoneyUsageSection(
-                title = "説明",
+            ChangeableFieldRow(
+                modifier = Modifier.padding(vertical = 12.dp),
                 multiline = true,
-                content = {
+                title = "説明",
+                onClickChange = { uiState.event.onClickDescription() },
+                body = {
                     UrlClickableText(
                         text = uiState.description.text,
                         onClickUrl = { uiState.description.event.onClickUrl(it) },
                         onLongClickUrl = { uiState.description.event.onLongClickUrl(it) },
                     )
                 },
-                onClickChange = { uiState.event.onClickDescription() },
             )
         }
     }
 }
 
 @Composable
-private fun MoneyUsageSection(
+private fun ChangeableFieldRow(
     modifier: Modifier = Modifier,
     multiline: Boolean = false,
     title: String,
+    onClickBody: (() -> Unit)? = null,
     onClickChange: () -> Unit,
-    content: @Composable () -> Unit,
+    body: @Composable () -> Unit,
 ) {
+    val bodyInteractionSource = remember { MutableInteractionSource() }
+    val primaryColor = MaterialTheme.colorScheme.primary
     Row(
-        modifier = modifier.padding(vertical = 12.dp),
+        modifier = modifier,
         verticalAlignment = if (multiline) Alignment.Top else Alignment.CenterVertically,
     ) {
-        Column(modifier = Modifier.weight(1f)) {
+        Column(
+            modifier = Modifier
+                .weight(1f)
+                .then(
+                    if (onClickBody != null) {
+                        Modifier.clickable(
+                            interactionSource = bodyInteractionSource,
+                            indication = ripple(color = primaryColor),
+                            onClick = onClickBody,
+                        )
+                    } else {
+                        Modifier
+                    },
+                ),
+        ) {
             Text(
                 text = title,
                 style = MaterialTheme.typography.labelLarge,
@@ -567,7 +596,7 @@ private fun MoneyUsageSection(
             )
             Spacer(modifier = Modifier.height(4.dp))
             ProvideTextStyle(MaterialTheme.typography.bodyLarge) {
-                content()
+                body()
             }
         }
         OutlinedButton(
@@ -804,5 +833,78 @@ private fun MailsSection(
                 }
             }
         }
+    }
+}
+
+@Composable
+@Preview
+private fun MoneyUsageScreenPreview() {
+    val moneyUsageEvent = object : MoneyUsageScreenUiState.MoneyUsageEvent {
+        override fun onClickTitleChange() = Unit
+
+        override fun onClickDateChange() = Unit
+
+        override fun onClickDate() = Unit
+
+        override fun onClickTimeChange() = Unit
+
+        override fun onClickCategoryChange() = Unit
+
+        override fun onClickDescription() = Unit
+
+        override fun onClickAmountChange() = Unit
+
+        override fun onClickUploadImage() = Unit
+    }
+    AppRoot(isDarkTheme = false) {
+        MoneyUsageScreen(
+            modifier = Modifier.fillMaxSize(),
+            uiState = MoneyUsageScreenUiState(
+                event = object : MoneyUsageScreenUiState.Event {
+                    override fun onViewInitialized() = Unit
+
+                    override fun onClickRetry() = Unit
+
+                    override fun onClickBack() = Unit
+                },
+                loadingState = MoneyUsageScreenUiState.LoadingState.Loaded(
+                    moneyUsage = MoneyUsageScreenUiState.MoneyUsage(
+                        title = "スーパーマーケット",
+                        description = MoneyUsageScreenUiState.Clickable(
+                            text = "食料品の購入",
+                            event = object : MoneyUsageScreenUiState.ClickableEvent {
+                                override fun onClickUrl(url: String) = Unit
+
+                                override fun onLongClickUrl(text: String) = Unit
+                            },
+                        ),
+                        amount = "3,500円",
+                        category = "食費 / スーパー",
+                        date = "2026/10/06",
+                        time = "12:30",
+                        images = ImmutableList(emptyList()),
+                        uploadQueueItems = ImmutableList(emptyList()),
+                        event = moneyUsageEvent,
+                    ),
+                    linkedMails = ImmutableList(emptyList()),
+                    event = object : MoneyUsageScreenUiState.LoadedEvent {
+                        override fun onClickDelete() = Unit
+
+                        override fun onClickCopy() = Unit
+                    },
+                ),
+                confirmDialog = null,
+                textInputDialog = null,
+                calendarDialog = null,
+                timePickerDialog = null,
+                urlMenuDialog = null,
+                numberInputDialog = null,
+                categorySelectDialog = null,
+            ),
+            kakeboScaffoldListener = object : KakeboScaffoldListener {
+                override fun onClickTitle() = Unit
+            },
+            windowInsets = PaddingValues(),
+        )
     }
 }

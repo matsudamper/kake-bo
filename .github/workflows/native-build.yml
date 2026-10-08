@@ -20,6 +20,9 @@ jobs:
     runs-on: ubuntu-latest
     env:
       GRADLE_OPTS: -Dkotlin.compiler.execution.strategy=in-process -Dorg.gradle.workers.max=2 -Dorg.gradle.daemon=false -Dorg.gradle.jvmargs="-Xmx6g"
+      # native-image 生成 JVM（gradle.properties の nativeImageBuild.* を CI 向けに上書き）
+      ORG_GRADLE_PROJECT_nativeImageBuild_maxHeapSizePercent: "52"
+      ORG_GRADLE_PROJECT_nativeImageBuild_jvmArgs: "-Xmx9g"
       GITHUB_ACTOR: ${{ github.actor }}
       GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
     steps:
@@ -94,7 +97,7 @@ jobs:
           kill $SERVER_PID 2>/dev/null || true
 
       - name: ネイティブバイナリのアップロード
-        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
+        uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
         with:
           name: backend-native-${{ github.sha }}
           path: backend/build/native/nativeCompile/backend
