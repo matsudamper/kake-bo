@@ -1,8 +1,8 @@
 [versions]
 awsSdk = "2.30.20"
 nimbusJoseJwt = "10.9.1"
-java = "24"
-javaToolchain = "24"
+java = "25"
+javaToolchain = "25"
 kotlin = "2.4.21"
 apollo = "5.2.0"
 ktor = "3.6.0"
