@@ -889,6 +889,52 @@ class UserMutationResolverImpl : UserMutationResolver {
         }.toDataFetcher()
     }
 
+    override fun addMoneyUsageImage(
+        userMutation: QlUserMutation,
+        usageId: MoneyUsageId,
+        imageId: ImageId,
+        env: DataFetchingEnvironment,
+    ): CompletionStage<DataFetcherResult<QlMoneyUsage>> {
+        val context = env.graphQlContext.get<GraphQlContext>(GraphQlContext::class.java.name)
+        val userId = context.verifyUserSessionAndGetUserId()
+
+        return CompletableFuture.allOf().otelThenApplyAsync {
+            val isSuccess = context.diContainer.createUsageImageRelationDao().add(
+                userId = userId,
+                moneyUsageId = usageId,
+                imageId = imageId,
+            )
+            if (isSuccess.not()) {
+                throw IllegalStateException("add money usage image failed")
+            }
+            QlMoneyUsage(id = usageId)
+        }.toDataFetcher()
+    }
+
+    override fun replaceMoneyUsageImage(
+        userMutation: QlUserMutation,
+        usageId: MoneyUsageId,
+        oldImageId: ImageId,
+        newImageId: ImageId,
+        env: DataFetchingEnvironment,
+    ): CompletionStage<DataFetcherResult<QlMoneyUsage>> {
+        val context = env.graphQlContext.get<GraphQlContext>(GraphQlContext::class.java.name)
+        val userId = context.verifyUserSessionAndGetUserId()
+
+        return CompletableFuture.allOf().otelThenApplyAsync {
+            val isSuccess = context.diContainer.createUsageImageRelationDao().replace(
+                userId = userId,
+                moneyUsageId = usageId,
+                oldImageId = oldImageId,
+                newImageId = newImageId,
+            )
+            if (isSuccess.not()) {
+                throw IllegalStateException("replace money usage image failed")
+            }
+            QlMoneyUsage(id = usageId)
+        }.toDataFetcher()
+    }
+
     override fun updateUsage(
         userMutation: QlUserMutation,
         query: QlUpdateUsageQuery,
