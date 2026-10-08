@@ -855,6 +855,8 @@ private fun MoneyUsageScreenPreview() {
         override fun onClickAmountChange() = Unit
 
         override fun onClickUploadImage() = Unit
+
+        override fun onClickImagesReload() = Unit
     }
     AppRoot(isDarkTheme = false) {
         MoneyUsageScreen(
@@ -883,6 +885,7 @@ private fun MoneyUsageScreenPreview() {
                         date = "2026/10/06",
                         time = "12:30",
                         images = ImmutableList(emptyList()),
+                        isImagesError = false,
                         uploadQueueItems = ImmutableList(emptyList()),
                         event = moneyUsageEvent,
                     ),
@@ -900,6 +903,7 @@ private fun MoneyUsageScreenPreview() {
                 urlMenuDialog = null,
                 numberInputDialog = null,
                 categorySelectDialog = null,
+                zoomImageDialog = null,
             ),
             kakeboScaffoldListener = object : KakeboScaffoldListener {
                 override fun onClickTitle() = Unit
