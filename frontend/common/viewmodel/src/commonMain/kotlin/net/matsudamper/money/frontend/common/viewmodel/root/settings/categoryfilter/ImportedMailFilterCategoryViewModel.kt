@@ -32,7 +32,6 @@ import net.matsudamper.money.frontend.graphql.lib.ApolloResponseCollector
 import net.matsudamper.money.frontend.graphql.lib.ApolloResponseState
 import net.matsudamper.money.frontend.graphql.type.ImportedMailCategoryFilterDataSourceType
 import net.matsudamper.money.frontend.graphql.type.ImportedMailCategoryFilterMatcherType
-import net.matsudamper.money.frontend.graphql.type.ImportedMailFilterCategoryConditionOperator
 
 public class ImportedMailFilterCategoryViewModel(
     scopedObjectFeature: ScopedObjectFeature,
@@ -331,11 +330,6 @@ public class ImportedMailFilterCategoryViewModel(
                 matchExpression = filter.importedMailCategoryFilterScreenItem.matchExpression,
                 matcherKeys = matchers.map { it.matcherKey }.toSet(),
             ),
-            operator = when (filter.importedMailCategoryFilterScreenItem.operator) {
-                ImportedMailFilterCategoryConditionOperator.AND -> ImportedMailFilterCategoryScreenUiState.Operator.AND
-                ImportedMailFilterCategoryConditionOperator.OR -> ImportedMailFilterCategoryScreenUiState.Operator.OR
-                ImportedMailFilterCategoryConditionOperator.UNKNOWN__ -> ImportedMailFilterCategoryScreenUiState.Operator.UNKNOWN
-            },
             event = object : ImportedMailFilterCategoryScreenUiState.LoadedEvent {
                 override fun onClickAddMatcher() {
                     viewModelScope.launch {
@@ -371,24 +365,6 @@ public class ImportedMailFilterCategoryViewModel(
                                 dismiss = { dismissTextInput() },
                             ),
                         )
-                    }
-                }
-
-                override fun onSelectedOperator(operator: ImportedMailFilterCategoryScreenUiState.Operator) {
-                    viewModelScope.launch {
-                        runCatching {
-                            api.updateFilter(
-                                id = id,
-                                operator = operator,
-                            )
-                        }.onFailure {
-                            snackbarEventState.show(
-                                SnackbarEventState.Event(
-                                    message = "更新に失敗しました",
-                                    withDismissAction = true,
-                                ),
-                            )
-                        }
                     }
                 }
 

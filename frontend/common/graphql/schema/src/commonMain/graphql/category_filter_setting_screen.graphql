@@ -74,7 +74,6 @@ mutation ImportedMailCategoryFilterScreenDeleteMatcher($id: ImportedMailCategory
 fragment ImportedMailCategoryFilterScreenItem on ImportedMailCategoryFilter {
     id
     title
-    operator
     matchExpression
     subCategory {
         id
