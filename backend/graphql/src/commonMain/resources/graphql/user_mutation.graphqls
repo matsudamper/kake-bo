@@ -21,7 +21,7 @@ type UserMutation {
     """
     addMoneyUsageImage(usageId: MoneyUsageId!, imageId: ImageId!): MoneyUsage!
     """
-    旧画像の位置に新画像を紐付け、旧画像を削除する。旧画像が紐付いていない場合は新画像を末尾に紐付ける
+    旧画像の位置に新画像を紐付け、旧画像がどこからも紐付いていなければ削除する。旧画像が紐付いていない場合は新画像を末尾に紐付ける
     """
     replaceMoneyUsageImage(usageId: MoneyUsageId!, oldImageId: ImageId!, newImageId: ImageId!): MoneyUsage!
 
