@@ -29,7 +29,7 @@
 ```
 - Android依存なし: Kotest (JUnit 5) / Android・Robolectric: JUnit 4
 - GraphQL: フロントはバックエンドの `backend/graphql/src/commonMain/resources/graphql/*.graphqls` を直接参照する。`./gradlew generateApolloSources`
-- DB: スキーマを変えたら `backend/datasource/db/src/jvmMain/resources/sql/` にマイグレーション SQL を追加し、jOOQ のコードを `./gradlew :backend:datasource:db:schema:generateDbCode` で再生成する（ローカルの MariaDB が必要）
+- DB: スキーマを変えたら `backend/datasource/db/src/jvmMain/resources/sql/` にマイグレーション SQL を追加し、ローカルの MariaDB（`localhost:3306/money`）に適用してから、jOOQ のコードを `./gradlew :backend:datasource:db:schema:generateDbCode` で再生成する。生成は SQL ファイルではなく DB の実スキーマから行われる
   - MariaDB に接続できない環境では、SQL の変更内容から生成コードを推測して手で書いてよい。その旨を PR 本文に書き、正式な再生成はオーナーが行う
 
 # 共通ルール
