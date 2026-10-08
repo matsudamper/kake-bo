@@ -203,7 +203,7 @@ def write_gradle_properties():
         f.write(props)
     print(f"gradle.properties written (proxy={host}:{port})")
 
-# JDK 24 は gradle/gradle-daemon-jvm.properties と foojay-resolver により Gradle が自動で取得する
+# JDK 25 は gradle/gradle-daemon-jvm.properties と foojay-resolver により Gradle が自動で取得する
 write_gradle_properties()
 
 # ── Android SDK セットアップ ──────────────────────────────────────────────────
