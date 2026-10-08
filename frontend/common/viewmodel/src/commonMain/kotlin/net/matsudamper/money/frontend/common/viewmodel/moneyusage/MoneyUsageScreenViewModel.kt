@@ -8,8 +8,6 @@ import kotlinx.coroutines.flow.catch
 import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
-import kotlinx.coroutines.sync.Mutex
-import kotlinx.coroutines.sync.withLock
 import kotlinx.datetime.LocalDateTime
 import com.apollographql.apollo.api.ApolloResponse
 import com.apollographql.apollo.cache.normalized.FetchPolicy
@@ -22,7 +20,6 @@ import net.matsudamper.money.frontend.common.base.ImmutableList.Companion.toImmu
 import net.matsudamper.money.frontend.common.base.image.SelectedImage
 import net.matsudamper.money.frontend.common.base.nav.ScopedObjectFeature
 import net.matsudamper.money.frontend.common.base.nav.user.ScreenStructure
-import net.matsudamper.money.frontend.common.base.runCatchingWithoutCancel
 import net.matsudamper.money.frontend.common.feature.uploader.ImageUploadQueue
 import net.matsudamper.money.frontend.common.ui.base.CategorySelectDialogUiState
 import net.matsudamper.money.frontend.common.ui.layout.NumberInputValue
@@ -158,6 +155,7 @@ public class MoneyUsageScreenViewModel(
                                             ),
                                         )
                                     }.toImmutableList(),
+                                    isImagesError = viewModelState.isImagesError,
                                     uploadQueueItems = viewModelState.uploadQueueItems.map { item ->
                                         MoneyUsageScreenUiState.UploadQueueItem(
                                             id = item.id,
@@ -449,6 +447,13 @@ public class MoneyUsageScreenViewModel(
                     }
                 }
             }
+
+            override fun onClickImagesReload() {
+                viewModelStateFlow.update { viewModelState ->
+                    viewModelState.copy(isImagesError = false)
+                }
+                fetch(policy = FetchPolicy.NetworkOnly)
+            }
         }
     }
 
@@ -473,15 +478,31 @@ public class MoneyUsageScreenViewModel(
                     }
 
                     try {
-                        val isSuccess = replaceImage(
-                            oldImageId = imageId,
-                            newImage = newImage,
-                        )
-                        if (isSuccess) {
-                            fetch(policy = FetchPolicy.NetworkOnly)
+                        val imageBytes = newImage.bytes
+                        val uploadResult = if (imageBytes == null) {
+                            null
                         } else {
+                            api.uploadImage(
+                                bytes = imageBytes,
+                                contentType = newImage.contentType,
+                            )
+                        }
+                        if (uploadResult == null) {
                             eventSender.send {
                                 it.showToast("画像の入れ替えに失敗しました")
+                            }
+                            return@launch
+                        }
+
+                        val isSuccess = api.replaceImage(
+                            usageId = moneyUsageId,
+                            oldImageId = imageId,
+                            newImageId = uploadResult.imageId,
+                        )
+                        if (isSuccess.not()) {
+                            // 応答が届かなかっただけでサーバー側では反映済みの可能性があるため、表示を消して再取得を促す
+                            viewModelStateFlow.update { viewModelState ->
+                                viewModelState.copy(isImagesError = true)
                             }
                         }
                     } finally {
@@ -511,44 +532,7 @@ public class MoneyUsageScreenViewModel(
         }
     }
 
-    /**
-     * 新しい画像のアップロードに成功してから画像IDの一覧を差し替えることで、失敗時に旧画像が失われないようにする
-     */
-    private suspend fun replaceImage(
-        oldImageId: ImageId,
-        newImage: SelectedImage,
-    ): Boolean {
-        val imageBytes = newImage.bytes ?: return false
-        val uploadResult = api.uploadImage(
-            bytes = imageBytes,
-            contentType = newImage.contentType,
-        ) ?: return false
-
-        // 複数画像の入れ替えが並行すると、同じ一覧を元にした更新が互いの置換を打ち消すため直列化する
-        return imageIdsUpdateMutex.withLock {
-            val currentImageIds = runCatchingWithoutCancel {
-                apolloClient
-                    .query(MoneyUsageScreenQuery(id = moneyUsageId))
-                    .fetchPolicy(FetchPolicy.NetworkOnly)
-                    .execute()
-                    .data?.user?.moneyUsage?.moneyUsageScreenMoneyUsage?.images
-                    ?.map { it.id }
-            }.onFailure {
-                it.printStackTrace()
-            }.getOrNull() ?: return@withLock false
-            if (currentImageIds.contains(oldImageId).not()) return@withLock false
-
-            api.updateUsage(
-                id = moneyUsageId,
-                imageIds = currentImageIds
-                    .map { if (it == oldImageId) uploadResult.imageId else it }
-                    .distinctBy { it.value },
-            )
-        }
-    }
-
     private val apolloClient = graphqlClient.apolloClient
-    private val imageIdsUpdateMutex = Mutex()
     private var fetchJob: Job = Job()
 
     private fun fetch(policy: FetchPolicy = FetchPolicy.CacheAndNetwork) {
@@ -707,6 +691,7 @@ public class MoneyUsageScreenViewModel(
         val numberInputDialog: MoneyUsageScreenUiState.NumberInputDialog? = null,
         val uploadQueueItems: List<ImageUploadQueue.QueueItem> = listOf(),
         val replacingImageIds: Set<ImageId> = setOf(),
+        val isImagesError: Boolean = false,
         val zoomImageUrl: String? = null,
     )
 }

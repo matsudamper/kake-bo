@@ -145,6 +145,7 @@ public data class MoneyUsageScreenUiState(
         val date: String,
         val time: String,
         val images: ImmutableList<ImageItem>,
+        val isImagesError: Boolean,
         val uploadQueueItems: ImmutableList<UploadQueueItem>,
         val event: MoneyUsageEvent,
     )
@@ -194,6 +195,8 @@ public data class MoneyUsageScreenUiState(
         public fun onClickAmountChange()
 
         public fun onClickUploadImage()
+
+        public fun onClickImagesReload()
     }
 
     @Immutable
@@ -598,66 +601,76 @@ private fun ImagesCard(
             )
             Spacer(modifier = Modifier.height(8.dp))
 
-            val allItems = remember(uiState.images, uiState.uploadQueueItems) {
-                uiState.images.map { it to "image" } + uiState.uploadQueueItems.map { it to "queue" }
-            }
+            if (uiState.isImagesError) {
+                LoadingErrorContent(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(vertical = 24.dp),
+                    onClickRetry = { uiState.event.onClickImagesReload() },
+                )
+                Spacer(modifier = Modifier.height(8.dp))
+            } else {
+                val allItems = remember(uiState.images, uiState.uploadQueueItems) {
+                    uiState.images.map { it to "image" } + uiState.uploadQueueItems.map { it to "queue" }
+                }
 
-            if (allItems.isNotEmpty()) {
-                BoxWithConstraints(modifier = Modifier.fillMaxWidth()) {
-                    val minItemWidth = 120.dp
-                    val columnCount = (maxWidth / minItemWidth).toInt().coerceAtLeast(2)
-                    val chunkedItems = allItems.chunked(columnCount)
+                if (allItems.isNotEmpty()) {
+                    BoxWithConstraints(modifier = Modifier.fillMaxWidth()) {
+                        val minItemWidth = 120.dp
+                        val columnCount = (maxWidth / minItemWidth).toInt().coerceAtLeast(2)
+                        val chunkedItems = allItems.chunked(columnCount)
 
-                    Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
-                        chunkedItems.forEach { rowItems ->
-                            Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
-                                rowItems.forEach { itemPair ->
-                                    Box(
-                                        modifier = Modifier.weight(1f).aspectRatio(1f),
-                                    ) {
-                                        val item = itemPair.first
-                                        if (itemPair.second == "image") {
-                                            val imageItem = item as MoneyUsageScreenUiState.ImageItem
-                                            MoneyUsageImageThumbnail(
-                                                uiState = imageItem.thumbnail,
-                                                modifier = Modifier.fillMaxSize(),
-                                            )
-                                        } else {
-                                            val queueItem = item as MoneyUsageScreenUiState.UploadQueueItem
-                                            UploadQueueItemContent(queueItem = queueItem)
+                        Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
+                            chunkedItems.forEach { rowItems ->
+                                Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+                                    rowItems.forEach { itemPair ->
+                                        Box(
+                                            modifier = Modifier.weight(1f).aspectRatio(1f),
+                                        ) {
+                                            val item = itemPair.first
+                                            if (itemPair.second == "image") {
+                                                val imageItem = item as MoneyUsageScreenUiState.ImageItem
+                                                MoneyUsageImageThumbnail(
+                                                    uiState = imageItem.thumbnail,
+                                                    modifier = Modifier.fillMaxSize(),
+                                                )
+                                            } else {
+                                                val queueItem = item as MoneyUsageScreenUiState.UploadQueueItem
+                                                UploadQueueItemContent(queueItem = queueItem)
+                                            }
                                         }
                                     }
-                                }
-                                // 空のセルを埋める
-                                repeat(columnCount - rowItems.size) {
-                                    Box(modifier = Modifier.weight(1f))
+                                    // 空のセルを埋める
+                                    repeat(columnCount - rowItems.size) {
+                                        Box(modifier = Modifier.weight(1f))
+                                    }
                                 }
                             }
                         }
                     }
+                    Spacer(modifier = Modifier.height(16.dp))
+                } else {
+                    Column(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .padding(vertical = 24.dp),
+                        horizontalAlignment = Alignment.CenterHorizontally,
+                        verticalArrangement = Arrangement.spacedBy(8.dp),
+                    ) {
+                        Icon(
+                            painter = painterResource(Res.drawable.ic_image),
+                            contentDescription = null,
+                            modifier = Modifier.size(48.dp),
+                            tint = MaterialTheme.colorScheme.onSurfaceVariant,
+                        )
+                        Text(
+                            text = "画像なし",
+                            style = MaterialTheme.typography.bodyMedium,
+                            color = MaterialTheme.colorScheme.onSurfaceVariant,
+                        )
+                    }
+                    Spacer(modifier = Modifier.height(8.dp))
                 }
-                Spacer(modifier = Modifier.height(16.dp))
-            } else {
-                Column(
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .padding(vertical = 24.dp),
-                    horizontalAlignment = Alignment.CenterHorizontally,
-                    verticalArrangement = Arrangement.spacedBy(8.dp),
-                ) {
-                    Icon(
-                        painter = painterResource(Res.drawable.ic_image),
-                        contentDescription = null,
-                        modifier = Modifier.size(48.dp),
-                        tint = MaterialTheme.colorScheme.onSurfaceVariant,
-                    )
-                    Text(
-                        text = "画像なし",
-                        style = MaterialTheme.typography.bodyMedium,
-                        color = MaterialTheme.colorScheme.onSurfaceVariant,
-                    )
-                }
-                Spacer(modifier = Modifier.height(8.dp))
             }
 
             ImageUploadButton(
