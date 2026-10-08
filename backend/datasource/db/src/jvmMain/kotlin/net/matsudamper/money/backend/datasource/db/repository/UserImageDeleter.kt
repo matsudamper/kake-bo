@@ -73,8 +73,9 @@ internal class UserImageDeleter(
         runCatching {
             val gateway = when (deletedImage.storageType) {
                 DbStorageType.LOCAL.dbValue -> localImageStorageGateway
-                DbStorageType.S3.dbValue -> s3ImageStorageGateway
-                    ?: throw IllegalStateException("S3ストレージゲートウェイが設定されていません")
+                DbStorageType.S3.dbValue ->
+                    s3ImageStorageGateway
+                        ?: throw IllegalStateException("S3ストレージゲートウェイが設定されていません")
 
                 else -> throw IllegalStateException("Unknown storage_type: ${deletedImage.storageType}")
             }
