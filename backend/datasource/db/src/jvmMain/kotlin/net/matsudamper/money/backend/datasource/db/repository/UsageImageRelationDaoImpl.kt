@@ -11,7 +11,7 @@ import net.matsudamper.money.element.ImageId
 import net.matsudamper.money.element.MoneyUsageId
 import net.matsudamper.money.element.UserId
 import org.jooq.DSLContext
-import org.jooq.TransactionalRunnable
+import org.jooq.TransactionalCallable
 import org.jooq.impl.DSL
 
 class UsageImageRelationDaoImpl(
@@ -44,6 +44,7 @@ class UsageImageRelationDaoImpl(
                 moneyUsageId = moneyUsageId,
                 imageId = imageId,
             )
+            null
         }
     }
 
@@ -76,8 +77,9 @@ class UsageImageRelationDaoImpl(
                     moneyUsageId = moneyUsageId,
                     imageId = newImageId,
                 )
+                null
             } else {
-                userImageDeleter.deleteIfUnlinked(
+                userImageDeleter.deleteRecordIfUnlinked(
                     context = context,
                     userId = userId,
                     imageId = oldImageId,
@@ -86,14 +88,20 @@ class UsageImageRelationDaoImpl(
         }
     }
 
-    private fun runInTransaction(block: (DSLContext) -> Unit): Boolean {
+    /**
+     * @param block 削除した画像があれば返す。ファイルはコミット後に削除する
+     */
+    private fun runInTransaction(block: (DSLContext) -> UserImageDeleter.DeletedImage?): Boolean {
         return runCatching {
-            DbConnectionImpl.use { connection ->
-                DSL.using(connection).transaction(
-                    TransactionalRunnable { configuration ->
+            val deletedImage = DbConnectionImpl.use { connection ->
+                DSL.using(connection).transactionResult(
+                    TransactionalCallable { configuration ->
                         block(DSL.using(configuration))
                     },
                 )
+            }
+            if (deletedImage != null) {
+                userImageDeleter.deleteFile(deletedImage)
             }
         }
             .onFailure { e ->

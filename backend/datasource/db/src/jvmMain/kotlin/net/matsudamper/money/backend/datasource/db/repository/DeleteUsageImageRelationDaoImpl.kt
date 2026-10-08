@@ -8,7 +8,7 @@ import net.matsudamper.money.db.schema.tables.JMoneyUsageImagesRelation
 import net.matsudamper.money.element.ImageId
 import net.matsudamper.money.element.MoneyUsageId
 import net.matsudamper.money.element.UserId
-import org.jooq.TransactionalRunnable
+import org.jooq.TransactionalCallable
 import org.jooq.impl.DSL
 
 class DeleteUsageImageRelationDaoImpl(
@@ -27,9 +27,9 @@ class DeleteUsageImageRelationDaoImpl(
     ): Boolean {
         val usageImagesRelation = JMoneyUsageImagesRelation.MONEY_USAGE_IMAGES_RELATION
         return runCatching {
-            DbConnectionImpl.use { connection ->
-                DSL.using(connection).transaction(
-                    TransactionalRunnable {
+            val deletedImage = DbConnectionImpl.use { connection ->
+                DSL.using(connection).transactionResult(
+                    TransactionalCallable {
                         val context = DSL.using(it)
                         val relationDeleteCount = context
                             .deleteFrom(usageImagesRelation)
@@ -43,13 +43,16 @@ class DeleteUsageImageRelationDaoImpl(
 
                         if (relationDeleteCount <= 0) throw IllegalStateException("削除対象の関連が見つかりませんでした: userId=${userId.value}, moneyUsageId=${moneyUsageId.id}, imageId=${imageId.value}")
 
-                        userImageDeleter.deleteIfUnlinked(
+                        userImageDeleter.deleteRecordIfUnlinked(
                             context = context,
                             userId = userId,
                             imageId = imageId,
                         )
                     },
                 )
+            }
+            if (deletedImage != null) {
+                userImageDeleter.deleteFile(deletedImage)
             }
         }
             .onFailure { e ->
