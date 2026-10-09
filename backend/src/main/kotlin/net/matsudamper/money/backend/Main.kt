@@ -176,43 +176,41 @@ fun Application.myApplicationModule(diContainer: DiContainer) {
                 }
             }
             post("/api/register_mail/v1") {
-                val registerMailHandler = RegisterMailHandler(
-                    diContainer = diContainer,
-                )
-                val userId = withTimeout(5.seconds) {
-                    registerMailHandler.authenticate(apiKey = call.request.headers["Authorization"])
-                }
-                if (userId == null) {
-                    call.respondText(
-                        status = HttpStatusCode.Forbidden,
-                        text = HttpStatusCode.Forbidden.value.toString(),
-                    )
-                    return@post
-                }
-
-                val maxBodyBytes = ServerEnv.registerMailMaxBytes
-                val declaredContentLength = call.request.contentLength()
-                if (declaredContentLength != null && declaredContentLength > maxBodyBytes) {
-                    call.respondText(
-                        status = HttpStatusCode.PayloadTooLarge,
-                        text = HttpStatusCode.PayloadTooLarge.value.toString(),
-                    )
-                    return@post
-                }
-                // Content-Lengthが無い/偽装されている場合に備え、上限+1バイトまでで読み込みを打ち切る
-                val bodyBytes = call.receiveChannel().readRemaining(maxBodyBytes + 1).readByteArray()
-                if (bodyBytes.size > maxBodyBytes) {
-                    call.respondText(
-                        status = HttpStatusCode.PayloadTooLarge,
-                        text = HttpStatusCode.PayloadTooLarge.value.toString(),
-                    )
-                    return@post
-                }
-                val request = ObjectMapper.kotlinxSerialization.decodeFromString(
-                    RegisterMailHandler.Request.serializer(),
-                    bodyBytes.decodeToString(),
-                )
                 withTimeout(5.seconds) {
+                    val registerMailHandler = RegisterMailHandler(
+                        diContainer = diContainer,
+                    )
+                    val userId = registerMailHandler.authenticate(apiKey = call.request.headers["Authorization"])
+                    if (userId == null) {
+                        call.respondText(
+                            status = HttpStatusCode.Forbidden,
+                            text = HttpStatusCode.Forbidden.value.toString(),
+                        )
+                        return@withTimeout
+                    }
+
+                    val maxBodyBytes = ServerEnv.registerMailMaxBytes
+                    val declaredContentLength = call.request.contentLength()
+                    if (declaredContentLength != null && declaredContentLength > maxBodyBytes) {
+                        call.respondText(
+                            status = HttpStatusCode.PayloadTooLarge,
+                            text = HttpStatusCode.PayloadTooLarge.value.toString(),
+                        )
+                        return@withTimeout
+                    }
+                    // Content-Lengthが無い/偽装されている場合に備え、上限+1バイトまでで読み込みを打ち切る
+                    val bodyBytes = call.receiveChannel().readRemaining(maxBodyBytes + 1).readByteArray()
+                    if (bodyBytes.size > maxBodyBytes) {
+                        call.respondText(
+                            status = HttpStatusCode.PayloadTooLarge,
+                            text = HttpStatusCode.PayloadTooLarge.value.toString(),
+                        )
+                        return@withTimeout
+                    }
+                    val request = ObjectMapper.kotlinxSerialization.decodeFromString(
+                        RegisterMailHandler.Request.serializer(),
+                        bodyBytes.decodeToString(),
+                    )
                     val result = registerMailHandler.handle(
                         request = request,
                         userId = userId,
