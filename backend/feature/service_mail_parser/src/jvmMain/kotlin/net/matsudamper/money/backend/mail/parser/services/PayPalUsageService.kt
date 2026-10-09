@@ -61,7 +61,7 @@ internal object PayPalUsageService : MoneyUsageServices {
 
         val price2: Int?
         run {
-            val result = "(?<=>)(.+?)への(.+?)のお支払いが実行されました<".toRegex()
+            val result = "(?<=>)([^>\n]*?)への([^へ\n]+?)のお支払いが実行されました<".toRegex()
                 .find(html)
                 ?.groupValues
 

@@ -113,7 +113,7 @@ internal object CinecittaUsageServices : MoneyUsageServices {
         val line = reservationLines.firstOrNull {
             """\d{4}/\d{2}/\d{2}""".toRegex().containsMatchIn(it)
         } ?: return null
-        val result = """(\d{4})/(\d{2})/(\d{2}).*?(\d{1,2}):(\d{2})""".toRegex()
+        val result = """(\d{4})/(\d{2})/(\d{2})[^/]*?(\d{1,2}):(\d{2})""".toRegex()
             .find(line) ?: return null
 
         val year = result.groupValues.getOrNull(1)?.toIntOrNull() ?: return null
@@ -132,7 +132,7 @@ internal object CinecittaUsageServices : MoneyUsageServices {
         val titleLine = reservationLines.firstOrNull() ?: return null
         return titleLine
             // 追加料金をタイトルから削除する
-            .replace("""\s*／\s*\+?[\d,]+円.*$""".toRegex(), "")
+            .replace("""／\s*\+?[\d,]+円.*$""".toRegex(), "")
             .trim()
             .takeIf { it.isNotEmpty() }
     }

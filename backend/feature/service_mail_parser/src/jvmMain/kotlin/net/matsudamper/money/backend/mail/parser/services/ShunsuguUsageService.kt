@@ -28,7 +28,7 @@ internal object ShunsuguUsageService : MoneyUsageServices {
 
         val price = run price@{
             ParseUtil.getInt(
-                "お支払合計金額.*?：(.+?)円".toRegex(RegexOption.MULTILINE)
+                "お支払合計金額[^お：\\n]*?：([^お円\\n]+?)円".toRegex(RegexOption.MULTILINE)
                     .find(plain)
                     ?.groupValues?.getOrNull(1) ?: return@price null,
             )

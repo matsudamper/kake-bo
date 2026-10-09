@@ -29,9 +29,7 @@ public object GooglePlayUsageService : MoneyUsageServices {
         val seller = sequence {
             yield(
                 run target@{
-                    "Google Play で(.+?)からの定期購入が完了しました。".toRegex().find(plain)
-                        ?.groupValues
-                        ?.getOrNull(1)
+                    ParseUtil.findBetween(plain, "Google Play で", "からの定期購入が完了しました。")
                         ?.trimStart()
                         ?.trimEnd()
                         ?: return@target null
@@ -39,9 +37,7 @@ public object GooglePlayUsageService : MoneyUsageServices {
             )
             yield(
                 run target@{
-                    "Google Play での(.+?)からの購入が完了しました。".toRegex().find(plain)
-                        ?.groupValues
-                        ?.getOrNull(1)
+                    ParseUtil.findBetween(plain, "Google Play での", "からの購入が完了しました。")
                         ?.trimStart()
                         ?.trimEnd()
                         ?: return@target null
@@ -50,12 +46,12 @@ public object GooglePlayUsageService : MoneyUsageServices {
         }.filterNotNull().firstOrNull()
 
         val title = run title@{
-            "アイテム 価格(.+?)￥".toRegex()
-                .find(
-                    plain.replace("\r\n", "")
-                        .replace("\r", ""),
-                )
-                ?.groupValues?.getOrNull(1)
+            ParseUtil.findBetween(
+                text = plain.replace("\r\n", "")
+                    .replace("\r", ""),
+                prefix = "アイテム 価格",
+                suffix = "￥",
+            )
                 ?.trimStart()
                 ?.trimEnd()
         }
@@ -73,7 +69,7 @@ public object GooglePlayUsageService : MoneyUsageServices {
             val regex = "注文日(.+?)$".toRegex(RegexOption.MULTILINE)
             val line = regex.find(plain)?.groupValues?.getOrNull(1) ?: return@date null
 
-            val result = """(\d+).+?(\d+).+?(\d+).+?(\d+).+?(\d+).+?(\d+)""".toRegex().find(line)
+            val result = """(?<!\d)(\d+)\D+(\d+)\D+(\d+)\D+(\d+)\D+(\d+)\D+(\d+)""".toRegex().find(line)
                 ?: return@date null
 
             val year = result.groupValues.getOrNull(1)?.toIntOrNull() ?: return@date null

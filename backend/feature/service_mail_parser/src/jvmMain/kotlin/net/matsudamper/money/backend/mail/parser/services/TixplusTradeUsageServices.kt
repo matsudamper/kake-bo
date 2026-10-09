@@ -91,10 +91,7 @@ internal object TixplusTradeUsageServices : MoneyUsageServices {
     }
 
     private fun getReceiptNumber(plain: String): String? {
-        return "【受付番号：(.+?)】".toRegex()
-            .find(plain)
-            ?.groupValues
-            ?.getOrNull(1)
+        return ParseUtil.findBetween(plain, "【受付番号：", "】")
             ?.trim()
     }
 

@@ -53,7 +53,7 @@ internal object ESekiReserveUsegeService : MoneyUsageServices {
                 """\d{4}/\d{2}/\d{2}""".toRegex().containsMatchIn(line)
             } ?: return@date null
 
-            val result = """(\d{4})/(\d{2})/(\d{2}).*?(\d{2}):(\d{2})""".toRegex()
+            val result = """(\d{4})/(\d{2})/(\d{2})[^/]*?(\d{2}):(\d{2})""".toRegex()
                 .find(dateLine) ?: return@date null
 
             val year = result.groupValues.getOrNull(1)?.toIntOrNull() ?: return@date null

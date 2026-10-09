@@ -77,7 +77,7 @@ internal object SofmapUsageServices : MoneyUsageServices {
             lines.subList(startIndex + 1, endIndex).forEach { line ->
                 if (line.isBlank()) return@forEach
                 val trimmed = line.trim()
-                val match = Regex("""^[・･](.+?)\s+(\d+)個$""").find(trimmed) ?: return@forEach
+                val match = Regex("""^[・･](.*\S)\s+(\d+)個$""").find(trimmed) ?: return@forEach
                 val itemName = match.groupValues[1].trim()
                 val quantity = match.groupValues[2].toIntOrNull() ?: return@forEach
                 add(

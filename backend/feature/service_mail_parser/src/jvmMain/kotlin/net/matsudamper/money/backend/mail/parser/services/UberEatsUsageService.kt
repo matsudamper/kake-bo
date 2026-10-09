@@ -27,7 +27,7 @@ internal object UberEatsUsageService : MoneyUsageServices {
 
         val htmlDocument = Jsoup.parse(html)
         val price = run price@{
-            val regex = "^合計.*?￥(.+?\\d)$".toRegex(RegexOption.MULTILINE)
+            val regex = "^合計[^￥\\n]*?￥(.+?\\d)$".toRegex(RegexOption.MULTILINE)
             val result = htmlDocument.allElements.asSequence()
                 .mapNotNull { regex.find(it.text()) }
                 .firstOrNull()

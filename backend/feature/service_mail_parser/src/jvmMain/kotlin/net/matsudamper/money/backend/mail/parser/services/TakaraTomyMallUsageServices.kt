@@ -86,11 +86,11 @@ internal object TakaraTomyMallUsageServices : MoneyUsageServices {
                 val priceLine = reamingLines.removeFirstOrNull()?.takeIf { it.isNotBlank() } ?: break
 
                 val name = run {
-                    val productResult = Regex("\\d+\\.(.+?)$").find(nameLine)
+                    val productResult = Regex("(?<!\\d)\\d+\\.(.+?)$").find(nameLine)
                     productResult?.groupValues?.get(1)?.trim().orEmpty()
                 }
 
-                val priceResult = Regex("価格：(.+?)円（税込）.+?数量：(.+?) =(.+?)$").find(priceLine)
+                val priceResult = Regex("価格：([^価円]+?)円（税込）[^価数]+?数量：([^価=]+?) =(.+)$").find(priceLine)
                 val price = ParseUtil.getInt(priceResult?.groupValues?.get(1)?.trim().orEmpty()) ?: 0
                 val quantity = ParseUtil.getInt(priceResult?.groupValues?.get(2)?.trim().orEmpty()) ?: 0
                 val totalPrice = ParseUtil.getInt(priceResult?.groupValues?.get(3)?.trim().orEmpty()) ?: 0

@@ -88,7 +88,7 @@ internal object NissinOnlineStoreUsageServices : MoneyUsageServices {
             var i = 0
             while (i < productLines.size) {
                 val line = productLines[i].trim()
-                val productMatch = "^(.+?)\\s*×\\s*(\\d+)$".toRegex().find(line)
+                val productMatch = "^(.+)×\\s*(\\d+)$".toRegex().find(line)
                 if (productMatch != null) {
                     val name = productMatch.groupValues[1].trim()
                     val quantity = productMatch.groupValues[2].toIntOrNull() ?: 1
@@ -96,7 +96,7 @@ internal object NissinOnlineStoreUsageServices : MoneyUsageServices {
                     var price: Int? = null
                     for (j in (i + 1) until productLines.size) {
                         val priceLine = productLines[j].trim()
-                        if ("^(.+?)\\s*×\\s*(\\d+)$".toRegex().matches(priceLine)) break
+                        if ("^(.+)×\\s*(\\d+)$".toRegex().matches(priceLine)) break
                         val extracted = extractPrice(priceLine)
                         if (extracted != null) {
                             price = extracted

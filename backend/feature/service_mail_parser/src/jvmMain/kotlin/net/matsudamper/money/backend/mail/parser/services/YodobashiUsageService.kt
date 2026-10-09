@@ -39,7 +39,7 @@ internal object YodobashiUsageService : MoneyUsageServices {
         }
 
         val parsedDate = run date@{
-            val result = """・ご注文日.+?(\d+)年(\d+)月(\d+)日"""".toRegex().find(plain)?.groupValues ?: return@date null
+            val result = """・ご注文日[^\d・\n]+?(\d+)年(\d+)月(\d+)日"""".toRegex().find(plain)?.groupValues ?: return@date null
             val year = result.getOrNull(1)?.toIntOrNull() ?: return@date null
             val month = result.getOrNull(2)?.toIntOrNull() ?: return@date null
             val day = result.getOrNull(3)?.toIntOrNull() ?: return@date null
@@ -68,7 +68,7 @@ internal object YodobashiUsageService : MoneyUsageServices {
                 )
             }
             val titleRegex = "^・「(.+)$".toRegex()
-            val priceRegex = "合計.+?点(.+?)円".toRegex()
+            val priceRegex = "合計[^合点]+?点([^点円]+?)円".toRegex()
 
             var beforeTitle: String? = null
             orderItemsLines.forEachIndexed { index, line ->

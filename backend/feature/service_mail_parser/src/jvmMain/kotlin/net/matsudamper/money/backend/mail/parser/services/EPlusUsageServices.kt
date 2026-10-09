@@ -30,10 +30,10 @@ internal object EPlusUsageServices : MoneyUsageServices {
         val price = lines.firstOrNull { it.contains("料金合計") }
             ?.let { ParseUtil.getInt(it) }
 
-        val title = "公演名.+?：(.+?)$".toRegex(RegexOption.MULTILINE)
+        val title = "公演名[^公：\\n]+?：(.+?)$".toRegex(RegexOption.MULTILINE)
             .find(plain)?.groupValues?.getOrNull(1)
             ?.trim()
-        val place = "会場名.+?：(.+?)$".toRegex(RegexOption.MULTILINE)
+        val place = "会場名[^会：\\n]+?：(.+?)$".toRegex(RegexOption.MULTILINE)
             .find(plain)?.groupValues?.getOrNull(1)
             ?.trim()
 

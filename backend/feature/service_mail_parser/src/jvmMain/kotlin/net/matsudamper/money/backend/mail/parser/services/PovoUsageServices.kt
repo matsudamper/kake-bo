@@ -26,10 +26,7 @@ internal object PovoUsageServices : MoneyUsageServices {
         }
         if (canHandle.all { it }.not()) return listOf()
 
-        val price = "から(.+?)円のお支払いが完了しました".toRegex()
-            .find(ParseUtil.removeHtmlTag(html))
-            ?.groups?.get(1)
-            ?.value
+        val price = ParseUtil.findBetween(ParseUtil.removeHtmlTag(html), "から", "円のお支払いが完了しました")
             ?: return listOf()
         val month = """(\d+月ご利用分)""".toRegex()
             .find(actualSubject)

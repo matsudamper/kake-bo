@@ -44,7 +44,7 @@ internal object YahooShoppingUsageServices : MoneyUsageServices {
     private fun parseFurusato(plain: String, originalDate: LocalDateTime): List<MoneyUsage> {
         val lines = ParseUtil.splitByNewLine(plain)
         val regex = """^(（\d+?）)(.+)$""".toRegex()
-        val priceRegex = """^(.+?)円 × (.+?) ＝ (.+?)円$""".toRegex()
+        val priceRegex = """^([^×＝]+?)円 × ([^×＝]+?) ＝ (.+?)円$""".toRegex()
         val productLines = lines.withIndex().mapNotNull { (index, line) ->
             index to (regex.find(line) ?: return@mapNotNull null)
         }

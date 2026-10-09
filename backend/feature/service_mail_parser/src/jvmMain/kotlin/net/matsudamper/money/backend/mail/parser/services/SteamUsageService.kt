@@ -103,7 +103,7 @@ public object SteamUsageService : MoneyUsageServices {
             val regex = """^発行日(.+?)$""".toRegex(RegexOption.MULTILINE)
             val line = regex.find(plain)?.groupValues?.getOrNull(1) ?: return@run null
 
-            val result = """(\d+).+?(\d+).+?(\d+).+?(\d+).+?(\d+)""".toRegex().find(line)
+            val result = """(?<!\d)(\d+)\D+(\d+)\D+(\d+)\D+(\d+)\D+(\d+)""".toRegex().find(line)
                 ?: return@run null
 
             val year = result.groupValues.getOrNull(1)?.toIntOrNull() ?: return@run null

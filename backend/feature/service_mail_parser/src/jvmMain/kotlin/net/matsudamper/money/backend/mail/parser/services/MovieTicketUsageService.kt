@@ -27,13 +27,11 @@ public object MovieTicketUsageService : MoneyUsageServices {
         if (canHandle.any { it }.not()) return listOf()
 
         val title = run {
-            val regex = "・作品名：「(.+?)」".toRegex()
-            regex.find(plain)?.groupValues?.getOrNull(1)
+            ParseUtil.findBetween(plain, "・作品名：「", "」")
         }
 
         val price = run {
-            val regex = "・合計金額：(.+?)円".toRegex()
-            regex.find(plain)?.groupValues?.getOrNull(1)
+            ParseUtil.findBetween(plain, "・合計金額：", "円")
                 ?.map { it.toString().toIntOrNull() }
                 ?.filterNotNull()
                 ?.joinToString("")

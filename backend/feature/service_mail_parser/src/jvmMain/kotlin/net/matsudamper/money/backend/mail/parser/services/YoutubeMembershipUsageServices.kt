@@ -43,10 +43,7 @@ internal object YoutubeMembershipUsageServices : MoneyUsageServices {
                 return@run
             }
 
-            price = """\*¥(.+?)\*""".toRegex()
-                .find(paidLine)
-                ?.groupValues
-                ?.getOrNull(1)
+            price = ParseUtil.findBetween(paidLine, "*¥", "*")
                 ?.toIntOrNull()
                 ?: 0
             priceDescription = plainLines.subList(index + 1, index + 3)

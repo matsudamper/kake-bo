@@ -41,6 +41,22 @@ internal object ParseUtil {
         return "<[^<>\n]+>".toRegex().replace(value, "")
     }
 
+    /**
+     * `prefix(.+?)suffix` の正規表現と同じ結果を返す。
+     * 正規表現では prefix を繰り返した行で開始位置ごとに行末まで再走査し、処理時間が入力長の2乗になる。
+     */
+    fun findBetween(text: String, prefix: String, suffix: String): String? {
+        var searchStart = 0
+        while (true) {
+            val prefixIndex = text.indexOf(prefix, searchStart).takeIf { it >= 0 } ?: return null
+            val lineEnd = text.indexOfAny(charArrayOf('\n', '\r'), prefixIndex).takeIf { it >= 0 } ?: text.length
+            val valueStart = prefixIndex + prefix.length
+            val valueLength = text.substring(valueStart, lineEnd).indexOf(suffix, startIndex = 1)
+            if (valueLength >= 0) return text.substring(valueStart, valueStart + valueLength)
+            searchStart = lineEnd
+        }
+    }
+
     fun splitByNewLine(value: String): List<String> {
         return value.split("\r\n")
             .flatMap { it.split("\n") }

@@ -35,7 +35,7 @@ internal object FanzaDojinUsageServices : MoneyUsageServices {
         if (canHandle.any { it }.not()) return listOf()
 
         val price = run price@{
-            val result = "購入額.+?：.+?(.+?)円".toRegex().find(plain)
+            val result = "購入額[^購：\\n]+?：.([^購円\\n]+?)円".toRegex().find(plain)
                 ?.groupValues?.getOrNull(1)!!
 
             ParseUtil.getInt(result)

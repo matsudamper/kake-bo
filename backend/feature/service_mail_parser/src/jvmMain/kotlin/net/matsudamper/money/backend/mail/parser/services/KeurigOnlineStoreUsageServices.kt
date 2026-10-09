@@ -125,7 +125,7 @@ internal object KeurigOnlineStoreUsageServices : MoneyUsageServices {
                 val trimmed = line.trim()
                 if (trimmed.isEmpty()) break
 
-                val match = "^(.+?)\\s*×\\s*(\\d+)$".toRegex().find(trimmed) ?: continue
+                val match = "^(.+)×\\s*(\\d+)$".toRegex().find(trimmed) ?: continue
                 val name = match.groupValues[1].trim()
                 val quantity = match.groupValues[2].toIntOrNull() ?: continue
 
