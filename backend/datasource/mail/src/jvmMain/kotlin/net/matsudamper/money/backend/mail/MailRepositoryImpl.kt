@@ -117,7 +117,7 @@ class MailRepositoryImpl(
     }
 
     private fun getSession(): Session {
-        return Session.getDefaultInstance(
+        return Session.getInstance(
             Properties().also {
                 it.setProperty("mail.imap.ssl.enable", "true")
                 it.setProperty("mail.imap.host", host)
