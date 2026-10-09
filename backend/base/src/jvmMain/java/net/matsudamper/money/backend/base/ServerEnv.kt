@@ -8,6 +8,7 @@ public object ServerEnv {
     public val htmlPath: String get() = "$frontPath/index.html"
     public val imageStoragePath: String get() = System.getenv()["IMAGE_STORAGE_PATH"] ?: "./uploaded_images"
     public val imageUploadMaxBytes: Long get() = 50L * 1024L * 1024L // 50MB
+    public val registerMailMaxBytes: Long get() = 10L * 1024L * 1024L // 10MB
     public val isDebug: Boolean get() = System.getenv()["IS_DEBUG"]?.toBooleanStrictOrNull() ?: false
 
     public val dbHost: String get() = System.getenv()["DB_HOST"]!!

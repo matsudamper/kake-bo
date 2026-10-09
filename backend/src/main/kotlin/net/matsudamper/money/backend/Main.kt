@@ -4,6 +4,7 @@ import java.io.File
 import kotlin.time.Duration.Companion.seconds
 import kotlin.time.TimeSource
 import kotlinx.coroutines.withTimeout
+import kotlinx.io.readByteArray
 import kotlinx.serialization.json.Json
 import io.ktor.http.CacheControl
 import io.ktor.http.ContentType
@@ -25,8 +26,10 @@ import io.ktor.server.plugins.defaultheaders.DefaultHeaders
 import io.ktor.server.plugins.forwardedheaders.ForwardedHeaders
 import io.ktor.server.plugins.forwardedheaders.XForwardedHeaders
 import io.ktor.server.plugins.statuspages.StatusPages
+import io.ktor.server.request.contentLength
 import io.ktor.server.request.httpMethod
 import io.ktor.server.request.path
+import io.ktor.server.request.receiveChannel
 import io.ktor.server.request.receiveText
 import io.ktor.server.response.cacheControl
 import io.ktor.server.response.header
@@ -36,6 +39,7 @@ import io.ktor.server.routing.accept
 import io.ktor.server.routing.get
 import io.ktor.server.routing.post
 import io.ktor.server.routing.routing
+import io.ktor.utils.io.readRemaining
 import io.opentelemetry.instrumentation.ktor.v3_0.KtorServerTelemetry
 import net.matsudamper.money.backend.base.ObjectMapper
 import net.matsudamper.money.backend.base.OpenTelemetryInitializer
@@ -172,26 +176,48 @@ fun Application.myApplicationModule(diContainer: DiContainer) {
                 }
             }
             post("/api/register_mail/v1") {
+                val registerMailHandler = RegisterMailHandler(
+                    diContainer = diContainer,
+                )
+                val userId = withTimeout(5.seconds) {
+                    registerMailHandler.authenticate(apiKey = call.request.headers["Authorization"])
+                }
+                if (userId == null) {
+                    call.respondText(
+                        status = HttpStatusCode.Forbidden,
+                        text = HttpStatusCode.Forbidden.value.toString(),
+                    )
+                    return@post
+                }
+
+                val maxBodyBytes = ServerEnv.registerMailMaxBytes
+                val declaredContentLength = call.request.contentLength()
+                if (declaredContentLength != null && declaredContentLength > maxBodyBytes) {
+                    call.respondText(
+                        status = HttpStatusCode.PayloadTooLarge,
+                        text = HttpStatusCode.PayloadTooLarge.value.toString(),
+                    )
+                    return@post
+                }
+                // Content-Lengthが無い/偽装されている場合に備え、上限+1バイトまでで読み込みを打ち切る
+                val bodyBytes = call.receiveChannel().readRemaining(maxBodyBytes + 1).readByteArray()
+                if (bodyBytes.size > maxBodyBytes) {
+                    call.respondText(
+                        status = HttpStatusCode.PayloadTooLarge,
+                        text = HttpStatusCode.PayloadTooLarge.value.toString(),
+                    )
+                    return@post
+                }
                 val request = ObjectMapper.kotlinxSerialization.decodeFromString(
                     RegisterMailHandler.Request.serializer(),
-                    call.receiveText(),
+                    bodyBytes.decodeToString(),
                 )
-                val apiKey = call.request.headers["Authorization"]
                 withTimeout(5.seconds) {
-                    val result = RegisterMailHandler(
-                        diContainer = diContainer,
-                    ).handle(
+                    val result = registerMailHandler.handle(
                         request = request,
-                        apiKey = apiKey,
+                        userId = userId,
                     )
                     when (result) {
-                        RegisterMailHandler.Result.Forbidden -> {
-                            call.respondText(
-                                status = HttpStatusCode.Forbidden,
-                                text = HttpStatusCode.Forbidden.value.toString(),
-                            )
-                        }
-
                         RegisterMailHandler.Result.InternalServerError -> {
                             call.respondText(
                                 status = HttpStatusCode.InternalServerError,

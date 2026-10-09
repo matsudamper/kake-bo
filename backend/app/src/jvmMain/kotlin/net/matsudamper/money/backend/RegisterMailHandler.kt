@@ -11,18 +11,16 @@ import net.matsudamper.money.backend.di.DiContainer
 import net.matsudamper.money.backend.logic.ApiTokenEncryptManager
 import net.matsudamper.money.backend.logic.IPasswordManager
 import net.matsudamper.money.backend.logic.PasswordManager
+import net.matsudamper.money.element.UserId
 
 class RegisterMailHandler(
     private val diContainer: DiContainer,
 ) {
     private val apiTokenRepository get() = diContainer.createApiTokenRepository()
     private val importedMailRepository get() = diContainer.createDbMailRepository()
-    fun handle(
-        request: Request,
-        apiKey: String?,
-    ): Result {
-        apiKey ?: return Result.Forbidden
-        val encryptInfo = ApiTokenEncryptManager().getEncryptInfo(apiKey) ?: return Result.Forbidden
+    fun authenticate(apiKey: String?): UserId? {
+        apiKey ?: return null
+        val encryptInfo = ApiTokenEncryptManager().getEncryptInfo(apiKey) ?: return null
 
         val hashedPassword = PasswordManager().getHashedPassword(
             password = apiKey,
@@ -32,13 +30,17 @@ class RegisterMailHandler(
             algorithm = IPasswordManager.Algorithm.entries.first { it.algorithmName == encryptInfo.algorithmName },
         )
 
-        val verifyResult = apiTokenRepository.verifyToken(hashedToken = hashedPassword)
-            ?: return Result.Forbidden
+        return apiTokenRepository.verifyToken(hashedToken = hashedPassword)?.userId
+    }
 
+    fun handle(
+        request: Request,
+        userId: UserId,
+    ): Result {
         val mail = MailParser.rawContentToResponse(request.raw)
 
         val addResult = importedMailRepository.addMail(
-            userId = verifyResult.userId,
+            userId = userId,
             plainText = mail.content.filterIsInstance<MailResult.Content.Text>().firstOrNull()?.text,
             html = mail.content.filterIsInstance<MailResult.Content.Html>().firstOrNull()?.html,
             from = mail.from.firstOrNull() ?: "",
@@ -77,7 +79,6 @@ class RegisterMailHandler(
 
     sealed interface Result {
         data class Success(val response: Response) : Result
-        data object Forbidden : Result
         data object InternalServerError : Result
     }
 
