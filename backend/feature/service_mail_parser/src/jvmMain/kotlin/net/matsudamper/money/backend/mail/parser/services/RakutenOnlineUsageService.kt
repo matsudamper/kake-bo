@@ -28,7 +28,7 @@ internal object RakutenOnlineUsageService : MoneyUsageServices {
         val title = sequence {
             yield(
                 run title@{
-                    val result = "この度は提携サイト「(.+?)」にて楽天ペイ".toRegex(RegexOption.MULTILINE)
+                    val result = "この度は提携サイト「([^「」\n]+?)」にて楽天ペイ".toRegex(RegexOption.MULTILINE)
                         .find(html)
                         ?.groupValues?.getOrNull(1) ?: return@title null
 
@@ -37,7 +37,7 @@ internal object RakutenOnlineUsageService : MoneyUsageServices {
             )
             yield(
                 run title@{
-                    "この度は提携サイト「\\*(.+?)\\*」にて楽天ペイ".toRegex(RegexOption.MULTILINE)
+                    "この度は提携サイト「\\*([^「」\n]+?)\\*」にて楽天ペイ".toRegex(RegexOption.MULTILINE)
                         .find(plain)
                         ?.groupValues?.getOrNull(1) ?: return@title null
                 },
@@ -49,7 +49,7 @@ internal object RakutenOnlineUsageService : MoneyUsageServices {
                 run price@{
                     val index = html.indexOf("小計：").takeIf { it >= 0 } ?: return@price null
 
-                    val result = """>(.+?)円<""".toRegex(RegexOption.MULTILINE)
+                    val result = """>([^<>\n]+?)円<""".toRegex(RegexOption.MULTILINE)
                         .find(html.drop(index))
 
                     ParseUtil.getInt(
@@ -60,7 +60,7 @@ internal object RakutenOnlineUsageService : MoneyUsageServices {
             yield(
                 run price@{
                     val index = plain.indexOf("ご注文金額：").takeIf { it >= 0 } ?: return@price null
-                    val result = """>(.+?)円<""".toRegex(RegexOption.MULTILINE)
+                    val result = """>([^<>\n]+?)円<""".toRegex(RegexOption.MULTILINE)
                         .find(plain.drop(index))
 
                     ParseUtil.getInt(

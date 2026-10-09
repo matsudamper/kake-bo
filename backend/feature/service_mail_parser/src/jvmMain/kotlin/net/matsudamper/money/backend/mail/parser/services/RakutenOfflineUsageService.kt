@@ -47,7 +47,7 @@ internal object RakutenOfflineUsageService : MoneyUsageServices {
                 ?.groupValues?.getOrNull(1)
                 ?: return@date null
 
-            val result = """(\d+)/(\d+)/(\d+).+?(\d+):(\d+)""".toRegex().find(dateText)
+            val result = """(\d+)/(\d+)/(\d+)\D+(\d+):(\d+)""".toRegex().find(dateText)
                 ?: return@date null
 
             val year = result.groupValues.getOrNull(1)?.toIntOrNull() ?: return@date null

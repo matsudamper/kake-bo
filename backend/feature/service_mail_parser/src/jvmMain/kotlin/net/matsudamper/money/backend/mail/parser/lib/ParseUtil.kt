@@ -38,7 +38,7 @@ internal object ParseUtil {
     }
 
     fun removeHtmlTag(value: String): String {
-        return "<.+?>".toRegex().replace(value, "")
+        return "<[^<>\n]+>".toRegex().replace(value, "")
     }
 
     fun splitByNewLine(value: String): List<String> {
@@ -65,7 +65,7 @@ internal object ParseUtil {
 
         return MailMetadata(
             from = forwardedMetadata["From"]?.trim()?.let from@{ fromRawString ->
-                val result = "<(.+?)>".toRegex().findAll(fromRawString).lastOrNull()
+                val result = "<([^<>]+)>".toRegex().findAll(fromRawString).lastOrNull()
                     ?: return@from null
 
                 result.groupValues[1]

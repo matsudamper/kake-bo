@@ -87,7 +87,7 @@ internal object RakutenCardUsageService : MoneyUsageServices {
         val priceTitleIndex = lines.indexOfFirst { it.startsWith("*ご利用金額*") }
         val priceLine = lines.getOrNull(priceTitleIndex + 1) ?: return listOf()
 
-        val result = """^(\d{4})/(\d{2})/(\d{2}) (.+?) (.+?) 円$""".toRegex()
+        val result = """^(\d{4})/(\d{2})/(\d{2}) (.+) (\S+) 円$""".toRegex()
             .find(priceLine)
 
         val year = result?.groupValues?.getOrNull(1)?.toIntOrNull() ?: return listOf()
