@@ -2,7 +2,7 @@
 # Cloud Agent 環境のツールチェーンをセットアップする汎用スクリプト。
 set -euo pipefail
 
-JDK_VERSION=24
+JDK_VERSION=25
 JDK_DIR="${HOME}/jdks"
 ANDROID_HOME="${HOME}/android-sdk"
 GRADLE_HOME="${HOME}/.gradle"
@@ -23,7 +23,7 @@ echo "    JDK_HOME=${JDK_HOME}"
 "${JDK_HOME}/bin/java" -version
 
 echo "==> Gradle デーモンの JDK を設定"
-# build-logic が JVM 24 をターゲットにするため、Gradle デーモン自体が JDK 24 で起動する必要がある。
+# build-logic が JVM 25 をターゲットにするため、Gradle デーモン自体が JDK 25 で起動する必要がある。
 mkdir -p "${GRADLE_HOME}"
 GRADLE_PROPS="${GRADLE_HOME}/gradle.properties"
 touch "${GRADLE_PROPS}"
