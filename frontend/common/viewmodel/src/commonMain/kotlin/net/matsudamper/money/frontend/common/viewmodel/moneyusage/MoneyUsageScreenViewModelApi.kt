@@ -8,6 +8,7 @@ import net.matsudamper.money.frontend.common.base.ImageUploadClient
 import net.matsudamper.money.frontend.graphql.GraphqlClient
 import net.matsudamper.money.frontend.graphql.MoneyUsageScreenDeleteImageMutation
 import net.matsudamper.money.frontend.graphql.MoneyUsageScreenDeleteUsageMutation
+import net.matsudamper.money.frontend.graphql.MoneyUsageScreenReplaceImageMutation
 import net.matsudamper.money.frontend.graphql.MoneyUsageScreenUpdateUsageMutation
 import net.matsudamper.money.frontend.graphql.type.UpdateUsageQuery
 
@@ -76,6 +77,31 @@ public class MoneyUsageScreenViewModelApi(
             it.printStackTrace()
         }.fold(
             onSuccess = { it == true },
+            onFailure = { false },
+        )
+    }
+
+    public suspend fun replaceImage(
+        usageId: MoneyUsageId,
+        oldImageId: ImageId,
+        newImageId: ImageId,
+    ): Boolean {
+        return runCatching {
+            graphqlClient.apolloClient
+                .mutation(
+                    MoneyUsageScreenReplaceImageMutation(
+                        usageId = usageId,
+                        oldImageId = oldImageId,
+                        newImageId = newImageId,
+                    ),
+                )
+                .execute()
+        }.map {
+            it.data?.userMutation?.replaceMoneyUsageImage
+        }.onFailure {
+            it.printStackTrace()
+        }.fold(
+            onSuccess = { it != null },
             onFailure = { false },
         )
     }

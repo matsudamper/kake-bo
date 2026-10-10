@@ -23,6 +23,7 @@ import net.matsudamper.money.frontend.common.base.nav.user.ScreenStructure
 import net.matsudamper.money.frontend.common.feature.uploader.ImageUploadQueue
 import net.matsudamper.money.frontend.common.ui.base.CategorySelectDialogUiState
 import net.matsudamper.money.frontend.common.ui.layout.NumberInputValue
+import net.matsudamper.money.frontend.common.ui.layout.image.MoneyUsageImageThumbnailUiState
 import net.matsudamper.money.frontend.common.ui.screen.moneyusage.MoneyUsageScreenUiState
 import net.matsudamper.money.frontend.common.viewmodel.CommonViewModel
 import net.matsudamper.money.frontend.common.viewmodel.layout.CategorySelectDialogViewModel
@@ -46,6 +47,14 @@ public class MoneyUsageScreenViewModel(
 
     private val eventSender = EventSender<Event>()
     public val eventHandler: EventHandler<Event> = eventSender.asHandler()
+
+    private val zoomImageDialogEvent = object : MoneyUsageScreenUiState.ZoomImageDialog.Event {
+        override fun onDismissRequest() {
+            viewModelStateFlow.update { viewModelState ->
+                viewModelState.copy(zoomImageUrl = null)
+            }
+        }
+    }
 
     private val categorySelectDialogViewModel = object {
         private val event: CategorySelectDialogViewModel.Event = object : CategorySelectDialogViewModel.Event {
@@ -100,6 +109,7 @@ public class MoneyUsageScreenViewModel(
             categorySelectDialog = null,
             urlMenuDialog = null,
             numberInputDialog = null,
+            zoomImageDialog = null,
         ),
     ).also { uiStateFlow ->
         viewModelScope.launch {
@@ -135,10 +145,17 @@ public class MoneyUsageScreenViewModel(
                                     },
                                     images = moneyUsage.images.map { image ->
                                         MoneyUsageScreenUiState.ImageItem(
-                                            url = image.url,
-                                            event = createImageItemEvent(imageId = image.id),
+                                            thumbnail = MoneyUsageImageThumbnailUiState(
+                                                url = image.url,
+                                                isReplacing = viewModelState.replacingImageIds.contains(image.id),
+                                                event = createImageThumbnailEvent(
+                                                    imageId = image.id,
+                                                    url = image.url,
+                                                ),
+                                            ),
                                         )
                                     }.toImmutableList(),
+                                    isImagesError = viewModelState.isImagesError,
                                     uploadQueueItems = viewModelState.uploadQueueItems.map { item ->
                                         MoneyUsageScreenUiState.UploadQueueItem(
                                             id = item.id,
@@ -191,6 +208,12 @@ public class MoneyUsageScreenViewModel(
                         categorySelectDialog = viewModelState.categorySelectDialog,
                         urlMenuDialog = viewModelState.urlMenuDialog,
                         numberInputDialog = viewModelState.numberInputDialog,
+                        zoomImageDialog = viewModelState.zoomImageUrl?.let { url ->
+                            MoneyUsageScreenUiState.ZoomImageDialog(
+                                url = url,
+                                event = zoomImageDialogEvent,
+                            )
+                        },
                     )
                 }
             }
@@ -440,11 +463,72 @@ public class MoneyUsageScreenViewModel(
                     }
                 }
             }
+
+            override fun onClickImagesReload() {
+                viewModelStateFlow.update { viewModelState ->
+                    viewModelState.copy(isImagesError = false)
+                }
+                fetch(policy = FetchPolicy.NetworkOnly)
+            }
         }
     }
 
-    private fun createImageItemEvent(imageId: ImageId): MoneyUsageScreenUiState.ImageItemEvent {
-        return object : MoneyUsageScreenUiState.ImageItemEvent {
+    private fun createImageThumbnailEvent(
+        imageId: ImageId,
+        url: String,
+    ): MoneyUsageImageThumbnailUiState.Event {
+        return object : MoneyUsageImageThumbnailUiState.Event {
+            override fun onClick() {
+                viewModelStateFlow.update { viewModelState ->
+                    viewModelState.copy(zoomImageUrl = url)
+                }
+            }
+
+            override fun onClickReplace() {
+                viewModelScope.launch {
+                    if (viewModelStateFlow.value.replacingImageIds.contains(imageId)) return@launch
+                    val newImage = eventSender.send { it.selectImage() } ?: return@launch
+                    if (viewModelStateFlow.value.replacingImageIds.contains(imageId)) return@launch
+                    viewModelStateFlow.update { viewModelState ->
+                        viewModelState.copy(replacingImageIds = viewModelState.replacingImageIds + imageId)
+                    }
+
+                    try {
+                        val imageBytes = newImage.bytes
+                        val uploadResult = if (imageBytes == null) {
+                            null
+                        } else {
+                            api.uploadImage(
+                                bytes = imageBytes,
+                                contentType = newImage.contentType,
+                            )
+                        }
+                        if (uploadResult == null) {
+                            eventSender.send {
+                                it.showToast("画像の入れ替えに失敗しました")
+                            }
+                            return@launch
+                        }
+
+                        val isSuccess = api.replaceImage(
+                            usageId = moneyUsageId,
+                            oldImageId = imageId,
+                            newImageId = uploadResult.imageId,
+                        )
+                        if (isSuccess.not()) {
+                            // 応答が届かなかっただけでサーバー側では反映済みの可能性があるため、表示を消して再取得を促す
+                            viewModelStateFlow.update { viewModelState ->
+                                viewModelState.copy(isImagesError = true)
+                            }
+                        }
+                    } finally {
+                        viewModelStateFlow.update { viewModelState ->
+                            viewModelState.copy(replacingImageIds = viewModelState.replacingImageIds - imageId)
+                        }
+                    }
+                }
+            }
+
             override fun onClickDelete() {
                 viewModelScope.launch {
                     val isSuccess = api.deleteImage(
@@ -597,6 +681,8 @@ public class MoneyUsageScreenViewModel(
     public interface Event {
         public suspend fun selectImages(): List<SelectedImage>
 
+        public suspend fun selectImage(): SelectedImage?
+
         public fun navigate(structure: ScreenStructure)
 
         public fun navigateBack()
@@ -620,5 +706,8 @@ public class MoneyUsageScreenViewModel(
         val urlMenuDialog: MoneyUsageScreenUiState.UrlMenuDialog? = null,
         val numberInputDialog: MoneyUsageScreenUiState.NumberInputDialog? = null,
         val uploadQueueItems: List<ImageUploadQueue.QueueItem> = listOf(),
+        val replacingImageIds: Set<ImageId> = setOf(),
+        val isImagesError: Boolean = false,
+        val zoomImageUrl: String? = null,
     )
 }
