@@ -5,7 +5,6 @@ import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.collectLatest
-import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
@@ -161,10 +160,16 @@ public class LoginSettingViewModel(
             api.getScreen().collectLatest { apolloResponse ->
                 viewModelStateFlow.update { viewModelState ->
                     viewModelState.copy(
-                        apolloScreenResponse = apolloResponse,
+                        apolloScreenResponse = screenResponseOrKeep(
+                            current = viewModelState.apolloScreenResponse,
+                            incoming = apolloResponse,
+                        ),
                     )
                 }
             }
+        }
+        viewModelScope.launch {
+            refreshScreen()
         }
     }
 
@@ -210,12 +215,32 @@ public class LoginSettingViewModel(
     }
 
     private suspend fun refreshScreen() {
-        val response = api.getScreen().first()
+        val response = runCatching {
+            api.refreshFromNetwork()
+        }.onFailure {
+            Logger.e(TAG, it)
+        }.getOrNull() ?: return
         viewModelStateFlow.update { viewModelState ->
             viewModelState.copy(
-                apolloScreenResponse = response,
+                apolloScreenResponse = screenResponseOrKeep(
+                    current = viewModelState.apolloScreenResponse,
+                    incoming = response,
+                ),
             )
         }
+    }
+
+    private fun screenResponseOrKeep(
+        current: ApolloResponse<LoginSettingScreenQuery.Data>?,
+        incoming: ApolloResponse<LoginSettingScreenQuery.Data>,
+    ): ApolloResponse<LoginSettingScreenQuery.Data>? {
+        if (incoming.data?.user?.settings?.sessionAttributes?.currentSession != null) {
+            return incoming
+        }
+        if (current?.data?.user?.settings?.sessionAttributes?.currentSession != null) {
+            return current
+        }
+        return incoming
     }
 
     private fun showAddFidoFailToast() {
@@ -463,7 +488,7 @@ public class LoginSettingViewModel(
                 val result = api.deleteFido(item.id)
                 if (result) {
                     eventSender.send { it.showToast("「${item.name}」を削除しました") }
-                    api.getScreen().first()
+                    refreshScreen()
                 } else {
                     eventSender.send { it.showToast("「${item.name}」の削除に失敗しました") }
                 }
