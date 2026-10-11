@@ -440,10 +440,13 @@ public class ImportedMailFilterCategoryViewModel(
 
                 override fun onClickSave() {
                     viewModelScope.launch {
-                        val isSuccess = api.updateFilter(
+                        val response = api.updateFilter(
                             id = id,
                             matchExpression = inputText,
-                        ).getOrNull()?.data?.userMutation?.updateImportedMailCategoryFilter != null
+                        ).getOrNull()
+                        val isSuccess = response != null &&
+                            !response.hasErrors() &&
+                            response.data?.userMutation?.updateImportedMailCategoryFilter != null
                         if (isSuccess) {
                             viewModelStateFlow.update { viewModelState ->
                                 viewModelState.copy(
