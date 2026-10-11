@@ -37,9 +37,17 @@ subprojects {
             add("detektPlugins", project(":detekt-rules"))
         }
 
-        // RequiresAnalysisApi のルールは、KMP では型解決付きの detektMainJvm / detektTestJvm でしか走らない
+        // RequiresAnalysisApi のルールは型解決付きタスクでしか走らない。
+        // JVM は detektMain / detektTest、KMP は detektMainJvm / detektTestJvm。
         tasks.named("detekt").configure {
-            dependsOn(tasks.matching { it.name == "detektMainJvm" || it.name == "detektTestJvm" })
+            dependsOn(
+                tasks.matching {
+                    it.name == "detektMain" ||
+                        it.name == "detektTest" ||
+                        it.name == "detektMainJvm" ||
+                        it.name == "detektTestJvm"
+                },
+            )
         }
     }
 
