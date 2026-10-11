@@ -351,7 +351,7 @@ public class ImportedMailScreenViewModel(
     }
 
     private inner class ClickableEventImpl(
-        private val text: String,
+        text: String,
     ) : MailScreenUiState.ClickableEvent, EqualsImpl(text) {
         override fun onClickUrl(url: String) {
             val dialog = MailScreenUiState.UrlMenuDialog(
@@ -360,7 +360,7 @@ public class ImportedMailScreenViewModel(
                     override fun onClickOpen() {
                         viewModelScope.launch {
                             viewModelEventSender.send {
-                                it.openWeb(text)
+                                it.openWeb(url)
                             }
                         }
                         dismiss()
@@ -369,7 +369,7 @@ public class ImportedMailScreenViewModel(
                     override fun onClickCopy() {
                         viewModelScope.launch {
                             viewModelEventSender.send {
-                                it.copyToClipboard(text)
+                                it.copyToClipboard(url)
                             }
                         }
                         dismiss()

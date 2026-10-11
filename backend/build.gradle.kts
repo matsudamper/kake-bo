@@ -14,7 +14,6 @@ plugins {
 base.archivesName.set("money")
 group = "net.matsudamper.money.backend"
 
-val graalVmLanguageVersion = JavaLanguageVersion.of(24)
 val graalVmNativeLanguageVersion = JavaLanguageVersion.of(25)
 val graalVmLauncher = javaToolchains.launcherFor {
     languageVersion = graalVmNativeLanguageVersion
@@ -60,20 +59,6 @@ val nativeBuildArgs = listOf(
     // EnumEntriesList → AbstractList$Companion と連鎖するため kotlin パッケージ全体を指定
     "--initialize-at-build-time=kotlin",
 )
-
-java {
-    toolchain {
-        languageVersion = graalVmLanguageVersion
-        vendor = JvmVendorSpec.GRAAL_VM
-    }
-}
-
-kotlin {
-    jvmToolchain {
-        languageVersion = graalVmLanguageVersion
-        vendor = JvmVendorSpec.GRAAL_VM
-    }
-}
 
 application {
     mainClass.set("net.matsudamper.money.backend.Main")

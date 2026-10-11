@@ -11,7 +11,6 @@ kotlin {
     jvm {
     }
     sourceSets {
-        jvmToolchain(libs.versions.javaToolchain.get().toInt())
         getByName("commonMain") {
             dependencies {
                 implementation(kotlin("stdlib"))

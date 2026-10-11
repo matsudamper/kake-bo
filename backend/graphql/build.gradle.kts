@@ -47,7 +47,6 @@ val generateSchemaList = tasks.register<GenerateSchemaListTask>("generateSchemaL
 kotlin {
     jvm()
     sourceSets {
-        jvmToolchain(libs.versions.javaToolchain.get().toInt())
         getByName("jvmMain") {
             kotlin.srcDir(generatedPath)
             resources.srcDir(generatedResourcesPath)
