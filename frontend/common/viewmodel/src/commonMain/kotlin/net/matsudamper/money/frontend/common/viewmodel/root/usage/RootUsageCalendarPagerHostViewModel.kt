@@ -48,7 +48,7 @@ public class RootUsageCalendarPagerHostViewModel(
 
     private val viewModelStateFlow: MutableStateFlow<ViewModelState> = MutableStateFlow(
         ViewModelState(
-            displayYearMonth = initial.toDisplayYearMonth(),
+            displayYearMonth = initial.toDisplayYearMonth().coerceInPageRange(),
         ),
     )
 
@@ -100,9 +100,12 @@ public class RootUsageCalendarPagerHostViewModel(
     }.asStateFlow()
 
     public fun updateStructure(current: ScreenStructure.Root.Usage.Calendar) {
-        val yearMonth = current.toDisplayYearMonth()
-        if (yearMonth !in pageYearMonths) return
+        val requestedYearMonth = current.toDisplayYearMonth()
+        val yearMonth = requestedYearMonth.coerceInPageRange()
         viewModelStateFlow.update { it.copy(displayYearMonth = yearMonth) }
+        if (yearMonth != requestedYearMonth) {
+            navController.navigateReplace(yearMonth.toScreenStructure())
+        }
     }
 
     private fun moveTo(yearMonth: YearMonth) {
@@ -138,6 +141,10 @@ public class RootUsageCalendarPagerHostViewModel(
     private fun ScreenStructure.Root.Usage.Calendar.toDisplayYearMonth(): YearMonth {
         val yearMonth = yearMonth ?: return today.yearMonth
         return YearMonth(year = yearMonth.year, month = yearMonth.month)
+    }
+
+    private fun YearMonth.coerceInPageRange(): YearMonth {
+        return coerceIn(pageYearMonths.first(), pageYearMonths.last())
     }
 
     private fun YearMonth.toScreenStructure(): ScreenStructure.Root.Usage.Calendar {
