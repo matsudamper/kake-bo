@@ -18,9 +18,14 @@ public class WebAuthnReflectionFeature extends PackageReflectionFeature {
     }
 
     @Override
+    protected List<String> extraPackages() {
+        return List.of("com.fasterxml.jackson.annotation");
+    }
+
+    @Override
     public void beforeAnalysis(Feature.BeforeAnalysisAccess access) {
         super.beforeAnalysis(access);
-        for (String className : extraClassNames()) {
+        for (String className : jdkClassNames()) {
             try {
                 register(Class.forName(className));
             } catch (ClassNotFoundException e) {
@@ -40,25 +45,11 @@ public class WebAuthnReflectionFeature extends PackageReflectionFeature {
     }
 
     /**
-     * Jackson が注釈の値とコレクション型のコンストラクタをリフレクションで取る。
-     * webauthn4j 本体の走査には含まれない。
+     * Jackson が List や Map の実装をリフレクションで作る。
+     * JDK のクラスはパッケージ走査の対象外。
      */
-    private static List<String> extraClassNames() {
+    private static List<String> jdkClassNames() {
         return List.of(
-                "com.fasterxml.jackson.annotation.JsonCreator",
-                "com.fasterxml.jackson.annotation.JsonProperty",
-                "com.fasterxml.jackson.annotation.JsonIgnore",
-                "com.fasterxml.jackson.annotation.JsonValue",
-                "com.fasterxml.jackson.annotation.JsonTypeInfo",
-                "com.fasterxml.jackson.annotation.JsonTypeInfo$Id",
-                "com.fasterxml.jackson.annotation.JsonTypeInfo$As",
-                "com.fasterxml.jackson.annotation.JsonSubTypes",
-                "com.fasterxml.jackson.annotation.JsonSubTypes$Type",
-                "com.fasterxml.jackson.annotation.JsonInclude",
-                "com.fasterxml.jackson.annotation.JsonInclude$Include",
-                "com.fasterxml.jackson.annotation.JsonIgnoreProperties",
-                "com.fasterxml.jackson.annotation.JsonFormat",
-                "com.fasterxml.jackson.annotation.JsonFormat$Shape",
                 "java.util.ArrayList",
                 "java.util.LinkedHashMap",
                 "java.util.HashMap",
