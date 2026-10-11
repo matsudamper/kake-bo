@@ -12,6 +12,7 @@ import kotlinx.coroutines.withContext
 import kotlinx.datetime.TimeZone
 import kotlinx.datetime.toLocalDateTime
 import com.apollographql.apollo.api.ApolloResponse
+import com.apollographql.apollo.exception.DefaultApolloException
 import net.matsudamper.money.element.SessionRecordId
 import net.matsudamper.money.frontend.common.base.ImmutableList.Companion.toImmutableList
 import net.matsudamper.money.frontend.common.base.Logger
@@ -32,6 +33,7 @@ import net.matsudamper.money.frontend.common.viewmodel.shared.FidoApi
 import net.matsudamper.money.frontend.graphql.LoginSettingScreenQuery
 
 private const val TAG = "LoginSettingViewModel"
+private const val WATCHER_STARTED_MESSAGE = "The watcher has started"
 
 public class LoginSettingViewModel(
     scopedObjectFeature: ScopedObjectFeature,
@@ -43,10 +45,12 @@ public class LoginSettingViewModel(
     private val viewModelStateFlow: MutableStateFlow<ViewModelState> = MutableStateFlow(
         ViewModelState(
             apolloScreenResponse = null,
+            screenRequestFailed = false,
             textInputDialogState = null,
             confirmDialog = null,
         ),
     )
+    private val screenLoadGeneration = MutableStateFlow(0)
     private val eventSender = EventSender<Event>()
     public val eventHandler: EventHandler<Event> = eventSender.asHandler()
 
@@ -81,73 +85,25 @@ public class LoginSettingViewModel(
                         }
                     }
                 }
+
+                override fun onClickRetry() {
+                    screenLoadGeneration.update { it + 1 }
+                }
             },
         ),
     ).also { uiStateFlow ->
         viewModelScope.launch {
             viewModelStateFlow.collectLatest { viewModelState ->
-                val loadedState = run loaded@{
-                    val currentSession = viewModelState.apolloScreenResponse
-                        ?.data?.user?.settings?.sessionAttributes?.currentSession
-                        ?: return@loaded null
-
-                    LoginSettingScreenUiState.LoadingState.Loaded(
-                        fidoList = run fidoList@{
-                            val fidoList = viewModelState.apolloScreenResponse
-                                ?.data?.user?.settings?.registeredFidoList
-                            if (fidoList == null) {
-                                immutableListOf()
-                            } else {
-                                fidoList.map { fido ->
-                                    LoginSettingScreenUiState.Fido(
-                                        name = fido.name,
-                                        event = FidoEventImpl(fido),
-                                    )
-                                }.toImmutableList()
-                            }
-                        },
-                        password = run password@{
-                            val hasPassword = viewModelState.apolloScreenResponse
-                                ?.data?.user?.settings?.hasPassword ?: false
-                            LoginSettingScreenUiState.Password(
-                                isRegistered = hasPassword,
-                                maskedDisplay = "••••••••",
-                                event = PasswordEventImpl(),
-                            )
-                        },
-                        sessionList = run sessionList@{
-                            val sessionList = viewModelState.apolloScreenResponse
-                                ?.data?.user?.settings?.sessionAttributes?.sessions
-                            if (sessionList == null) {
-                                return@sessionList immutableListOf()
-                            } else {
-                                sessionList
-                                    .filterNot { it.name == currentSession.name }
-                                    .map { session ->
-                                        LoginSettingScreenUiState.Session(
-                                            name = session.name,
-                                            lastAccess = Formatter.formatDateTime(
-                                                session.lastAccess.toLocalDateTime(TimeZone.currentSystemDefault()),
-                                            ),
-                                            event = SessionEventImpl(id = session.id, name = session.name),
-                                        )
-                                    }.toImmutableList()
-                            }
-                        },
-                        currentSession = run currentSession@{
-                            LoginSettingScreenUiState.Session(
-                                name = currentSession.name,
-                                lastAccess = Formatter.formatDateTime(
-                                    currentSession.lastAccess.toLocalDateTime(TimeZone.currentSystemDefault()),
-                                ),
-                                event = SessionEventImpl(id = currentSession.id, name = currentSession.name),
-                            )
-                        },
-                    )
+                val loadingState = runCatching {
+                    screenLoadingState(viewModelState)
+                }.onFailure {
+                    Logger.e(TAG, it)
+                }.getOrElse {
+                    LoginSettingScreenUiState.LoadingState.Error
                 }
                 uiStateFlow.update { uiState ->
                     uiState.copy(
-                        loadingState = loadedState ?: LoginSettingScreenUiState.LoadingState.Loading,
+                        loadingState = loadingState,
                         textInputDialogState = viewModelState.textInputDialogState,
                         confirmDialog = viewModelState.confirmDialog,
                     )
@@ -156,13 +112,102 @@ public class LoginSettingViewModel(
         }
     }.asStateFlow()
 
+    private fun screenLoadingState(viewModelState: ViewModelState): LoginSettingScreenUiState.LoadingState {
+        if (viewModelState.screenRequestFailed) {
+            return LoginSettingScreenUiState.LoadingState.Error
+        }
+        val currentSession = viewModelState.apolloScreenResponse
+            ?.data?.user?.settings?.sessionAttributes?.currentSession
+        if (currentSession == null) {
+            return if (viewModelState.apolloScreenResponse == null) {
+                LoginSettingScreenUiState.LoadingState.Loading
+            } else {
+                LoginSettingScreenUiState.LoadingState.Error
+            }
+        }
+        return LoginSettingScreenUiState.LoadingState.Loaded(
+            fidoList = run fidoList@{
+                val fidoList = viewModelState.apolloScreenResponse
+                    ?.data?.user?.settings?.registeredFidoList
+                if (fidoList == null) {
+                    immutableListOf()
+                } else {
+                    fidoList.map { fido ->
+                        LoginSettingScreenUiState.Fido(
+                            name = fido.name,
+                            event = FidoEventImpl(fido),
+                        )
+                    }.toImmutableList()
+                }
+            },
+            password = run password@{
+                val hasPassword = viewModelState.apolloScreenResponse
+                    ?.data?.user?.settings?.hasPassword ?: false
+                LoginSettingScreenUiState.Password(
+                    isRegistered = hasPassword,
+                    maskedDisplay = "••••••••",
+                    event = PasswordEventImpl(),
+                )
+            },
+            sessionList = run sessionList@{
+                val sessionList = viewModelState.apolloScreenResponse
+                    ?.data?.user?.settings?.sessionAttributes?.sessions
+                if (sessionList == null) {
+                    return@sessionList immutableListOf()
+                } else {
+                    sessionList
+                        .filterNot { it.name == currentSession.name }
+                        .map { session ->
+                            LoginSettingScreenUiState.Session(
+                                name = session.name,
+                                lastAccess = Formatter.formatDateTime(
+                                    session.lastAccess.toLocalDateTime(TimeZone.currentSystemDefault()),
+                                ),
+                                event = SessionEventImpl(id = session.id, name = session.name),
+                            )
+                        }.toImmutableList()
+                }
+            },
+            currentSession = run currentSession@{
+                LoginSettingScreenUiState.Session(
+                    name = currentSession.name,
+                    lastAccess = Formatter.formatDateTime(
+                        currentSession.lastAccess.toLocalDateTime(TimeZone.currentSystemDefault()),
+                    ),
+                    event = SessionEventImpl(id = currentSession.id, name = currentSession.name),
+                )
+            },
+        )
+    }
+
     init {
         viewModelScope.launch {
-            api.getScreen().collectLatest { apolloResponse ->
+            screenLoadGeneration.collectLatest { _ ->
                 viewModelStateFlow.update { viewModelState ->
                     viewModelState.copy(
-                        apolloScreenResponse = apolloResponse,
+                        apolloScreenResponse = null,
+                        screenRequestFailed = false,
                     )
+                }
+                runCatching {
+                    api.getScreen().collect { apolloResponse ->
+                        if (isWatcherStarted(apolloResponse)) {
+                            return@collect
+                        }
+                        viewModelStateFlow.update { viewModelState ->
+                            viewModelState.copy(
+                                apolloScreenResponse = apolloResponse,
+                                screenRequestFailed = false,
+                            )
+                        }
+                    }
+                }.onFailure { throwable ->
+                    Logger.e(TAG, throwable)
+                    viewModelStateFlow.update { viewModelState ->
+                        viewModelState.copy(
+                            screenRequestFailed = true,
+                        )
+                    }
                 }
             }
         }
@@ -210,12 +255,30 @@ public class LoginSettingViewModel(
     }
 
     private suspend fun refreshScreen() {
-        val response = api.getScreen().first()
+        val response = runCatching {
+            api.getScreen().first { apolloResponse ->
+                !isWatcherStarted(apolloResponse)
+            }
+        }.onFailure {
+            Logger.e(TAG, it)
+        }.getOrNull()
         viewModelStateFlow.update { viewModelState ->
-            viewModelState.copy(
-                apolloScreenResponse = response,
-            )
+            if (response == null) {
+                viewModelState.copy(
+                    screenRequestFailed = true,
+                )
+            } else {
+                viewModelState.copy(
+                    apolloScreenResponse = response,
+                    screenRequestFailed = false,
+                )
+            }
         }
+    }
+
+    private fun isWatcherStarted(response: ApolloResponse<*>): Boolean {
+        val exception = response.exception
+        return exception is DefaultApolloException && exception.message == WATCHER_STARTED_MESSAGE
     }
 
     private fun showAddFidoFailToast() {
@@ -473,6 +536,7 @@ public class LoginSettingViewModel(
 
     private data class ViewModelState(
         val apolloScreenResponse: ApolloResponse<LoginSettingScreenQuery.Data>?,
+        val screenRequestFailed: Boolean,
         val textInputDialogState: LoginSettingScreenUiState.TextInputDialogState?,
         val confirmDialog: LoginSettingScreenUiState.ConfirmDialog?,
     )
