@@ -15,20 +15,20 @@ repositories {
 
 tasks.withType<KotlinCompile>().configureEach {
     compilerOptions {
-        jvmTarget.set(JvmTarget.JVM_24)
+        jvmTarget.set(JvmTarget.JVM_25)
     }
 }
 
 java {
     toolchain {
-        languageVersion = JavaLanguageVersion.of(24)
+        languageVersion = JavaLanguageVersion.of(25)
     }
 }
 
 dependencies {
     compileOnly("org.jetbrains.kotlin:kotlin-gradle-plugin")
     compileOnly("org.jetbrains.compose:compose-gradle-plugin:1.12.1")
-    compileOnly("org.gradle.kotlin:gradle-kotlin-dsl-plugins:6.7.12")
+    compileOnly("org.gradle.kotlin:gradle-kotlin-dsl-plugins:6.7.13")
     implementation(libs.androidGradlePlugin)
     implementation(libs.androidLibraryGradlePlugin)
     implementation(libs.androidKotlinMultiplatformLibraryGradlePlugin)
