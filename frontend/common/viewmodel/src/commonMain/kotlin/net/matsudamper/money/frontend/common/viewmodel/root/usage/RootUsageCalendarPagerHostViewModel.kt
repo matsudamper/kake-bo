@@ -45,13 +45,13 @@ public class RootUsageCalendarPagerHostViewModel(
     }
     private val pages: ImmutableList<RootUsageCalendarPagerHostScreenUiState.Page> = pageYearMonths.map { yearMonth ->
         RootUsageCalendarPagerHostScreenUiState.Page(
-            navigation = yearMonth.toScreenStructure(),
+            navigation = createScreenStructure(yearMonth),
         )
     }.toImmutableList()
 
     private val viewModelStateFlow: MutableStateFlow<ViewModelState> = MutableStateFlow(
         ViewModelState(
-            displayYearMonth = initial.toDisplayYearMonth().coerceInPageRange(),
+            displayYearMonth = coerceInPageRange(getDisplayYearMonth(initial)),
         ),
     )
 
@@ -103,11 +103,11 @@ public class RootUsageCalendarPagerHostViewModel(
     }.asStateFlow()
 
     public fun updateStructure(current: ScreenStructure.Root.Usage.Calendar) {
-        val requestedYearMonth = current.toDisplayYearMonth()
-        val yearMonth = requestedYearMonth.coerceInPageRange()
+        val requestedYearMonth = getDisplayYearMonth(current)
+        val yearMonth = coerceInPageRange(requestedYearMonth)
         viewModelStateFlow.update { it.copy(displayYearMonth = yearMonth) }
         if (yearMonth != requestedYearMonth) {
-            navController.navigateReplace(yearMonth.toScreenStructure())
+            navController.navigateReplace(createScreenStructure(yearMonth))
         }
     }
 
@@ -115,7 +115,7 @@ public class RootUsageCalendarPagerHostViewModel(
         if (yearMonth !in pageYearMonths) return
         if (viewModelStateFlow.value.displayYearMonth == yearMonth) return
         viewModelStateFlow.update { it.copy(displayYearMonth = yearMonth) }
-        navController.navigateReplace(yearMonth.toScreenStructure())
+        navController.navigateReplace(createScreenStructure(yearMonth))
     }
 
     private fun createUiState(
@@ -141,22 +141,22 @@ public class RootUsageCalendarPagerHostViewModel(
         )
     }
 
-    private fun ScreenStructure.Root.Usage.Calendar.toDisplayYearMonth(): YearMonth {
-        val yearMonth = yearMonth ?: return today().yearMonth
+    private fun getDisplayYearMonth(calendar: ScreenStructure.Root.Usage.Calendar): YearMonth {
+        val yearMonth = calendar.yearMonth ?: return today().yearMonth
         return YearMonth(year = yearMonth.year, month = yearMonth.month)
     }
 
     private fun today(): LocalDate = Clock.System.todayIn(TimeZone.currentSystemDefault())
 
-    private fun YearMonth.coerceInPageRange(): YearMonth {
-        return coerceIn(pageYearMonths.first(), pageYearMonths.last())
+    private fun coerceInPageRange(yearMonth: YearMonth): YearMonth {
+        return yearMonth.coerceIn(pageYearMonths.first(), pageYearMonths.last())
     }
 
-    private fun YearMonth.toScreenStructure(): ScreenStructure.Root.Usage.Calendar {
+    private fun createScreenStructure(yearMonth: YearMonth): ScreenStructure.Root.Usage.Calendar {
         return ScreenStructure.Root.Usage.Calendar(
             yearMonth = ScreenStructure.Root.Usage.Calendar.YearMonth(
-                year = year,
-                month = month.number,
+                year = yearMonth.year,
+                month = yearMonth.month.number,
             ),
         )
     }
