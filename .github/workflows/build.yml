@@ -58,7 +58,7 @@ jobs:
           compression-level: 9
       - name: Upload APK to S3
         id: upload_s3
-        uses: matsudamper/actions/upload-matsudamper-s3@6f7068834e08294360d6e5987869a5f50c924c66 # v1.0.1
+        uses: matsudamper/actions/upload-matsudamper-s3@5c2f397727eaf53708de3f663fa9b754f55d80be # v1.1.1
         continue-on-error: true
         with:
           file_path: ${{ env.APK_PATH }}
