@@ -38,6 +38,19 @@ subprojects {
         }
     }
 
+    plugins.withType<JavaBasePlugin> {
+        extensions.configure<JavaPluginExtension> {
+            toolchain {
+                languageVersion.set(JavaLanguageVersion.of(libs.versions.javaToolchain.get().toInt()))
+                when {
+                    path.startsWith(":backend") -> vendor.set(JvmVendorSpec.GRAAL_VM)
+                    // GraalVM の jlink は jdk.internal.vm.ci を要求し、AGP の Android 用 JDK イメージ生成に失敗する
+                    path.startsWith(":frontend") -> vendor.set(JvmVendorSpec.ADOPTIUM)
+                }
+            }
+        }
+    }
+
     pluginManager.withPlugin("org.jetbrains.kotlin.multiplatform") {
         extensions.configure<KotlinMultiplatformExtension> {
             sourceSets.all {

@@ -6,7 +6,6 @@ plugins {
 kotlin {
     jvm {
     }
-    jvmToolchain(libs.versions.javaToolchain.get().toInt())
     sourceSets {
         getByName("jvmMain") {
             dependencies {

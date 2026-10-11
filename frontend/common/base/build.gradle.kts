@@ -13,7 +13,6 @@ kotlin {
     }
     jvm { }
     sourceSets {
-        jvmToolchain(libs.versions.javaToolchain.get().toInt())
         getByName("commonMain") {
             dependencies {
                 api(projects.frontend.common.feature.logging)

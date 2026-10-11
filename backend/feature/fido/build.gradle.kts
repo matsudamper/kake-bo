@@ -6,7 +6,6 @@ kotlin {
     jvm {
     }
     sourceSets {
-        jvmToolchain(libs.versions.javaToolchain.get().toInt())
         getByName("jvmMain") {
             dependencies {
                 implementation(projects.shared)

@@ -19,7 +19,6 @@ kotlin {
         binaries.executable()
     }
     sourceSets {
-        jvmToolchain(libs.versions.javaToolchain.get().toInt())
         getByName("commonMain") {
             dependencies {
                 implementation(projects.shared)
