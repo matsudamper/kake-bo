@@ -21,11 +21,24 @@ public abstract class PackageReflectionFeature implements Feature {
 
     protected abstract String targetPackage();
 
+    /**
+     * targetPackage 以外も同じ走査で登録したいときだけ上書きする。
+     */
+    protected List<String> extraPackages() {
+        return List.of();
+    }
+
     protected abstract void register(Class<?> clazz);
 
     @Override
     public void beforeAnalysis(BeforeAnalysisAccess access) {
-        String targetPackage = targetPackage();
+        registerPackage(targetPackage());
+        for (String extraPackage : extraPackages()) {
+            registerPackage(extraPackage);
+        }
+    }
+
+    private void registerPackage(String targetPackage) {
         List<String> classNames = new ArrayList<>();
         try {
             collectClassNames(targetPackage, classNames);
