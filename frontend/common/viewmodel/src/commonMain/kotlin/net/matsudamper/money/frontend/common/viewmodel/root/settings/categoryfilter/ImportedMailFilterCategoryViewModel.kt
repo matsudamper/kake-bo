@@ -440,16 +440,17 @@ public class ImportedMailFilterCategoryViewModel(
 
                 override fun onClickSave() {
                     viewModelScope.launch {
-                        api.updateFilter(
+                        val isSuccess = api.updateFilter(
                             id = id,
                             matchExpression = inputText,
-                        ).onSuccess {
+                        ).getOrNull()?.data?.userMutation?.updateImportedMailCategoryFilter != null
+                        if (isSuccess) {
                             viewModelStateFlow.update { viewModelState ->
                                 viewModelState.copy(
                                     matchExpressionInput = null,
                                 )
                             }
-                        }.onFailure {
+                        } else {
                             eventSender.send {
                                 it.showNativeAlert("更新に失敗しました。")
                             }
