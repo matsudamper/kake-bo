@@ -57,6 +57,21 @@ class MatchExpressionAnalyzerTest : DescribeSpec(
             }
         }
 
+        describe("長い式") {
+            it("上限の長さのANDとORの連続を評価できる") {
+                val unit = "id1 AND id2 OR "
+                val source = unit.repeat(MatchExpressionAnalyzer.MAX_LENGTH / unit.length) + "id3"
+                evaluate(source, setOf("id3")).shouldBe(true)
+                evaluate(source, setOf()).shouldBe(false)
+            }
+
+            it("上限の深さの入れ子を評価できる") {
+                val depth = MatchExpressionParser.MAX_NESTING_DEPTH
+                evaluate("(".repeat(depth / 2) + "!".repeat(depth / 2) + "id1" + ")".repeat(depth / 2), setOf("id1"))
+                    .shouldBe(true)
+            }
+        }
+
         describe("エラー") {
             it("空の式はエラー") {
                 errors("  ").map { it.type }.shouldBe(listOf(MatchExpressionError.Type.Empty))
@@ -109,6 +124,26 @@ class MatchExpressionAnalyzerTest : DescribeSpec(
                 )
                 errors("AND id1").shouldBe(
                     listOf(MatchExpressionError(MatchExpressionError.Type.UnexpectedToken, 0..2, "AND")),
+                )
+            }
+
+            it("上限を超えた長さの式は超えた部分をエラーにする") {
+                val source = "id1" + " ".repeat(MatchExpressionAnalyzer.MAX_LENGTH)
+                errors(source).shouldBe(
+                    listOf(
+                        MatchExpressionError(
+                            MatchExpressionError.Type.TooLong,
+                            MatchExpressionAnalyzer.MAX_LENGTH until source.length,
+                            " ".repeat(3),
+                        ),
+                    ),
+                )
+            }
+
+            it("括弧と!の入れ子が上限を超えた場合はエラー") {
+                val depth = MatchExpressionParser.MAX_NESTING_DEPTH
+                errors("(".repeat(depth) + "!id1" + ")".repeat(depth)).shouldBe(
+                    listOf(MatchExpressionError(MatchExpressionError.Type.TooDeepNesting, depth..depth, "!")),
                 )
             }
 

@@ -4,6 +4,9 @@ package net.matsudamper.money.categoryfilter.matchexpression
  * 優先順位は `!` > `AND` > `OR`。二項演算子は左結合
  */
 object MatchExpressionParser {
+    /** 括弧と `!` の入れ子の上限。解析と評価が再帰するため、スタックを使い切らないように制限する */
+    const val MAX_NESTING_DEPTH: Int = 100
+
     fun parse(source: String, tokens: List<MatchExpressionToken>): MatchExpressionParseResult {
         if (tokens.isEmpty()) {
             return MatchExpressionParseResult.Failure(
@@ -28,6 +31,7 @@ object MatchExpressionParser {
         private val tokens: List<MatchExpressionToken>,
     ) {
         private var position = 0
+        private var nestingDepth = 0
 
         fun readAll(): MatchExpression {
             val expression = readOr()
@@ -39,30 +43,39 @@ object MatchExpressionParser {
         }
 
         private fun readOr(): MatchExpression {
-            var expression = readAnd()
+            val operands = mutableListOf(readAnd())
             while (tokens.getOrNull(position) is MatchExpressionToken.Or) {
                 position++
-                expression = MatchExpression.Or(left = expression, right = readAnd())
+                operands.add(readAnd())
             }
-            return expression
+            return operands.singleOrNull() ?: MatchExpression.Or(operands)
         }
 
         private fun readAnd(): MatchExpression {
-            var expression = readUnary()
+            val operands = mutableListOf(readUnary())
             while (tokens.getOrNull(position) is MatchExpressionToken.And) {
                 position++
-                expression = MatchExpression.And(left = expression, right = readUnary())
+                operands.add(readUnary())
             }
-            return expression
+            return operands.singleOrNull() ?: MatchExpression.And(operands)
         }
 
         private fun readUnary(): MatchExpression {
-            return if (tokens.getOrNull(position) is MatchExpressionToken.Not) {
+            val token = tokens.getOrNull(position)
+            return if (token is MatchExpressionToken.Not) {
                 position++
-                MatchExpression.Not(readUnary())
+                nested(token) { MatchExpression.Not(readUnary()) }
             } else {
                 readPrimary()
             }
+        }
+
+        private fun <T> nested(token: MatchExpressionToken, block: () -> T): T {
+            nestingDepth++
+            if (nestingDepth > MAX_NESTING_DEPTH) {
+                throw ParseException(createError(MatchExpressionError.Type.TooDeepNesting, token.range))
+            }
+            return block().also { nestingDepth-- }
         }
 
         private fun readPrimary(): MatchExpression {
@@ -72,7 +85,7 @@ object MatchExpressionParser {
             return when (token) {
                 is MatchExpressionToken.MatcherKey -> MatchExpression.MatcherReference(token.key)
                 is MatchExpressionToken.Literal -> MatchExpression.Literal(token.value)
-                is MatchExpressionToken.LeftParenthesis -> {
+                is MatchExpressionToken.LeftParenthesis -> nested(token) {
                     val expression = readOr()
                     if (tokens.getOrNull(position) !is MatchExpressionToken.RightParenthesis) {
                         throw ParseException(createError(MatchExpressionError.Type.MissingClosingParenthesis, token.range))

@@ -17,5 +17,7 @@ data class MatchExpressionError(
         MissingOperand,
         MissingClosingParenthesis,
         UnknownMatcherKey,
+        TooLong,
+        TooDeepNesting,
     }
 }

@@ -1,7 +1,21 @@
 package net.matsudamper.money.categoryfilter.matchexpression
 
 object MatchExpressionAnalyzer {
+    const val MAX_LENGTH: Int = 5000
+
     fun analyze(source: String, matcherKeys: Set<String>): MatchExpressionAnalysis {
+        if (source.length > MAX_LENGTH) {
+            val overflowRange = MAX_LENGTH until source.length
+            return MatchExpressionAnalysis.Invalid(
+                errors = listOf(
+                    MatchExpressionError(
+                        type = MatchExpressionError.Type.TooLong,
+                        range = overflowRange,
+                        text = source.substring(overflowRange),
+                    ),
+                ),
+            )
+        }
         val lexResult = MatchExpressionLexer.tokenize(source)
         val unknownMatcherKeyErrors = lexResult.tokens
             .filterIsInstance<MatchExpressionToken.MatcherKey>()

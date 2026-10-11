@@ -21,15 +21,21 @@ sealed interface MatchExpression {
         }
     }
 
-    data class And(val left: MatchExpression, val right: MatchExpression) : MatchExpression {
+    /**
+     * 連続した AND を1つにまとめ、長い式でも評価の再帰が深くならないようにしている
+     */
+    data class And(val operands: List<MatchExpression>) : MatchExpression {
         override fun evaluate(isMatcherMatched: (matcherKey: String) -> Boolean): Boolean {
-            return left.evaluate(isMatcherMatched) && right.evaluate(isMatcherMatched)
+            return operands.all { it.evaluate(isMatcherMatched) }
         }
     }
 
-    data class Or(val left: MatchExpression, val right: MatchExpression) : MatchExpression {
+    /**
+     * 連続した OR を1つにまとめ、長い式でも評価の再帰が深くならないようにしている
+     */
+    data class Or(val operands: List<MatchExpression>) : MatchExpression {
         override fun evaluate(isMatcherMatched: (matcherKey: String) -> Boolean): Boolean {
-            return left.evaluate(isMatcherMatched) || right.evaluate(isMatcherMatched)
+            return operands.any { it.evaluate(isMatcherMatched) }
         }
     }
 }

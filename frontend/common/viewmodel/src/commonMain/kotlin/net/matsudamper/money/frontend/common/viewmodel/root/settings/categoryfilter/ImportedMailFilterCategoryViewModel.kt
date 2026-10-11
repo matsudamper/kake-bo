@@ -11,6 +11,7 @@ import net.matsudamper.money.categoryfilter.CategoryFilterMatcherKey
 import net.matsudamper.money.categoryfilter.matchexpression.MatchExpressionAnalysis
 import net.matsudamper.money.categoryfilter.matchexpression.MatchExpressionAnalyzer
 import net.matsudamper.money.categoryfilter.matchexpression.MatchExpressionError
+import net.matsudamper.money.categoryfilter.matchexpression.MatchExpressionParser
 import net.matsudamper.money.element.ImportedMailCategoryFilterId
 import net.matsudamper.money.element.ImportedMailCategoryFilterMatcherId
 import net.matsudamper.money.frontend.common.base.ImmutableList.Companion.toImmutableList
@@ -473,6 +474,8 @@ public class ImportedMailFilterCategoryViewModel(
             MatchExpressionError.Type.MissingOperand -> "${error.text} の後に条件がありません"
             MatchExpressionError.Type.MissingClosingParenthesis -> "閉じ括弧がありません"
             MatchExpressionError.Type.UnknownMatcherKey -> "存在しないキーです: ${error.text}"
+            MatchExpressionError.Type.TooLong -> "式は${MatchExpressionAnalyzer.MAX_LENGTH}文字以内にしてください"
+            MatchExpressionError.Type.TooDeepNesting -> "括弧と!の入れ子は${MatchExpressionParser.MAX_NESTING_DEPTH}段までです"
         }
     }
 
