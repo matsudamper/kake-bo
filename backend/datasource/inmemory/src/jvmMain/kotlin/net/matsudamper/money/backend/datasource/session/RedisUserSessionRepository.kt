@@ -225,7 +225,7 @@ private sealed interface SessionKeys {
         ): String? {
             return commands.set(
                 key,
-                ObjectMapper.kotlinxSerialization.encodeToString(data),
+                ObjectMapper.kotlinxSerialization.encodeToString(SessionData.serializer(), data),
                 SetArgs()
                     .nx()
                     .ex(ServerVariables.USER_SESSION_EXPIRE_DAY.days.inWholeSeconds),
@@ -235,7 +235,7 @@ private sealed interface SessionKeys {
         fun update(commands: RedisCommands<String, String>, data: SessionData): String? {
             return commands.set(
                 key,
-                ObjectMapper.kotlinxSerialization.encodeToString(data),
+                ObjectMapper.kotlinxSerialization.encodeToString(SessionData.serializer(), data),
                 SetArgs().keepttl(),
             )
         }
@@ -245,7 +245,7 @@ private sealed interface SessionKeys {
         ): SessionData? {
             val jsonData = commands.get(key) ?: return null
             return try {
-                ObjectMapper.kotlinxSerialization.decodeFromString<SessionData>(jsonData)
+                ObjectMapper.kotlinxSerialization.decodeFromString(SessionData.serializer(), jsonData)
             } catch (e: Throwable) {
                 TraceLogger.impl().noticeThrowable(e, true)
                 TraceLogger.impl().setAttribute("jsonData", jsonData)
@@ -332,7 +332,7 @@ private sealed interface SessionKeys {
         ): String? {
             return commands.set(
                 key,
-                ObjectMapper.kotlinxSerialization.encodeToString(data),
+                ObjectMapper.kotlinxSerialization.encodeToString(Data.serializer(), data),
                 SetArgs()
                     .nx()
                     .ex(expireSecond),
@@ -343,7 +343,7 @@ private sealed interface SessionKeys {
             val jsonData = commands.get(key) ?: return null
 
             return try {
-                ObjectMapper.kotlinxSerialization.decodeFromString<Data>(jsonData)
+                ObjectMapper.kotlinxSerialization.decodeFromString(Data.serializer(), jsonData)
             } catch (e: Throwable) {
                 TraceLogger.impl().noticeThrowable(e, true)
                 TraceLogger.impl().setAttribute("jsonData", jsonData)
