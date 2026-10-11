@@ -32,7 +32,7 @@ class AiMailParser(
     }
 
     private fun parseResponse(text: String): List<AiParsedUsage> {
-        val result = json.decodeFromString<ParseResult>(text)
+        val result = json.decodeFromString(ParseResult.serializer(), text)
         return result.usages
             .filter { it.title.isNotBlank() }
             .map { usage ->
