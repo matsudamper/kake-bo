@@ -32,7 +32,7 @@ class MatchExpressionAnalyzerTest : DescribeSpec(
                 evaluate("(id1 OR id2) AND id3", trueKeys = setOf("id1", "id3")).shouldBe(true)
             }
 
-            it("!はANDより優先される") {
+            it("否定の!はANDより優先される") {
                 evaluate("!id1 AND id2", trueKeys = setOf("id2")).shouldBe(true)
                 evaluate("!id1 AND id2", trueKeys = setOf("id1", "id2")).shouldBe(false)
                 evaluate("!!id1", trueKeys = setOf("id1")).shouldBe(true)
