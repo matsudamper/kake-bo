@@ -8,6 +8,7 @@ import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import kotlinx.datetime.DateTimeUnit
+import kotlinx.datetime.LocalDate
 import kotlinx.datetime.TimeZone
 import kotlinx.datetime.YearMonth
 import kotlinx.datetime.minusMonth
@@ -36,9 +37,11 @@ public class RootUsageCalendarPagerHostViewModel(
     private val rootUsageHostViewModel: RootUsageHostViewModel,
     private val navController: ScreenNavController,
 ) : CommonViewModel(scopedObjectFeature) {
-    private val today = Clock.System.todayIn(TimeZone.currentSystemDefault())
-    private val pageYearMonths: List<YearMonth> = (-PAGE_COUNT_FROM_TODAY..PAGE_COUNT_FROM_TODAY).map { index ->
-        today.yearMonth.plus(value = index, unit = DateTimeUnit.MONTH)
+    private val pageYearMonths: List<YearMonth> = run {
+        val baseYearMonth = today().yearMonth
+        (-PAGE_COUNT_FROM_TODAY..PAGE_COUNT_FROM_TODAY).map { index ->
+            baseYearMonth.plus(value = index, unit = DateTimeUnit.MONTH)
+        }
     }
     private val pages: ImmutableList<RootUsageCalendarPagerHostScreenUiState.Page> = pageYearMonths.map { yearMonth ->
         RootUsageCalendarPagerHostScreenUiState.Page(
@@ -129,8 +132,8 @@ public class RootUsageCalendarPagerHostViewModel(
                     title = "${displayYearMonth.year}/${displayYearMonth.month.number}",
                     year = displayYearMonth.year,
                     month = displayYearMonth.month.number,
-                    currentYear = today.year,
-                    currentMonth = today.month.number,
+                    currentYear = today().year,
+                    currentMonth = today().month.number,
                     event = headerCalendarEvent,
                 ),
             ),
@@ -139,9 +142,11 @@ public class RootUsageCalendarPagerHostViewModel(
     }
 
     private fun ScreenStructure.Root.Usage.Calendar.toDisplayYearMonth(): YearMonth {
-        val yearMonth = yearMonth ?: return today.yearMonth
+        val yearMonth = yearMonth ?: return today().yearMonth
         return YearMonth(year = yearMonth.year, month = yearMonth.month)
     }
+
+    private fun today(): LocalDate = Clock.System.todayIn(TimeZone.currentSystemDefault())
 
     private fun YearMonth.coerceInPageRange(): YearMonth {
         return coerceIn(pageYearMonths.first(), pageYearMonths.last())
