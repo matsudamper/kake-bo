@@ -55,11 +55,13 @@ import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.text.input.OffsetMapping
 import androidx.compose.ui.text.input.TransformedText
 import androidx.compose.ui.text.style.TextDecoration
+import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.DpOffset
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.window.PopupProperties
 import net.matsudamper.money.frontend.common.base.ImmutableList
 import net.matsudamper.money.frontend.common.base.immutableListOf
+import net.matsudamper.money.frontend.common.ui.AppRoot
 import net.matsudamper.money.frontend.common.ui.base.CategorySelectDialog
 import net.matsudamper.money.frontend.common.ui.base.CategorySelectDialogUiState
 import net.matsudamper.money.frontend.common.ui.base.KakeBoTopAppBar
@@ -802,5 +804,72 @@ private fun DropDownButton(
                 dropDown()
             }
         }
+    }
+}
+
+@Composable
+@Preview
+private fun MatchExpressionErrorPreview() {
+    val matcherEvent = object : ImportedMailFilterCategoryScreenUiState.MatcherEvent {
+        override fun onClickMatcherKeyChange() {}
+        override fun onClickTextChange() {}
+        override fun selectedSource(source: ImportedMailFilterCategoryScreenUiState.DataSource) {}
+        override fun selectedMatcherType(type: ImportedMailFilterCategoryScreenUiState.MatcherType) {}
+        override fun onClickDeleteMenu() {}
+    }
+    AppRoot {
+        ImportedMailFilterCategoryScreen(
+            uiState = ImportedMailFilterCategoryScreenUiState(
+                loadingState = ImportedMailFilterCategoryScreenUiState.LoadingState.Loaded(
+                    title = "カード払いの日用品",
+                    category = ImportedMailFilterCategoryScreenUiState.Category(
+                        category = "買い物",
+                        subCategory = "日用品",
+                    ),
+                    matchers = immutableListOf(
+                        ImportedMailFilterCategoryScreenUiState.Matcher(
+                            matcherKey = "card",
+                            text = "カード",
+                            source = ImportedMailFilterCategoryScreenUiState.DataSource.ServiceName,
+                            matcherType = ImportedMailFilterCategoryScreenUiState.MatcherType.Include,
+                            event = matcherEvent,
+                        ),
+                    ),
+                    matchExpression = ImportedMailFilterCategoryScreenUiState.MatchExpression(
+                        inputText = "card AND (shop-a OR shop-c)\nAND !Unknown && TRUE",
+                        errorRanges = immutableListOf(20..25, 33..39, 41..42),
+                        errorMessages = immutableListOf(
+                            "存在しないキーです: shop-c",
+                            "知らないキーワードです: Unknown",
+                            "使えない文字があります: &&",
+                        ),
+                        allowedCharactersDescription = "キー（半角小文字の英字・数字・_・-）、AND、OR、!、(、)、TRUE、FALSE、空白、改行",
+                        isSaveEnabled = true,
+                        event = object : ImportedMailFilterCategoryScreenUiState.MatchExpressionEvent {
+                            override fun onInputChange(text: String) {}
+                            override fun onClickSave() {}
+                        },
+                    ),
+                    event = object : ImportedMailFilterCategoryScreenUiState.LoadedEvent {
+                        override fun onClickAddMatcher() {}
+                        override fun onClickNameChange() {}
+                        override fun onClickCategoryChange() {}
+                    },
+                ),
+                textInput = null,
+                confirmDialog = null,
+                snackbarEventState = SnackbarEventState(),
+                categorySelectDialogUiState = null,
+                kakeboScaffoldListener = object : KakeboScaffoldListener {
+                    override fun onClickTitle() {}
+                },
+                event = object : ImportedMailFilterCategoryScreenUiState.Event {
+                    override fun onViewInitialized() {}
+                    override fun onClickMenuDelete() {}
+                    override fun onClickBack() {}
+                },
+            ),
+            windowInsets = PaddingValues(0.dp),
+        )
     }
 }
