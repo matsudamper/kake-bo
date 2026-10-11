@@ -12,7 +12,6 @@ kotlin {
     }
     jvm { }
     sourceSets {
-        jvmToolchain(libs.versions.javaToolchain.get().toInt())
         getByName("androidMain") {
             dependencies {
                 implementation(libs.timber)
