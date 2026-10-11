@@ -3,91 +3,125 @@ package net.matsudamper.money.detekt
 import dev.detekt.api.Config
 import dev.detekt.api.Entity
 import dev.detekt.api.Finding
+import dev.detekt.api.RequiresAnalysisApi
 import dev.detekt.api.Rule
+import org.jetbrains.kotlin.analysis.api.analyze
+import org.jetbrains.kotlin.analysis.api.resolution.KaFunctionCall
+import org.jetbrains.kotlin.analysis.api.resolution.successfulFunctionCallOrNull
+import org.jetbrains.kotlin.analysis.api.symbols.KaClassSymbol
+import org.jetbrains.kotlin.analysis.api.symbols.KaNamedFunctionSymbol
+import org.jetbrains.kotlin.analysis.api.types.KaClassType
+import org.jetbrains.kotlin.analysis.api.types.KaType
+import org.jetbrains.kotlin.name.ClassId
+import org.jetbrains.kotlin.name.FqName
 import org.jetbrains.kotlin.psi.KtCallExpression
-import org.jetbrains.kotlin.psi.KtFile
-import org.jetbrains.kotlin.psi.KtLambdaExpression
 
 /**
- * Ktor の ContentNegotiation は KType から実行時に serializer を探すため、
- * native image ではリフレクション情報不足で SerializationException や KotlinReflectionInternalError になる。
+ * reified な serializer 探索は native image で SerializationException や KotlinReflectionInternalError になる。
+ * 関数名ではなく、解決したシグネチャが inline reified かどうかで判定する。
  */
-class KtorRuntimeSerializerLookup(config: Config) : Rule(
-    config,
-    "Ktor の型推論シリアライズは native image で失敗するため、serializer() を明示して encode/decode する",
-) {
+class KtorRuntimeSerializerLookup(config: Config) :
+    Rule(
+        config,
+        "型推論によるシリアライズは native image で失敗するため、KSerializer を明示して encode/decode する",
+    ),
+    RequiresAnalysisApi {
     override fun visitCallExpression(expression: KtCallExpression) {
         super.visitCallExpression(expression)
-        val calledName = expression.calleeExpression?.text ?: return
-        val calledFqName = expression.containingKtFile.resolveDetectionTargetFqName(calledName) ?: return
-
-        val isReflectiveBodyCall = calledFqName in bodyConversionFqNames && !expression.isStatusOnlyResponse()
-        val isTypedRouteBuilder = calledFqName in routeBuilderFqNames && expression.hasRequestBodyType()
-
-        if (isReflectiveBodyCall || isTypedRouteBuilder) {
+        analyze(expression) {
+            val call = expression.resolveToCall()?.successfulFunctionCallOrNull() ?: return
+            val symbol = call.signature.symbol as? KaNamedFunctionSymbol ?: return
+            if (!isRuntimeSerializerLookup(symbol, call)) return
+            val callableId = symbol.callableId?.asSingleFqName()?.asString() ?: symbol.name.asString()
             report(
                 Finding(
                     entity = Entity.from(expression),
-                    message = "$calledFqName は実行時に serializer を探すため native image で失敗する。" +
-                        "serializer() を明示して respondText / receiveText と組み合わせる",
+                    message = "$callableId は実行時に serializer を探すため native image で失敗する。" +
+                        "KSerializer を明示するか、respondText / receiveText を使う",
                 ),
             )
         }
     }
 
     /**
-     * HttpStatusCode だけを渡す respond は本文を持たず、serializer 探索をしない。
-     * OutgoingContent などは PSI だけでは判別できないため、必要なら Suppress する。
+     * HttpStatusCode だけを渡す respond は DefaultTransform がステータス設定に使い、本文の serializer 探索をしない。
      */
-    private fun KtCallExpression.isStatusOnlyResponse(): Boolean {
-        val arguments = valueArguments.mapNotNull { it.getArgumentExpression() }
-        return arguments.isNotEmpty() && arguments.all { statusCodeConstantPattern.matches(it.text) }
+    private fun isRuntimeSerializerLookup(symbol: KaNamedFunctionSymbol, call: KaFunctionCall<*>): Boolean {
+        if (!symbol.isInline || symbol.typeParameters.none { it.isReified }) return false
+        if (symbol.valueParameters.any { it.returnType.referencesClass(serializerClassIds) }) return false
+
+        val packageName = symbol.callableId?.packageName?.asString() ?: return false
+        if (packageName.isWithinPackage("kotlinx.serialization")) {
+            return call.hasSerialFormatReceiver() || symbol.returnType.referencesClass(kSerializerClassIds)
+        }
+        if (ktorRuntimeTypeInfoPackagePrefixes.any { packageName.isWithinPackage(it) }) {
+            return !isStatusCodeOnly(symbol, call)
+        }
+        return false
     }
 
-    /**
-     * リクエストボディ付きのオーバーロードは、型引数を省略してもラムダ引数の型から推論される。
-     * 関数参照などは PSI だけでは型が分からないため、引数なしのラムダ以外は検知対象にする。
-     */
-    private fun KtCallExpression.hasRequestBodyType(): Boolean {
-        if (typeArguments.isNotEmpty()) return true
-        val handlerArgument = valueArguments.firstOrNull { it.getArgumentName()?.asName?.asString() == "body" }
-            ?: valueArguments.lastOrNull { it.getArgumentName() == null }
-        val handler = handlerArgument?.getArgumentExpression() ?: return false
-        val handlerLambda = handler as? KtLambdaExpression ?: return true
-        return handlerLambda.valueParameters.isNotEmpty()
+    private fun KaFunctionCall<*>.hasSerialFormatReceiver(): Boolean {
+        val receiverTypes = listOfNotNull(
+            dispatchReceiver?.type,
+            extensionReceiver?.type,
+        )
+        return receiverTypes.any { it.referencesClass(serialFormatClassIds) }
     }
 
-    /**
-     * 同名の callable が複数 import されていると、どれが呼ばれるかは PSI だけでは決まらない。
-     * そのため検知対象の FQ 名が候補に含まれていれば、それを返す。
-     */
-    private fun KtFile.resolveDetectionTargetFqName(calledName: String): String? {
-        val explicitCandidates = importDirectives
-            .filterNot { it.isAllUnder }
-            .mapNotNull { directive ->
-                val fqName = directive.importedFqName ?: return@mapNotNull null
-                val localName = directive.aliasName ?: fqName.shortName().asString()
-                fqName.asString().takeIf { localName == calledName }
-            }
-        val starImportCandidates = importDirectives
-            .filter { it.isAllUnder }
-            .mapNotNull { it.importedFqName?.asString() }
-            .map { packageName -> "$packageName.$calledName" }
-        return (explicitCandidates + starImportCandidates).firstOrNull { it in bodyConversionFqNames || it in routeBuilderFqNames }
+    private fun isStatusCodeOnly(symbol: KaNamedFunctionSymbol, call: KaFunctionCall<*>): Boolean {
+        val reifiedParameters = symbol.typeParameters.filter { it.isReified }
+        if (reifiedParameters.isEmpty()) return false
+        return reifiedParameters.all { parameter ->
+            val typeArgument = call.typeArgumentsMapping[parameter] ?: return@all false
+            typeArgument.referencesClass(httpStatusCodeClassIds)
+        }
+    }
+
+    private fun KaType.referencesClass(targets: Set<ClassId>): Boolean {
+        return referencesClass(targets, emptySet())
+    }
+
+    private fun KaType.referencesClass(targets: Set<ClassId>, seen: Set<ClassId>): Boolean {
+        val classType = this as? KaClassType ?: return false
+        val classId = classType.classId
+        if (classId in seen) return false
+        if (classId in targets) return true
+        val classSymbol = classType.symbol as? KaClassSymbol ?: return false
+        val nextSeen = seen + classId
+        return classSymbol.superTypes.any { superType -> superType.referencesClass(targets, nextSeen) }
+    }
+
+    private fun String.isWithinPackage(packageName: String): Boolean {
+        return this == packageName || startsWith("$packageName.")
     }
 
     private companion object {
-        private val statusCodeConstantPattern = Regex("""HttpStatusCode\.[A-Z]\w*""")
-
-        private val bodyConversionFqNames = setOf(
-            "io.ktor.server.response.respond",
-            "io.ktor.server.response.respondNullable",
-            "io.ktor.server.request.receive",
-            "io.ktor.server.request.receiveNullable",
+        private val serialFormatClassIds = setOf(
+            ClassId.topLevel(FqName("kotlinx.serialization.SerialFormat")),
+            ClassId.topLevel(FqName("kotlinx.serialization.StringFormat")),
+            ClassId.topLevel(FqName("kotlinx.serialization.BinaryFormat")),
         )
-
-        private val routeBuilderFqNames = setOf("post", "put", "patch", "query")
-            .map { "io.ktor.server.routing.$it" }
-            .toSet()
+        private val serializerClassIds = setOf(
+            ClassId.topLevel(FqName("kotlinx.serialization.SerializationStrategy")),
+            ClassId.topLevel(FqName("kotlinx.serialization.DeserializationStrategy")),
+            ClassId.topLevel(FqName("kotlinx.serialization.KSerializer")),
+        )
+        private val kSerializerClassIds = setOf(
+            ClassId.topLevel(FqName("kotlinx.serialization.KSerializer")),
+        )
+        private val httpStatusCodeClassIds = setOf(
+            ClassId.topLevel(FqName("io.ktor.http.HttpStatusCode")),
+        )
+        private val ktorRuntimeTypeInfoPackagePrefixes = listOf(
+            "io.ktor.server.response",
+            "io.ktor.server.request",
+            "io.ktor.server.routing",
+            "io.ktor.server.websocket",
+            "io.ktor.client.call",
+            "io.ktor.client.request",
+            "io.ktor.client.plugins.websocket",
+            "io.ktor.client.plugins.sse",
+            "io.ktor.serialization",
+        )
     }
 }

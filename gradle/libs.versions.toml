@@ -146,6 +146,7 @@ composeUiTooling = { module = "org.jetbrains.compose.ui:ui-tooling", version.ref
 
 # Test
 detektApi = { module = "dev.detekt:detekt-api", version.ref = "detekt" }
+detektKotlinAnalysisApi = { module = "dev.detekt:detekt-kotlin-analysis-api", version.ref = "detekt" }
 detektTest = { module = "dev.detekt:detekt-test", version.ref = "detekt" }
 kotestAssertionsCore = { module = "io.kotest:kotest-assertions-core", version.require = "6.2.5" }
 kotestFrameworkEngine = { module = "io.kotest:kotest-framework-engine", version.require = "6.2.5" }
