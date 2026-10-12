@@ -24,7 +24,7 @@
   - [Ktor](https://ktor.io/)
   - [GraqhQL Java](https://www.graphql-java.com/)
   - [GraphQL Java Kickstart](https://www.graphql-java-kickstart.com/)
-  - [graphql-java-codegen](https://github.com/kobylynskyi/graphql-java-codegen)
+  - [graphql-java-codegen](https://github.com/matsudamper/graphql-java-codegen) (Maven Central: net.matsudamper)
 - API
   - [GraphQL](https://graphql.org/)
  
