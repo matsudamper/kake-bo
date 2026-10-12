@@ -80,7 +80,7 @@ class GeminiGatewayImpl : GeminiGateway {
     }
 
     private fun extractText(body: String): String {
-        val response = json.decodeFromString<GenerateContentResponse>(body)
+        val response = json.decodeFromString(GenerateContentResponse.serializer(), body)
         val candidate = response.candidates.firstOrNull()
             ?: throw GeminiApiException("Gemini APIの応答に候補がありませんでした: ${response.promptFeedback?.blockReason.orEmpty()}")
         val text = candidate.content?.parts.orEmpty().joinToString("") { it.text.orEmpty() }
@@ -91,7 +91,7 @@ class GeminiGatewayImpl : GeminiGateway {
     }
 
     private fun extractErrorMessage(body: String): String {
-        return runCatching { json.decodeFromString<ErrorResponse>(body).error?.message }
+        return runCatching { json.decodeFromString(ErrorResponse.serializer(), body).error?.message }
             .getOrNull()
             ?: body.take(200)
     }

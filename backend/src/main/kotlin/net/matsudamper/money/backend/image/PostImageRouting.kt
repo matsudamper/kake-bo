@@ -123,6 +123,7 @@ internal fun Route.postImage(
                     status = HttpStatusCode.Created,
                     contentType = ContentType.Application.Json,
                     text = Json.encodeToString(
+                        ImageUploadImageResponse.serializer(),
                         ImageUploadImageResponse(
                             success = Success(
                                 imageId = uploadResult.imageId,
@@ -152,6 +153,7 @@ private suspend fun ApplicationCall.respondApiError(
         status = status,
         contentType = ContentType.Application.Json,
         text = Json.encodeToString(
+            ImageUploadImageResponse.serializer(),
             ImageUploadImageResponse(
                 error = mapOf("message" to message),
             ),
