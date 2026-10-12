@@ -45,7 +45,7 @@ kotlinAndroid = { id = "org.jetbrains.kotlin.android", version.ref = "kotlin" }
 ktlint = { id = "org.jlleitschuh.gradle.ktlint", version.require = "14.2.0" }
 kotest = { id = "io.kotest", version.require = "6.2.5" }
 detekt = { id = "dev.detekt", version.ref = "detekt" }
-kobylynskyi-graphqlCodegen = { id = "io.github.kobylynskyi.graphql.codegen", version.require = "5.10.1-BUILD-2dd014e63d18dcb3c0fcd704b1f3b6db2ac18b1e" }
+kobylynskyi-graphqlCodegen = { id = "net.matsudamper.graphql.codegen", version.require = "5.10.2" }
 jetbrainsCompose = { id = "org.jetbrains.compose", version.ref = "compose" }
 protobuf = { id = "com.google.protobuf", version.require = "0.10.0" }
 paparazzi = { id = "app.cash.paparazzi", version.ref = "paparazzi" }
