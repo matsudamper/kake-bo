@@ -15,6 +15,7 @@ kotlin {
         getByName("commonMain") {
             dependencies {
                 implementation(projects.shared)
+                implementation(projects.shared.featureCategoryFilter)
                 implementation(projects.frontend.common.base)
                 implementation(projects.frontend.common.navigation)
                 implementation(projects.frontend.common.ui)
