@@ -11,6 +11,7 @@ appcompat = "1.8.0"
 agp = "9.2.1"
 jackson = "2.22.3"
 compose = "1.12.1"
+androidxComposeRuntime = "1.12.1"
 protoBuf = "4.36.2"
 lifecycle = "2.11.0"
 jooq = "3.21.9"
@@ -140,7 +141,7 @@ androidxLifecycleRuntimeCompose = { module = "androidx.lifecycle:lifecycle-runti
 androidxNavigation3Runtime = { module = "androidx.navigation3:navigation3-runtime", version.ref = "nav3" }
 androidxNavigation3Ui = { module = "androidx.navigation3:navigation3-ui", version.ref = "nav3" }
 jetbrainsNavigation3Ui = { module = "org.jetbrains.androidx.navigation3:navigation3-ui", version.ref = "jetbrainsNav3" }
-androidxComposeSaveable = { module = "androidx.compose.runtime:runtime-saveable", version = "1.12.1" }
+androidxComposeSaveable = { module = "androidx.compose.runtime:runtime-saveable", version.ref = "androidxComposeRuntime" }
 composeUiToolingPreview = { module = "org.jetbrains.compose.ui:ui-tooling-preview", version = "1.12.1" }
 composeUiTooling = { module = "org.jetbrains.compose.ui:ui-tooling", version.ref = "compose" }
 
