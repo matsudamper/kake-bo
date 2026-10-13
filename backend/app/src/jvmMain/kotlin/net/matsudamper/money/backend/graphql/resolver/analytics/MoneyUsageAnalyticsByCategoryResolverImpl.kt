@@ -23,7 +23,7 @@ class MoneyUsageAnalyticsByCategoryResolverImpl : MoneyUsageAnalyticsByCategoryR
         moneyUsageAnalyticsByCategory: QlMoneyUsageAnalyticsByCategory,
         env: DataFetchingEnvironment,
     ): CompletionStage<DataFetcherResult<List<QlMoneyUsageAnalyticsBySubCategory>?>> {
-        val context = env.graphQlContext.get<GraphQlContext>(GraphQlContext::class.java.name)
+        val context = checkNotNull(env.graphQlContext.get<GraphQlContext>(GraphQlContext::class.java.name))
         context.verifyUserSessionAndGetUserId()
 
         val dataLoader = context.dataLoaders.moneyUsageAnalyticsBySubCategoryLoaderWithCategoryId.get(env)

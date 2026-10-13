@@ -30,7 +30,7 @@ class QueryResolverImpl : QueryResolver {
         input: QlAdminUserSearchInput,
         env: DataFetchingEnvironment,
     ): CompletionStage<DataFetcherResult<QlAdminUserSearchUsersConnection>> {
-        val context = env.graphQlContext.get<GraphQlContext>(GraphQlContext::class.java.name)
+        val context = checkNotNull(env.graphQlContext.get<GraphQlContext>(GraphQlContext::class.java.name))
         context.verifyAdminSession()
 
         return otelSupplyAsync {
@@ -51,7 +51,7 @@ class QueryResolverImpl : QueryResolver {
         input: QlAdminUnlinkedImagesInput,
         env: DataFetchingEnvironment,
     ): CompletionStage<DataFetcherResult<QlAdminUnlinkedImagesConnection>> {
-        val context = env.graphQlContext.get<GraphQlContext>(GraphQlContext::class.java.name)
+        val context = checkNotNull(env.graphQlContext.get<GraphQlContext>(GraphQlContext::class.java.name))
         context.verifyAdminSession()
         val domain = ServerEnv.domain
             ?: throw IllegalStateException("DOMAIN is not configured")
@@ -94,7 +94,7 @@ class QueryResolverImpl : QueryResolver {
     }
 
     override fun user(env: DataFetchingEnvironment): CompletionStage<DataFetcherResult<QlUser?>> {
-        val context = env.graphQlContext.get<GraphQlContext>(GraphQlContext::class.java.name)
+        val context = checkNotNull(env.graphQlContext.get<GraphQlContext>(GraphQlContext::class.java.name))
         context.verifyUserSessionAndGetUserId()
         return CompletableFuture.completedFuture(
             QlUser(
@@ -105,7 +105,7 @@ class QueryResolverImpl : QueryResolver {
     }
 
     override fun isLoggedIn(env: DataFetchingEnvironment): CompletionStage<DataFetcherResult<Boolean>> {
-        val context = env.graphQlContext.get<GraphQlContext>(GraphQlContext::class.java.name)
+        val context = checkNotNull(env.graphQlContext.get<GraphQlContext>(GraphQlContext::class.java.name))
         val info = context.getSessionInfo()
         return otelSupplyAsync {
             when (info) {
@@ -116,7 +116,7 @@ class QueryResolverImpl : QueryResolver {
     }
 
     override fun isAdminLoggedIn(env: DataFetchingEnvironment): CompletionStage<DataFetcherResult<Boolean>> {
-        val context = env.graphQlContext.get<GraphQlContext>(GraphQlContext::class.java.name)
+        val context = checkNotNull(env.graphQlContext.get<GraphQlContext>(GraphQlContext::class.java.name))
         return otelSupplyAsync {
             try {
                 context.verifyAdminSession()
@@ -128,7 +128,7 @@ class QueryResolverImpl : QueryResolver {
     }
 
     override fun fidoLoginInfo(env: DataFetchingEnvironment): CompletionStage<DataFetcherResult<QlFidoLoginInfo>> {
-        val context = env.graphQlContext.get<GraphQlContext>(GraphQlContext::class.java.name)
+        val context = checkNotNull(env.graphQlContext.get<GraphQlContext>(GraphQlContext::class.java.name))
         val challengeRepository = context.diContainer.createChallengeRepository()
         return CompletableFuture.completedFuture(
             QlFidoLoginInfo(

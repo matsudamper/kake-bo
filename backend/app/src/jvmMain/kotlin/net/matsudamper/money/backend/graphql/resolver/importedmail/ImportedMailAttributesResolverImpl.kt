@@ -22,7 +22,7 @@ public class ImportedMailAttributesResolverImpl : ImportedMailAttributesResolver
         query: QlImportedMailQueryFilter,
         env: DataFetchingEnvironment,
     ): CompletionStage<DataFetcherResult<Int?>> {
-        val context = env.graphQlContext.get<GraphQlContext>(GraphQlContext::class.java.name)
+        val context = checkNotNull(env.graphQlContext.get<GraphQlContext>(GraphQlContext::class.java.name))
         val userId = context.verifyUserSessionAndGetUserId()
 
         return otelSupplyAsync {
@@ -40,7 +40,7 @@ public class ImportedMailAttributesResolverImpl : ImportedMailAttributesResolver
         query: QlImportedMailQuery,
         env: DataFetchingEnvironment,
     ): CompletionStage<DataFetcherResult<QlImportedMailConnection>> {
-        val context = env.graphQlContext.get<GraphQlContext>(GraphQlContext::class.java.name)
+        val context = checkNotNull(env.graphQlContext.get<GraphQlContext>(GraphQlContext::class.java.name))
         val userId = context.verifyUserSessionAndGetUserId()
         return otelSupplyAsync {
             val cursor = query.cursor?.let { ImportedMailAttributesMailsQueryCursor.fromString(it) }
@@ -78,7 +78,7 @@ public class ImportedMailAttributesResolverImpl : ImportedMailAttributesResolver
         id: ImportedMailId,
         env: DataFetchingEnvironment,
     ): CompletionStage<DataFetcherResult<QlImportedMail?>> {
-        val context = env.graphQlContext.get<GraphQlContext>(GraphQlContext::class.java.name)
+        val context = checkNotNull(env.graphQlContext.get<GraphQlContext>(GraphQlContext::class.java.name))
         context.verifyUserSessionAndGetUserId()
 
         return otelSupplyAsync {

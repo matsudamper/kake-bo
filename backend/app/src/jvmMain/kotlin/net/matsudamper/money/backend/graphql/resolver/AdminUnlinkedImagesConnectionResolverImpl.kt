@@ -14,7 +14,7 @@ class AdminUnlinkedImagesConnectionResolverImpl : AdminUnlinkedImagesConnectionR
         adminUnlinkedImagesConnection: QlAdminUnlinkedImagesConnection,
         env: DataFetchingEnvironment,
     ): CompletionStage<DataFetcherResult<Int>> {
-        val context = env.graphQlContext.get<GraphQlContext>(GraphQlContext::class.java.name)
+        val context = checkNotNull(env.graphQlContext.get<GraphQlContext>(GraphQlContext::class.java.name))
         context.verifyAdminSession()
         return otelSupplyAsync {
             context.diContainer.createAdminImageRepository().countUnlinkedImages()

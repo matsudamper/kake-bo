@@ -16,7 +16,7 @@ class ApiTokenAttributesResolverImpl : ApiTokenAttributesResolver {
         apiTokenAttributes: QlApiTokenAttributes,
         env: DataFetchingEnvironment,
     ): CompletionStage<DataFetcherResult<List<QlApiToken>>> {
-        val context = env.graphQlContext.get<GraphQlContext>(GraphQlContext::class.java.name)
+        val context = checkNotNull(env.graphQlContext.get<GraphQlContext>(GraphQlContext::class.java.name))
         val userId = context.verifyUserSessionAndGetUserId()
 
         return otelSupplyAsync {

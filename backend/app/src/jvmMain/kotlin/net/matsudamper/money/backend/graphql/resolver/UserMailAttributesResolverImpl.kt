@@ -23,7 +23,7 @@ class UserMailAttributesResolverImpl : UserMailAttributesResolver {
         mailQuery: QlMailQuery,
         env: DataFetchingEnvironment,
     ): CompletionStage<DataFetcherResult<QlUserMailConnection>> {
-        val context = env.graphQlContext.get<GraphQlContext>(GraphQlContext::class.java.name)
+        val context = checkNotNull(env.graphQlContext.get<GraphQlContext>(GraphQlContext::class.java.name))
         val userId = context.verifyUserSessionAndGetUserId()
         val userConfigRepository = context.diContainer.createUserConfigRepository()
 
@@ -87,7 +87,7 @@ class UserMailAttributesResolverImpl : UserMailAttributesResolver {
         userMailAttributes: QlUserMailAttributes,
         env: DataFetchingEnvironment,
     ): CompletionStage<DataFetcherResult<Int?>> {
-        val context = env.graphQlContext.get<GraphQlContext>(GraphQlContext::class.java.name)
+        val context = checkNotNull(env.graphQlContext.get<GraphQlContext>(GraphQlContext::class.java.name))
         val userId = context.verifyUserSessionAndGetUserId()
 
         return otelSupplyAsync {

@@ -19,7 +19,7 @@ import net.matsudamper.money.graphql.model.QlMoneyUsage
 import net.matsudamper.money.graphql.model.QlMoneyUsageSuggest
 
 class ImportedMailResolverImpl : ImportedMailResolver {
-    private val DataFetchingEnvironment.typedContext: GraphQlContext get() = graphQlContext.get(GraphQlContext::class.java.name)
+    private val DataFetchingEnvironment.typedContext: GraphQlContext get() = checkNotNull(graphQlContext.get<GraphQlContext>(GraphQlContext::class.java.name))
 
     override fun subject(
         importedMail: QlImportedMail,

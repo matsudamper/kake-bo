@@ -21,7 +21,7 @@ class ImportedMailCategoryConditionResolverImpl : ImportedMailCategoryConditionR
         importedMailCategoryCondition: QlImportedMailCategoryCondition,
         env: DataFetchingEnvironment,
     ): CompletionStage<DataFetcherResult<String>> {
-        val context = env.graphQlContext.get<GraphQlContext>(GraphQlContext::class.java.name)
+        val context = checkNotNull(env.graphQlContext.get<GraphQlContext>(GraphQlContext::class.java.name))
         context.verifyUserSessionAndGetUserId()
 
         val future = getFuture(
@@ -38,7 +38,7 @@ class ImportedMailCategoryConditionResolverImpl : ImportedMailCategoryConditionR
         importedMailCategoryCondition: QlImportedMailCategoryCondition,
         env: DataFetchingEnvironment,
     ): CompletionStage<DataFetcherResult<QlImportedMailCategoryFilterDataSourceType>> {
-        val context = env.graphQlContext.get<GraphQlContext>(GraphQlContext::class.java.name)
+        val context = checkNotNull(env.graphQlContext.get<GraphQlContext>(GraphQlContext::class.java.name))
         context.verifyUserSessionAndGetUserId()
 
         val future = getFuture(
@@ -62,7 +62,7 @@ class ImportedMailCategoryConditionResolverImpl : ImportedMailCategoryConditionR
         importedMailCategoryCondition: QlImportedMailCategoryCondition,
         env: DataFetchingEnvironment,
     ): CompletionStage<DataFetcherResult<QlImportedMailCategoryFilterConditionType>> {
-        val context = env.graphQlContext.get<GraphQlContext>(GraphQlContext::class.java.name)
+        val context = checkNotNull(env.graphQlContext.get<GraphQlContext>(GraphQlContext::class.java.name))
         context.verifyUserSessionAndGetUserId()
 
         val future = getFuture(
@@ -84,7 +84,7 @@ class ImportedMailCategoryConditionResolverImpl : ImportedMailCategoryConditionR
         env: DataFetchingEnvironment,
         importedMailCategoryCondition: QlImportedMailCategoryCondition,
     ): CompletableFuture<MailFilterRepository.Condition> {
-        val context = env.graphQlContext.get<GraphQlContext>(GraphQlContext::class.java.name)
+        val context = checkNotNull(env.graphQlContext.get<GraphQlContext>(GraphQlContext::class.java.name))
         val userId = context.verifyUserSessionAndGetUserId()
         return context.dataLoaders.importedMailCategoryFilterConditionDataLoader.get(env)
             .load(

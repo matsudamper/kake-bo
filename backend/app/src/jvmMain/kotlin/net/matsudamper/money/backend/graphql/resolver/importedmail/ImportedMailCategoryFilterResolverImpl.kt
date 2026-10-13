@@ -23,7 +23,7 @@ class ImportedMailCategoryFilterResolverImpl : ImportedMailCategoryFilterResolve
         importedMailCategoryFilter: QlImportedMailCategoryFilter,
         env: DataFetchingEnvironment,
     ): CompletionStage<DataFetcherResult<String>> {
-        val context = env.graphQlContext.get<GraphQlContext>(GraphQlContext::class.java.name)
+        val context = checkNotNull(env.graphQlContext.get<GraphQlContext>(GraphQlContext::class.java.name))
         val userId = context.verifyUserSessionAndGetUserId()
         val future = getImportedMailCategoryFilterFuture(
             context = context,
@@ -41,7 +41,7 @@ class ImportedMailCategoryFilterResolverImpl : ImportedMailCategoryFilterResolve
         importedMailCategoryFilter: QlImportedMailCategoryFilter,
         env: DataFetchingEnvironment,
     ): CompletionStage<DataFetcherResult<QlMoneyUsageSubCategory?>> {
-        val context = env.graphQlContext.get<GraphQlContext>(GraphQlContext::class.java.name)
+        val context = checkNotNull(env.graphQlContext.get<GraphQlContext>(GraphQlContext::class.java.name))
         val userId = context.verifyUserSessionAndGetUserId()
         val future = getImportedMailCategoryFilterFuture(
             context = context,
@@ -63,7 +63,7 @@ class ImportedMailCategoryFilterResolverImpl : ImportedMailCategoryFilterResolve
         importedMailCategoryFilter: QlImportedMailCategoryFilter,
         env: DataFetchingEnvironment,
     ): CompletionStage<DataFetcherResult<Int>> {
-        val context = env.graphQlContext.get<GraphQlContext>(GraphQlContext::class.java.name)
+        val context = checkNotNull(env.graphQlContext.get<GraphQlContext>(GraphQlContext::class.java.name))
         val userId = context.verifyUserSessionAndGetUserId()
         val future = getImportedMailCategoryFilterFuture(
             context = context,
@@ -81,7 +81,7 @@ class ImportedMailCategoryFilterResolverImpl : ImportedMailCategoryFilterResolve
         importedMailCategoryFilter: QlImportedMailCategoryFilter,
         env: DataFetchingEnvironment,
     ): CompletionStage<DataFetcherResult<QlImportedMailFilterCategoryConditionOperator>> {
-        val context = env.graphQlContext.get<GraphQlContext>(GraphQlContext::class.java.name)
+        val context = checkNotNull(env.graphQlContext.get<GraphQlContext>(GraphQlContext::class.java.name))
         val userId = context.verifyUserSessionAndGetUserId()
         val future = getImportedMailCategoryFilterFuture(
             context = context,
@@ -102,7 +102,7 @@ class ImportedMailCategoryFilterResolverImpl : ImportedMailCategoryFilterResolve
         importedMailCategoryFilter: QlImportedMailCategoryFilter,
         env: DataFetchingEnvironment,
     ): CompletionStage<DataFetcherResult<List<QlImportedMailCategoryCondition>?>> {
-        val context = env.graphQlContext.get<GraphQlContext>(GraphQlContext::class.java.name)
+        val context = checkNotNull(env.graphQlContext.get<GraphQlContext>(GraphQlContext::class.java.name))
         val userId = context.verifyUserSessionAndGetUserId()
 
         val dataLoader = context.dataLoaders.importedMailCategoryFilterConditionDataLoader.get(env)

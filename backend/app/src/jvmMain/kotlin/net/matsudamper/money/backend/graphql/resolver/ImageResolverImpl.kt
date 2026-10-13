@@ -16,7 +16,7 @@ class ImageResolverImpl : ImageResolver {
         image: QlImage,
         env: DataFetchingEnvironment,
     ): CompletionStage<DataFetcherResult<String>> {
-        val context: GraphQlContext = env.graphQlContext.get(GraphQlContext::class.java.name)
+        val context: GraphQlContext = checkNotNull(env.graphQlContext.get<GraphQlContext>(GraphQlContext::class.java.name))
         val userId = context.verifyUserSessionAndGetUserId()
         val domain = ServerEnv.domain
             ?: throw IllegalStateException("DOMAIN is not configured")

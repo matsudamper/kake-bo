@@ -67,7 +67,7 @@ class UserResolverImpl : UserResolver {
         input: QlMoneyUsageCategoriesInput,
         env: DataFetchingEnvironment,
     ): CompletionStage<DataFetcherResult<QlMoneyUsageCategoriesConnection?>> {
-        val context = env.graphQlContext.get<GraphQlContext>(GraphQlContext::class.java.name)
+        val context = checkNotNull(env.graphQlContext.get<GraphQlContext>(GraphQlContext::class.java.name))
         val userId = context.verifyUserSessionAndGetUserId()
 
         return otelSupplyAsync {
@@ -99,7 +99,7 @@ class UserResolverImpl : UserResolver {
         id: MoneyUsageCategoryId,
         env: DataFetchingEnvironment,
     ): CompletionStage<DataFetcherResult<QlMoneyUsageCategory?>> {
-        val context = env.graphQlContext.get<GraphQlContext>(GraphQlContext::class.java.name)
+        val context = checkNotNull(env.graphQlContext.get<GraphQlContext>(GraphQlContext::class.java.name))
         context.verifyUserSessionAndGetUserId()
 
         return CompletableFuture.completedFuture(
@@ -112,7 +112,7 @@ class UserResolverImpl : UserResolver {
         input: QlMoneyUsageSubCategoryInput,
         env: DataFetchingEnvironment,
     ): CompletionStage<DataFetcherResult<QlMoneyUsageSubCategory?>> {
-        val context = env.graphQlContext.get<GraphQlContext>(GraphQlContext::class.java.name)
+        val context = checkNotNull(env.graphQlContext.get<GraphQlContext>(GraphQlContext::class.java.name))
         context.verifyUserSessionAndGetUserId()
 
         return CompletableFuture.completedFuture(
@@ -125,7 +125,7 @@ class UserResolverImpl : UserResolver {
         query: QlMoneyUsagesQuery,
         env: DataFetchingEnvironment,
     ): CompletionStage<DataFetcherResult<QlMoneyUsagesConnection?>> {
-        val context = env.graphQlContext.get<GraphQlContext>(GraphQlContext::class.java.name)
+        val context = checkNotNull(env.graphQlContext.get<GraphQlContext>(GraphQlContext::class.java.name))
         val userId = context.verifyUserSessionAndGetUserId()
 
         return otelSupplyAsync {
@@ -188,7 +188,7 @@ class UserResolverImpl : UserResolver {
         query: QlImportedMailCategoryFiltersQuery,
         env: DataFetchingEnvironment,
     ): CompletionStage<DataFetcherResult<QlImportedMailCategoryFiltersConnection?>> {
-        val context = env.graphQlContext.get<GraphQlContext>(GraphQlContext::class.java.name)
+        val context = checkNotNull(env.graphQlContext.get<GraphQlContext>(GraphQlContext::class.java.name))
         val userId = context.verifyUserSessionAndGetUserId()
         val dataLoader = context.dataLoaders.importedMailCategoryFilterDataLoader.get(env)
 
@@ -244,7 +244,7 @@ class UserResolverImpl : UserResolver {
         id: ImportedMailCategoryFilterId,
         env: DataFetchingEnvironment,
     ): CompletionStage<DataFetcherResult<QlImportedMailCategoryFilter?>> {
-        val context = env.graphQlContext.get<GraphQlContext>(GraphQlContext::class.java.name)
+        val context = checkNotNull(env.graphQlContext.get<GraphQlContext>(GraphQlContext::class.java.name))
         context.verifyUserSessionAndGetUserId()
 
         return CompletableFuture.allOf().otelThenApplyAsync {
@@ -258,7 +258,7 @@ class UserResolverImpl : UserResolver {
         user: QlUser,
         env: DataFetchingEnvironment,
     ): CompletionStage<DataFetcherResult<List<QlMoneyUsagePreset>>> {
-        val context = env.graphQlContext.get<GraphQlContext>(GraphQlContext::class.java.name)
+        val context = checkNotNull(env.graphQlContext.get<GraphQlContext>(GraphQlContext::class.java.name))
         val userId = context.verifyUserSessionAndGetUserId()
         return otelSupplyAsync {
             val results = context.diContainer.createMoneyUsagePresetRepository()
@@ -280,7 +280,7 @@ class UserResolverImpl : UserResolver {
         id: MoneyUsagePresetId,
         env: DataFetchingEnvironment,
     ): CompletionStage<DataFetcherResult<QlMoneyUsagePreset?>> {
-        val context = env.graphQlContext.get<GraphQlContext>(GraphQlContext::class.java.name)
+        val context = checkNotNull(env.graphQlContext.get<GraphQlContext>(GraphQlContext::class.java.name))
         val userId = context.verifyUserSessionAndGetUserId()
         return otelSupplyAsync {
             val result = context.diContainer.createMoneyUsagePresetRepository()
@@ -301,7 +301,7 @@ class UserResolverImpl : UserResolver {
         id: MoneyUsageId,
         env: DataFetchingEnvironment,
     ): CompletionStage<DataFetcherResult<QlMoneyUsage?>> {
-        val context = env.graphQlContext.get<GraphQlContext>(GraphQlContext::class.java.name)
+        val context = checkNotNull(env.graphQlContext.get<GraphQlContext>(GraphQlContext::class.java.name))
         val userId = context.verifyUserSessionAndGetUserId()
         val moneyUsageFuture = context.dataLoaders.moneyUsageDataLoader.get(env)
             .load(
@@ -340,7 +340,7 @@ class UserResolverImpl : UserResolver {
         query: QlMoneyUsageAnalyticsQuery,
         env: DataFetchingEnvironment,
     ): CompletionStage<DataFetcherResult<QlMoneyUsageAnalyticsByCategory?>> {
-        val context = env.graphQlContext.get<GraphQlContext>(GraphQlContext::class.java.name)
+        val context = checkNotNull(env.graphQlContext.get<GraphQlContext>(GraphQlContext::class.java.name))
         val userId = context.verifyUserSessionAndGetUserId()
 
         return otelSupplyAsync {
@@ -374,7 +374,7 @@ class UserResolverImpl : UserResolver {
         query: QlMoneyUsageAnalyticsQuery,
         env: DataFetchingEnvironment,
     ): CompletionStage<DataFetcherResult<QlMoneyUsageAnalyticsBySubCategory?>> {
-        val context = env.graphQlContext.get<GraphQlContext>(GraphQlContext::class.java.name)
+        val context = checkNotNull(env.graphQlContext.get<GraphQlContext>(GraphQlContext::class.java.name))
         val future = context.dataLoaders.moneyUsageAnalyticsBySubCategoryLoaderWithSubCategoryId.get(env).load(
             MoneyUsageAnalyticsBySubCategoryLoaderWithSubCategoryId.Key(
                 id = id,

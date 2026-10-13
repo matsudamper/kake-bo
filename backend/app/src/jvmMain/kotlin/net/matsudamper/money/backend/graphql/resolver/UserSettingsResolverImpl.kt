@@ -24,7 +24,7 @@ class UserSettingsResolverImpl : UserSettingsResolver {
         userSettings: QlUserSettings,
         env: DataFetchingEnvironment,
     ): CompletionStage<DataFetcherResult<Boolean>> {
-        val context = env.graphQlContext.get<GraphQlContext>(GraphQlContext::class.java.name)
+        val context = checkNotNull(env.graphQlContext.get<GraphQlContext>(GraphQlContext::class.java.name))
         val userId = context.verifyUserSessionAndGetUserId()
 
         return otelSupplyAsync {
@@ -36,7 +36,7 @@ class UserSettingsResolverImpl : UserSettingsResolver {
         userSettings: QlUserSettings,
         env: DataFetchingEnvironment,
     ): CompletionStage<DataFetcherResult<Int>> {
-        val context = env.graphQlContext.get<GraphQlContext>(GraphQlContext::class.java.name)
+        val context = checkNotNull(env.graphQlContext.get<GraphQlContext>(GraphQlContext::class.java.name))
         val userId = context.verifyUserSessionAndGetUserId()
 
         return otelSupplyAsync {
@@ -52,7 +52,7 @@ class UserSettingsResolverImpl : UserSettingsResolver {
         userSettings: QlUserSettings,
         env: DataFetchingEnvironment,
     ): CompletionStage<DataFetcherResult<QlUserAiConfig>> {
-        val context = env.graphQlContext.get<GraphQlContext>(GraphQlContext::class.java.name)
+        val context = checkNotNull(env.graphQlContext.get<GraphQlContext>(GraphQlContext::class.java.name))
         val userId = context.verifyUserSessionAndGetUserId()
 
         return otelSupplyAsync {
@@ -67,7 +67,7 @@ class UserSettingsResolverImpl : UserSettingsResolver {
         userSettings: QlUserSettings,
         env: DataFetchingEnvironment,
     ): CompletionStage<DataFetcherResult<QlUserImapConfig?>> {
-        val context = env.graphQlContext.get<GraphQlContext>(GraphQlContext::class.java.name)
+        val context = checkNotNull(env.graphQlContext.get<GraphQlContext>(GraphQlContext::class.java.name))
         val userId = context.verifyUserSessionAndGetUserId()
 
         return otelSupplyAsync {
@@ -86,7 +86,7 @@ class UserSettingsResolverImpl : UserSettingsResolver {
         userSettings: QlUserSettings,
         env: DataFetchingEnvironment,
     ): CompletionStage<DataFetcherResult<QlFidoAddInfo>> {
-        val context = env.graphQlContext.get<GraphQlContext>(GraphQlContext::class.java.name)
+        val context = checkNotNull(env.graphQlContext.get<GraphQlContext>(GraphQlContext::class.java.name))
         val userId = context.verifyUserSessionAndGetUserId()
         val userNameFuture = context.dataLoaders.userNameDataLoader.get(env)
             .load(userId)
@@ -105,7 +105,7 @@ class UserSettingsResolverImpl : UserSettingsResolver {
         userSettings: QlUserSettings,
         env: DataFetchingEnvironment,
     ): CompletionStage<DataFetcherResult<List<QlRegisteredFidoInfo>>> {
-        val context = env.graphQlContext.get<GraphQlContext>(GraphQlContext::class.java.name)
+        val context = checkNotNull(env.graphQlContext.get<GraphQlContext>(GraphQlContext::class.java.name))
         val userId = context.verifyUserSessionAndGetUserId()
         val fidoRepository = context.diContainer.createFidoRepository()
 

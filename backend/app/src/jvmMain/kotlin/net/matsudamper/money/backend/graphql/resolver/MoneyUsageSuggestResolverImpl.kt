@@ -29,7 +29,7 @@ class MoneyUsageSuggestResolverImpl : MoneyUsageSuggestResolver {
         moneyUsageSuggest: QlMoneyUsageSuggest,
         env: DataFetchingEnvironment,
     ): CompletionStage<DataFetcherResult<QlMoneyUsageSubCategory?>> {
-        val context = env.graphQlContext.get<GraphQlContext>(GraphQlContext::class.java.name)
+        val context = checkNotNull(env.graphQlContext.get<GraphQlContext>(GraphQlContext::class.java.name))
         val userId = context.verifyUserSessionAndGetUserId()
         val localContext = env.requireLocalContext<MoneyUsageSuggestLocalContext>()
 

@@ -26,7 +26,7 @@ class AdminMutationResolverImpl : AdminMutationResolver {
         adminMutation: QlAdminMutation,
         env: DataFetchingEnvironment,
     ): CompletionStage<DataFetcherResult<Boolean>> {
-        val context = env.graphQlContext.get<GraphQlContext>(GraphQlContext::class.java.name)
+        val context = checkNotNull(env.graphQlContext.get<GraphQlContext>(GraphQlContext::class.java.name))
 
         return otelSupplyAsync {
             context.clearAdminSession()
@@ -40,7 +40,7 @@ class AdminMutationResolverImpl : AdminMutationResolver {
         password: String,
         env: DataFetchingEnvironment,
     ): CompletionStage<DataFetcherResult<QlAdminAddUserResult>> {
-        val context = env.graphQlContext.get<GraphQlContext>(GraphQlContext::class.java.name)
+        val context = checkNotNull(env.graphQlContext.get<GraphQlContext>(GraphQlContext::class.java.name))
         context.verifyAdminSession()
 
         return otelSupplyAsync {
@@ -94,7 +94,7 @@ class AdminMutationResolverImpl : AdminMutationResolver {
         imageIds: List<ImageId>,
         env: DataFetchingEnvironment,
     ): CompletionStage<DataFetcherResult<Boolean>> {
-        val context = env.graphQlContext.get<GraphQlContext>(GraphQlContext::class.java.name)
+        val context = checkNotNull(env.graphQlContext.get<GraphQlContext>(GraphQlContext::class.java.name))
         context.verifyAdminSession()
 
         return otelSupplyAsync {
@@ -107,7 +107,7 @@ class AdminMutationResolverImpl : AdminMutationResolver {
         password: String,
         env: DataFetchingEnvironment,
     ): CompletionStage<DataFetcherResult<QlAdminLoginResult>> {
-        val context = env.graphQlContext.get<GraphQlContext>(GraphQlContext::class.java.name)
+        val context = checkNotNull(env.graphQlContext.get<GraphQlContext>(GraphQlContext::class.java.name))
         return otelSupplyAsync {
             runBlocking {
                 minExecutionTime(LOGIN_MINIMUM_EXECUTION_TIME_MILLIS) {
@@ -154,7 +154,7 @@ class AdminMutationResolverImpl : AdminMutationResolver {
         password: String?,
         env: DataFetchingEnvironment,
     ): CompletionStage<DataFetcherResult<QlAdminReplacePasswordResult>> {
-        val context = env.graphQlContext.get<GraphQlContext>(GraphQlContext::class.java.name)
+        val context = checkNotNull(env.graphQlContext.get<GraphQlContext>(GraphQlContext::class.java.name))
         context.verifyAdminSession()
 
         return otelSupplyAsync {

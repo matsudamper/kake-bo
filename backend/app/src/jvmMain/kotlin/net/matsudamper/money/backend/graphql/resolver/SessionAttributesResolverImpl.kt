@@ -16,7 +16,7 @@ class SessionAttributesResolverImpl : SessionAttributesResolver {
         sessionAttributes: QlSessionAttributes,
         env: DataFetchingEnvironment,
     ): CompletionStage<DataFetcherResult<QlSession>> {
-        val context = env.graphQlContext.get<GraphQlContext>(GraphQlContext::class.java.name)
+        val context = checkNotNull(env.graphQlContext.get<GraphQlContext>(GraphQlContext::class.java.name))
         val sessionInfo = context.verifyUserSessionAndGetSessionInfo()
 
         return otelSupplyAsync {
@@ -32,7 +32,7 @@ class SessionAttributesResolverImpl : SessionAttributesResolver {
         sessionAttributes: QlSessionAttributes,
         env: DataFetchingEnvironment,
     ): CompletionStage<DataFetcherResult<List<QlSession>>> {
-        val context = env.graphQlContext.get<GraphQlContext>(GraphQlContext::class.java.name)
+        val context = checkNotNull(env.graphQlContext.get<GraphQlContext>(GraphQlContext::class.java.name))
         val sessionInfo = context.verifyUserSessionAndGetSessionInfo()
         val userSessionRepository = context.diContainer.createUserSessionRepository()
 

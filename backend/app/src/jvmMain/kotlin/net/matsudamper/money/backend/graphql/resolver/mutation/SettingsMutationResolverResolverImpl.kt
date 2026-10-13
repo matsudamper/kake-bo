@@ -26,7 +26,7 @@ class SettingsMutationResolverResolverImpl : SettingsMutationResolver {
         password: String?,
         env: DataFetchingEnvironment,
     ): CompletionStage<DataFetcherResult<QlChangePasswordResult>> {
-        val context = env.graphQlContext.get<GraphQlContext>(GraphQlContext::class.java.name)
+        val context = checkNotNull(env.graphQlContext.get<GraphQlContext>(GraphQlContext::class.java.name))
         val userId = context.verifyUserSessionAndGetUserId()
         return otelSupplyAsync {
             val result = ReplacePasswordUseCase(
@@ -78,7 +78,7 @@ class SettingsMutationResolverResolverImpl : SettingsMutationResolver {
         offsetMinutes: Int,
         env: DataFetchingEnvironment,
     ): CompletionStage<DataFetcherResult<Int?>> {
-        val context = env.graphQlContext.get<GraphQlContext>(GraphQlContext::class.java.name)
+        val context = checkNotNull(env.graphQlContext.get<GraphQlContext>(GraphQlContext::class.java.name))
         val userConfigRepository = context.diContainer.createUserConfigRepository()
         val userId = context.verifyUserSessionAndGetUserId()
         return otelSupplyAsync {
@@ -118,7 +118,7 @@ class SettingsMutationResolverResolverImpl : SettingsMutationResolver {
         config: QlUpdateUserImapConfigInput,
         env: DataFetchingEnvironment,
     ): CompletionStage<DataFetcherResult<QlUserImapConfig?>> {
-        val context = env.graphQlContext.get<GraphQlContext>(GraphQlContext::class.java.name)
+        val context = checkNotNull(env.graphQlContext.get<GraphQlContext>(GraphQlContext::class.java.name))
         val userConfigRepository = context.diContainer.createUserConfigRepository()
         val userId = context.verifyUserSessionAndGetUserId()
         return otelSupplyAsync {
@@ -149,7 +149,7 @@ class SettingsMutationResolverResolverImpl : SettingsMutationResolver {
         apiKey: String?,
         env: DataFetchingEnvironment,
     ): CompletionStage<DataFetcherResult<QlUserAiConfig?>> {
-        val context = env.graphQlContext.get<GraphQlContext>(GraphQlContext::class.java.name)
+        val context = checkNotNull(env.graphQlContext.get<GraphQlContext>(GraphQlContext::class.java.name))
         val userConfigRepository = context.diContainer.createUserConfigRepository()
         val userId = context.verifyUserSessionAndGetUserId()
         return otelSupplyAsync {

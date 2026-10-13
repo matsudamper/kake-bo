@@ -22,7 +22,7 @@ class MoneyUsageAnalyticsResolverImpl : MoneyUsageAnalyticsResolver {
         moneyUsageAnalytics: QlMoneyUsageAnalytics,
         env: DataFetchingEnvironment,
     ): CompletionStage<DataFetcherResult<Long?>> {
-        val context = env.graphQlContext.get<GraphQlContext>(GraphQlContext::class.java.name)
+        val context = checkNotNull(env.graphQlContext.get<GraphQlContext>(GraphQlContext::class.java.name))
         val userId = context.verifyUserSessionAndGetUserId()
 
         return otelSupplyAsync {
@@ -39,7 +39,7 @@ class MoneyUsageAnalyticsResolverImpl : MoneyUsageAnalyticsResolver {
         moneyUsageAnalytics: QlMoneyUsageAnalytics,
         env: DataFetchingEnvironment,
     ): CompletionStage<DataFetcherResult<List<QlMoneyUsageAnalyticsByCategory>?>> {
-        val context = env.graphQlContext.get<GraphQlContext>(GraphQlContext::class.java.name)
+        val context = checkNotNull(env.graphQlContext.get<GraphQlContext>(GraphQlContext::class.java.name))
         val userId = context.verifyUserSessionAndGetUserId()
 
         return otelSupplyAsync {

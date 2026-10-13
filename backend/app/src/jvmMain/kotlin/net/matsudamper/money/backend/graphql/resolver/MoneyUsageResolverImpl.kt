@@ -142,7 +142,7 @@ class MoneyUsageResolverImpl : MoneyUsageResolver {
     }
 
     private fun getContext(env: DataFetchingEnvironment): GraphQlContext {
-        return env.graphQlContext.get(GraphQlContext::class.java.name)
+        return checkNotNull(env.graphQlContext.get<GraphQlContext>(GraphQlContext::class.java.name))
     }
 
     private fun getMoneyUsageFutureResult(

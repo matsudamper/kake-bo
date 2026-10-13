@@ -21,7 +21,7 @@ class MoneyUsageCategoryResolverImpl : MoneyUsageCategoryResolver {
         moneyUsageCategory: QlMoneyUsageCategory,
         env: DataFetchingEnvironment,
     ): CompletionStage<DataFetcherResult<String>> {
-        val context = env.graphQlContext.get<GraphQlContext>(GraphQlContext::class.java.name)
+        val context = checkNotNull(env.graphQlContext.get<GraphQlContext>(GraphQlContext::class.java.name))
         val userId = context.verifyUserSessionAndGetUserId()
 
         val categoryLoader = context.dataLoaders.moneyUsageCategoryDataLoaderDefine.get(env)
@@ -41,7 +41,7 @@ class MoneyUsageCategoryResolverImpl : MoneyUsageCategoryResolver {
         moneyUsageCategory: QlMoneyUsageCategory,
         env: DataFetchingEnvironment,
     ): CompletionStage<DataFetcherResult<String?>> {
-        val context = env.graphQlContext.get<GraphQlContext>(GraphQlContext::class.java.name)
+        val context = checkNotNull(env.graphQlContext.get<GraphQlContext>(GraphQlContext::class.java.name))
         val userId = context.verifyUserSessionAndGetUserId()
 
         val categoryLoader = context.dataLoaders.moneyUsageCategoryDataLoaderDefine.get(env)
@@ -65,7 +65,7 @@ class MoneyUsageCategoryResolverImpl : MoneyUsageCategoryResolver {
         query: QlMoneyUsageSubCategoryQuery,
         env: DataFetchingEnvironment,
     ): CompletionStage<DataFetcherResult<QlSubCategoriesConnection?>> {
-        val context = env.graphQlContext.get<GraphQlContext>(GraphQlContext::class.java.name)
+        val context = checkNotNull(env.graphQlContext.get<GraphQlContext>(GraphQlContext::class.java.name))
         val userId = context.verifyUserSessionAndGetUserId()
 
         return otelSupplyAsync {
