@@ -1,5 +1,6 @@
 package net.matsudamper.money.backend.datasource.db.repository
 
+import java.math.BigInteger
 import net.matsudamper.money.backend.app.interfaces.MailFilterRepository
 import net.matsudamper.money.backend.app.interfaces.UpdateValue
 import net.matsudamper.money.backend.app.interfaces.element.ImportedMailCategoryFilterDatasourceType
@@ -573,8 +574,8 @@ class DbMailFilterRepository(
     private fun createNewMatcherKey(existingMatcherKeys: List<String>): String {
         val usedNumbers = existingMatcherKeys
             .filter { it.startsWith(DEFAULT_MATCHER_KEY_PREFIX) }
-            .mapNotNull { it.removePrefix(DEFAULT_MATCHER_KEY_PREFIX).toIntOrNull() }
-        val nextNumber = (usedNumbers.maxOrNull() ?: 0) + 1
+            .mapNotNull { it.removePrefix(DEFAULT_MATCHER_KEY_PREFIX).toBigIntegerOrNull() }
+        val nextNumber = (usedNumbers.maxOrNull() ?: BigInteger.ZERO) + BigInteger.ONE
         return "$DEFAULT_MATCHER_KEY_PREFIX$nextNumber"
     }
 
