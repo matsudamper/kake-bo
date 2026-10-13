@@ -37,15 +37,6 @@ subprojects {
             add("detektPlugins", project(":detekt-rules"))
         }
 
-        // Detekt 同梱の Kotlin 2.4.10 では修正済みの JSpecify 型でも再帰的な型解析が失敗する。
-        configurations.matching { it.name == "detekt" }.configureEach {
-            resolutionStrategy.eachDependency {
-                if (requested.group == "org.jetbrains.kotlin") {
-                    useVersion(libs.versions.kotlin.get())
-                }
-            }
-        }
-
         // RequiresAnalysisApi のルールは型解決付きタスクでしか走らない。
         // JVM は detektMain / detektTest、KMP は detektMainJvm / detektTestJvm。
         tasks.named("detekt").configure {

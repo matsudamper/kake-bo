@@ -28,6 +28,8 @@ class KtorRuntimeSerializerLookup(config: Config) :
     RequiresAnalysisApi {
     override fun visitCallExpression(expression: KtCallExpression) {
         super.visitCallExpression(expression)
+        // Detekt 同梱の Kotlin 2.4.10 では graphql-java の JSpecify 型解決が再帰し続ける。
+        if (expression.text.contains("graphQlContext.get")) return
         analyze(expression) {
             val call = expression.resolveToCall()?.successfulFunctionCallOrNull() ?: return
             val symbol = call.signature.symbol as? KaNamedFunctionSymbol ?: return
