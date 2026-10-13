@@ -10,7 +10,11 @@ activity = "1.13.0"
 appcompat = "1.8.0"
 agp = "9.2.1"
 jackson = "2.22.3"
+# composeGradlePlugin と compose は公開タイミングがずれるため ref を分ける
+composeGradlePlugin = "1.12.1"
 compose = "1.12.1"
+composeUiToolingPreview = "1.12.1"
+androidxCompose = "1.12.1"
 protoBuf = "4.36.2"
 lifecycle = "2.11.0"
 jooq = "3.21.9"
@@ -46,7 +50,7 @@ ktlint = { id = "org.jlleitschuh.gradle.ktlint", version.require = "14.2.0" }
 kotest = { id = "io.kotest", version.require = "6.2.5" }
 detekt = { id = "dev.detekt", version.ref = "detekt" }
 kobylynskyi-graphqlCodegen = { id = "net.matsudamper.graphql.codegen", version.require = "5.10.2" }
-jetbrainsCompose = { id = "org.jetbrains.compose", version.ref = "compose" }
+jetbrainsCompose = { id = "org.jetbrains.compose", version.ref = "composeGradlePlugin" }
 protobuf = { id = "com.google.protobuf", version.require = "0.10.0" }
 paparazzi = { id = "app.cash.paparazzi", version.ref = "paparazzi" }
 graalvmNative = { id = "org.graalvm.buildtools.native", version.ref = "graalvmNative" }
@@ -140,8 +144,8 @@ androidxLifecycleRuntimeCompose = { module = "androidx.lifecycle:lifecycle-runti
 androidxNavigation3Runtime = { module = "androidx.navigation3:navigation3-runtime", version.ref = "nav3" }
 androidxNavigation3Ui = { module = "androidx.navigation3:navigation3-ui", version.ref = "nav3" }
 jetbrainsNavigation3Ui = { module = "org.jetbrains.androidx.navigation3:navigation3-ui", version.ref = "jetbrainsNav3" }
-androidxComposeSaveable = { module = "androidx.compose.runtime:runtime-saveable", version = "1.12.1" }
-composeUiToolingPreview = { module = "org.jetbrains.compose.ui:ui-tooling-preview", version = "1.12.1" }
+androidxComposeSaveable = { module = "androidx.compose.runtime:runtime-saveable", version.ref = "androidxCompose" }
+composeUiToolingPreview = { module = "org.jetbrains.compose.ui:ui-tooling-preview", version.ref = "composeUiToolingPreview" }
 composeUiTooling = { module = "org.jetbrains.compose.ui:ui-tooling", version.ref = "compose" }
 
 # Test
