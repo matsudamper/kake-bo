@@ -7,7 +7,7 @@ import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import com.apollographql.apollo.api.ApolloResponse
-import net.matsudamper.money.categoryfilter.CategoryFilterMatcherKey
+import net.matsudamper.money.categoryfilter.CategoryFilterMatcherKeyValidator
 import net.matsudamper.money.categoryfilter.matchexpression.MatchExpressionAnalysis
 import net.matsudamper.money.categoryfilter.matchexpression.MatchExpressionAnalyzer
 import net.matsudamper.money.categoryfilter.matchexpression.MatchExpressionError
@@ -223,7 +223,7 @@ public class ImportedMailFilterCategoryViewModel(
                                 viewModelStateFlow.update { viewModelState ->
                                     viewModelState.copy(
                                         textInput = ImportedMailFilterCategoryScreenUiState.TextInput(
-                                            title = "キーを編集（${CategoryFilterMatcherKey.ALLOWED_CHARACTERS_DESCRIPTION}）",
+                                            title = "キーを編集（${CategoryFilterMatcherKeyValidator.ALLOWED_CHARACTERS_DESCRIPTION}）",
                                             onCompleted = { matcherKey ->
                                                 viewModelScope.launch {
                                                     updateMatcherKey(
@@ -391,9 +391,9 @@ public class ImportedMailFilterCategoryViewModel(
         matcherId: ImportedMailCategoryFilterMatcherId,
         matcherKey: String,
     ) {
-        if (!CategoryFilterMatcherKey.isValid(matcherKey)) {
+        if (!CategoryFilterMatcherKeyValidator.isValid(matcherKey)) {
             eventSender.send {
-                it.showNativeAlert("キーには${CategoryFilterMatcherKey.ALLOWED_CHARACTERS_DESCRIPTION}を${CategoryFilterMatcherKey.MAX_LENGTH}文字以内で入力してください")
+                it.showNativeAlert("キーには${CategoryFilterMatcherKeyValidator.ALLOWED_CHARACTERS_DESCRIPTION}を${CategoryFilterMatcherKeyValidator.MAX_LENGTH}文字以内で入力してください")
             }
             return
         }
@@ -428,7 +428,7 @@ public class ImportedMailFilterCategoryViewModel(
             inputText = inputText,
             errorRanges = errors.map { it.range }.toImmutableList(),
             errorMessages = errors.map { createMatchExpressionErrorMessage(it) }.distinct().toImmutableList(),
-            allowedCharactersDescription = "キー（${CategoryFilterMatcherKey.ALLOWED_CHARACTERS_DESCRIPTION}）、AND、OR、!、(、)、TRUE、FALSE、空白、改行",
+            allowedCharactersDescription = "キー（${CategoryFilterMatcherKeyValidator.ALLOWED_CHARACTERS_DESCRIPTION}）、AND、OR、!、(、)、TRUE、FALSE、空白、改行",
             isSaveEnabled = inputText != savedMatchExpression,
             event = object : ImportedMailFilterCategoryScreenUiState.MatchExpressionEvent {
                 override fun onInputChange(text: String) {

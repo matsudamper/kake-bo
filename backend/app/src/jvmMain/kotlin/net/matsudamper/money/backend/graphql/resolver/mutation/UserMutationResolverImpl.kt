@@ -34,7 +34,7 @@ import net.matsudamper.money.backend.logic.ApiTokenEncryptManager
 import net.matsudamper.money.backend.logic.ColorValidator
 import net.matsudamper.money.backend.logic.IPasswordManager
 import net.matsudamper.money.backend.logic.PasswordManager
-import net.matsudamper.money.categoryfilter.CategoryFilterMatcherKey
+import net.matsudamper.money.categoryfilter.CategoryFilterMatcherKeyValidator
 import net.matsudamper.money.element.ApiTokenId
 import net.matsudamper.money.element.FidoId
 import net.matsudamper.money.element.ImageId
@@ -681,7 +681,7 @@ class UserMutationResolverImpl : UserMutationResolver {
 
         return CompletableFuture.allOf().otelThenApplyAsync {
             val matcherKey = input.matcherKey
-            if (matcherKey != null && !CategoryFilterMatcherKey.isValid(matcherKey)) {
+            if (matcherKey != null && !CategoryFilterMatcherKeyValidator.isValid(matcherKey)) {
                 return@otelThenApplyAsync null
             }
             val isSuccess = repository.updateMatcher(

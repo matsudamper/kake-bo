@@ -1,6 +1,6 @@
 package net.matsudamper.money.categoryfilter
 
-object CategoryFilterMatcherKey {
+object CategoryFilterMatcherKeyValidator {
     const val MAX_LENGTH: Int = 50
     const val ALLOWED_CHARACTERS_DESCRIPTION: String = "半角小文字の英字・数字・_・-"
 

@@ -1,6 +1,6 @@
 package net.matsudamper.money.categoryfilter.matchexpression
 
-import net.matsudamper.money.categoryfilter.CategoryFilterMatcherKey
+import net.matsudamper.money.categoryfilter.CategoryFilterMatcherKeyValidator
 
 object MatchExpressionLexer {
     fun tokenize(source: String): MatchExpressionLexResult {
@@ -39,7 +39,7 @@ object MatchExpressionLexer {
             word == "OR" -> Lexeme.Token(MatchExpressionToken.Or(range))
             word == "TRUE" -> Lexeme.Token(MatchExpressionToken.Literal(value = true, range = range))
             word == "FALSE" -> Lexeme.Token(MatchExpressionToken.Literal(value = false, range = range))
-            word.all { CategoryFilterMatcherKey.isAllowedCharacter(it) } -> {
+            word.all { CategoryFilterMatcherKeyValidator.isAllowedCharacter(it) } -> {
                 Lexeme.Token(MatchExpressionToken.MatcherKey(key = word, range = range))
             }
 
@@ -76,7 +76,7 @@ object MatchExpressionLexer {
     }
 
     private fun isWordCharacter(char: Char): Boolean {
-        return CategoryFilterMatcherKey.isAllowedCharacter(char) || char in 'A'..'Z'
+        return CategoryFilterMatcherKeyValidator.isAllowedCharacter(char) || char in 'A'..'Z'
     }
 
     private fun isInvalidCharacter(char: Char): Boolean {
