@@ -10,9 +10,7 @@ activity = "1.13.0"
 appcompat = "1.8.0"
 agp = "9.2.1"
 jackson = "2.22.3"
-# Compose Multiplatform 本体（Gradle プラグイン + org.jetbrains.compose.* ライブラリ）は同一 CMP バージョン
 compose = "1.12.1"
-# AndroidX Compose Runtime グループ（runtime-saveable 等）。ui / foundation 等とは別リリース単位
 androidxComposeRuntime = "1.12.1"
 protoBuf = "4.36.2"
 lifecycle = "2.11.0"
@@ -114,7 +112,6 @@ jackson-jsr310 = { module = "com.fasterxml.jackson.datatype:jackson-datatype-jsr
 composeRuntime = { module = "org.jetbrains.compose.runtime:runtime", version.ref = "compose" }
 composeUi = { module = "org.jetbrains.compose.ui:ui", version.ref = "compose" }
 composeFoundation = { module = "org.jetbrains.compose.foundation:foundation", version.ref = "compose" }
-# CMP 1.12.1 では material3 は 1.12.0-alpha03 系（compose 本体と別バージョン列）
 composeMaterial3 = { module = "org.jetbrains.compose.material3:material3", version.require = "1.9.0" }
 composeAnimation = { module = "org.jetbrains.compose.animation:animation", version.ref = "compose" }
 composeComponentsResources = { module = "org.jetbrains.compose.components:components-resources", version.ref = "compose" }
