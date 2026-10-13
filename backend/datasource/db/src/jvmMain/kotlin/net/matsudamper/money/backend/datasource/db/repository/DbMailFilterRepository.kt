@@ -383,8 +383,15 @@ class DbMailFilterRepository(
         dataSource: ImportedMailCategoryFilterDatasourceType?,
     ): Boolean {
         return runCatching {
-            // TODO filterIdが存在するかチェックする
             dbConnection.use {
+                val isOwnedFilter = DSL.using(it).fetchExists(
+                    filters,
+                    DSL.value(true)
+                        .and(filters.USER_ID.eq(userId.value))
+                        .and(filters.CATEGORY_MAIL_FILTER_ID.eq(filterId.id)),
+                )
+                if (isOwnedFilter.not()) return@use false
+
                 val existingMatcherKeys = DSL.using(it)
                     .select(matchers.MATCHER_KEY)
                     .from(matchers)
