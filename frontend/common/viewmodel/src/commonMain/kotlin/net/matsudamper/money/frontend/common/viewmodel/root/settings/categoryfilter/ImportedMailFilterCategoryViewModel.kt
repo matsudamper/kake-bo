@@ -397,10 +397,13 @@ public class ImportedMailFilterCategoryViewModel(
             }
             return
         }
-        val isSuccess = api.updateMatcher(
+        val response = api.updateMatcher(
             id = matcherId,
             matcherKey = matcherKey,
-        ).getOrNull()?.data?.userMutation?.updateImportedMailCategoryFilterMatcher != null
+        ).getOrNull()
+        val isSuccess = response != null &&
+            !response.hasErrors() &&
+            response.data?.userMutation?.updateImportedMailCategoryFilterMatcher != null
         if (isSuccess) {
             dismissTextInput()
         } else {
