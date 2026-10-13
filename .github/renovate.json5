@@ -94,11 +94,6 @@
       "automerge": true,
     },
     {
-      "matchPackageNames": ["org.jetbrains.compose.ui:ui-tooling-preview"],
-      "matchUpdateTypes": ["minor", "patch"],
-      "automerge": true,
-    },
-    {
       "matchPackageNames": [
         "lifecycle",
         "/^androidx\\.lifecycle:/",
@@ -155,13 +150,23 @@
         "org.graalvm.buildtools.native",
         "/^com\\.google\\.protobuf:/",
         "net.engawapg.lib:zoomable",
-        "/^org\\.jetbrains\\.compose[.:]/",
         "org.jetbrains.androidx.navigation3:navigation3-ui",
         "/^androidx\\.navigation3:/",
         "androidx.work:work-runtime-ktx",
       ],
       "matchUpdateTypes": ["minor", "patch"],
       "automerge": true,
+    },
+    {
+      "matchPackageNames": [
+        "org.jetbrains.compose",
+        "/^org\\.jetbrains\\.compose[.:]/",
+      ],
+      "matchUpdateTypes": ["minor", "patch"],
+      "automerge": false,
+      "prBodyNotes": [
+        "> [!NOTE]\n> Compose Multiplatform の Gradle プラグインと `org.jetbrains.compose.*` ライブラリは同一 CMP バージョン（[GitHub Releases の Dependencies](https://github.com/JetBrains/compose-multiplatform/releases)、[What's new 1.12.1](https://kotlinlang.org/docs/multiplatform/whats-new-compose-112.html)）。CI が通ることを確認してからマージする（#1085: 未公開アーティファクト参照での automerge 失敗）。",
+      ],
     },
     {
       "matchPackageNames": [
