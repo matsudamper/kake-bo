@@ -4,8 +4,10 @@ plugins {
 
 dependencies {
     compileOnly(libs.detektApi)
+    compileOnly(libs.detektKotlinAnalysisApi)
 
     testImplementation(libs.detektApi)
+    testImplementation(libs.detektKotlinAnalysisApi)
     testImplementation(libs.detektTest)
     testImplementation(libs.kotestRunnerJunit5)
     testImplementation(libs.kotestAssertionsCore)

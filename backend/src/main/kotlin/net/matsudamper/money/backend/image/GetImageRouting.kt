@@ -199,6 +199,7 @@ private suspend fun ApplicationCall.respondApiError(
         status = status,
         contentType = ContentType.Application.Json,
         text = Json.encodeToString(
+            ImageUploadImageResponse.serializer(),
             ImageUploadImageResponse(
                 error = mapOf("message" to message),
             ),

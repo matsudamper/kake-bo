@@ -27,7 +27,7 @@ java {
 
 dependencies {
     compileOnly("org.jetbrains.kotlin:kotlin-gradle-plugin")
-    compileOnly("org.jetbrains.compose:compose-gradle-plugin:1.12.1")
+    compileOnly("org.jetbrains.compose:compose-gradle-plugin:${libs.versions.compose.get()}")
     compileOnly("org.gradle.kotlin:gradle-kotlin-dsl-plugins:6.7.13")
     implementation(libs.androidGradlePlugin)
     implementation(libs.androidLibraryGradlePlugin)

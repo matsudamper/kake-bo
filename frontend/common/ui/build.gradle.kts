@@ -84,7 +84,7 @@ kotlin {
 val byteBuddyAgent: Configuration = configurations.create("byteBuddyAgent")
 
 dependencies {
-    byteBuddyAgent("net.bytebuddy:byte-buddy-agent:1.18.14")
+    byteBuddyAgent("net.bytebuddy:byte-buddy-agent:1.18.15")
 }
 
 val paparazziTaskRequested = gradle.startParameter.taskNames.any { requestedTask ->

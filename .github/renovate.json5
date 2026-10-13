@@ -23,7 +23,6 @@
         "/^org\\.jetbrains\\.kotlin[:.]/",
         "org.gradle.kotlin:gradle-kotlin-dsl-plugins",
         "net.bytebuddy:byte-buddy-agent",
-        "org.jetbrains.compose:compose-gradle-plugin",
         "androidx.core:core-ktx",
       ],
       "matchUpdateTypes": ["minor", "patch"],
@@ -63,9 +62,15 @@
       "matchPackageNames": [
         "app.cash.paparazzi",
         "/^app\\.cash\\.paparazzi:/",
-        "/^io\\.github\\.sergio-sastre\\.ComposablePreviewScanner:/",
       ],
       "groupName": "paparazzi",
+      "matchUpdateTypes": ["minor", "patch"],
+      "automerge": true,
+    },
+    {
+      "matchPackageNames": [
+        "/^io\\.github\\.sergio-sastre\\.ComposablePreviewScanner:/",
+      ],
       "matchUpdateTypes": ["minor", "patch"],
       "automerge": true,
     },
@@ -85,11 +90,6 @@
     },
     {
       "matchPackageNames": ["org.graalvm.sdk:nativeimage"],
-      "matchUpdateTypes": ["minor", "patch"],
-      "automerge": true,
-    },
-    {
-      "matchPackageNames": ["org.jetbrains.compose.ui:ui-tooling-preview"],
       "matchUpdateTypes": ["minor", "patch"],
       "automerge": true,
     },
@@ -155,6 +155,11 @@
         "/^androidx\\.navigation3:/",
         "androidx.work:work-runtime-ktx",
       ],
+      "matchUpdateTypes": ["minor", "patch"],
+      "automerge": true,
+    },
+    {
+      "matchPackageNames": ["org.jetbrains.compose.ui:ui-tooling-preview"],
       "matchUpdateTypes": ["minor", "patch"],
       "automerge": true,
     },
