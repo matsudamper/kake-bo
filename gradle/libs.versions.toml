@@ -12,8 +12,8 @@ agp = "9.2.1"
 jackson = "2.22.3"
 # Compose Multiplatform 本体（Gradle プラグイン + org.jetbrains.compose.* ライブラリ）は同一 CMP バージョン
 compose = "1.12.1"
-# Android 向け Jetpack Compose（Google Maven）。CMP 互換表の Jetpack 列と揃える（compose と同番号だが更新経路が別）
-jetpackCompose = "1.12.1"
+# AndroidX Compose Runtime グループ（runtime-saveable 等）。ui / foundation 等とは別リリース単位
+androidxComposeRuntime = "1.12.1"
 protoBuf = "4.36.2"
 lifecycle = "2.11.0"
 jooq = "3.21.9"
@@ -144,8 +144,8 @@ androidxLifecycleRuntimeCompose = { module = "androidx.lifecycle:lifecycle-runti
 androidxNavigation3Runtime = { module = "androidx.navigation3:navigation3-runtime", version.ref = "nav3" }
 androidxNavigation3Ui = { module = "androidx.navigation3:navigation3-ui", version.ref = "nav3" }
 jetbrainsNavigation3Ui = { module = "org.jetbrains.androidx.navigation3:navigation3-ui", version.ref = "jetbrainsNav3" }
-androidxComposeSaveable = { module = "androidx.compose.runtime:runtime-saveable", version.ref = "jetpackCompose" }
-composeUiToolingPreview = { module = "org.jetbrains.compose.ui:ui-tooling-preview", version.ref = "compose" }
+androidxComposeSaveable = { module = "androidx.compose.runtime:runtime-saveable", version.ref = "androidxComposeRuntime" }
+composeUiToolingPreview = { module = "org.jetbrains.compose.ui:ui-tooling-preview", version = "1.12.1" }
 composeUiTooling = { module = "org.jetbrains.compose.ui:ui-tooling", version.ref = "compose" }
 
 # Test
