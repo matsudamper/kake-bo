@@ -2,8 +2,8 @@ package net.matsudamper.money.frontend.graphql
 
 import com.apollographql.apollo.api.ApolloResponse
 import com.apollographql.apollo.api.Optional
-import com.apollographql.apollo.cache.normalized.FetchPolicy
-import com.apollographql.apollo.cache.normalized.fetchPolicy
+import com.apollographql.cache.normalized.FetchPolicy
+import com.apollographql.cache.normalized.fetchPolicy
 import net.matsudamper.money.element.MailId
 import net.matsudamper.money.frontend.common.base.Logger
 import net.matsudamper.money.frontend.graphql.type.MailQuery

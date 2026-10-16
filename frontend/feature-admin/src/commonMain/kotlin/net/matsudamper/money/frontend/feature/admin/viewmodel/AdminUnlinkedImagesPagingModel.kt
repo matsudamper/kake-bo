@@ -4,10 +4,10 @@ import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.catch
 import com.apollographql.apollo.api.ApolloResponse
 import com.apollographql.apollo.api.Optional
-import com.apollographql.apollo.cache.normalized.FetchPolicy
-import com.apollographql.apollo.cache.normalized.apolloStore
-import com.apollographql.apollo.cache.normalized.fetchPolicy
-import com.apollographql.apollo.cache.normalized.watch
+import com.apollographql.cache.normalized.FetchPolicy
+import com.apollographql.cache.normalized.apolloStore
+import com.apollographql.cache.normalized.fetchPolicy
+import com.apollographql.cache.normalized.watch
 import net.matsudamper.money.element.ImageId
 import net.matsudamper.money.frontend.common.base.Logger
 import net.matsudamper.money.frontend.graphql.AdminUnlinkedImagesQuery
@@ -84,12 +84,11 @@ internal class AdminUnlinkedImagesPagingModel(
                 if (filteredNodes.size != connection.nodes.size) {
                     apolloClient.apolloStore.writeOperation(
                         operation = firstQuery,
-                        operationData = before.copy(
+                        data = before.copy(
                             adminUnlinkedImages = connection.copy(
                                 nodes = filteredNodes,
                             ),
                         ),
-                        customScalarAdapters = apolloClient.customScalarAdapters,
                         publish = true,
                     )
                 }
