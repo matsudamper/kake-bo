@@ -185,7 +185,7 @@ public class ImageUploadQueueJsImpl private constructor(
             if (response.hasErrors()) {
                 throw IllegalStateException("GraphQL mutation errors: ${response.errors}")
             }
-            response.data?.userMutation?.addMoneyUsageImage == true
+            response.data?.userMutation?.addMoneyUsageImage != null
         }
 
         if (mutationResult.getOrDefault(false) == false) {

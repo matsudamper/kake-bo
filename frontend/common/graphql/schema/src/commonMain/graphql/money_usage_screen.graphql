@@ -22,7 +22,9 @@ mutation MoneyUsageScreenDeleteUsage($id: MoneyUsageId!) {
 
 mutation MoneyUsageScreenAddImage($usageId: MoneyUsageId!, $imageId: ImageId!) {
     userMutation {
-        addMoneyUsageImage(usageId: $usageId, imageId: $imageId)
+        addMoneyUsageImage(usageId: $usageId, imageId: $imageId) {
+            ... MoneyUsageScreenMoneyUsage
+        }
     }
 }
 

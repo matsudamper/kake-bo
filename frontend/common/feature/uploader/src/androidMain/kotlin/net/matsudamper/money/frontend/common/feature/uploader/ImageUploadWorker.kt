@@ -148,7 +148,7 @@ internal class ImageUploadWorker(
                     ),
                 )
                 .execute()
-                .data?.userMutation?.addMoneyUsageImage == true
+                .data?.userMutation?.addMoneyUsageImage != null
         }
 
         if (!mutationResult.getOrDefault(false)) {

@@ -876,17 +876,21 @@ class UserMutationResolverImpl : UserMutationResolver {
         usageId: MoneyUsageId,
         imageId: ImageId,
         env: DataFetchingEnvironment,
-    ): CompletionStage<DataFetcherResult<Boolean>> {
+    ): CompletionStage<DataFetcherResult<QlMoneyUsage>> {
         val context = env.graphQlContext.get<GraphQlContext>(GraphQlContext::class.java.name)
         val userId = context.verifyUserSessionAndGetUserId()
         val repository = context.diContainer.createMoneyUsageRepository()
 
         return CompletableFuture.allOf().otelThenApplyAsync {
-            repository.addUsageImage(
+            val isSuccess = repository.addUsageImage(
                 userId = userId,
                 usageId = usageId,
                 imageId = imageId,
             )
+            if (isSuccess.not()) {
+                throw IllegalStateException("add usage image failed")
+            }
+            QlMoneyUsage(id = usageId)
         }.toDataFetcher()
     }
 
