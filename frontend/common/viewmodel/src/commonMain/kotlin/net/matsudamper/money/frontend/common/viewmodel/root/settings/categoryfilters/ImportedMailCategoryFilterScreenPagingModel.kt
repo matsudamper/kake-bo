@@ -10,7 +10,7 @@ import com.apollographql.apollo.cache.normalized.FetchPolicy
 import com.apollographql.apollo.cache.normalized.fetchPolicy
 import com.apollographql.apollo.cache.normalized.watch
 import net.matsudamper.money.element.ImportedMailCategoryFilterId
-import net.matsudamper.money.frontend.common.base.IO
+import net.matsudamper.money.frontend.common.base.PlatformIO
 import net.matsudamper.money.frontend.common.base.nav.ScopedObjectFeature
 import net.matsudamper.money.frontend.common.viewmodel.CommonViewModel
 import net.matsudamper.money.frontend.graphql.GraphqlClient
@@ -98,7 +98,7 @@ public class ImportedMailCategoryFilterScreenPagingModel(
     }
 
     private suspend fun fetchPage(cursor: String?): ApolloResponse<ImportedMailCategoryFiltersScreenPagingQuery.Data> {
-        return withContext(Dispatchers.IO) {
+        return withContext(Dispatchers.PlatformIO) {
             graphqlClient.apolloClient.query(
                 query = ImportedMailCategoryFiltersScreenPagingQuery(
                     query = ImportedMailCategoryFiltersQuery(

@@ -23,7 +23,7 @@ import com.apollographql.apollo.cache.normalized.fetchPolicy
 import com.apollographql.apollo.cache.normalized.watch
 import net.matsudamper.money.element.MoneyUsageCategoryId
 import net.matsudamper.money.element.MoneyUsageSubCategoryId
-import net.matsudamper.money.frontend.common.base.IO
+import net.matsudamper.money.frontend.common.base.PlatformIO
 import net.matsudamper.money.frontend.graphql.GraphqlClient
 import net.matsudamper.money.frontend.graphql.UsageListScreenPagingQuery
 import net.matsudamper.money.frontend.graphql.type.MoneyUsagesQuery
@@ -177,7 +177,7 @@ public class MoneyUsagesListFetchModel(
     }
 
     private suspend fun executeQuery(query: UsageListScreenPagingQuery): ApolloResponse<UsageListScreenPagingQuery.Data> {
-        return withContext(Dispatchers.IO) {
+        return withContext(Dispatchers.PlatformIO) {
             graphqlClient.apolloClient.query(query)
                 .fetchPolicy(FetchPolicy.NetworkOnly)
                 .execute()

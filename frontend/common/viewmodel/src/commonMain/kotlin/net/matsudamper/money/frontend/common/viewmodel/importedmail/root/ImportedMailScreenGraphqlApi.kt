@@ -6,7 +6,7 @@ import com.apollographql.apollo.api.ApolloResponse
 import com.apollographql.apollo.cache.normalized.FetchPolicy
 import com.apollographql.apollo.cache.normalized.fetchPolicy
 import net.matsudamper.money.element.ImportedMailId
-import net.matsudamper.money.frontend.common.base.IO
+import net.matsudamper.money.frontend.common.base.PlatformIO
 import net.matsudamper.money.frontend.graphql.GraphqlClient
 import net.matsudamper.money.frontend.graphql.ImportedMailScreenDeleteMailMutation
 import net.matsudamper.money.frontend.graphql.ImportedMailScreenParseWithAiMutation
@@ -17,7 +17,7 @@ public class ImportedMailScreenGraphqlApi(
     private val graphqlClient: GraphqlClient,
 ) {
     public suspend fun delete(id: ImportedMailId): Boolean {
-        return withContext(Dispatchers.IO) {
+        return withContext(Dispatchers.PlatformIO) {
             runCatching {
                 graphqlClient.apolloClient
                     .mutation(ImportedMailScreenDeleteMailMutation(id = id))
@@ -34,7 +34,7 @@ public class ImportedMailScreenGraphqlApi(
     }
 
     public suspend fun parseWithAi(id: ImportedMailId): ParseWithAiResult {
-        return withContext(Dispatchers.IO) {
+        return withContext(Dispatchers.PlatformIO) {
             runCatching {
                 graphqlClient.apolloClient
                     .mutation(ImportedMailScreenParseWithAiMutation(id = id))
@@ -66,7 +66,7 @@ public class ImportedMailScreenGraphqlApi(
     }
 
     public suspend fun get(id: ImportedMailId): Result<ApolloResponse<ImportedMailScreenQuery.Data>> {
-        return withContext(Dispatchers.IO) {
+        return withContext(Dispatchers.PlatformIO) {
             runCatching {
                 graphqlClient.apolloClient.query(
                     ImportedMailScreenQuery(
