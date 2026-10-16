@@ -1,5 +1,6 @@
 import java.util.Properties
 import com.codingfeline.buildkonfig.compiler.FieldSpec.Type.STRING
+import org.jetbrains.kotlin.gradle.ExperimentalWasmDsl
 
 plugins {
     alias(libs.plugins.kotlin.multiplatform)
@@ -43,6 +44,7 @@ kotlin {
     android {
         namespace = "net.matsudamper.money.frontend.graphql"
     }
+    @OptIn(ExperimentalWasmDsl::class)
     wasmJs {
         browser()
     }
