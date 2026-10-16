@@ -871,6 +871,25 @@ class UserMutationResolverImpl : UserMutationResolver {
         }.toDataFetcher()
     }
 
+    override fun addMoneyUsageImage(
+        userMutation: QlUserMutation,
+        usageId: MoneyUsageId,
+        imageId: ImageId,
+        env: DataFetchingEnvironment,
+    ): CompletionStage<DataFetcherResult<Boolean>> {
+        val context = env.graphQlContext.get<GraphQlContext>(GraphQlContext::class.java.name)
+        val userId = context.verifyUserSessionAndGetUserId()
+        val repository = context.diContainer.createMoneyUsageRepository()
+
+        return CompletableFuture.allOf().otelThenApplyAsync {
+            repository.addUsageImage(
+                userId = userId,
+                usageId = usageId,
+                imageId = imageId,
+            )
+        }.toDataFetcher()
+    }
+
     override fun deleteMoneyUsageImage(
         userMutation: QlUserMutation,
         usageId: MoneyUsageId,
