@@ -24,6 +24,7 @@ import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.material3.pulltorefresh.PullToRefreshBox
 import androidx.compose.material3.pulltorefresh.rememberPullToRefreshState
@@ -375,21 +376,23 @@ private fun Preview(isDarkTheme: Boolean) {
     val emptyCells = List(3) { RootUsageCalendarScreenUiState.CalendarCell.Empty }
     val calendarCells = (dayOfWeeks + emptyCells + days).toImmutableList()
     AppRoot(isDarkTheme = isDarkTheme) {
-        RootUsageCalendarScreen(
-            modifier = Modifier.fillMaxSize(),
-            uiState = RootUsageCalendarScreenUiState(
-                event = object : RootUsageCalendarScreenUiState.Event {
-                    override suspend fun onViewInitialized() {}
-                    override fun refresh() {}
-                },
-                loadingState = RootUsageCalendarScreenUiState.LoadingState.Loaded(
-                    calendarCells = calendarCells,
-                    event = object : RootUsageCalendarScreenUiState.LoadedEvent {
-                        override fun loadMore() {}
+        Surface(color = MaterialTheme.colorScheme.background) {
+            RootUsageCalendarScreen(
+                modifier = Modifier.fillMaxSize(),
+                uiState = RootUsageCalendarScreenUiState(
+                    event = object : RootUsageCalendarScreenUiState.Event {
+                        override suspend fun onViewInitialized() {}
+                        override fun refresh() {}
                     },
+                    loadingState = RootUsageCalendarScreenUiState.LoadingState.Loaded(
+                        calendarCells = calendarCells,
+                        event = object : RootUsageCalendarScreenUiState.LoadedEvent {
+                            override fun loadMore() {}
+                        },
+                    ),
                 ),
-            ),
-            stickyHeaderState = StickyHeaderState(enterAlways = false),
-        )
+                stickyHeaderState = StickyHeaderState(enterAlways = false),
+            )
+        }
     }
 }
