@@ -2,6 +2,7 @@ package net.matsudamper.money.frontend.common.viewmodel.root.usage
 
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharingStarted
@@ -55,6 +56,7 @@ public class MoneyUsagesListFetchModel(
         }
 
         coroutineScope.launch {
+            @OptIn(ExperimentalCoroutinesApi::class)
             modelStateFlow.mapNotNull { it.searchText }
                 .flatMapLatest {
                     val state = modelStateFlow.value
