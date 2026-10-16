@@ -243,6 +243,7 @@ private fun CalendarCell(
     uiState: RootUsageCalendarScreenUiState.CalendarCell.Day,
 ) {
     val horizontalPadding = if (LocalIsLargeScreen.current) 2.dp else 1.dp
+    val todayBackgroundColor = MaterialTheme.colorScheme.primary
     Column(
         modifier = modifier
             .clickable { uiState.event.onClick() }
@@ -255,14 +256,14 @@ private fun CalendarCell(
                 .clip(MaterialTheme.shapes.small)
                 .background(
                     if (uiState.isToday) {
-                        MaterialTheme.colorScheme.secondaryContainer
+                        todayBackgroundColor
                     } else {
                         Color.Transparent
                     },
                 )
                 .padding(2.dp),
             color = if (uiState.isToday) {
-                MaterialTheme.colorScheme.onSecondaryContainer
+                ColorUtil.contrastTextColor(todayBackgroundColor)
             } else {
                 Color.Unspecified
             },
@@ -309,7 +310,18 @@ private fun CalendarCell(
 
 @Composable
 @Preview
-private fun Preview() {
+private fun DarkPreview() {
+    Preview(isDarkTheme = true)
+}
+
+@Composable
+@Preview
+private fun LightPreview() {
+    Preview(isDarkTheme = false)
+}
+
+@Composable
+private fun Preview(isDarkTheme: Boolean) {
     val noOpDayCellEvent = object : RootUsageCalendarScreenUiState.DayCellEvent {
         override fun onClick() {}
     }
@@ -362,7 +374,7 @@ private fun Preview() {
     }
     val emptyCells = List(3) { RootUsageCalendarScreenUiState.CalendarCell.Empty }
     val calendarCells = (dayOfWeeks + emptyCells + days).toImmutableList()
-    AppRoot(isDarkTheme = true) {
+    AppRoot(isDarkTheme = isDarkTheme) {
         RootUsageCalendarScreen(
             modifier = Modifier.fillMaxSize(),
             uiState = RootUsageCalendarScreenUiState(
