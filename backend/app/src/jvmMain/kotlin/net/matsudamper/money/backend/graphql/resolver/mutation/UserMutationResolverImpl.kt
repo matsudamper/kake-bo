@@ -4,7 +4,6 @@ import java.time.ZoneOffset
 import java.util.Base64
 import java.util.concurrent.CompletableFuture
 import java.util.concurrent.CompletionStage
-import kotlinx.coroutines.runBlocking
 import graphql.execution.DataFetcherResult
 import graphql.schema.DataFetchingEnvironment
 import net.matsudamper.money.backend.app.interfaces.MoneyUsageCategoryRepository
@@ -98,29 +97,26 @@ class UserMutationResolverImpl : UserMutationResolver {
     ): CompletionStage<DataFetcherResult<QlUserLoginResult>> {
         val context = env.graphQlContext.get<GraphQlContext>(GraphQlContext::class.java.name)
 
-        return otelSupplyAsync {
-            // 連続実行や、ユーザーが存在しているかの検知を防ぐために、最低でも1秒はかかるようにする
-            val loginResult = runBlocking {
-                minExecutionTime(LOGIN_MINIMUM_EXECUTION_TIME_MILLIS) {
-                    val encryptInfo = context.diContainer.userLoginRepository().getLoginEncryptInfo(name)
-                        ?: return@minExecutionTime UserLoginRepository.Result.Failure
-                    val hashedPassword = PasswordManager().getHashedPassword(
-                        password = password,
-                        salt = encryptInfo.salt,
-                        iterationCount = encryptInfo.iterationCount,
-                        keyLength = encryptInfo.keyLength,
-                        algorithm = IPasswordManager.Algorithm.entries
-                            .firstOrNull { it.algorithmName == encryptInfo.algorithm }
-                            ?: throw IllegalArgumentException("algorithm=[${encryptInfo.algorithm}] not found"),
-                    )
+        // 連続実行や、ユーザーが存在しているかの検知を防ぐために、最低でも1秒はかかるようにする
+        return minExecutionTime(LOGIN_MINIMUM_EXECUTION_TIME_MILLIS) {
+            val encryptInfo = context.diContainer.userLoginRepository().getLoginEncryptInfo(name)
+                ?: return@minExecutionTime UserLoginRepository.Result.Failure
+            val hashedPassword = PasswordManager().getHashedPassword(
+                password = password,
+                salt = encryptInfo.salt,
+                iterationCount = encryptInfo.iterationCount,
+                keyLength = encryptInfo.keyLength,
+                algorithm = IPasswordManager.Algorithm.entries
+                    .firstOrNull { it.algorithmName == encryptInfo.algorithm }
+                    ?: throw IllegalArgumentException("algorithm=[${encryptInfo.algorithm}] not found"),
+            )
 
-                    context.diContainer.userLoginRepository()
-                        .login(
-                            userName = name,
-                            hashedPassword = hashedPassword,
-                        )
-                }
-            }
+            context.diContainer.userLoginRepository()
+                .login(
+                    userName = name,
+                    hashedPassword = hashedPassword,
+                )
+        }.otelThenApplyAsync { loginResult ->
             when (loginResult) {
                 is UserLoginRepository.Result.Failure -> {
                     QlUserLoginResult(
@@ -230,67 +226,63 @@ class UserMutationResolverImpl : UserMutationResolver {
         val context = env.graphQlContext.get<GraphQlContext>(GraphQlContext::class.java.name)
         val fidoRepository = context.diContainer.createFidoRepository()
         val challengeRepository = context.diContainer.createChallengeRepository()
-        return otelSupplyAsync {
-            runBlocking {
-                minExecutionTime(LOGIN_MINIMUM_EXECUTION_TIME_MILLIS) {
-                    val requestUserId = String(
-                        Base64.getUrlDecoder().decode(userFidoLoginInput.base64UserHandle),
-                        Charsets.UTF_8,
-                    ).toIntOrNull()
-                        ?.let { UserId(it) }
-                        ?: return@minExecutionTime QlUserLoginResult(
-                            isSuccess = false,
-                        )
-                    val fidoList = fidoRepository.getFidoList(requestUserId)
-                    if (ChallengeModel(challengeRepository).validateChallenge(
-                            challenge = userFidoLoginInput.challenge,
-                        ).not()
-                    ) {
-                        throw GraphqlExceptions.BadRequest("challenge is invalid")
-                    }
-
-                    for (fido in fidoList) {
-                        val authenticator = AuthenticatorConverter.convertFromBase64(
-                            base64AttestationStatement = fido.attestedStatement,
-                            attestationStatementFormat = fido.attestedStatementFormat,
-                            base64AttestedCredentialData = fido.attestedCredentialData,
-                            counter = fido.counter,
-                        )
-                        runCatching {
-                            Auth4JModel(
-                                challenge = userFidoLoginInput.challenge,
-                            ).verify(
-                                authenticator = authenticator,
-                                credentialId = userFidoLoginInput.credentialId.toByteArray(),
-                                base64UserHandle = userFidoLoginInput.base64UserHandle.toByteArray(),
-                                base64AuthenticatorData = userFidoLoginInput.base64AuthenticatorData.toByteArray(),
-                                base64ClientDataJSON = userFidoLoginInput.base64ClientDataJson.toByteArray(),
-                                clientExtensionJSON = null,
-                                base64Signature = userFidoLoginInput.base64Signature.toByteArray(),
-                            )
-                        }.getOrNull() ?: continue
-
-                        fidoRepository.updateCounter(
-                            fidoId = fido.fidoId,
-                            counter = authenticator.counter,
-                            userId = requestUserId,
-                        )
-
-                        val createSessionResult = context.diContainer.createUserSessionRepository().createSession(requestUserId)
-                        context.setUserSessionCookie(
-                            createSessionResult.sessionId.id,
-                            createSessionResult.latestAccess
-                                .plusDays(ServerVariables.USER_SESSION_EXPIRE_DAY),
-                        )
-                        return@minExecutionTime QlUserLoginResult(
-                            isSuccess = true,
-                        )
-                    }
-                    QlUserLoginResult(
-                        isSuccess = false,
-                    )
-                }
+        return minExecutionTime(LOGIN_MINIMUM_EXECUTION_TIME_MILLIS) {
+            val requestUserId = String(
+                Base64.getUrlDecoder().decode(userFidoLoginInput.base64UserHandle),
+                Charsets.UTF_8,
+            ).toIntOrNull()
+                ?.let { UserId(it) }
+                ?: return@minExecutionTime QlUserLoginResult(
+                    isSuccess = false,
+                )
+            val fidoList = fidoRepository.getFidoList(requestUserId)
+            if (ChallengeModel(challengeRepository).validateChallenge(
+                    challenge = userFidoLoginInput.challenge,
+                ).not()
+            ) {
+                throw GraphqlExceptions.BadRequest("challenge is invalid")
             }
+
+            for (fido in fidoList) {
+                val authenticator = AuthenticatorConverter.convertFromBase64(
+                    base64AttestationStatement = fido.attestedStatement,
+                    attestationStatementFormat = fido.attestedStatementFormat,
+                    base64AttestedCredentialData = fido.attestedCredentialData,
+                    counter = fido.counter,
+                )
+                runCatching {
+                    Auth4JModel(
+                        challenge = userFidoLoginInput.challenge,
+                    ).verify(
+                        authenticator = authenticator,
+                        credentialId = userFidoLoginInput.credentialId.toByteArray(),
+                        base64UserHandle = userFidoLoginInput.base64UserHandle.toByteArray(),
+                        base64AuthenticatorData = userFidoLoginInput.base64AuthenticatorData.toByteArray(),
+                        base64ClientDataJSON = userFidoLoginInput.base64ClientDataJson.toByteArray(),
+                        clientExtensionJSON = null,
+                        base64Signature = userFidoLoginInput.base64Signature.toByteArray(),
+                    )
+                }.getOrNull() ?: continue
+
+                fidoRepository.updateCounter(
+                    fidoId = fido.fidoId,
+                    counter = authenticator.counter,
+                    userId = requestUserId,
+                )
+
+                val createSessionResult = context.diContainer.createUserSessionRepository().createSession(requestUserId)
+                context.setUserSessionCookie(
+                    createSessionResult.sessionId.id,
+                    createSessionResult.latestAccess
+                        .plusDays(ServerVariables.USER_SESSION_EXPIRE_DAY),
+                )
+                return@minExecutionTime QlUserLoginResult(
+                    isSuccess = true,
+                )
+            }
+            QlUserLoginResult(
+                isSuccess = false,
+            )
         }.toDataFetcher()
     }
 
