@@ -1,5 +1,5 @@
 type AdminMutation {
-    adminLogin(password: String!): AdminLoginResult!
+    adminLogin(password: String!): AdminLoginResult! @singleExecutionPerRequest
     adminLogout: Boolean! @lazy
     addUser(name: String!, password: String!): AdminAddUserResult!
     deleteImages(imageIds: [ImageId!]!): Boolean!
