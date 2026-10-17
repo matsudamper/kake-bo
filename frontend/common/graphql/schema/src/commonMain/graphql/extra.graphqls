@@ -1,5 +1,6 @@
-# バックエンドの @optional と衝突するため、kotlin_labs からは @typePolicy だけを取り込む
-extend schema @link(url: "https://specs.apollo.dev/kotlin_labs/v0.3", import: ["@typePolicy"])
+# kotlin_labs を link しないと全ディレクティブが暗黙に取り込まれ、バックエンドの @optional と衝突するため何も import せずに link する
+extend schema @link(url: "https://specs.apollo.dev/kotlin_labs/v0.3", import: [])
+extend schema @link(url: "https://specs.apollo.dev/cache/v0.4", import: ["@typePolicy"])
 
 extend type UserMail @typePolicy(keyFields: "id")
 extend type MoneyUsageCategory @typePolicy(keyFields: "id")

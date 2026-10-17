@@ -20,9 +20,9 @@ import kotlinx.datetime.LocalTime
 import kotlinx.datetime.plus
 import com.apollographql.apollo.api.ApolloResponse
 import com.apollographql.apollo.api.Optional
-import com.apollographql.apollo.cache.normalized.FetchPolicy
-import com.apollographql.apollo.cache.normalized.fetchPolicy
-import com.apollographql.apollo.cache.normalized.watch
+import com.apollographql.cache.normalized.FetchPolicy
+import com.apollographql.cache.normalized.fetchPolicy
+import com.apollographql.cache.normalized.watch
 import net.matsudamper.money.element.MoneyUsageCategoryId
 import net.matsudamper.money.frontend.common.base.AppSettingsRepository
 import net.matsudamper.money.frontend.common.base.ImmutableList
@@ -47,6 +47,7 @@ import net.matsudamper.money.frontend.common.viewmodel.lib.Formatter
 import net.matsudamper.money.frontend.graphql.GraphqlClient
 import net.matsudamper.money.frontend.graphql.MonthlyCategoryScreenListQuery
 import net.matsudamper.money.frontend.graphql.MonthlyCategoryScreenQuery
+import net.matsudamper.money.frontend.graphql.type.MoneyUsagesConnection
 import net.matsudamper.money.frontend.graphql.type.MoneyUsagesQueryOrderType
 import net.matsudamper.money.frontend.graphql.updateOperation
 
@@ -300,6 +301,7 @@ public class RootHomeMonthlyCategoryScreenViewModel(
                         data = before.copy(
                             user = before.user?.copy(
                                 moneyUsages = MonthlyCategoryScreenListQuery.MoneyUsages(
+                                    __typename = MoneyUsagesConnection.type.name,
                                     cursor = response.data?.user?.moneyUsages?.cursor,
                                     hasMore = response.data?.user?.moneyUsages?.hasMore ?: false,
                                     nodes = beforeNodes + newNodes,

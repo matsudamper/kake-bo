@@ -5,6 +5,7 @@ java = "25"
 javaToolchain = "25"
 kotlin = "2.4.21"
 apollo = "5.2.0"
+apolloNormalizedCache = "1.0.9"
 ktor = "3.6.0"
 activity = "1.13.0"
 appcompat = "1.8.0"
@@ -99,7 +100,8 @@ ktorClientLogging = { module = "io.ktor:ktor-client-logging", version.ref = "kto
 # Apollo
 apolloRuntime = { module = "com.apollographql.apollo:apollo-runtime", version.ref = "apollo" }
 apolloCompiler = { module = "com.apollographql.apollo:apollo-compiler", version.ref = "apollo" }
-apolloNormalizedCache = { module = "com.apollographql.apollo:apollo-normalized-cache", version.ref = "apollo" }
+apolloNormalizedCache = { module = "com.apollographql.cache:normalized-cache", version.ref = "apolloNormalizedCache" }
+apolloNormalizedCacheCompilerPlugin = { module = "com.apollographql.cache:normalized-cache-apollo-compiler-plugin", version.ref = "apolloNormalizedCache" }
 apolloAdapters = { module = "com.apollographql.adapters:apollo-adapters-kotlinx-datetime", version = "0.8.0" }
 apolloAdaptersCore = { module = "com.apollographql.adapters:apollo-adapters-core", version = "0.8.0" }
 
