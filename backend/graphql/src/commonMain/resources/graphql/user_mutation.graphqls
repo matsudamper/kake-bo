@@ -15,6 +15,10 @@ type UserMutation {
     addUsage(usage: AddUsageQuery!): MoneyUsage!
     updateUsage(query: UpdateUsageQuery!): MoneyUsage!
     deleteUsage(id: MoneyUsageId!): Boolean!
+    """
+    既存の画像の末尾に追加する。既に紐付いている場合は何もしない
+    """
+    addMoneyUsageImage(usageId: MoneyUsageId!, imageId: ImageId!): MoneyUsage!
     deleteMoneyUsageImage(usageId: MoneyUsageId!, imageId: ImageId!): Boolean!
 
     addCategory(input: AddCategoryInput!) : AddCategoryResult!
