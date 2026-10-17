@@ -33,11 +33,12 @@ import net.matsudamper.money.backend.logic.ApiTokenEncryptManager
 import net.matsudamper.money.backend.logic.ColorValidator
 import net.matsudamper.money.backend.logic.IPasswordManager
 import net.matsudamper.money.backend.logic.PasswordManager
+import net.matsudamper.money.categoryfilter.CategoryFilterMatcherKeyValidator
 import net.matsudamper.money.element.ApiTokenId
 import net.matsudamper.money.element.FidoId
 import net.matsudamper.money.element.ImageId
-import net.matsudamper.money.element.ImportedMailCategoryFilterConditionId
 import net.matsudamper.money.element.ImportedMailCategoryFilterId
+import net.matsudamper.money.element.ImportedMailCategoryFilterMatcherId
 import net.matsudamper.money.element.ImportedMailId
 import net.matsudamper.money.element.MailId
 import net.matsudamper.money.element.MoneyUsageCategoryId
@@ -48,8 +49,8 @@ import net.matsudamper.money.element.SessionRecordId
 import net.matsudamper.money.element.UserId
 import net.matsudamper.money.graphql.model.QlAddCategoryInput
 import net.matsudamper.money.graphql.model.QlAddCategoryResult
-import net.matsudamper.money.graphql.model.QlAddImportedMailCategoryFilterConditionInput
 import net.matsudamper.money.graphql.model.QlAddImportedMailCategoryFilterInput
+import net.matsudamper.money.graphql.model.QlAddImportedMailCategoryFilterMatcherInput
 import net.matsudamper.money.graphql.model.QlAddMoneyUsagePresetInput
 import net.matsudamper.money.graphql.model.QlAddSubCategoryError
 import net.matsudamper.money.graphql.model.QlAddSubCategoryInput
@@ -63,8 +64,8 @@ import net.matsudamper.money.graphql.model.QlDeleteMailResult
 import net.matsudamper.money.graphql.model.QlDeleteMailResultError
 import net.matsudamper.money.graphql.model.QlDeleteSessionResult
 import net.matsudamper.money.graphql.model.QlImportMailResult
-import net.matsudamper.money.graphql.model.QlImportedMailCategoryCondition
 import net.matsudamper.money.graphql.model.QlImportedMailCategoryFilter
+import net.matsudamper.money.graphql.model.QlImportedMailCategoryFilterMatcher
 import net.matsudamper.money.graphql.model.QlMoneyUsage
 import net.matsudamper.money.graphql.model.QlMoneyUsageCategory
 import net.matsudamper.money.graphql.model.QlMoneyUsagePreset
@@ -78,8 +79,8 @@ import net.matsudamper.money.graphql.model.QlRegisteredFidoResult
 import net.matsudamper.money.graphql.model.QlSession
 import net.matsudamper.money.graphql.model.QlSettingsMutation
 import net.matsudamper.money.graphql.model.QlUpdateCategoryQuery
-import net.matsudamper.money.graphql.model.QlUpdateImportedMailCategoryFilterConditionInput
 import net.matsudamper.money.graphql.model.QlUpdateImportedMailCategoryFilterInput
+import net.matsudamper.money.graphql.model.QlUpdateImportedMailCategoryFilterMatcherInput
 import net.matsudamper.money.graphql.model.QlUpdateMoneyUsagePresetInput
 import net.matsudamper.money.graphql.model.QlUpdateSubCategoryQuery
 import net.matsudamper.money.graphql.model.QlUpdateUsageQuery
@@ -623,6 +624,7 @@ class UserMutationResolverImpl : UserMutationResolver {
                 orderNum = input.orderNumber,
                 subCategory = input.subCategoryId,
                 operator = input.operator?.toDBElement(),
+                matchExpression = input.matchExpression.toDbUpdateValue(),
             )
             if (isSuccess) {
                 QlImportedMailCategoryFilter(
@@ -634,9 +636,9 @@ class UserMutationResolverImpl : UserMutationResolver {
         }.toDataFetcher()
     }
 
-    override fun addImportedMailCategoryFilterCondition(
+    override fun addImportedMailCategoryFilterMatcher(
         userMutation: QlUserMutation,
-        input: QlAddImportedMailCategoryFilterConditionInput,
+        input: QlAddImportedMailCategoryFilterMatcherInput,
         env: DataFetchingEnvironment,
     ): CompletionStage<DataFetcherResult<QlImportedMailCategoryFilter?>> {
         val context = env.graphQlContext.get<GraphQlContext>(GraphQlContext::class.java.name)
@@ -644,10 +646,10 @@ class UserMutationResolverImpl : UserMutationResolver {
         val repository = context.diContainer.createMailFilterRepository()
 
         return CompletableFuture.allOf().otelThenApplyAsync {
-            val isSuccess = repository.addCondition(
+            val isSuccess = repository.addMatcher(
                 userId = userId,
                 filterId = input.id,
-                condition = input.conditionType?.toDbElement(),
+                matcherType = input.matcherType?.toDbElement(),
                 text = input.text,
                 dataSource = input.dataSourceType?.toDbElement(),
             )
@@ -660,26 +662,31 @@ class UserMutationResolverImpl : UserMutationResolver {
         }.toDataFetcher()
     }
 
-    override fun updateImportedMailCategoryFilterCondition(
+    override fun updateImportedMailCategoryFilterMatcher(
         userMutation: QlUserMutation,
-        input: QlUpdateImportedMailCategoryFilterConditionInput,
+        input: QlUpdateImportedMailCategoryFilterMatcherInput,
         env: DataFetchingEnvironment,
-    ): CompletionStage<DataFetcherResult<QlImportedMailCategoryCondition?>> {
+    ): CompletionStage<DataFetcherResult<QlImportedMailCategoryFilterMatcher?>> {
         val context = env.graphQlContext.get<GraphQlContext>(GraphQlContext::class.java.name)
         val userId = context.verifyUserSessionAndGetUserId()
         val repository = context.diContainer.createMailFilterRepository()
 
         return CompletableFuture.allOf().otelThenApplyAsync {
-            val isSuccess = repository.updateCondition(
+            val matcherKey = input.matcherKey
+            if (matcherKey != null && !CategoryFilterMatcherKeyValidator.isValid(matcherKey)) {
+                return@otelThenApplyAsync null
+            }
+            val isSuccess = repository.updateMatcher(
                 userId = userId,
-                conditionId = input.id,
-                conditionType = input.conditionType?.toDbElement(),
+                matcherId = input.id,
+                matcherKey = matcherKey,
+                matcherType = input.matcherType?.toDbElement(),
                 dataSource = input.dataSourceType?.toDbElement(),
                 text = input.text,
             )
             if (isSuccess.not()) return@otelThenApplyAsync null
 
-            QlImportedMailCategoryCondition(
+            QlImportedMailCategoryFilterMatcher(
                 id = input.id,
             )
         }.toDataFetcher()
@@ -703,9 +710,9 @@ class UserMutationResolverImpl : UserMutationResolver {
         }.toDataFetcher()
     }
 
-    override fun deleteImportedMailCategoryFilterCondition(
+    override fun deleteImportedMailCategoryFilterMatcher(
         userMutation: QlUserMutation,
-        id: ImportedMailCategoryFilterConditionId,
+        id: ImportedMailCategoryFilterMatcherId,
         env: DataFetchingEnvironment,
     ): CompletionStage<DataFetcherResult<Boolean>> {
         val context = env.graphQlContext.get<GraphQlContext>(GraphQlContext::class.java.name)
@@ -713,9 +720,9 @@ class UserMutationResolverImpl : UserMutationResolver {
         val repository = context.diContainer.createMailFilterRepository()
 
         return CompletableFuture.allOf().otelThenApplyAsync {
-            val isSuccess = repository.deleteCondition(
+            val isSuccess = repository.deleteMatcher(
                 userId = userId,
-                conditionId = id,
+                matcherId = id,
             )
             isSuccess
         }.toDataFetcher()

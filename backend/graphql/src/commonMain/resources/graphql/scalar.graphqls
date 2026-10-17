@@ -6,7 +6,7 @@ scalar MoneyUsageId
 scalar MoneyUsageCategoryId
 scalar MoneyUsageSubCategoryId
 scalar ImportedMailCategoryFilterId
-scalar ImportedMailCategoryFilterConditionId
+scalar ImportedMailCategoryFilterMatcherId
 scalar LocalDateTime
 scalar OffsetDateTime
 scalar Long

@@ -13,9 +13,9 @@ import com.apollographql.apollo.api.Optional
 import com.apollographql.apollo.cache.normalized.FetchPolicy
 import com.apollographql.apollo.cache.normalized.fetchPolicy
 import net.matsudamper.money.categoryfilter.CategoryFilter
-import net.matsudamper.money.categoryfilter.CategoryFilterCondition
-import net.matsudamper.money.categoryfilter.CategoryFilterConditionType
 import net.matsudamper.money.categoryfilter.CategoryFilterDataSourceType
+import net.matsudamper.money.categoryfilter.CategoryFilterMatcher
+import net.matsudamper.money.categoryfilter.CategoryFilterMatcherType
 import net.matsudamper.money.categoryfilter.CategoryFilterOperator
 import net.matsudamper.money.categoryfilter.evaluateCategoryFilters
 import net.matsudamper.money.element.MoneyUsageId
@@ -37,8 +37,8 @@ import net.matsudamper.money.frontend.graphql.GraphqlClient
 import net.matsudamper.money.frontend.graphql.MoneyUsageScreenQuery
 import net.matsudamper.money.frontend.graphql.NotificationUsageCategoryFiltersQuery
 import net.matsudamper.money.frontend.graphql.fragment.MoneyUsageScreenMoneyUsage
-import net.matsudamper.money.frontend.graphql.type.ImportedMailCategoryFilterConditionType
 import net.matsudamper.money.frontend.graphql.type.ImportedMailCategoryFilterDataSourceType
+import net.matsudamper.money.frontend.graphql.type.ImportedMailCategoryFilterMatcherType
 import net.matsudamper.money.frontend.graphql.type.ImportedMailCategoryFiltersQuery
 import net.matsudamper.money.frontend.graphql.type.ImportedMailCategoryFiltersSortType
 import net.matsudamper.money.frontend.graphql.type.ImportedMailFilterCategoryConditionOperator
@@ -159,12 +159,14 @@ public class NotificationUsageDetailViewModel(
             CategoryFilter(
                 orderNumber = node.orderNumber,
                 operator = node.operator.toShared(),
+                matchExpression = node.matchExpression,
                 subCategoryId = node.subCategory?.id,
-                conditions = node.conditions.orEmpty().map { c ->
-                    CategoryFilterCondition(
-                        text = c.text,
-                        dataSourceType = c.dataSourceType.toShared(),
-                        conditionType = c.conditionType.toShared(),
+                matchers = node.matchers.orEmpty().map { matcher ->
+                    CategoryFilterMatcher(
+                        matcherKey = matcher.matcherKey,
+                        text = matcher.text,
+                        dataSourceType = matcher.dataSourceType.toShared(),
+                        matcherType = matcher.matcherType.toShared(),
                     )
                 },
             )
@@ -381,13 +383,13 @@ public class NotificationUsageDetailViewModel(
         }
     }
 
-    private fun ImportedMailCategoryFilterConditionType.toShared(): CategoryFilterConditionType {
+    private fun ImportedMailCategoryFilterMatcherType.toShared(): CategoryFilterMatcherType {
         return when (this) {
-            ImportedMailCategoryFilterConditionType.Include -> CategoryFilterConditionType.Include
-            ImportedMailCategoryFilterConditionType.NotInclude -> CategoryFilterConditionType.NotInclude
-            ImportedMailCategoryFilterConditionType.Equal -> CategoryFilterConditionType.Equal
-            ImportedMailCategoryFilterConditionType.NotEqual -> CategoryFilterConditionType.NotEqual
-            ImportedMailCategoryFilterConditionType.UNKNOWN__ -> CategoryFilterConditionType.Include
+            ImportedMailCategoryFilterMatcherType.Include -> CategoryFilterMatcherType.Include
+            ImportedMailCategoryFilterMatcherType.NotInclude -> CategoryFilterMatcherType.NotInclude
+            ImportedMailCategoryFilterMatcherType.Equal -> CategoryFilterMatcherType.Equal
+            ImportedMailCategoryFilterMatcherType.NotEqual -> CategoryFilterMatcherType.NotEqual
+            ImportedMailCategoryFilterMatcherType.UNKNOWN__ -> CategoryFilterMatcherType.Include
         }
     }
 

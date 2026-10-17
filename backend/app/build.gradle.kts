@@ -18,6 +18,7 @@ kotlin {
         getByName("jvmMain") {
             dependencies {
                 implementation(projects.shared)
+                implementation(projects.shared.featureCategoryFilter)
                 implementation(projects.backend.di)
                 implementation(projects.backend.app.interfaces)
                 implementation(projects.backend.base)
