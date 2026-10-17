@@ -1,6 +1,6 @@
 type UserMutation {
-    userLogin(name: String!, password: String!): UserLoginResult!
-    userFidoLogin(userFidoLoginInput: UserFidoLoginInput!): UserLoginResult!
+    userLogin(name: String!, password: String!): UserLoginResult! @singleExecutionPerRequest
+    userFidoLogin(userFidoLoginInput: UserFidoLoginInput!): UserLoginResult! @singleExecutionPerRequest
     settingsMutation: SettingsMutation @lazy
     logout: Boolean! @lazy
 
