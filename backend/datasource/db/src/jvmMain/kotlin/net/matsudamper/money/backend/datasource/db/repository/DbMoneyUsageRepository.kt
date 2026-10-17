@@ -654,6 +654,7 @@ class DbMoneyUsageRepository : MoneyUsageRepository {
             .orderBy(
                 jUsageImagesRelation.MONEY_USAGE_ID.asc(),
                 jUsageImagesRelation.IMAGE_ORDER.asc(),
+                jUsageImagesRelation.USER_IMAGE_ID.asc(),
             )
             .fetch()
 
@@ -679,7 +680,7 @@ class DbMoneyUsageRepository : MoneyUsageRepository {
         if (imageIds.isEmpty()) {
             return
         }
-        val records = imageIds.mapIndexed { index, imageId ->
+        val records = imageIds.distinctBy { it.value }.mapIndexed { index, imageId ->
             context.newRecord(jUsageImagesRelation).apply {
                 set(jUsageImagesRelation.USER_ID, userId.value)
                 set(jUsageImagesRelation.MONEY_USAGE_ID, usageId.id)

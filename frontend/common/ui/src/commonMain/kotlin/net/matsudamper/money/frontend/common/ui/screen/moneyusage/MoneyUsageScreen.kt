@@ -2,7 +2,6 @@ package net.matsudamper.money.frontend.common.ui.screen.moneyusage
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
-import androidx.compose.foundation.gestures.awaitEachGesture
 import androidx.compose.foundation.gestures.detectTapGestures
 import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.layout.Arrangement
@@ -26,8 +25,6 @@ import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.CircularProgressIndicator
-import androidx.compose.material3.DropdownMenu
-import androidx.compose.material3.DropdownMenuItem
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
@@ -47,8 +44,6 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.SolidColor
-import androidx.compose.ui.input.pointer.PointerEventType
-import androidx.compose.ui.input.pointer.isSecondaryPressed
 import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.tooling.preview.Preview
@@ -59,7 +54,6 @@ import androidx.compose.ui.window.PopupProperties
 import kotlinx.datetime.LocalDate
 import kotlinx.datetime.LocalTime
 import coil3.compose.AsyncImage
-import coil3.compose.SubcomposeAsyncImage
 import net.matsudamper.money.frontend.common.base.ImmutableList
 import net.matsudamper.money.frontend.common.ui.AppRoot
 import net.matsudamper.money.frontend.common.ui.LocalIsLargeScreen
@@ -82,8 +76,9 @@ import net.matsudamper.money.frontend.common.ui.layout.TimePickerDialog
 import net.matsudamper.money.frontend.common.ui.layout.UrlClickableText
 import net.matsudamper.money.frontend.common.ui.layout.UrlMenuDialog
 import net.matsudamper.money.frontend.common.ui.layout.html.text.fullscreen.FullScreenTextInput
-import net.matsudamper.money.frontend.common.ui.layout.image.ImageLoadingPlaceholder
 import net.matsudamper.money.frontend.common.ui.layout.image.ImageUploadButton
+import net.matsudamper.money.frontend.common.ui.layout.image.MoneyUsageImageThumbnail
+import net.matsudamper.money.frontend.common.ui.layout.image.MoneyUsageImageThumbnailUiState
 import net.matsudamper.money.frontend.common.ui.layout.image.ZoomableImageDialog
 import org.jetbrains.compose.resources.painterResource
 
@@ -97,6 +92,7 @@ public data class MoneyUsageScreenUiState(
     val urlMenuDialog: UrlMenuDialog?,
     val numberInputDialog: NumberInputDialog?,
     val categorySelectDialog: CategorySelectDialogUiState?,
+    val zoomImageDialog: ZoomImageDialog?,
 ) {
     public data class CalendarDialog(
         val date: LocalDate,
@@ -152,6 +148,7 @@ public data class MoneyUsageScreenUiState(
         val date: String,
         val time: String,
         val images: ImmutableList<ImageItem>,
+        val isImagesError: Boolean,
         val uploadQueueItems: ImmutableList<UploadQueueItem>,
         val event: MoneyUsageEvent,
     )
@@ -166,13 +163,17 @@ public data class MoneyUsageScreenUiState(
     )
 
     public data class ImageItem(
-        val url: String,
-        val event: ImageItemEvent,
+        val thumbnail: MoneyUsageImageThumbnailUiState,
     )
 
-    @Immutable
-    public interface ImageItemEvent {
-        public fun onClickDelete()
+    public data class ZoomImageDialog(
+        val url: String,
+        val event: Event,
+    ) {
+        @Immutable
+        public interface Event {
+            public fun onDismissRequest()
+        }
     }
 
     public data class MailItem(
@@ -199,6 +200,8 @@ public data class MoneyUsageScreenUiState(
         public fun onClickAmountChange()
 
         public fun onClickUploadImage()
+
+        public fun onClickImagesReload()
     }
 
     @Immutable
@@ -265,6 +268,12 @@ public fun MoneyUsageScreen(
             onClickOpen = { uiState.urlMenuDialog.event.onClickOpen() },
             onClickCopy = { uiState.urlMenuDialog.event.onClickCopy() },
             onDismissRequest = { uiState.urlMenuDialog.event.onDismissRequest() },
+        )
+    }
+    if (uiState.zoomImageDialog != null) {
+        ZoomableImageDialog(
+            imageUrl = uiState.zoomImageDialog.url,
+            onDismissRequest = { uiState.zoomImageDialog.event.onDismissRequest() },
         )
     }
     if (uiState.confirmDialog != null) {
@@ -612,8 +621,6 @@ private fun ImagesCard(
     modifier: Modifier = Modifier,
     uiState: MoneyUsageScreenUiState.MoneyUsage,
 ) {
-    var selectedImageUrl by remember { mutableStateOf<String?>(null) }
-
     Card(modifier = modifier.fillMaxWidth()) {
         Column(modifier = Modifier.padding(16.dp)) {
             Text(
@@ -623,144 +630,80 @@ private fun ImagesCard(
             )
             Spacer(modifier = Modifier.height(8.dp))
 
-            val allItems = remember(uiState.images, uiState.uploadQueueItems) {
-                uiState.images.map { it to "image" } + uiState.uploadQueueItems.map { it to "queue" }
-            }
+            if (uiState.isImagesError) {
+                LoadingErrorContent(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(vertical = 24.dp),
+                    onClickRetry = { uiState.event.onClickImagesReload() },
+                )
+                Spacer(modifier = Modifier.height(8.dp))
+            } else {
+                val allItems = remember(uiState.images, uiState.uploadQueueItems) {
+                    uiState.images.map { it to "image" } + uiState.uploadQueueItems.map { it to "queue" }
+                }
 
-            if (allItems.isNotEmpty()) {
-                BoxWithConstraints(modifier = Modifier.fillMaxWidth()) {
-                    val minItemWidth = 120.dp
-                    val columnCount = (maxWidth / minItemWidth).toInt().coerceAtLeast(2)
-                    val chunkedItems = allItems.chunked(columnCount)
+                if (allItems.isNotEmpty()) {
+                    BoxWithConstraints(modifier = Modifier.fillMaxWidth()) {
+                        val minItemWidth = 120.dp
+                        val columnCount = (maxWidth / minItemWidth).toInt().coerceAtLeast(2)
+                        val chunkedItems = allItems.chunked(columnCount)
 
-                    Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
-                        chunkedItems.forEach { rowItems ->
-                            Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
-                                rowItems.forEach { itemPair ->
-                                    Box(
-                                        modifier = Modifier.weight(1f).aspectRatio(1f),
-                                    ) {
-                                        val item = itemPair.first
-                                        if (itemPair.second == "image") {
-                                            val imageItem = item as MoneyUsageScreenUiState.ImageItem
-                                            ImageItemContent(
-                                                imageItem = imageItem,
-                                                onClick = { selectedImageUrl = imageItem.url },
-                                            )
-                                        } else {
-                                            val queueItem = item as MoneyUsageScreenUiState.UploadQueueItem
-                                            UploadQueueItemContent(queueItem = queueItem)
+                        Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
+                            chunkedItems.forEach { rowItems ->
+                                Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+                                    rowItems.forEach { itemPair ->
+                                        Box(
+                                            modifier = Modifier.weight(1f).aspectRatio(1f),
+                                        ) {
+                                            val item = itemPair.first
+                                            if (itemPair.second == "image") {
+                                                val imageItem = item as MoneyUsageScreenUiState.ImageItem
+                                                MoneyUsageImageThumbnail(
+                                                    uiState = imageItem.thumbnail,
+                                                    modifier = Modifier.fillMaxSize(),
+                                                )
+                                            } else {
+                                                val queueItem = item as MoneyUsageScreenUiState.UploadQueueItem
+                                                UploadQueueItemContent(queueItem = queueItem)
+                                            }
                                         }
                                     }
-                                }
-                                // 空のセルを埋める
-                                repeat(columnCount - rowItems.size) {
-                                    Box(modifier = Modifier.weight(1f))
+                                    // 空のセルを埋める
+                                    repeat(columnCount - rowItems.size) {
+                                        Box(modifier = Modifier.weight(1f))
+                                    }
                                 }
                             }
                         }
                     }
+                    Spacer(modifier = Modifier.height(16.dp))
+                } else {
+                    Column(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .padding(vertical = 24.dp),
+                        horizontalAlignment = Alignment.CenterHorizontally,
+                        verticalArrangement = Arrangement.spacedBy(8.dp),
+                    ) {
+                        Icon(
+                            painter = painterResource(Res.drawable.ic_image),
+                            contentDescription = null,
+                            modifier = Modifier.size(48.dp),
+                            tint = MaterialTheme.colorScheme.onSurfaceVariant,
+                        )
+                        Text(
+                            text = "画像なし",
+                            style = MaterialTheme.typography.bodyMedium,
+                            color = MaterialTheme.colorScheme.onSurfaceVariant,
+                        )
+                    }
+                    Spacer(modifier = Modifier.height(8.dp))
                 }
-                Spacer(modifier = Modifier.height(16.dp))
-            } else {
-                Column(
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .padding(vertical = 24.dp),
-                    horizontalAlignment = Alignment.CenterHorizontally,
-                    verticalArrangement = Arrangement.spacedBy(8.dp),
-                ) {
-                    Icon(
-                        painter = painterResource(Res.drawable.ic_image),
-                        contentDescription = null,
-                        modifier = Modifier.size(48.dp),
-                        tint = MaterialTheme.colorScheme.onSurfaceVariant,
-                    )
-                    Text(
-                        text = "画像なし",
-                        style = MaterialTheme.typography.bodyMedium,
-                        color = MaterialTheme.colorScheme.onSurfaceVariant,
-                    )
-                }
-                Spacer(modifier = Modifier.height(8.dp))
             }
 
             ImageUploadButton(
                 onClick = { uiState.event.onClickUploadImage() },
-            )
-        }
-    }
-
-    selectedImageUrl?.let { imageUrl ->
-        ZoomableImageDialog(
-            imageUrl = imageUrl,
-            onDismissRequest = { selectedImageUrl = null },
-        )
-    }
-}
-
-@Composable
-private fun ImageItemContent(
-    imageItem: MoneyUsageScreenUiState.ImageItem,
-    onClick: () -> Unit,
-) {
-    var showDeleteDialog by remember { mutableStateOf(false) }
-    var showPopupMenu by remember { mutableStateOf(false) }
-
-    Box(modifier = Modifier.fillMaxSize()) {
-        SubcomposeAsyncImage(
-            model = imageItem.url,
-            contentDescription = null,
-            contentScale = ContentScale.Crop,
-            modifier = Modifier
-                .fillMaxSize()
-                .clickable { onClick() }
-                .pointerInput(Unit) {
-                    detectTapGestures(
-                        onTap = { onClick() },
-                        onLongPress = { showPopupMenu = true },
-                    )
-                }
-                .pointerInput(Unit) {
-                    awaitEachGesture {
-                        val pressEvent = awaitPointerEvent()
-                        if (pressEvent.type != PointerEventType.Press) return@awaitEachGesture
-                        if (pressEvent.buttons.isSecondaryPressed.not()) return@awaitEachGesture
-
-                        while (true) {
-                            val releaseEvent = awaitPointerEvent()
-                            if (releaseEvent.type != PointerEventType.Release) continue
-                            showPopupMenu = true
-                            break
-                        }
-                    }
-                },
-            loading = { ImageLoadingPlaceholder() },
-        )
-        DropdownMenu(
-            expanded = showPopupMenu,
-            onDismissRequest = { showPopupMenu = false },
-        ) {
-            DropdownMenuItem(
-                text = { Text("削除") },
-                onClick = {
-                    showPopupMenu = false
-                    showDeleteDialog = true
-                },
-            )
-        }
-        if (showDeleteDialog) {
-            AlertDialog(
-                title = { Text("画像を削除しますか？") },
-                description = { Text("この操作は取り消せません。") },
-                positiveButton = { Text("削除") },
-                negativeButton = { Text("キャンセル") },
-                onClickPositive = {
-                    showDeleteDialog = false
-                    imageItem.event.onClickDelete()
-                },
-                onClickNegative = { showDeleteDialog = false },
-                onDismissRequest = { showDeleteDialog = false },
             )
         }
     }
@@ -912,6 +855,8 @@ private fun MoneyUsageScreenPreview() {
         override fun onClickAmountChange() = Unit
 
         override fun onClickUploadImage() = Unit
+
+        override fun onClickImagesReload() = Unit
     }
     AppRoot(isDarkTheme = false) {
         MoneyUsageScreen(
@@ -940,6 +885,7 @@ private fun MoneyUsageScreenPreview() {
                         date = "2026/10/06",
                         time = "12:30",
                         images = ImmutableList(emptyList()),
+                        isImagesError = false,
                         uploadQueueItems = ImmutableList(emptyList()),
                         event = moneyUsageEvent,
                     ),
@@ -957,6 +903,7 @@ private fun MoneyUsageScreenPreview() {
                 urlMenuDialog = null,
                 numberInputDialog = null,
                 categorySelectDialog = null,
+                zoomImageDialog = null,
             ),
             kakeboScaffoldListener = object : KakeboScaffoldListener {
                 override fun onClickTitle() = Unit

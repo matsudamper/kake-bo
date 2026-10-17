@@ -12,15 +12,12 @@ import kotlinx.coroutines.SupervisorJob
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.launch
-import com.apollographql.apollo.api.Optional
 import net.matsudamper.money.element.MoneyUsageId
 import net.matsudamper.money.frontend.common.base.ImageUploadClient
 import net.matsudamper.money.frontend.common.base.Logger
 import net.matsudamper.money.frontend.common.base.image.SelectedImage
 import net.matsudamper.money.frontend.graphql.GraphqlClient
-import net.matsudamper.money.frontend.graphql.MoneyUsageScreenQuery
-import net.matsudamper.money.frontend.graphql.MoneyUsageScreenUpdateUsageMutation
-import net.matsudamper.money.frontend.graphql.type.UpdateUsageQuery
+import net.matsudamper.money.frontend.graphql.MoneyUsageScreenAddImageMutation
 import org.w3c.dom.Worker
 
 private const val STATUS_PENDING = "PENDING"
@@ -175,39 +172,19 @@ public class ImageUploadQueueJsImpl private constructor(
             return
         }
 
-        val moneyUsageId = MoneyUsageId(entity.moneyUsageId)
-        val queryResult = runCatching {
-            graphqlClient.apolloClient
-                .query(MoneyUsageScreenQuery(id = moneyUsageId))
-                .execute()
-                .also { response ->
-                    if (response.hasErrors()) {
-                        throw IllegalStateException("GraphQL query errors: ${response.errors}")
-                    }
-                }
-                .data?.user?.moneyUsage?.moneyUsageScreenMoneyUsage?.images
-                ?.map { it.id }
-        }
-        val currentImageIds = queryResult.onFailure { Logger.e(TAG, it) }.getOrNull()
-
-        val updatedImageIds = ((currentImageIds ?: listOf()) + uploaded.imageId)
-            .distinctBy { it.value }
-
         val mutationResult = runCatching {
             val response = graphqlClient.apolloClient
                 .mutation(
-                    MoneyUsageScreenUpdateUsageMutation(
-                        query = UpdateUsageQuery(
-                            id = moneyUsageId,
-                            imageIds = Optional.present(updatedImageIds),
-                        ),
+                    MoneyUsageScreenAddImageMutation(
+                        usageId = MoneyUsageId(entity.moneyUsageId),
+                        imageId = uploaded.imageId,
                     ),
                 )
                 .execute()
             if (response.hasErrors()) {
                 throw IllegalStateException("GraphQL mutation errors: ${response.errors}")
             }
-            response.data?.userMutation?.updateUsage != null
+            response.data?.userMutation?.addMoneyUsageImage != null
         }
 
         if (mutationResult.getOrDefault(false) == false) {

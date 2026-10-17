@@ -4,4 +4,6 @@ import net.matsudamper.money.frontend.common.base.image.SelectedImage
 
 public interface ImagePicker {
     public suspend fun pickImages(): List<SelectedImage>
+
+    public suspend fun pickImage(): SelectedImage?
 }

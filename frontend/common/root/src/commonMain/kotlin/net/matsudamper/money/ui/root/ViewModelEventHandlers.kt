@@ -262,6 +262,8 @@ internal data class ViewModelEventHandlers(
                 object : AddMoneyUsageViewModel.Event {
                     override suspend fun selectImages() = platformToolsProvider().imagePicker.pickImages()
 
+                    override suspend fun selectImage() = platformToolsProvider().imagePicker.pickImage()
+
                     override fun navigate(structure: ScreenStructure) {
                         navController.navigate(structure)
                     }
@@ -331,6 +333,8 @@ internal data class ViewModelEventHandlers(
             handler.collect(
                 object : MoneyUsageScreenViewModel.Event {
                     override suspend fun selectImages() = platformToolsProvider().imagePicker.pickImages()
+
+                    override suspend fun selectImage() = platformToolsProvider().imagePicker.pickImage()
 
                     override fun navigate(structure: ScreenStructure) {
                         navController.navigate(structure)
