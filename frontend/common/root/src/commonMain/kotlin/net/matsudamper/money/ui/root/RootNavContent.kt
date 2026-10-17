@@ -387,7 +387,6 @@ internal fun RootNavContent(
                                 val mode = when (current) {
                                     ScreenStructure.Root.Add.NotificationUsage -> NotificationUsageViewModel.Mode.AddFromNotification
                                     ScreenStructure.Root.Add.NotificationUsageDebug -> NotificationUsageViewModel.Mode.NotificationList
-                                    else -> error("Unsupported screen: $current")
                                 }
                                 val viewModel = LocalScopedObjectStore.current.putOrGet(current) {
                                     NotificationUsageViewModel(

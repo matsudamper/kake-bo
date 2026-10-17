@@ -25,9 +25,9 @@ import com.apollographql.apollo.cache.normalized.fetchPolicy
 import com.apollographql.apollo.cache.normalized.watch
 import net.matsudamper.money.element.MoneyUsageCategoryId
 import net.matsudamper.money.frontend.common.base.AppSettingsRepository
-import net.matsudamper.money.frontend.common.base.IO
 import net.matsudamper.money.frontend.common.base.ImmutableList
 import net.matsudamper.money.frontend.common.base.ImmutableList.Companion.toImmutableList
+import net.matsudamper.money.frontend.common.base.PlatformIO
 import net.matsudamper.money.frontend.common.base.nav.ScopedObjectFeature
 import net.matsudamper.money.frontend.common.base.nav.user.RootHomeScreenStructure
 import net.matsudamper.money.frontend.common.base.nav.user.ScreenNavController
@@ -258,7 +258,7 @@ public class RootHomeMonthlyCategoryScreenViewModel(
     private suspend fun fetchCategoryName() {
         val categoryId = viewModelStateFlow.value.categoryId
         val query = MonthlyCategoryScreenQuery(id = categoryId)
-        val response = withContext(Dispatchers.IO) {
+        val response = withContext(Dispatchers.PlatformIO) {
             graphqlClient.apolloClient.query(query)
                 .fetchPolicy(FetchPolicy.NetworkOnly)
                 .execute()
@@ -313,7 +313,7 @@ public class RootHomeMonthlyCategoryScreenViewModel(
     }
 
     private suspend fun queryExec(query: MonthlyCategoryScreenListQuery): ApolloResponse<MonthlyCategoryScreenListQuery.Data> {
-        return withContext(Dispatchers.IO) {
+        return withContext(Dispatchers.PlatformIO) {
             graphqlClient.apolloClient.query(query)
                 .fetchPolicy(FetchPolicy.NetworkOnly)
                 .execute()

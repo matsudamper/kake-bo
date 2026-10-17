@@ -1,4 +1,5 @@
 import org.jetbrains.compose.resources.ResourcesExtension
+import org.jetbrains.kotlin.gradle.ExperimentalWasmDsl
 
 plugins {
     alias(libs.plugins.kotlin.multiplatform)
@@ -24,6 +25,7 @@ kotlin {
             isIncludeAndroidResources = true
         }
     }
+    @OptIn(ExperimentalWasmDsl::class)
     wasmJs {
         browser()
     }

@@ -103,7 +103,7 @@ public class MoneyUsagesListViewModel(
                     val items = buildList {
                         var lastMonth: LocalDateTime? = null
                         nodes.forEach { result ->
-                            if (showsMonthTitle && (lastMonth == null || lastMonth?.month != result.date.month)) {
+                            if (showsMonthTitle && (lastMonth == null || lastMonth.month != result.date.month)) {
                                 add(
                                     RootUsageListScreenUiState.Item.Title(
                                         title = buildString {
