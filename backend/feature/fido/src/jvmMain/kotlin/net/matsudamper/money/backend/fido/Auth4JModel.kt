@@ -2,8 +2,8 @@ package net.matsudamper.money.backend.fido
 
 import java.util.Base64
 import com.webauthn4j.WebAuthnManager
-import com.webauthn4j.authenticator.Authenticator
-import com.webauthn4j.authenticator.AuthenticatorImpl
+import com.webauthn4j.credential.CredentialRecord
+import com.webauthn4j.credential.CredentialRecordImpl
 import com.webauthn4j.data.AuthenticationParameters
 import com.webauthn4j.data.AuthenticationRequest
 import com.webauthn4j.data.PublicKeyCredentialParameters
@@ -20,15 +20,17 @@ class Auth4JModel(
     challenge: String,
 ) {
     private val decoder = Base64.getDecoder()
-    private val serverProperty = ServerProperty(
-        setOf(
-            Origin("https://${ServerEnv.domain!!}"),
-            // https://passkeys-auth.com/docs/implementation/flutter/android/#origin
-            Origin("android:apk-key-hash:${ServerEnv.apkKeyHash}"),
-        ),
-        ServerEnv.domain!!,
-        { challenge.toByteArray() },
-    )
+    private val serverProperty = ServerProperty.builder()
+        .origins(
+            setOf(
+                Origin("https://${ServerEnv.domain!!}"),
+                // https://passkeys-auth.com/docs/implementation/flutter/android/#origin
+                Origin("android:apk-key-hash:${ServerEnv.apkKeyHash}"),
+            ),
+        )
+        .rpId(ServerEnv.domain!!)
+        .challenge { challenge.toByteArray() }
+        .build()
 
     fun register(
         base64AttestationObject: ByteArray,
@@ -37,7 +39,7 @@ class Auth4JModel(
     ): Base64FidoAuthenticator {
         val webAuthnManager = WebAuthnManager.createNonStrictWebAuthnManager()
 
-        val validatedData = webAuthnManager.validate(
+        val validatedData = webAuthnManager.verify(
             RegistrationRequest(
                 decoder.decode(base64AttestationObject),
                 decoder.decode(base64ClientDataJSON),
@@ -65,13 +67,20 @@ class Auth4JModel(
         )
         val attestationObject = validatedData.attestationObject
             ?: throw IllegalStateException("attestationObject is null. validatedData=$validatedData")
-        val authenticator = AuthenticatorImpl(
-            attestationObject.authenticatorData.attestedCredentialData!!,
+        val credentialRecord = CredentialRecordImpl(
             attestationObject.attestationStatement,
+            null,
+            null,
+            null,
             attestationObject.authenticatorData.signCount,
+            attestationObject.authenticatorData.attestedCredentialData!!,
+            null,
+            null,
+            null,
+            null,
         )
 
-        return AuthenticatorConverter.convertToBase64(authenticator)
+        return AuthenticatorConverter.convertToBase64(credentialRecord)
     }
 
     fun verify(
@@ -84,7 +93,7 @@ class Auth4JModel(
         base64Signature: ByteArray,
     ) {
         return verify(
-            authenticator = authenticator.authenticator,
+            credentialRecord = authenticator.credentialRecord,
             request = AuthenticationRequest(
                 credentialId,
                 decoder.decode(base64UserHandle),
@@ -97,7 +106,7 @@ class Auth4JModel(
     }
 
     private fun verify(
-        authenticator: Authenticator,
+        credentialRecord: CredentialRecord,
         request: AuthenticationRequest,
     ) {
         val webAuthnManager = WebAuthnManager.createNonStrictWebAuthnManager()
@@ -107,7 +116,7 @@ class Auth4JModel(
                 webAuthnManager.parse(request),
                 AuthenticationParameters(
                     serverProperty,
-                    authenticator,
+                    credentialRecord,
                     null,
                     true,
                     false,
