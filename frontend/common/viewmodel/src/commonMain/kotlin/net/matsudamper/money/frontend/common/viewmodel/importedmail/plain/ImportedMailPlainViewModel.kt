@@ -12,8 +12,8 @@ import com.apollographql.apollo.cache.normalized.FetchPolicy
 import com.apollographql.apollo.cache.normalized.fetchPolicy
 import net.matsudamper.money.element.ImportedMailId
 import net.matsudamper.money.frontend.common.base.HtmlEscape
-import net.matsudamper.money.frontend.common.base.IO
 import net.matsudamper.money.frontend.common.base.Logger
+import net.matsudamper.money.frontend.common.base.PlatformIO
 import net.matsudamper.money.frontend.common.base.nav.ScopedObjectFeature
 import net.matsudamper.money.frontend.common.ui.screen.importedmail.plain.ImportedMailPlainScreenUiState
 import net.matsudamper.money.frontend.common.viewmodel.CommonViewModel
@@ -104,7 +104,7 @@ public class ImportedMailPlainViewModel(
     }.asStateFlow()
 
     private fun fetch() {
-        viewModelScope.launch(Dispatchers.IO) {
+        viewModelScope.launch(Dispatchers.PlatformIO) {
             val result = runCatching {
                 graphqlClient.apolloClient.query(
                     ImportedMailPlainScreenQuery(

@@ -20,8 +20,8 @@ import com.apollographql.apollo.api.ApolloResponse
 import com.apollographql.apollo.api.Optional
 import com.apollographql.apollo.cache.normalized.FetchPolicy
 import com.apollographql.apollo.cache.normalized.fetchPolicy
-import net.matsudamper.money.frontend.common.base.IO
 import net.matsudamper.money.frontend.common.base.ImmutableList.Companion.toImmutableList
+import net.matsudamper.money.frontend.common.base.PlatformIO
 import net.matsudamper.money.frontend.common.base.nav.ScopedObjectFeature
 import net.matsudamper.money.frontend.common.base.nav.user.ScreenStructure
 import net.matsudamper.money.frontend.common.ui.screen.root.usage.CalendarDateListScreenUiState
@@ -175,7 +175,7 @@ public class CalendarDateListViewModel(
             ),
         )
 
-        val response = withContext(Dispatchers.IO) {
+        val response = withContext(Dispatchers.PlatformIO) {
             graphqlClient.apolloClient.query(query)
                 .fetchPolicy(FetchPolicy.NetworkOnly)
                 .execute()
