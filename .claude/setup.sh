@@ -297,12 +297,15 @@ YARN_OFFLINE_MIRROR="$HOME/.cache/yarn-offline-mirror"
 mkdir -p "$YARN_OFFLINE_MIRROR"
 if [ ! -f "$YARN_OFFLINE_MIRROR/$KARMA_SHA" ]; then
   karma_tmp=$(mktemp -d)
+  # 書き込み途中で中断されても完成品と誤認しないよう、一時ファイルに書いてから置き換える
+  karma_partial="$YARN_OFFLINE_MIRROR/$KARMA_SHA.partial"
   if git -C "$karma_tmp" init -q \
     && git -C "$karma_tmp" fetch -q --depth 1 https://github.com/Kotlin/karma "$KARMA_SHA" \
-    && git -C "$karma_tmp" archive --format=tar.gz --prefix=package/ -o "$YARN_OFFLINE_MIRROR/$KARMA_SHA" FETCH_HEAD; then
+    && git -C "$karma_tmp" archive --format=tar.gz --prefix=package/ -o "$karma_partial" FETCH_HEAD \
+    && mv "$karma_partial" "$YARN_OFFLINE_MIRROR/$KARMA_SHA"; then
     echo "karma tarball placed in yarn offline mirror: $YARN_OFFLINE_MIRROR/$KARMA_SHA"
   else
-    rm -f "$YARN_OFFLINE_MIRROR/$KARMA_SHA"
+    rm -f "$karma_partial"
     echo "WARNING: failed to prepare karma tarball. Kotlin/Wasm npm install may fail."
   fi
   rm -rf "$karma_tmp"
