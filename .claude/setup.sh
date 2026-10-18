@@ -286,5 +286,27 @@ if graalvm_home:
 else:
     print("WARNING: GraalVM not found in /opt/graalvm*. native-image will not be available.")
 
-print("Session start hook completed.")
 PYEOF
+
+# ── Kotlin/Wasm の npm ツールが使う karma ────────────────────────────────────
+# Kotlin プラグインは karma を github:Kotlin/karma から取るが、このセッションの GitHub プロキシは
+# codeload.github.com の tarball を拒否する。git fetch は通るので tarball を作り yarn の offline mirror に置く
+# Kotlin プラグインを更新して karma のコミットが変わったら KARMA_SHA も更新する
+KARMA_SHA=239a8fc984584f0d96b1dd750e7a5e2c79da93a6
+YARN_OFFLINE_MIRROR="$HOME/.cache/yarn-offline-mirror"
+mkdir -p "$YARN_OFFLINE_MIRROR"
+if [ ! -f "$YARN_OFFLINE_MIRROR/$KARMA_SHA" ]; then
+  karma_tmp=$(mktemp -d)
+  if git -C "$karma_tmp" init -q \
+    && git -C "$karma_tmp" fetch -q --depth 1 https://github.com/Kotlin/karma "$KARMA_SHA" \
+    && git -C "$karma_tmp" archive --format=tar.gz --prefix=package/ -o "$YARN_OFFLINE_MIRROR/$KARMA_SHA" FETCH_HEAD; then
+    echo "karma tarball placed in yarn offline mirror: $YARN_OFFLINE_MIRROR/$KARMA_SHA"
+  else
+    rm -f "$YARN_OFFLINE_MIRROR/$KARMA_SHA"
+    echo "WARNING: failed to prepare karma tarball. Kotlin/Wasm npm install may fail."
+  fi
+  rm -rf "$karma_tmp"
+fi
+printf 'yarn-offline-mirror "%s"\nyarn-offline-mirror-pruning false\n' "$YARN_OFFLINE_MIRROR" > "$HOME/.yarnrc"
+
+echo "Session start hook completed."
