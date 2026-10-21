@@ -184,7 +184,7 @@ graphqlJava = { module = "com.graphql-java:graphql-java", version.require = "26.
 graphqlJavaKickstart-JavaTools = { module = "com.graphql-java-kickstart:graphql-java-tools", version.require = "14.0.1" }
 
 # DataStore
-androidxDatastoreDatastore = { module = "androidx.datastore:datastore", version.require = "1.2.1" }
+androidxDatastoreDatastore = { module = "androidx.datastore:datastore", version.require = "1.3.0" }
 
 # Room
 roomRuntime = { module = "androidx.room:room-runtime", version.ref = "room" }
