@@ -40,13 +40,17 @@ public class StsCredentialProvider(
         userId: UserId,
         minimumRemaining: Duration,
     ): AwsSessionCredentials {
-        return credentialsCache.compute(userId) { _, cached ->
+        val usableCredentials = credentialsCache.compute(userId) { _, cached ->
             if (cached != null && cached.hasRemaining(minimumRemaining)) {
                 cached
             } else {
                 assumeRole(userId)
             }
-        }!!.credentials
+        }
+        if (usableCredentials == null) {
+            throw IllegalStateException("STS credentials cache returned null. userId=${userId.value}")
+        }
+        return usableCredentials.credentials
     }
 
     private fun assumeRole(userId: UserId): ExpiringCredentials {
