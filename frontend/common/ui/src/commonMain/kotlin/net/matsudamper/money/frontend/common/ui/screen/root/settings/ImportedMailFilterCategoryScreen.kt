@@ -20,6 +20,7 @@ import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.lazy.rememberLazyListState
+import androidx.compose.material3.Button
 import androidx.compose.material3.Card
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.DropdownMenu
@@ -28,9 +29,11 @@ import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.LocalContentColor
+import androidx.compose.material3.LocalTextStyle
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.MenuDefaults
 import androidx.compose.material3.OutlinedButton
+import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.SnackbarDuration
 import androidx.compose.material3.SnackbarHostState
 import androidx.compose.material3.SnackbarResult
@@ -46,11 +49,19 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.text.SpanStyle
+import androidx.compose.ui.text.buildAnnotatedString
+import androidx.compose.ui.text.font.FontFamily
+import androidx.compose.ui.text.input.OffsetMapping
+import androidx.compose.ui.text.input.TransformedText
+import androidx.compose.ui.text.style.TextDecoration
+import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.DpOffset
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.window.PopupProperties
 import net.matsudamper.money.frontend.common.base.ImmutableList
 import net.matsudamper.money.frontend.common.base.immutableListOf
+import net.matsudamper.money.frontend.common.ui.AppRoot
 import net.matsudamper.money.frontend.common.ui.base.CategorySelectDialog
 import net.matsudamper.money.frontend.common.ui.base.CategorySelectDialogUiState
 import net.matsudamper.money.frontend.common.ui.base.KakeBoTopAppBar
@@ -92,25 +103,10 @@ public data class ImportedMailFilterCategoryScreenUiState(
         public data class Loaded(
             val title: String,
             val category: Category?,
-            val conditions: ImmutableList<Condition>,
-            val operator: Operator,
+            val matchers: ImmutableList<Matcher>,
+            val matchExpression: MatchExpression,
             val event: LoadedEvent,
         ) : LoadingState
-    }
-
-    public enum class Operator {
-        AND,
-        OR,
-        UNKNOWN,
-        ;
-
-        internal fun getDisplayText(): String {
-            return when (this) {
-                AND -> "AND"
-                OR -> "OR"
-                UNKNOWN -> ""
-            }
-        }
     }
 
     public enum class DataSource {
@@ -136,7 +132,7 @@ public data class ImportedMailFilterCategoryScreenUiState(
         }
     }
 
-    public enum class ConditionType {
+    public enum class MatcherType {
         Include,
         NotInclude,
         Equal,
@@ -155,12 +151,32 @@ public data class ImportedMailFilterCategoryScreenUiState(
         }
     }
 
-    public data class Condition(
+    public data class Matcher(
+        val matcherKey: String,
         val text: String,
         val source: DataSource,
-        val conditionType: ConditionType,
-        val event: ConditionEvent,
+        val matcherType: MatcherType,
+        val event: MatcherEvent,
     )
+
+    /**
+     * @param errorRanges inputTextの中でエラーになっている文字範囲
+     */
+    public data class MatchExpression(
+        val inputText: String,
+        val errorRanges: ImmutableList<IntRange>,
+        val errorMessages: ImmutableList<String>,
+        val allowedCharactersDescription: String,
+        val isSaveEnabled: Boolean,
+        val event: MatchExpressionEvent,
+    )
+
+    @Immutable
+    public interface MatchExpressionEvent {
+        public fun onInputChange(text: String)
+
+        public fun onClickSave()
+    }
 
     public data class Category(
         val category: String,
@@ -175,23 +191,23 @@ public data class ImportedMailFilterCategoryScreenUiState(
     )
 
     @Immutable
-    public interface ConditionEvent {
+    public interface MatcherEvent {
+        public fun onClickMatcherKeyChange()
+
         public fun onClickTextChange()
 
         public fun selectedSource(source: DataSource)
 
-        public fun selectedConditionType(type: ConditionType)
+        public fun selectedMatcherType(type: MatcherType)
 
         public fun onClickDeleteMenu()
     }
 
     @Immutable
     public interface LoadedEvent {
-        public fun onClickAddCondition()
+        public fun onClickAddMatcher()
 
         public fun onClickNameChange()
-
-        public fun onSelectedOperator(operator: Operator)
 
         public fun onClickCategoryChange()
     }
@@ -448,46 +464,10 @@ private fun LoadedContent(
                         text = "条件",
                         style = MaterialTheme.typography.titleMedium,
                     )
-                    run {
-                        var visibleDropDown by remember { mutableStateOf(false) }
-                        DropDownButton(
-                            modifier = Modifier.padding(8.dp),
-                            item = {
-                                Text(uiState.operator.name)
-                            },
-                            visibleDropDown = visibleDropDown,
-                            onDismissRequest = {
-                                visibleDropDown = false
-                            },
-                            onClick = {
-                                visibleDropDown = !visibleDropDown
-                            },
-                            dropDown = {
-                                Column(modifier = Modifier.width(IntrinsicSize.Max)) {
-                                    immutableListOf(
-                                        ImportedMailFilterCategoryScreenUiState.Operator.AND,
-                                        ImportedMailFilterCategoryScreenUiState.Operator.OR,
-                                    ).forEach { operator ->
-                                        Box(
-                                            modifier = Modifier.fillMaxWidth()
-                                                .clickable {
-                                                    visibleDropDown = false
-                                                    uiState.event.onSelectedOperator(operator)
-                                                }
-                                                .padding(8.dp),
-                                        ) {
-                                            Text(text = operator.getDisplayText())
-                                        }
-                                    }
-                                }
-                            },
-                            contentDescription = "演算子を選択",
-                        )
-                    }
                     Spacer(modifier = Modifier.weight(1f))
                     OutlinedButton(
                         modifier = Modifier.padding(8.dp),
-                        onClick = { uiState.event.onClickAddCondition() },
+                        onClick = { uiState.event.onClickAddMatcher() },
                     ) {
                         Icon(painter = painterResource(Res.drawable.ic_add), contentDescription = null)
                         Text("追加")
@@ -495,7 +475,7 @@ private fun LoadedContent(
                 }
                 HorizontalDivider(modifier = Modifier.fillMaxWidth().height(1.dp))
             }
-            if (uiState.conditions.isEmpty()) {
+            if (uiState.matchers.isEmpty()) {
                 item {
                     Box(
                         modifier = Modifier.fillMaxWidth()
@@ -508,13 +488,20 @@ private fun LoadedContent(
                     }
                 }
             } else {
-                items(uiState.conditions) { item ->
-                    ConditionCard(
+                items(uiState.matchers) { item ->
+                    MatcherCard(
                         modifier = Modifier.fillMaxWidth()
                             .padding(vertical = 8.dp),
                         item = item,
                     )
                 }
+            }
+            item {
+                MatchExpressionSection(
+                    modifier = Modifier.fillMaxWidth()
+                        .padding(top = 16.dp),
+                    matchExpression = uiState.matchExpression,
+                )
             }
         }
     }
@@ -522,15 +509,34 @@ private fun LoadedContent(
 
 @OptIn(ExperimentalLayoutApi::class)
 @Composable
-private fun ConditionCard(
+private fun MatcherCard(
     modifier: Modifier = Modifier,
-    item: ImportedMailFilterCategoryScreenUiState.Condition,
+    item: ImportedMailFilterCategoryScreenUiState.Matcher,
 ) {
     Card(modifier = modifier) {
         Row(modifier = Modifier.padding(8.dp)) {
             Column(
                 modifier = Modifier.weight(1f),
             ) {
+                Row(
+                    modifier = Modifier
+                        .clip(MaterialTheme.shapes.medium)
+                        .clickable { item.event.onClickMatcherKeyChange() }
+                        .padding(8.dp),
+                ) {
+                    Text("キー")
+                    Spacer(modifier = Modifier.width(8.dp))
+                    Column(
+                        modifier = Modifier.weight(1f),
+                    ) {
+                        Text(
+                            text = item.matcherKey,
+                            fontFamily = FontFamily.Monospace,
+                        )
+                        HorizontalDivider(modifier = Modifier.fillMaxWidth().height(1.dp))
+                    }
+                }
+                Spacer(modifier = Modifier.height(8.dp))
                 FlowRow(
                     verticalArrangement = Arrangement.Center,
                 ) {
@@ -576,7 +582,9 @@ private fun ConditionCard(
                         )
                     }
                     Text(
-                        modifier = Modifier.padding(end = 4.dp),
+                        modifier = Modifier
+                            .align(Alignment.CenterVertically)
+                            .padding(end = 4.dp),
                         text = "に以下のテキストが",
                     )
                     run {
@@ -584,7 +592,7 @@ private fun ConditionCard(
                         DropDownButton(
                             modifier = Modifier.padding(end = 4.dp),
                             item = {
-                                Text(item.conditionType.getDisplayText())
+                                Text(item.matcherType.getDisplayText())
                             },
                             visibleDropDown = visibleDropDown,
                             onDismissRequest = {
@@ -596,17 +604,17 @@ private fun ConditionCard(
                             dropDown = {
                                 Column(modifier = Modifier.width(IntrinsicSize.Max)) {
                                     immutableListOf(
-                                        ImportedMailFilterCategoryScreenUiState.ConditionType.Include,
-                                        ImportedMailFilterCategoryScreenUiState.ConditionType.NotInclude,
-                                        ImportedMailFilterCategoryScreenUiState.ConditionType.Equal,
-                                        ImportedMailFilterCategoryScreenUiState.ConditionType.NotEqual,
+                                        ImportedMailFilterCategoryScreenUiState.MatcherType.Include,
+                                        ImportedMailFilterCategoryScreenUiState.MatcherType.NotInclude,
+                                        ImportedMailFilterCategoryScreenUiState.MatcherType.Equal,
+                                        ImportedMailFilterCategoryScreenUiState.MatcherType.NotEqual,
                                     ).forEach { type ->
                                         Box(
                                             modifier = Modifier
                                                 .fillMaxWidth()
                                                 .clickable {
                                                     visibleDropDown = false
-                                                    item.event.selectedConditionType(type)
+                                                    item.event.selectedMatcherType(type)
                                                 }
                                                 .padding(8.dp),
                                         ) {
@@ -619,6 +627,7 @@ private fun ConditionCard(
                         )
                     }
                     Text(
+                        modifier = Modifier.align(Alignment.CenterVertically),
                         text = "とき",
                     )
                 }
@@ -679,6 +688,84 @@ private fun ConditionCard(
 }
 
 @Composable
+private fun MatchExpressionSection(
+    modifier: Modifier = Modifier,
+    matchExpression: ImportedMailFilterCategoryScreenUiState.MatchExpression,
+) {
+    Column(modifier = modifier) {
+        Row(
+            verticalAlignment = Alignment.CenterVertically,
+        ) {
+            Text(
+                modifier = Modifier.padding(8.dp),
+                text = "式",
+                style = MaterialTheme.typography.titleMedium,
+            )
+            Spacer(modifier = Modifier.weight(1f))
+            Button(
+                modifier = Modifier.padding(8.dp),
+                enabled = matchExpression.isSaveEnabled,
+                onClick = { matchExpression.event.onClickSave() },
+            ) {
+                Text("保存")
+            }
+        }
+        HorizontalDivider(modifier = Modifier.fillMaxWidth().height(1.dp))
+        Text(
+            modifier = Modifier.padding(8.dp),
+            text = "例: id1 AND (id2 OR id3)",
+            style = MaterialTheme.typography.bodySmall,
+        )
+        Text(
+            modifier = Modifier.padding(horizontal = 8.dp),
+            text = "使える文字: ${matchExpression.allowedCharactersDescription}",
+            style = MaterialTheme.typography.bodySmall,
+        )
+        val errorTextColor = MaterialTheme.colorScheme.onErrorContainer
+        val errorBackgroundColor = MaterialTheme.colorScheme.errorContainer
+        OutlinedTextField(
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(8.dp),
+            value = matchExpression.inputText,
+            onValueChange = { matchExpression.event.onInputChange(it) },
+            textStyle = LocalTextStyle.current.copy(fontFamily = FontFamily.Monospace),
+            isError = matchExpression.errorMessages.isNotEmpty(),
+            minLines = 2,
+            visualTransformation = { text ->
+                TransformedText(
+                    text = buildAnnotatedString {
+                        append(text)
+                        matchExpression.errorRanges
+                            .filter { range -> !range.isEmpty() && range.last < text.length }
+                            .forEach { range ->
+                                addStyle(
+                                    style = SpanStyle(
+                                        color = errorTextColor,
+                                        background = errorBackgroundColor,
+                                        textDecoration = TextDecoration.Underline,
+                                    ),
+                                    start = range.first,
+                                    end = range.last + 1,
+                                )
+                            }
+                    },
+                    offsetMapping = OffsetMapping.Identity,
+                )
+            },
+        )
+        matchExpression.errorMessages.forEach { errorMessage ->
+            Text(
+                modifier = Modifier.padding(horizontal = 8.dp),
+                text = errorMessage,
+                color = MaterialTheme.colorScheme.error,
+                style = MaterialTheme.typography.bodySmall,
+            )
+        }
+    }
+}
+
+@Composable
 private fun DropDownButton(
     modifier: Modifier = Modifier,
     visibleDropDown: Boolean,
@@ -717,5 +804,72 @@ private fun DropDownButton(
                 dropDown()
             }
         }
+    }
+}
+
+@Composable
+@Preview
+private fun MatchExpressionErrorPreview() {
+    val matcherEvent = object : ImportedMailFilterCategoryScreenUiState.MatcherEvent {
+        override fun onClickMatcherKeyChange() {}
+        override fun onClickTextChange() {}
+        override fun selectedSource(source: ImportedMailFilterCategoryScreenUiState.DataSource) {}
+        override fun selectedMatcherType(type: ImportedMailFilterCategoryScreenUiState.MatcherType) {}
+        override fun onClickDeleteMenu() {}
+    }
+    AppRoot {
+        ImportedMailFilterCategoryScreen(
+            uiState = ImportedMailFilterCategoryScreenUiState(
+                loadingState = ImportedMailFilterCategoryScreenUiState.LoadingState.Loaded(
+                    title = "カード払いの日用品",
+                    category = ImportedMailFilterCategoryScreenUiState.Category(
+                        category = "買い物",
+                        subCategory = "日用品",
+                    ),
+                    matchers = immutableListOf(
+                        ImportedMailFilterCategoryScreenUiState.Matcher(
+                            matcherKey = "card",
+                            text = "カード",
+                            source = ImportedMailFilterCategoryScreenUiState.DataSource.ServiceName,
+                            matcherType = ImportedMailFilterCategoryScreenUiState.MatcherType.Include,
+                            event = matcherEvent,
+                        ),
+                    ),
+                    matchExpression = ImportedMailFilterCategoryScreenUiState.MatchExpression(
+                        inputText = "card AND (shop-a OR shop-c)\nAND !Unknown && TRUE",
+                        errorRanges = immutableListOf(20..25, 33..39, 41..42),
+                        errorMessages = immutableListOf(
+                            "存在しないキーです: shop-c",
+                            "知らないキーワードです: Unknown",
+                            "使えない文字があります: &&",
+                        ),
+                        allowedCharactersDescription = "キー（半角小文字の英字・数字・_・-）、AND、OR、!、(、)、TRUE、FALSE、空白、改行",
+                        isSaveEnabled = true,
+                        event = object : ImportedMailFilterCategoryScreenUiState.MatchExpressionEvent {
+                            override fun onInputChange(text: String) {}
+                            override fun onClickSave() {}
+                        },
+                    ),
+                    event = object : ImportedMailFilterCategoryScreenUiState.LoadedEvent {
+                        override fun onClickAddMatcher() {}
+                        override fun onClickNameChange() {}
+                        override fun onClickCategoryChange() {}
+                    },
+                ),
+                textInput = null,
+                confirmDialog = null,
+                snackbarEventState = SnackbarEventState(),
+                categorySelectDialogUiState = null,
+                kakeboScaffoldListener = object : KakeboScaffoldListener {
+                    override fun onClickTitle() {}
+                },
+                event = object : ImportedMailFilterCategoryScreenUiState.Event {
+                    override fun onViewInitialized() {}
+                    override fun onClickMenuDelete() {}
+                    override fun onClickBack() {}
+                },
+            ),
+            windowInsets = PaddingValues(0.dp),
+        )
     }
 }

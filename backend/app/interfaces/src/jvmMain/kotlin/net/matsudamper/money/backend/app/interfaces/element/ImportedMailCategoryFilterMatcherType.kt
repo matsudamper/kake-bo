@@ -1,6 +1,6 @@
 package net.matsudamper.money.backend.app.interfaces.element
 
-enum class ImportedMailCategoryFilterConditionType {
+enum class ImportedMailCategoryFilterMatcherType {
     Include,
     NotInclude,
     Equal,

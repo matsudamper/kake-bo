@@ -27,15 +27,23 @@ type ImportedMailCategoryFilter {
     subCategory: MoneyUsageSubCategory @lazy
     orderNumber: Int! @lazy
     operator: ImportedMailFilterCategoryConditionOperator! @lazy
+    """
+    matcherKeyを使った論理式。nullの場合はoperatorで全matcherをつないで判定する
+    """
+    matchExpression: String @lazy
 
-    conditions: [ImportedMailCategoryCondition!] @lazy
+    matchers: [ImportedMailCategoryFilterMatcher!] @lazy
 }
 
-type ImportedMailCategoryCondition {
-    id: ImportedMailCategoryFilterConditionId!
+type ImportedMailCategoryFilterMatcher {
+    id: ImportedMailCategoryFilterMatcherId!
+    """
+    フィルタ内でmatchExpressionから参照するためのキー
+    """
+    matcherKey: String! @lazy
     text: String! @lazy
     dataSourceType: ImportedMailCategoryFilterDataSourceType! @lazy
-    conditionType: ImportedMailCategoryFilterConditionType! @lazy
+    matcherType: ImportedMailCategoryFilterMatcherType! @lazy
 }
 
 enum ImportedMailCategoryFilterDataSourceType {
@@ -47,7 +55,7 @@ enum ImportedMailCategoryFilterDataSourceType {
     ServiceName
 }
 
-enum ImportedMailCategoryFilterConditionType {
+enum ImportedMailCategoryFilterMatcherType {
     Include
     NotInclude
     Equal

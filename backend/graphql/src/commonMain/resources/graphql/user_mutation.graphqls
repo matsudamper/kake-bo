@@ -29,9 +29,9 @@ type UserMutation {
     updateImportedMailCategoryFilter(input: UpdateImportedMailCategoryFilterInput!): ImportedMailCategoryFilter
     deleteImportedMailCategoryFilter(id: ImportedMailCategoryFilterId!): Boolean!
 
-    addImportedMailCategoryFilterCondition(input: AddImportedMailCategoryFilterConditionInput!): ImportedMailCategoryFilter
-    updateImportedMailCategoryFilterCondition(input: UpdateImportedMailCategoryFilterConditionInput!): ImportedMailCategoryCondition
-    deleteImportedMailCategoryFilterCondition(id: ImportedMailCategoryFilterConditionId!): Boolean!
+    addImportedMailCategoryFilterMatcher(input: AddImportedMailCategoryFilterMatcherInput!): ImportedMailCategoryFilter
+    updateImportedMailCategoryFilterMatcher(input: UpdateImportedMailCategoryFilterMatcherInput!): ImportedMailCategoryFilterMatcher
+    deleteImportedMailCategoryFilterMatcher(id: ImportedMailCategoryFilterMatcherId!): Boolean!
 
     registerFido(input: RegisterFidoInput!): RegisteredFidoResult!
     deleteFido(id: FidoId!): DeleteFidoResult!
@@ -99,20 +99,24 @@ input UpdateUsageQuery {
     imageIds: [ImageId!]
 }
 
-input UpdateImportedMailCategoryFilterConditionInput {
-    id: ImportedMailCategoryFilterConditionId!
+input UpdateImportedMailCategoryFilterMatcherInput {
+    id: ImportedMailCategoryFilterMatcherId!
 
+    """
+    半角小文字の英字・数字・_・- のみ使用できる。フィルタ内で重複できない
+    """
+    matcherKey: String
     text: String
     dataSourceType: ImportedMailCategoryFilterDataSourceType
-    conditionType: ImportedMailCategoryFilterConditionType
+    matcherType: ImportedMailCategoryFilterMatcherType
 }
 
-input AddImportedMailCategoryFilterConditionInput {
+input AddImportedMailCategoryFilterMatcherInput {
     id: ImportedMailCategoryFilterId!
 
     text: String
     dataSourceType: ImportedMailCategoryFilterDataSourceType
-    conditionType: ImportedMailCategoryFilterConditionType
+    matcherType: ImportedMailCategoryFilterMatcherType
 }
 
 input AddImportedMailCategoryFilterInput {
@@ -126,6 +130,10 @@ input UpdateImportedMailCategoryFilterInput {
     subCategoryId: MoneyUsageSubCategoryId
     orderNumber: Int
     operator: ImportedMailFilterCategoryConditionOperator
+    """
+    nullまたは空白のみを指定すると式を解除し、operatorで判定するようにする
+    """
+    matchExpression: String @optional
 }
 
 input UpdateSubCategoryQuery {
