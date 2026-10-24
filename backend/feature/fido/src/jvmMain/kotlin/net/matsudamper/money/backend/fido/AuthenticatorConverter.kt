@@ -1,10 +1,10 @@
 package net.matsudamper.money.backend.fido
 
 import java.util.Base64
-import com.webauthn4j.authenticator.Authenticator
-import com.webauthn4j.authenticator.AuthenticatorImpl
 import com.webauthn4j.converter.AttestedCredentialDataConverter
 import com.webauthn4j.converter.util.ObjectConverter
+import com.webauthn4j.credential.CredentialRecord
+import com.webauthn4j.credential.CredentialRecordImpl
 
 object AuthenticatorConverter {
     private val objectConverter = ObjectConverter()
@@ -13,20 +13,20 @@ object AuthenticatorConverter {
     private val base64Encoder = Base64.getEncoder()
     private val base64Decoder = Base64.getDecoder()
 
-    internal fun convertToBase64(authenticator: Authenticator): Base64FidoAuthenticator {
-        val attestationStatement = authenticator.attestationStatement
-            ?: throw IllegalStateException("attestationStatement is null. authenticator=$authenticator")
+    internal fun convertToBase64(credentialRecord: CredentialRecord): Base64FidoAuthenticator {
+        val attestationStatement = credentialRecord.attestationStatement
+            ?: throw IllegalStateException("attestationStatement is null. credentialRecord=$credentialRecord")
 
         return Base64FidoAuthenticator(
             base64AttestationStatement = base64Encoder.encodeToString(
-                objectConverter.cborConverter.writeValueAsBytes(attestationStatement),
+                objectConverter.cborMapper.writeValueAsBytes(attestationStatement),
             ),
             attestationStatementFormat = attestationStatement.format,
             base64AttestedCredentialData = base64Encoder.encodeToString(
-                attestedCredentialDataConverter.convert(authenticator.attestedCredentialData),
+                attestedCredentialDataConverter.convert(credentialRecord.attestedCredentialData),
             ),
-            counter = authenticator.counter,
-            base64CredentialId = base64Encoder.encodeToString(authenticator.attestedCredentialData.credentialId),
+            counter = credentialRecord.counter,
+            base64CredentialId = base64Encoder.encodeToString(credentialRecord.attestedCredentialData.credentialId),
         )
     }
 
@@ -36,25 +36,32 @@ object AuthenticatorConverter {
         base64AttestedCredentialData: String,
         counter: Long,
     ): FidoAuthenticatorWrapper {
-        val authenticator = AuthenticatorImpl(
-            attestedCredentialDataConverter.convert(
-                base64Decoder.decode(base64AttestedCredentialData),
-            ),
+        val credentialRecord = CredentialRecordImpl(
             // 検証しない
             // https://www.w3.org/TR/webauthn-1/#sctn-no-attestation-security-attestation
             // https://developers.yubico.com/WebAuthn/WebAuthn_Developer_Guide/Attestation.html
             null,
+            null,
+            null,
+            null,
             counter,
+            attestedCredentialDataConverter.convert(
+                base64Decoder.decode(base64AttestedCredentialData),
+            ),
+            null,
+            null,
+            null,
+            null,
         )
         return FidoAuthenticatorWrapper(
-            authenticator = authenticator,
+            credentialRecord = credentialRecord,
         )
     }
 }
 
 class FidoAuthenticatorWrapper(
-    internal val authenticator: Authenticator,
+    internal val credentialRecord: CredentialRecord,
 ) {
-    val credentialId: ByteArray = authenticator.attestedCredentialData.credentialId
-    val counter: Long = authenticator.counter
+    val credentialId: ByteArray = credentialRecord.attestedCredentialData.credentialId
+    val counter: Long = credentialRecord.counter
 }
