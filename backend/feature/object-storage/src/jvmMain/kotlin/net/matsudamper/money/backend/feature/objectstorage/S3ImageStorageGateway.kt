@@ -34,7 +34,10 @@ class S3ImageStorageGateway(
 
         // presigned URLはクレデンシャル失効時点で無効になるため、署名期間分の残りを要求する
         val CREDENTIAL_REMAINING_FOR_PRESIGN: Duration = PRESIGNED_URL_DURATION.plusMinutes(5)
-        val CREDENTIAL_REMAINING_FOR_OPERATION: Duration = Duration.ofMinutes(10)
+        val CREDENTIAL_REMAINING_FOR_DELETE: Duration = Duration.ofMinutes(10)
+
+        // アップロード中はクレデンシャルを更新しないため、クライアントからの受信が遅くても完了できる長さにする
+        val CREDENTIAL_REMAINING_FOR_UPLOAD: Duration = Duration.ofMinutes(30)
     }
 
     override val storageType: ImageStorageGateway.StorageType = ImageStorageGateway.StorageType.S3
@@ -83,7 +86,7 @@ class S3ImageStorageGateway(
         val s3Client = runCatching {
             val credentials = stsCredentialProvider.assumeWithWebIdentity(
                 userId = request.userId,
-                minimumRemaining = CREDENTIAL_REMAINING_FOR_OPERATION,
+                minimumRemaining = CREDENTIAL_REMAINING_FOR_UPLOAD,
             )
             buildS3Client(credentials)
         }.getOrElse { e ->
@@ -190,7 +193,7 @@ class S3ImageStorageGateway(
         return runCatching {
             val credentials = stsCredentialProvider.assumeWithWebIdentity(
                 userId = request.userId,
-                minimumRemaining = CREDENTIAL_REMAINING_FOR_OPERATION,
+                minimumRemaining = CREDENTIAL_REMAINING_FOR_DELETE,
             )
             buildS3Client(credentials).use { s3Client ->
                 val deleteObjectRequest = DeleteObjectRequest.builder()
