@@ -10,8 +10,8 @@ import kotlinx.datetime.Clock
 import kotlinx.datetime.TimeZone
 import kotlinx.datetime.toLocalDateTime
 import com.apollographql.apollo.api.Optional
-import com.apollographql.apollo.cache.normalized.FetchPolicy
-import com.apollographql.apollo.cache.normalized.fetchPolicy
+import com.apollographql.cache.normalized.FetchPolicy
+import com.apollographql.cache.normalized.fetchPolicy
 import net.matsudamper.money.element.MoneyUsageCategoryId
 import net.matsudamper.money.element.MoneyUsageSubCategoryId
 import net.matsudamper.money.frontend.common.base.ImmutableList

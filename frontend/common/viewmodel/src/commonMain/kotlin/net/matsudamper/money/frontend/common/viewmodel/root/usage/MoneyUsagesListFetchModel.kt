@@ -18,14 +18,15 @@ import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import com.apollographql.apollo.api.ApolloResponse
 import com.apollographql.apollo.api.Optional
-import com.apollographql.apollo.cache.normalized.FetchPolicy
-import com.apollographql.apollo.cache.normalized.fetchPolicy
-import com.apollographql.apollo.cache.normalized.watch
+import com.apollographql.cache.normalized.FetchPolicy
+import com.apollographql.cache.normalized.fetchPolicy
+import com.apollographql.cache.normalized.watch
 import net.matsudamper.money.element.MoneyUsageCategoryId
 import net.matsudamper.money.element.MoneyUsageSubCategoryId
 import net.matsudamper.money.frontend.common.base.PlatformIO
 import net.matsudamper.money.frontend.graphql.GraphqlClient
 import net.matsudamper.money.frontend.graphql.UsageListScreenPagingQuery
+import net.matsudamper.money.frontend.graphql.type.MoneyUsagesConnection
 import net.matsudamper.money.frontend.graphql.type.MoneyUsagesQuery
 import net.matsudamper.money.frontend.graphql.type.MoneyUsagesQueryFilter
 import net.matsudamper.money.frontend.graphql.type.MoneyUsagesQueryOrderType
@@ -162,6 +163,7 @@ public class MoneyUsagesListFetchModel(
                                     val usages = user.moneyUsages ?: return@let null
                                     user.copy(
                                         moneyUsages = UsageListScreenPagingQuery.MoneyUsages(
+                                            __typename = MoneyUsagesConnection.type.name,
                                             cursor = newMoneyUsage.cursor,
                                             hasMore = newMoneyUsage.hasMore,
                                             nodes = usages.nodes + newMoneyUsage.nodes,

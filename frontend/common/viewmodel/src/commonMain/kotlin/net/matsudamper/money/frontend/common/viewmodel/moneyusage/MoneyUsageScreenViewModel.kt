@@ -10,10 +10,10 @@ import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import kotlinx.datetime.LocalDateTime
 import com.apollographql.apollo.api.ApolloResponse
-import com.apollographql.apollo.cache.normalized.FetchPolicy
-import com.apollographql.apollo.cache.normalized.fetchPolicy
-import com.apollographql.apollo.cache.normalized.isFromCache
-import com.apollographql.apollo.cache.normalized.watch
+import com.apollographql.cache.normalized.FetchPolicy
+import com.apollographql.cache.normalized.fetchPolicy
+import com.apollographql.cache.normalized.isFromCache
+import com.apollographql.cache.normalized.watch
 import net.matsudamper.money.element.ImageId
 import net.matsudamper.money.element.MoneyUsageId
 import net.matsudamper.money.frontend.common.base.ImmutableList.Companion.toImmutableList

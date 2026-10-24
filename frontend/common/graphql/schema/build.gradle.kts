@@ -56,6 +56,8 @@ apollo {
             file("src/commonMain/graphql/extra.graphqls"),
         )
         plugin(project(":frontend:common:graphql:apollo-compiler-plugin"))
+        plugin(libs.apolloNormalizedCacheCompilerPlugin)
+        pluginArgument("com.apollographql.cache.packageName", packageName.get())
     }
 }
 
