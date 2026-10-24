@@ -10,6 +10,7 @@ import kotlin.collections.List
 import net.matsudamper.money.db.schema.JMoney
 import net.matsudamper.money.db.schema.indexes.MONEY_USAGE_IMAGES_RELATION_USER_IMAGE_ID
 import net.matsudamper.money.db.schema.indexes.MONEY_USAGE_IMAGES_RELATION_USER_MONEY_USAGE_ID
+import net.matsudamper.money.db.schema.indexes.MONEY_USAGE_IMAGES_RELATION_USER_MONEY_USAGE_IMAGE_ORDER
 import net.matsudamper.money.db.schema.keys.KEY_MONEY_USAGE_IMAGES_RELATION_PRIMARY
 import net.matsudamper.money.db.schema.tables.records.JMoneyUsageImagesRelationRecord
 
@@ -115,7 +116,7 @@ open class JMoneyUsageImagesRelation(
      */
     constructor(): this(DSL.name("money_usage_images_relation"), null)
     override fun getSchema(): Schema? = if (aliased()) null else JMoney.MONEY
-    override fun getIndexes(): List<Index> = listOf(MONEY_USAGE_IMAGES_RELATION_USER_IMAGE_ID, MONEY_USAGE_IMAGES_RELATION_USER_MONEY_USAGE_ID)
+    override fun getIndexes(): List<Index> = listOf(MONEY_USAGE_IMAGES_RELATION_USER_IMAGE_ID, MONEY_USAGE_IMAGES_RELATION_USER_MONEY_USAGE_ID, MONEY_USAGE_IMAGES_RELATION_USER_MONEY_USAGE_IMAGE_ORDER)
     override fun getPrimaryKey(): UniqueKey<JMoneyUsageImagesRelationRecord> = KEY_MONEY_USAGE_IMAGES_RELATION_PRIMARY
     override fun `as`(alias: String): JMoneyUsageImagesRelation = JMoneyUsageImagesRelation(DSL.name(alias), this)
     override fun `as`(alias: Name): JMoneyUsageImagesRelation = JMoneyUsageImagesRelation(alias, this)

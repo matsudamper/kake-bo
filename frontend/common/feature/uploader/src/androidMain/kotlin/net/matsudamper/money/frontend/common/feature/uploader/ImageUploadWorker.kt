@@ -23,20 +23,15 @@ import kotlinx.coroutines.NonCancellable
 import kotlinx.coroutines.flow.firstOrNull
 import kotlinx.coroutines.withContext
 import kotlinx.serialization.json.Json
-import com.apollographql.apollo.api.Optional
-import com.apollographql.apollo.cache.normalized.FetchPolicy
-import com.apollographql.apollo.cache.normalized.fetchPolicy
 import net.matsudamper.money.element.ImageId
 import net.matsudamper.money.element.MoneyUsageId
 import net.matsudamper.money.frontend.common.base.Logger
 import net.matsudamper.money.frontend.common.feature.localstore.DataStores
 import net.matsudamper.money.frontend.graphql.GraphqlClient
-import net.matsudamper.money.frontend.graphql.MoneyUsageScreenQuery
-import net.matsudamper.money.frontend.graphql.MoneyUsageScreenUpdateUsageMutation
+import net.matsudamper.money.frontend.graphql.MoneyUsageScreenAddImageMutation
 import net.matsudamper.money.frontend.graphql.ServerHostConfig
 import net.matsudamper.money.frontend.graphql.serverHost
 import net.matsudamper.money.frontend.graphql.serverProtocol
-import net.matsudamper.money.frontend.graphql.type.UpdateUsageQuery
 import net.matsudamper.money.image.ImageUploadApiPath
 import net.matsudamper.money.image.ImageUploadImageResponse
 import okhttp3.MediaType.Companion.toMediaTypeOrNull
@@ -144,33 +139,16 @@ internal class ImageUploadWorker(
             return Result.failure()
         }
 
-        val moneyUsageId = MoneyUsageId(id = entity.moneyUsageId)
-        val currentImageIds = runCatching {
-            graphqlClient.apolloClient
-                .query(MoneyUsageScreenQuery(id = moneyUsageId))
-                .fetchPolicy(FetchPolicy.NetworkOnly)
-                .execute()
-                .data?.user?.moneyUsage?.moneyUsageScreenMoneyUsage?.images
-                ?.map { it.id }
-        }.onFailure {
-            Logger.e(TAG, it)
-        }.getOrNull()
-
-        val updatedImageIds = ((currentImageIds ?: listOf()) + uploadedImageId)
-            .distinctBy { it.value }
-
         val mutationResult = runCatching {
             graphqlClient.apolloClient
                 .mutation(
-                    MoneyUsageScreenUpdateUsageMutation(
-                        query = UpdateUsageQuery(
-                            id = moneyUsageId,
-                            imageIds = Optional.present(updatedImageIds),
-                        ),
+                    MoneyUsageScreenAddImageMutation(
+                        usageId = MoneyUsageId(id = entity.moneyUsageId),
+                        imageId = uploadedImageId,
                     ),
                 )
                 .execute()
-                .data?.userMutation?.updateUsage != null
+                .data?.userMutation?.addMoneyUsageImage != null
         }
 
         if (!mutationResult.getOrDefault(false)) {

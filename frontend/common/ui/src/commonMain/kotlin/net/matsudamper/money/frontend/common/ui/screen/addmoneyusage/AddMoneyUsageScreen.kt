@@ -1,6 +1,5 @@
 package net.matsudamper.money.frontend.common.ui.screen.addmoneyusage
 
-import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -37,20 +36,15 @@ import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.Immutable
 import androidx.compose.runtime.LaunchedEffect
-import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
-import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.window.Dialog
 import kotlinx.datetime.LocalDate
 import kotlinx.datetime.LocalTime
-import coil3.compose.SubcomposeAsyncImage
 import net.matsudamper.money.frontend.common.base.ImmutableList
 import net.matsudamper.money.frontend.common.ui.AppRoot
 import net.matsudamper.money.frontend.common.ui.base.CategorySelectDialog
@@ -67,15 +61,19 @@ import net.matsudamper.money.frontend.common.ui.layout.NumberInputValue
 import net.matsudamper.money.frontend.common.ui.layout.SnackbarEventState
 import net.matsudamper.money.frontend.common.ui.layout.TimePickerDialog
 import net.matsudamper.money.frontend.common.ui.layout.html.text.fullscreen.FullScreenTextInput
-import net.matsudamper.money.frontend.common.ui.layout.image.ImageLoadingPlaceholder
 import net.matsudamper.money.frontend.common.ui.layout.image.ImageUploadButton
+import net.matsudamper.money.frontend.common.ui.layout.image.MoneyUsageImageThumbnail
+import net.matsudamper.money.frontend.common.ui.layout.image.MoneyUsageImageThumbnailUiState
 import net.matsudamper.money.frontend.common.ui.layout.image.ZoomableImageDialog
 import net.matsudamper.money.frontend.common.ui.lib.asWindowInsets
 import org.jetbrains.compose.resources.painterResource
 
 public sealed interface ImageItem {
     public data object Uploading : ImageItem
-    public data class Uploaded(val url: String) : ImageItem
+
+    public data class Uploaded(
+        val thumbnail: MoneyUsageImageThumbnailUiState,
+    ) : ImageItem
 }
 
 public data class AddMoneyUsageScreenUiState(
@@ -92,6 +90,7 @@ public data class AddMoneyUsageScreenUiState(
     val category: String,
     val amount: String,
     val images: ImmutableList<ImageItem>,
+    val zoomImageDialog: ZoomImageDialog?,
     val addButtonEnabled: Boolean,
     val handleBackPress: Boolean,
     val event: Event,
@@ -138,6 +137,16 @@ public data class AddMoneyUsageScreenUiState(
         val selectedDate: LocalDate,
     )
 
+    public data class ZoomImageDialog(
+        val url: String,
+        val event: Event,
+    ) {
+        @Immutable
+        public interface Event {
+            public fun onDismissRequest()
+        }
+    }
+
     public data class TimePickerDialog(
         val selectedTime: LocalTime,
     )
@@ -182,7 +191,6 @@ public fun AddMoneyUsageScreen(
         uiState.event.onBack()
     }
 
-    var selectedImageUrl by remember { mutableStateOf<String?>(null) }
     val snackbarHostState = remember { SnackbarHostState() }
 
     LaunchedEffect(uiState.snackbarEventState) {
@@ -392,14 +400,9 @@ public fun AddMoneyUsageScreen(
                                                 }
                                             }
                                             is ImageItem.Uploaded -> {
-                                                SubcomposeAsyncImage(
-                                                    model = image.url,
-                                                    contentDescription = null,
-                                                    contentScale = ContentScale.Crop,
-                                                    modifier = Modifier
-                                                        .size(120.dp)
-                                                        .clickable { selectedImageUrl = image.url },
-                                                    loading = { ImageLoadingPlaceholder() },
+                                                MoneyUsageImageThumbnail(
+                                                    uiState = image.thumbnail,
+                                                    modifier = Modifier.size(120.dp),
                                                 )
                                             }
                                         }
@@ -466,10 +469,10 @@ public fun AddMoneyUsageScreen(
         )
     }
 
-    selectedImageUrl?.let { imageUrl ->
+    if (uiState.zoomImageDialog != null) {
         ZoomableImageDialog(
-            imageUrl = imageUrl,
-            onDismissRequest = { selectedImageUrl = null },
+            imageUrl = uiState.zoomImageDialog.url,
+            onDismissRequest = { uiState.zoomImageDialog.event.onDismissRequest() },
         )
     }
 }
@@ -578,6 +581,7 @@ private fun AddMoneyUsageScreenPreview() {
                 category = "食費",
                 amount = "¥3,500",
                 images = ImmutableList(listOf()),
+                zoomImageDialog = null,
                 addButtonEnabled = true,
                 handleBackPress = false,
                 event = object : AddMoneyUsageScreenUiState.Event {

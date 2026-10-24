@@ -19,6 +19,7 @@ import net.matsudamper.money.backend.app.interfaces.MoneyUsageCategoryRepository
 import net.matsudamper.money.backend.app.interfaces.MoneyUsagePresetRepository
 import net.matsudamper.money.backend.app.interfaces.MoneyUsageRepository
 import net.matsudamper.money.backend.app.interfaces.MoneyUsageSubCategoryRepository
+import net.matsudamper.money.backend.app.interfaces.UsageImageRelationDao
 import net.matsudamper.money.backend.app.interfaces.UserConfigRepository
 import net.matsudamper.money.backend.app.interfaces.UserImageRepository
 import net.matsudamper.money.backend.app.interfaces.UserLoginRepository
@@ -48,6 +49,7 @@ import net.matsudamper.money.backend.datasource.db.repository.DbUserLoginReposit
 import net.matsudamper.money.backend.datasource.db.repository.DbUserRepository
 import net.matsudamper.money.backend.datasource.db.repository.DeleteUsageImageRelationDaoImpl
 import net.matsudamper.money.backend.datasource.db.repository.EnvAdminLoginRepository
+import net.matsudamper.money.backend.datasource.db.repository.UsageImageRelationDaoImpl
 import net.matsudamper.money.backend.datasource.session.AdminSessionRepositoryProvider
 import net.matsudamper.money.backend.datasource.session.UserSessionRepositoryProvider
 import net.matsudamper.money.backend.feature.gemini.GeminiGatewayImpl
@@ -96,6 +98,8 @@ interface DiContainer {
     fun createChallengeRepository(): ChallengeRepository
 
     fun createDeleteUsageImageRelationDao(): DeleteUsageImageRelationDao
+
+    fun createUsageImageRelationDao(): UsageImageRelationDao
 
     fun createAdminUserSessionRepository(): AdminSessionRepository
 
@@ -246,6 +250,17 @@ class MainDiContainer : DiContainer {
 
     override fun createDeleteUsageImageRelationDao(): DeleteUsageImageRelationDao {
         return deleteUsageImageRelationDao
+    }
+
+    private val usageImageRelationDao by lazy {
+        UsageImageRelationDaoImpl(
+            localImageStorageGateway = localImageStorageGateway,
+            s3ImageStorageGateway = s3ImageStorageGateway,
+        )
+    }
+
+    override fun createUsageImageRelationDao(): UsageImageRelationDao {
+        return usageImageRelationDao
     }
 
     private val fidoRepository = DbFidoRepository(dbConnection = DbConnectionImpl)

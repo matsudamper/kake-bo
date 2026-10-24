@@ -19,17 +19,22 @@ import org.w3c.files.File
 
 internal class ImagePickerImpl : ImagePicker {
     override suspend fun pickImages(): List<SelectedImage> {
-        val files = pickFiles()
+        val files = pickFiles(multiple = true)
         return runCatching {
             files.mapNotNull { file -> file.toSelectedImage() }
         }.getOrElse { emptyList() }
     }
 
-    private suspend fun pickFiles(): List<File> = suspendCancellableCoroutine { continuation ->
+    override suspend fun pickImage(): SelectedImage? {
+        val file = pickFiles(multiple = false).firstOrNull() ?: return null
+        return runCatching { file.toSelectedImage() }.getOrNull()
+    }
+
+    private suspend fun pickFiles(multiple: Boolean): List<File> = suspendCancellableCoroutine { continuation ->
         val input = document.createElement("input") as HTMLInputElement
         input.type = "file"
         input.accept = "image/*"
-        input.multiple = true
+        input.multiple = multiple
         input.style.display = "none"
         document.body?.appendChild(input)
 
