@@ -28,6 +28,13 @@ class S3ImageStorageGateway(
     private companion object {
         /** S3 マルチパートアップロードの1パートサイズ（最小5MB） */
         const val MULTIPART_PART_SIZE = 5 * 1024 * 1024
+
+        // キャッシュしたSTSクレデンシャルを再利用できるよう、クレデンシャルの有効期間より十分短くする
+        val PRESIGNED_URL_DURATION: Duration = Duration.ofMinutes(15)
+
+        // presigned URLはクレデンシャル失効時点で無効になるため、署名期間分の残りを要求する
+        val CREDENTIAL_REMAINING_FOR_PRESIGN: Duration = PRESIGNED_URL_DURATION.plusMinutes(5)
+        val CREDENTIAL_REMAINING_FOR_OPERATION: Duration = Duration.ofMinutes(10)
     }
 
     override val storageType: ImageStorageGateway.StorageType = ImageStorageGateway.StorageType.S3
@@ -74,7 +81,10 @@ class S3ImageStorageGateway(
     private fun putWithMultipart(request: ImageStorageGateway.PutRequest): ImageStorageGateway.PutResult {
         val key = buildKey(request.relativePath)
         val s3Client = runCatching {
-            val credentials = stsCredentialProvider.assumeWithWebIdentity(userId = request.userId)
+            val credentials = stsCredentialProvider.assumeWithWebIdentity(
+                userId = request.userId,
+                minimumRemaining = CREDENTIAL_REMAINING_FOR_OPERATION,
+            )
             buildS3Client(credentials)
         }.getOrElse { e ->
             return ImageStorageGateway.PutResult.Failure(e)
@@ -178,7 +188,10 @@ class S3ImageStorageGateway(
         val key = buildKey(request.relativePath)
 
         return runCatching {
-            val credentials = stsCredentialProvider.assumeWithWebIdentity(userId = request.userId)
+            val credentials = stsCredentialProvider.assumeWithWebIdentity(
+                userId = request.userId,
+                minimumRemaining = CREDENTIAL_REMAINING_FOR_OPERATION,
+            )
             buildS3Client(credentials).use { s3Client ->
                 val deleteObjectRequest = DeleteObjectRequest.builder()
                     .bucket(config.bucket)
@@ -192,18 +205,11 @@ class S3ImageStorageGateway(
         )
     }
 
-    /**
-     * 画像取得時にS3のpresigned URLを直接返している。
-     * 呼び出しのたびにSTS APIとS3Presignerを構築するため、画像が多いと
-     * STS APIのレート制限やレイテンシが問題になる可能性がある。
-     * 改善策1: StsCredentialProviderでuserId単位にcredentialをキャッシュする
-     * 改善策2: GraphQLがpresigned URLを直接返すよう変更し、DataLoaderで
-     *          同一GraphQLリクエスト内の複数画像をuserId単位にまとめてSTS呼び出しを削減する
-     *          （現状はGraphQLが /api/image/v1/{displayId} を返しブラウザが個別にHTTPリクエストするため
-     *           DataLoaderは適用できない）
-     */
     override fun buildDisplayUrl(request: ImageStorageGateway.BuildUrlRequest): String {
-        val credentials = stsCredentialProvider.assumeWithWebIdentity(userId = request.userId)
+        val credentials = stsCredentialProvider.assumeWithWebIdentity(
+            userId = request.userId,
+            minimumRemaining = CREDENTIAL_REMAINING_FOR_PRESIGN,
+        )
         val key = buildKey(request.relativePath)
 
         S3Presigner.builder().apply {
@@ -224,7 +230,7 @@ class S3ImageStorageGateway(
                 .build()
 
             val presignRequest = GetObjectPresignRequest.builder()
-                .signatureDuration(Duration.ofHours(1))
+                .signatureDuration(PRESIGNED_URL_DURATION)
                 .getObjectRequest(getObjectRequest)
                 .build()
 
