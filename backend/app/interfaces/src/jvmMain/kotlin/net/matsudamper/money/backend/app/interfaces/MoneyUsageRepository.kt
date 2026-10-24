@@ -70,6 +70,12 @@ interface MoneyUsageRepository {
         imageIds: List<ImageId>?,
     ): Boolean
 
+    fun addUsageImage(
+        userId: UserId,
+        usageId: MoneyUsageId,
+        imageId: ImageId,
+    ): Boolean
+
     sealed interface AddResult {
         data class Success(val result: Usage) : AddResult
 
