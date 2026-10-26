@@ -49,6 +49,10 @@ val nativeBuildArgs = listOf(
     "--initialize-at-run-time=io.opentelemetry.exporter",
     "--initialize-at-run-time=io.opentelemetry.instrumentation",
     "--initialize-at-run-time=io.opentelemetry.extension",
+    // AWS SDK 経由の netty-codec-http(2) 4.1 が io.netty 全体をビルド時初期化にする。Netty 4.2 で基準時刻が SystemTicker に移ったが
+    // netty-common の設定は旧来の ScheduledFutureTask しか実行時初期化にしておらず、ビルドしたマシンの nanoTime が焼き込まれる。
+    // 実行するホストの稼働時間がそれより短いと、Valkey への接続に使う Lettuce の DNS 問い合わせなどのタイムアウトが即座に発火する
+    "--initialize-at-run-time=io.netty.util.concurrent.SystemTicker",
     // Jackson: コアクラスはビルド時初期化、リフレクション依存部分はランタイム初期化
     "--initialize-at-build-time=com.fasterxml.jackson.core",
     "--initialize-at-build-time=com.fasterxml.jackson.databind",
