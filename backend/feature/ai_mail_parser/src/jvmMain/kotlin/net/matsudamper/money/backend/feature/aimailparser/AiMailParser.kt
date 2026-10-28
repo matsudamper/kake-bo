@@ -19,11 +19,14 @@ class AiMailParser(
 
     fun parse(
         apiKey: String,
+        model: GeminiGateway.Model,
+        systemInstruction: String,
         input: AiMailParseInput,
     ): Result<List<AiParsedUsage>> {
         return geminiGateway.generateJson(
             apiKey = apiKey,
-            systemInstruction = SYSTEM_INSTRUCTION,
+            model = model,
+            systemInstruction = systemInstruction,
             userText = MailBodyTextBuilder.build(input = input, maxBodyLength = MAX_BODY_LENGTH),
             responseSchemaJson = RESPONSE_SCHEMA_JSON,
         ).mapCatching { text ->
@@ -66,11 +69,11 @@ class AiMailParser(
         @SerialName("dateTime") val dateTime: String? = null,
     )
 
-    private companion object {
+    public companion object {
         // 長い広告メールでトークンを使い過ぎないように本文を切り詰める
         private const val MAX_BODY_LENGTH = 30_000
 
-        private val SYSTEM_INSTRUCTION = """
+        public val DEFAULT_SYSTEM_INSTRUCTION: String = """
             あなたは家計簿アプリのためにメールから支出を抽出するアシスタントです。
             与えられたメールから、実際に支払いや購入、利用が発生した項目を抽出してください。
             - 1通のメールに複数の支払いがある場合は、支払いごとに分けて出力してください。

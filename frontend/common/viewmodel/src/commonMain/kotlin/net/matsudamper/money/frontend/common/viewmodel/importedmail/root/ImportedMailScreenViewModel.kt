@@ -21,6 +21,7 @@ import net.matsudamper.money.frontend.common.viewmodel.lib.EventSender
 import net.matsudamper.money.frontend.common.viewmodel.lib.Formatter
 import net.matsudamper.money.frontend.graphql.ImportedMailScreenParseWithAiMutation
 import net.matsudamper.money.frontend.graphql.ImportedMailScreenQuery
+import net.matsudamper.money.frontend.graphql.type.AiMailParseModel
 
 private const val TAG = "ImportedMailScreenViewModel"
 
@@ -82,12 +83,60 @@ public class ImportedMailScreenViewModel(
         }
     }
 
+    private val aiParsePromptDialogEvent = object : MailScreenUiState.AiParsePromptDialogEvent {
+        override fun onSelectModel(model: MailScreenUiState.AiParseModel) {
+            viewModelStateFlow.update { it.copy(aiParseSetting = it.aiParseSetting.copy(model = model)) }
+        }
+
+        override fun onClickEditPrompt() {
+            updatePromptDialog { it.copy(isPromptEditing = true) }
+        }
+
+        override fun onCompletePromptEdit(prompt: String) {
+            viewModelStateFlow.update {
+                it.copy(
+                    aiParseSetting = it.aiParseSetting.copy(editedPrompt = prompt),
+                    aiParsePromptDialog = it.aiParsePromptDialog?.copy(isPromptEditing = false),
+                )
+            }
+        }
+
+        override fun onCancelPromptEdit() {
+            updatePromptDialog { it.copy(isPromptEditing = false) }
+        }
+
+        override fun onClickResetPrompt() {
+            viewModelStateFlow.update { it.copy(aiParseSetting = it.aiParseSetting.copy(editedPrompt = null)) }
+        }
+
+        override fun onClickSend() {
+            val viewModelState = viewModelStateFlow.value
+            val prompt = viewModelState.aiParseSetting.editedPrompt
+                ?: viewModelState.getDefaultMailParsePrompt()
+                ?: return
+            viewModelStateFlow.update { it.copy(aiParsePromptDialog = null) }
+            parseWithAi(
+                prompt = prompt,
+                model = viewModelState.aiParseSetting.model,
+            )
+        }
+
+        override fun onDismissRequest() {
+            viewModelStateFlow.update { it.copy(aiParsePromptDialog = null) }
+        }
+
+        private fun updatePromptDialog(block: (ViewModelState.AiParsePromptDialog) -> ViewModelState.AiParsePromptDialog) {
+            viewModelStateFlow.update { it.copy(aiParsePromptDialog = it.aiParsePromptDialog?.let(block)) }
+        }
+    }
+
     public val uiStateFlow: StateFlow<MailScreenUiState> = MutableStateFlow(
         MailScreenUiState(
             loadingState = MailScreenUiState.LoadingState.Loading,
             event = event,
             confirmDialog = null,
             urlMenuDialog = null,
+            aiParsePromptDialog = null,
         ),
     ).also { uiStateFlow ->
         viewModelScope.launch {
@@ -96,6 +145,7 @@ public class ImportedMailScreenViewModel(
                     uiState.copy(
                         confirmDialog = viewModelState.confirmDialog,
                         urlMenuDialog = viewModelState.urlMenuDialog,
+                        aiParsePromptDialog = createAiParsePromptDialog(viewModelState),
                         loadingState = run {
                             val apolloResult = viewModelState.apolloResponse
                             if (apolloResult == null) {
@@ -249,9 +299,24 @@ public class ImportedMailScreenViewModel(
                 }
 
                 override fun onClickAiParse() {
-                    parseWithAi()
+                    viewModelStateFlow.update {
+                        it.copy(aiParsePromptDialog = ViewModelState.AiParsePromptDialog(isPromptEditing = false))
+                    }
                 }
             },
+        )
+    }
+
+    private fun createAiParsePromptDialog(viewModelState: ViewModelState): MailScreenUiState.AiParsePromptDialog? {
+        val dialog = viewModelState.aiParsePromptDialog ?: return null
+        val prompt = viewModelState.aiParseSetting.editedPrompt
+            ?: viewModelState.getDefaultMailParsePrompt()
+            ?: return null
+        return MailScreenUiState.AiParsePromptDialog(
+            prompt = prompt,
+            selectedModel = viewModelState.aiParseSetting.model,
+            isPromptEditing = dialog.isPromptEditing,
+            event = aiParsePromptDialogEvent,
         )
     }
 
@@ -319,11 +384,22 @@ public class ImportedMailScreenViewModel(
         }
     }
 
-    private fun parseWithAi() {
+    private fun parseWithAi(
+        prompt: String,
+        model: MailScreenUiState.AiParseModel,
+    ) {
         val previousState = viewModelStateFlow.getAndUpdate { it.copy(aiParse = ViewModelState.AiParse.Running) }
         if (previousState.aiParse == ViewModelState.AiParse.Running) return
         viewModelScope.launch {
-            val aiParse = when (val result = api.parseWithAi(id = importedMailId)) {
+            val result = api.parseWithAi(
+                id = importedMailId,
+                prompt = prompt,
+                model = when (model) {
+                    MailScreenUiState.AiParseModel.FlashLite -> AiMailParseModel.FlashLite
+                    MailScreenUiState.AiParseModel.Flash -> AiMailParseModel.Flash
+                },
+            )
+            val aiParse = when (result) {
                 is ImportedMailScreenGraphqlApi.ParseWithAiResult.Success -> ViewModelState.AiParse.Succeeded(usages = result.usages)
 
                 ImportedMailScreenGraphqlApi.ParseWithAiResult.ApiKeyNotSet -> ViewModelState.AiParse.Failed(
@@ -423,7 +499,23 @@ public class ImportedMailScreenViewModel(
         val confirmDialog: MailScreenUiState.AlertDialog? = null,
         val urlMenuDialog: MailScreenUiState.UrlMenuDialog? = null,
         val aiParse: AiParse = AiParse.NotExecuted,
+        val aiParseSetting: AiParseSetting = AiParseSetting(),
+        val aiParsePromptDialog: AiParsePromptDialog? = null,
     ) {
+        fun getDefaultMailParsePrompt(): String? {
+            return apolloResponse?.getOrNull()?.data?.user?.settings?.aiConfig?.defaultMailParsePrompt
+        }
+
+        data class AiParseSetting(
+            /** nullの場合はサーバーの初期値を使う */
+            val editedPrompt: String? = null,
+            val model: MailScreenUiState.AiParseModel = MailScreenUiState.AiParseModel.FlashLite,
+        )
+
+        data class AiParsePromptDialog(
+            val isPromptEditing: Boolean,
+        )
+
         sealed interface AiParse {
             data object NotExecuted : AiParse
             data object Running : AiParse
