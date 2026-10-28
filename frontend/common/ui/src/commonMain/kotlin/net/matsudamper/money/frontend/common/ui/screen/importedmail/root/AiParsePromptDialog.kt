@@ -19,7 +19,9 @@ import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import net.matsudamper.money.frontend.common.ui.AppRoot
 import net.matsudamper.money.frontend.common.ui.layout.html.text.fullscreen.FullScreenTextInput
 
 @Composable
@@ -34,8 +36,15 @@ internal fun AiParsePromptDialog(
             default = uiState.prompt,
             isMultiline = true,
         )
-        return
+    } else {
+        AiParsePromptSettingDialog(uiState = uiState)
     }
+}
+
+@Composable
+private fun AiParsePromptSettingDialog(
+    uiState: MailScreenUiState.AiParsePromptDialog,
+) {
     AlertDialog(
         onDismissRequest = { uiState.event.onDismissRequest() },
         title = { Text("AIで解析") },
@@ -97,4 +106,29 @@ internal fun AiParsePromptDialog(
             }
         },
     )
+}
+
+@Composable
+@Preview
+private fun AiParsePromptDialogPreview() {
+    AppRoot {
+        AiParsePromptDialog(
+            uiState = MailScreenUiState.AiParsePromptDialog(
+                prompt = "あなたは家計簿アプリのためにメールから支出を抽出するアシスタントです。\n" +
+                    "与えられたメールから、実際に支払いや購入、利用が発生した項目を抽出してください。\n" +
+                    "- 1通のメールに複数の支払いがある場合は、支払いごとに分けて出力してください。",
+                selectedModel = MailScreenUiState.AiParseModel.FlashLite,
+                isPromptEditing = false,
+                event = object : MailScreenUiState.AiParsePromptDialogEvent {
+                    override fun onSelectModel(model: MailScreenUiState.AiParseModel) {}
+                    override fun onClickEditPrompt() {}
+                    override fun onCompletePromptEdit(prompt: String) {}
+                    override fun onCancelPromptEdit() {}
+                    override fun onClickResetPrompt() {}
+                    override fun onClickSend() {}
+                    override fun onDismissRequest() {}
+                },
+            ),
+        )
+    }
 }
