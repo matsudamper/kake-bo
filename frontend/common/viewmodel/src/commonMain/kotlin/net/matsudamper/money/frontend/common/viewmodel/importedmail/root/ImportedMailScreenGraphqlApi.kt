@@ -11,6 +11,7 @@ import net.matsudamper.money.frontend.graphql.GraphqlClient
 import net.matsudamper.money.frontend.graphql.ImportedMailScreenDeleteMailMutation
 import net.matsudamper.money.frontend.graphql.ImportedMailScreenParseWithAiMutation
 import net.matsudamper.money.frontend.graphql.ImportedMailScreenQuery
+import net.matsudamper.money.frontend.graphql.type.AiMailParseModel
 import net.matsudamper.money.frontend.graphql.type.ParseImportedMailWithAiError
 
 public class ImportedMailScreenGraphqlApi(
@@ -33,11 +34,15 @@ public class ImportedMailScreenGraphqlApi(
         }
     }
 
-    public suspend fun parseWithAi(id: ImportedMailId): ParseWithAiResult {
+    public suspend fun parseWithAi(
+        id: ImportedMailId,
+        prompt: String,
+        model: AiMailParseModel,
+    ): ParseWithAiResult {
         return withContext(Dispatchers.PlatformIO) {
             runCatching {
                 graphqlClient.apolloClient
-                    .mutation(ImportedMailScreenParseWithAiMutation(id = id))
+                    .mutation(ImportedMailScreenParseWithAiMutation(id = id, prompt = prompt, model = model))
                     .execute()
             }.onFailure {
                 it.printStackTrace()

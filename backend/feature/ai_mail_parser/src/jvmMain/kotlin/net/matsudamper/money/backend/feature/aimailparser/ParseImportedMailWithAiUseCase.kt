@@ -1,6 +1,7 @@
 package net.matsudamper.money.backend.feature.aimailparser
 
 import java.time.ZoneOffset
+import net.matsudamper.money.backend.app.interfaces.GeminiGateway
 import net.matsudamper.money.backend.app.interfaces.ImportedMailRepository
 import net.matsudamper.money.backend.app.interfaces.UserConfigRepository
 import net.matsudamper.money.backend.base.TraceLogger
@@ -15,6 +16,8 @@ class ParseImportedMailWithAiUseCase(
     fun parse(
         userId: UserId,
         importedMailId: ImportedMailId,
+        model: GeminiGateway.Model,
+        systemInstruction: String?,
     ): Result {
         val apiKey = userConfigRepository.getGeminiApiKey(userId)
         if (apiKey.isNullOrBlank()) return Result.ApiKeyNotSet
@@ -32,7 +35,12 @@ class ParseImportedMailWithAiUseCase(
             plain = mail.plain,
             html = mail.html,
         )
-        return aiMailParser.parse(apiKey = apiKey, input = input).fold(
+        return aiMailParser.parse(
+            apiKey = apiKey,
+            model = model,
+            systemInstruction = systemInstruction?.takeIf { it.isNotBlank() } ?: AiMailParser.DEFAULT_SYSTEM_INSTRUCTION,
+            input = input,
+        ).fold(
             onSuccess = { usages -> Result.Success(usages) },
             onFailure = { throwable ->
                 TraceLogger.impl().noticeThrowable(throwable, isError = false)

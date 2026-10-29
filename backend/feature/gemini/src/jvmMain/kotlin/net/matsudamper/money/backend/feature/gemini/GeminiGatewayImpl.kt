@@ -24,6 +24,7 @@ class GeminiGatewayImpl : GeminiGateway {
 
     override fun generateJson(
         apiKey: String,
+        model: GeminiGateway.Model,
         systemInstruction: String,
         userText: String,
         responseSchemaJson: String,
@@ -35,7 +36,7 @@ class GeminiGatewayImpl : GeminiGateway {
                 responseSchemaJson = responseSchemaJson,
             )
             val request = HttpRequest.newBuilder()
-                .uri(URI.create("$API_BASE_URL/models/$MODEL:generateContent"))
+                .uri(URI.create("$API_BASE_URL/models/${model.toModelName()}:generateContent"))
                 // parseImportedMailWithAi の @longRunning(timeoutSeconds: 90) より先に切れるようにして、結果をエラーとして返せるようにする
                 .timeout(Duration.ofSeconds(80))
                 .header("Content-Type", "application/json")
@@ -96,6 +97,13 @@ class GeminiGatewayImpl : GeminiGateway {
             ?: body.take(200)
     }
 
+    private fun GeminiGateway.Model.toModelName(): String {
+        return when (this) {
+            GeminiGateway.Model.FlashLite -> "gemini-flash-lite-latest"
+            GeminiGateway.Model.Flash -> "gemini-flash-latest"
+        }
+    }
+
     class GeminiApiException(message: String) : Exception(message)
 
     @Serializable
@@ -137,6 +145,5 @@ class GeminiGatewayImpl : GeminiGateway {
 
     private companion object {
         private const val API_BASE_URL = "https://generativelanguage.googleapis.com/v1beta"
-        private const val MODEL = "gemini-flash-lite-latest"
     }
 }

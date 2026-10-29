@@ -60,6 +60,7 @@ public data class MailScreenUiState(
     val loadingState: LoadingState,
     val confirmDialog: AlertDialog?,
     val urlMenuDialog: UrlMenuDialog?,
+    val aiParsePromptDialog: AiParsePromptDialog?,
     val event: Event,
 ) {
     public sealed interface LoadingState {
@@ -94,6 +95,35 @@ public data class MailScreenUiState(
         public data class Succeeded(
             val usageSuggest: ImmutableList<UsageSuggest>,
         ) : AiParseState
+    }
+
+    public data class AiParsePromptDialog(
+        val prompt: String,
+        val selectedModel: AiParseModel,
+        val isPromptEditing: Boolean,
+        val event: AiParsePromptDialogEvent,
+    )
+
+    public enum class AiParseModel(public val displayName: String) {
+        FlashLite("Flash Lite"),
+        Flash("Flash"),
+    }
+
+    @Immutable
+    public interface AiParsePromptDialogEvent {
+        public fun onSelectModel(model: AiParseModel)
+
+        public fun onClickEditPrompt()
+
+        public fun onCompletePromptEdit(prompt: String)
+
+        public fun onCancelPromptEdit()
+
+        public fun onClickResetPrompt()
+
+        public fun onClickSend()
+
+        public fun onDismissRequest()
     }
 
     public data class AlertDialog(
@@ -207,6 +237,9 @@ public fun ImportedMailScreen(
             onClickCopy = { uiState.urlMenuDialog.event.onClickCopy() },
             onDismissRequest = { uiState.urlMenuDialog.event.onDismissRequest() },
         )
+    }
+    if (uiState.aiParsePromptDialog != null) {
+        AiParsePromptDialog(uiState = uiState.aiParsePromptDialog)
     }
     LaunchedEffect(Unit) {
         uiState.event.onResume()
@@ -813,6 +846,7 @@ private fun ImportedMailScreenPreviewContent(aiParse: MailScreenUiState.AiParse)
                 ),
                 confirmDialog = null,
                 urlMenuDialog = null,
+                aiParsePromptDialog = null,
                 event = object : MailScreenUiState.Event {
                     override fun onClickRetry() {}
                     override fun onClickArrowBackButton() {}
