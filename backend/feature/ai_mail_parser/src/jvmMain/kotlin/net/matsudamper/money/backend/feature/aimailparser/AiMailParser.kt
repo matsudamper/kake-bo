@@ -69,11 +69,11 @@ class AiMailParser(
         @SerialName("dateTime") val dateTime: String? = null,
     )
 
-    public companion object {
+    companion object {
         // 長い広告メールでトークンを使い過ぎないように本文を切り詰める
         private const val MAX_BODY_LENGTH = 30_000
 
-        public val DEFAULT_SYSTEM_INSTRUCTION: String = """
+        val DEFAULT_SYSTEM_INSTRUCTION = """
             あなたは家計簿アプリのためにメールから支出を抽出するアシスタントです。
             与えられたメールから、実際に支払いや購入、利用が発生した項目を抽出してください。
             - 1通のメールに複数の支払いがある場合は、支払いごとに分けて出力してください。
