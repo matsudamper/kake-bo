@@ -21,6 +21,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import net.matsudamper.money.frontend.common.base.immutableListOf
 import net.matsudamper.money.frontend.common.ui.AppRoot
 import net.matsudamper.money.frontend.common.ui.layout.html.text.fullscreen.FullScreenTextInput
 
@@ -28,7 +29,7 @@ import net.matsudamper.money.frontend.common.ui.layout.html.text.fullscreen.Full
 internal fun AiParsePromptDialog(
     uiState: MailScreenUiState.AiParsePromptDialog,
 ) {
-    if (uiState.isPromptEditing) {
+    if (uiState.promptInputVisible) {
         FullScreenTextInput(
             title = "プロンプト",
             onComplete = { uiState.event.onCompletePromptEdit(it) },
@@ -56,11 +57,11 @@ private fun AiParsePromptSettingDialog(
                 )
                 Spacer(modifier = Modifier.height(4.dp))
                 Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
-                    MailScreenUiState.AiParseModel.entries.forEach { model ->
+                    uiState.modelOptions.forEach { option ->
                         FilterChip(
-                            selected = model == uiState.selectedModel,
-                            onClick = { uiState.event.onSelectModel(model) },
-                            label = { Text(model.displayName) },
+                            selected = option.selected,
+                            onClick = { option.event.onClick() },
+                            label = { Text(option.label) },
                         )
                     }
                 }
@@ -117,10 +118,12 @@ private fun AiParsePromptDialogPreview() {
                 prompt = "あなたは家計簿アプリのためにメールから支出を抽出するアシスタントです。\n" +
                     "与えられたメールから、実際に支払いや購入、利用が発生した項目を抽出してください。\n" +
                     "- 1通のメールに複数の支払いがある場合は、支払いごとに分けて出力してください。",
-                selectedModel = MailScreenUiState.AiParseModel.FlashLite,
-                isPromptEditing = false,
+                modelOptions = immutableListOf(
+                    createPreviewModelOption(label = "Flash Lite", selected = true),
+                    createPreviewModelOption(label = "Flash", selected = false),
+                ),
+                promptInputVisible = false,
                 event = object : MailScreenUiState.AiParsePromptDialogEvent {
-                    override fun onSelectModel(model: MailScreenUiState.AiParseModel) {}
                     override fun onClickEditPrompt() {}
                     override fun onCompletePromptEdit(prompt: String) {}
                     override fun onCancelPromptEdit() {}
@@ -131,4 +134,17 @@ private fun AiParsePromptDialogPreview() {
             ),
         )
     }
+}
+
+private fun createPreviewModelOption(
+    label: String,
+    selected: Boolean,
+): MailScreenUiState.AiParseModelOption {
+    return MailScreenUiState.AiParseModelOption(
+        label = label,
+        selected = selected,
+        event = object : MailScreenUiState.AiParseModelOptionEvent {
+            override fun onClick() {}
+        },
+    )
 }

@@ -30,7 +30,15 @@ public class ImportedMailScreenViewModel(
     private val api: ImportedMailScreenGraphqlApi,
     private val importedMailId: ImportedMailId,
 ) : CommonViewModel(scopedObjectFeature) {
-    private val viewModelStateFlow = MutableStateFlow(ViewModelState())
+    private val viewModelStateFlow = MutableStateFlow(
+        ViewModelState(
+            aiParseSetting = ViewModelState.AiParseSetting(
+                editedPrompt = null,
+                model = AiMailParseModel.FlashLite,
+            ),
+            aiParsePromptDialog = null,
+        ),
+    )
 
     private val viewModelEventSender = EventSender<Event>()
     public val viewModelEventHandler: EventHandler<Event> = viewModelEventSender.asHandler()
@@ -84,25 +92,21 @@ public class ImportedMailScreenViewModel(
     }
 
     private val aiParsePromptDialogEvent = object : MailScreenUiState.AiParsePromptDialogEvent {
-        override fun onSelectModel(model: MailScreenUiState.AiParseModel) {
-            viewModelStateFlow.update { it.copy(aiParseSetting = it.aiParseSetting.copy(model = model)) }
-        }
-
         override fun onClickEditPrompt() {
-            updatePromptDialog { it.copy(isPromptEditing = true) }
+            updatePromptDialog { it.copy(promptInputVisible = true) }
         }
 
         override fun onCompletePromptEdit(prompt: String) {
             viewModelStateFlow.update {
                 it.copy(
                     aiParseSetting = it.aiParseSetting.copy(editedPrompt = prompt),
-                    aiParsePromptDialog = it.aiParsePromptDialog?.copy(isPromptEditing = false),
+                    aiParsePromptDialog = it.aiParsePromptDialog?.copy(promptInputVisible = false),
                 )
             }
         }
 
         override fun onCancelPromptEdit() {
-            updatePromptDialog { it.copy(isPromptEditing = false) }
+            updatePromptDialog { it.copy(promptInputVisible = false) }
         }
 
         override fun onClickResetPrompt() {
@@ -300,7 +304,7 @@ public class ImportedMailScreenViewModel(
 
                 override fun onClickAiParse() {
                     viewModelStateFlow.update {
-                        it.copy(aiParsePromptDialog = ViewModelState.AiParsePromptDialog(isPromptEditing = false))
+                        it.copy(aiParsePromptDialog = ViewModelState.AiParsePromptDialog(promptInputVisible = false))
                     }
                 }
             },
@@ -314,8 +318,17 @@ public class ImportedMailScreenViewModel(
             ?: return null
         return MailScreenUiState.AiParsePromptDialog(
             prompt = prompt,
-            selectedModel = viewModelState.aiParseSetting.model,
-            isPromptEditing = dialog.isPromptEditing,
+            modelOptions = listOf(
+                AiMailParseModel.FlashLite to "Flash Lite",
+                AiMailParseModel.Flash to "Flash",
+            ).map { (model, label) ->
+                MailScreenUiState.AiParseModelOption(
+                    label = label,
+                    selected = model == viewModelState.aiParseSetting.model,
+                    event = AiParseModelOptionEventImpl(model),
+                )
+            }.toImmutableList(),
+            promptInputVisible = dialog.promptInputVisible,
             event = aiParsePromptDialogEvent,
         )
     }
@@ -386,7 +399,7 @@ public class ImportedMailScreenViewModel(
 
     private fun parseWithAi(
         prompt: String,
-        model: MailScreenUiState.AiParseModel,
+        model: AiMailParseModel,
     ) {
         val previousState = viewModelStateFlow.getAndUpdate { it.copy(aiParse = ViewModelState.AiParse.Running) }
         if (previousState.aiParse == ViewModelState.AiParse.Running) return
@@ -394,10 +407,7 @@ public class ImportedMailScreenViewModel(
             val result = api.parseWithAi(
                 id = importedMailId,
                 prompt = prompt,
-                model = when (model) {
-                    MailScreenUiState.AiParseModel.FlashLite -> AiMailParseModel.FlashLite
-                    MailScreenUiState.AiParseModel.Flash -> AiMailParseModel.Flash
-                },
+                model = model,
             )
             val aiParse = when (result) {
                 is ImportedMailScreenGraphqlApi.ParseWithAiResult.Success -> ViewModelState.AiParse.Succeeded(usages = result.usages)
@@ -423,6 +433,14 @@ public class ImportedMailScreenViewModel(
                     confirmDialog = null,
                 )
             }
+        }
+    }
+
+    private inner class AiParseModelOptionEventImpl(
+        private val model: AiMailParseModel,
+    ) : MailScreenUiState.AiParseModelOptionEvent, EqualsImpl(model) {
+        override fun onClick() {
+            viewModelStateFlow.update { it.copy(aiParseSetting = it.aiParseSetting.copy(model = model)) }
         }
     }
 
@@ -499,8 +517,8 @@ public class ImportedMailScreenViewModel(
         val confirmDialog: MailScreenUiState.AlertDialog? = null,
         val urlMenuDialog: MailScreenUiState.UrlMenuDialog? = null,
         val aiParse: AiParse = AiParse.NotExecuted,
-        val aiParseSetting: AiParseSetting = AiParseSetting(),
-        val aiParsePromptDialog: AiParsePromptDialog? = null,
+        val aiParseSetting: AiParseSetting,
+        val aiParsePromptDialog: AiParsePromptDialog?,
     ) {
         fun getDefaultMailParsePrompt(): String? {
             return apolloResponse?.getOrNull()?.data?.user?.settings?.aiConfig?.defaultMailParsePrompt
@@ -508,12 +526,12 @@ public class ImportedMailScreenViewModel(
 
         data class AiParseSetting(
             /** nullの場合はサーバーの初期値を使う */
-            val editedPrompt: String? = null,
-            val model: MailScreenUiState.AiParseModel = MailScreenUiState.AiParseModel.FlashLite,
+            val editedPrompt: String?,
+            val model: AiMailParseModel,
         )
 
         data class AiParsePromptDialog(
-            val isPromptEditing: Boolean,
+            val promptInputVisible: Boolean,
         )
 
         sealed interface AiParse {

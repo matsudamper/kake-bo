@@ -99,20 +99,24 @@ public data class MailScreenUiState(
 
     public data class AiParsePromptDialog(
         val prompt: String,
-        val selectedModel: AiParseModel,
-        val isPromptEditing: Boolean,
+        val modelOptions: ImmutableList<AiParseModelOption>,
+        val promptInputVisible: Boolean,
         val event: AiParsePromptDialogEvent,
     )
 
-    public enum class AiParseModel(public val displayName: String) {
-        FlashLite("Flash Lite"),
-        Flash("Flash"),
+    public data class AiParseModelOption(
+        val label: String,
+        val selected: Boolean,
+        val event: AiParseModelOptionEvent,
+    )
+
+    @Immutable
+    public interface AiParseModelOptionEvent {
+        public fun onClick()
     }
 
     @Immutable
     public interface AiParsePromptDialogEvent {
-        public fun onSelectModel(model: AiParseModel)
-
         public fun onClickEditPrompt()
 
         public fun onCompletePromptEdit(prompt: String)
