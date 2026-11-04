@@ -1,10 +1,10 @@
 package net.matsudamper.money.backend.app.interfaces
 
-import net.matsudamper.money.backend.app.interfaces.element.ImportedMailCategoryFilterConditionType
 import net.matsudamper.money.backend.app.interfaces.element.ImportedMailCategoryFilterDatasourceType
+import net.matsudamper.money.backend.app.interfaces.element.ImportedMailCategoryFilterMatcherType
 import net.matsudamper.money.backend.app.interfaces.element.ImportedMailFilterCategoryConditionOperator
-import net.matsudamper.money.element.ImportedMailCategoryFilterConditionId
 import net.matsudamper.money.element.ImportedMailCategoryFilterId
+import net.matsudamper.money.element.ImportedMailCategoryFilterMatcherId
 import net.matsudamper.money.element.MoneyUsageSubCategoryId
 import net.matsudamper.money.element.UserId
 
@@ -28,19 +28,19 @@ interface MailFilterRepository {
         size: Int,
     ): Result<MailFiltersResult>
 
-    fun getConditions(
+    fun getMatchers(
         userId: UserId,
         filterId: ImportedMailCategoryFilterId,
-    ): Result<MailFilterConditionResult>
+    ): Result<MailFilterMatcherResult>
 
     data class MailFiltersResult(
         val items: List<MailFilter>,
         val cursor: MailFilterCursor?,
     )
 
-    data class MailFilterConditionResult(
+    data class MailFilterMatcherResult(
         val filterId: ImportedMailCategoryFilterId,
-        val conditions: List<Condition>,
+        val matchers: List<Matcher>,
     )
 
     data class MailFilter(
@@ -49,14 +49,16 @@ interface MailFilterRepository {
         val title: String,
         val moneyUsageSubCategoryId: MoneyUsageSubCategoryId?,
         val operator: ImportedMailFilterCategoryConditionOperator,
+        val matchExpression: String?,
         val orderNumber: Int,
     )
 
-    data class Condition(
+    data class Matcher(
         val filterId: ImportedMailCategoryFilterId,
-        val conditionId: ImportedMailCategoryFilterConditionId,
+        val matcherId: ImportedMailCategoryFilterMatcherId,
+        val matcherKey: String,
         val text: String,
-        val conditionType: ImportedMailCategoryFilterConditionType,
+        val matcherType: ImportedMailCategoryFilterMatcherType,
         val dataSourceType: ImportedMailCategoryFilterDatasourceType,
     )
 
@@ -71,10 +73,10 @@ interface MailFilterRepository {
         ORDER_NUMBER,
     }
 
-    fun getConditions(
+    fun getMatchers(
         userId: UserId,
-        filterIds: List<ImportedMailCategoryFilterConditionId>,
-    ): Result<List<Condition>>
+        matcherIds: List<ImportedMailCategoryFilterMatcherId>,
+    ): Result<List<Matcher>>
 
     fun updateFilter(
         filterId: ImportedMailCategoryFilterId,
@@ -83,6 +85,7 @@ interface MailFilterRepository {
         orderNum: Int? = null,
         subCategory: MoneyUsageSubCategoryId? = null,
         operator: ImportedMailFilterCategoryConditionOperator? = null,
+        matchExpression: UpdateValue<String?> = UpdateValue.NotUpdate,
     ): Boolean
 
     fun deleteFilter(
@@ -90,28 +93,29 @@ interface MailFilterRepository {
         userId: UserId,
     ): Boolean
 
-    fun addCondition(
+    fun addMatcher(
         userId: UserId,
         filterId: ImportedMailCategoryFilterId,
-        condition: ImportedMailCategoryFilterConditionType?,
+        matcherType: ImportedMailCategoryFilterMatcherType?,
         text: String?,
         dataSource: ImportedMailCategoryFilterDatasourceType?,
     ): Boolean
 
-    fun updateCondition(
+    fun updateMatcher(
         userId: UserId,
-        conditionId: ImportedMailCategoryFilterConditionId,
+        matcherId: ImportedMailCategoryFilterMatcherId,
+        matcherKey: String?,
         text: String?,
-        conditionType: ImportedMailCategoryFilterConditionType?,
+        matcherType: ImportedMailCategoryFilterMatcherType?,
         dataSource: ImportedMailCategoryFilterDatasourceType?,
     ): Boolean
 
-    fun deleteCondition(
+    fun deleteMatcher(
         userId: UserId,
-        conditionId: ImportedMailCategoryFilterConditionId,
+        matcherId: ImportedMailCategoryFilterMatcherId,
     ): Boolean
 
     fun getFilters(userId: UserId): List<MailFilter>
 
-    fun getConditions(userId: UserId): List<Condition>
+    fun getMatchers(userId: UserId): List<Matcher>
 }

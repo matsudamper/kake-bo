@@ -38,17 +38,21 @@ open class JCategoryMailFiltersRecord() : UpdatableRecordImpl<JCategoryMailFilte
         set(value): Unit = set(4, value)
         get(): Int? = get(4) as Int?
 
-    open var createdDatetime: LocalDateTime?
+    open var matchExpression: String?
         set(value): Unit = set(5, value)
-        get(): LocalDateTime? = get(5) as LocalDateTime?
+        get(): String? = get(5) as String?
 
-    open var updateDatetime: LocalDateTime?
+    open var createdDatetime: LocalDateTime?
         set(value): Unit = set(6, value)
         get(): LocalDateTime? = get(6) as LocalDateTime?
 
-    open var orderNumber: Int?
+    open var updateDatetime: LocalDateTime?
         set(value): Unit = set(7, value)
-        get(): Int? = get(7) as Int?
+        get(): LocalDateTime? = get(7) as LocalDateTime?
+
+    open var orderNumber: Int?
+        set(value): Unit = set(8, value)
+        get(): Int? = get(8) as Int?
 
     // -------------------------------------------------------------------------
     // Primary key information
@@ -59,12 +63,13 @@ open class JCategoryMailFiltersRecord() : UpdatableRecordImpl<JCategoryMailFilte
     /**
      * Create a detached, initialised JCategoryMailFiltersRecord
      */
-    constructor(categoryMailFilterId: Int? = null, userId: Int? = null, title: String? = null, moneyUsageSubCategoryId: Int? = null, categoryMailFilterConditionOperatorTypeId: Int? = null, createdDatetime: LocalDateTime? = null, updateDatetime: LocalDateTime? = null, orderNumber: Int? = null): this() {
+    constructor(categoryMailFilterId: Int? = null, userId: Int? = null, title: String? = null, moneyUsageSubCategoryId: Int? = null, categoryMailFilterConditionOperatorTypeId: Int? = null, matchExpression: String? = null, createdDatetime: LocalDateTime? = null, updateDatetime: LocalDateTime? = null, orderNumber: Int? = null): this() {
         this.categoryMailFilterId = categoryMailFilterId
         this.userId = userId
         this.title = title
         this.moneyUsageSubCategoryId = moneyUsageSubCategoryId
         this.categoryMailFilterConditionOperatorTypeId = categoryMailFilterConditionOperatorTypeId
+        this.matchExpression = matchExpression
         this.createdDatetime = createdDatetime
         this.updateDatetime = updateDatetime
         this.orderNumber = orderNumber

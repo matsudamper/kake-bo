@@ -25,6 +25,7 @@ kotlin {
                 implementation(projects.frontend.common.graphql)
                 implementation(projects.frontend.common.usecase)
                 implementation(projects.shared)
+                implementation(projects.shared.featureCategoryFilter)
                 implementation(libs.composeRuntime)
                 implementation(libs.composeFoundation)
                 implementation(libs.composeMaterial3)

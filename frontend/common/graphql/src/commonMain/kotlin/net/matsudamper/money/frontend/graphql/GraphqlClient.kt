@@ -26,8 +26,8 @@ import com.apollographql.cache.normalized.memory.MemoryCacheFactory
 import net.matsudamper.money.element.ApiTokenId
 import net.matsudamper.money.element.FidoId
 import net.matsudamper.money.element.ImageId
-import net.matsudamper.money.element.ImportedMailCategoryFilterConditionId
 import net.matsudamper.money.element.ImportedMailCategoryFilterId
+import net.matsudamper.money.element.ImportedMailCategoryFilterMatcherId
 import net.matsudamper.money.element.ImportedMailId
 import net.matsudamper.money.element.MailId
 import net.matsudamper.money.element.MoneyUsageCategoryId
@@ -41,8 +41,8 @@ import net.matsudamper.money.frontend.graphql.cache.Cache.cache
 import net.matsudamper.money.frontend.graphql.type.ApiTokenId as ApolloApiTokenId
 import net.matsudamper.money.frontend.graphql.type.FidoId as ApolloFidoId
 import net.matsudamper.money.frontend.graphql.type.ImageId as ApolloImageId
-import net.matsudamper.money.frontend.graphql.type.ImportedMailCategoryFilterConditionId as ApolloImportedMailCategoryFilterConditionId
 import net.matsudamper.money.frontend.graphql.type.ImportedMailCategoryFilterId as ApolloImportedMailCategoryFilterId
+import net.matsudamper.money.frontend.graphql.type.ImportedMailCategoryFilterMatcherId as ApolloImportedMailCategoryFilterMatcherId
 import net.matsudamper.money.frontend.graphql.type.ImportedMailId as ApolloImportedMailId
 import net.matsudamper.money.frontend.graphql.type.Long as ApolloLong
 import net.matsudamper.money.frontend.graphql.type.MailId as ApolloMailId
@@ -144,13 +144,13 @@ class GraphqlClientImpl(
             ),
         )
         .addCustomScalarAdapter(
-            ApolloImportedMailCategoryFilterConditionId.type,
+            ApolloImportedMailCategoryFilterMatcherId.type,
             CustomIntAdapter(
                 serialize = {
                     it.id
                 },
                 deserialize = { value ->
-                    ImportedMailCategoryFilterConditionId(value)
+                    ImportedMailCategoryFilterMatcherId(value)
                 },
             ),
         )

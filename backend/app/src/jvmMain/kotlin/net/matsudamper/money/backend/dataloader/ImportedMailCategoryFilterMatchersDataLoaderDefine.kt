@@ -7,17 +7,17 @@ import net.matsudamper.money.element.UserId
 import org.dataloader.DataLoader
 import org.dataloader.DataLoaderFactory
 
-class ImportedMailCategoryFilterConditionsDataLoaderDefine(
+class ImportedMailCategoryFilterMatchersDataLoaderDefine(
     private val repositoryFactory: DiContainer,
-) : DataLoaderDefine<UserId, List<MailFilterRepository.Condition>> {
+) : DataLoaderDefine<UserId, List<MailFilterRepository.Matcher>> {
     override val key: String = this::class.java.name
 
-    override fun getDataLoader(): DataLoader<UserId, List<MailFilterRepository.Condition>> {
+    override fun getDataLoader(): DataLoader<UserId, List<MailFilterRepository.Matcher>> {
         return DataLoaderFactory.newMappedDataLoader { keys, _ ->
             otelSupplyAsync {
                 val repository = repositoryFactory.createMailFilterRepository()
                 keys.associateWith { userId ->
-                    repository.getConditions(
+                    repository.getMatchers(
                         userId = userId,
                     )
                 }
