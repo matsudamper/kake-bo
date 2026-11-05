@@ -49,7 +49,7 @@ kotest = { id = "io.kotest", version.require = "6.2.6" }
 detekt = { id = "dev.detekt", version.ref = "detekt" }
 kobylynskyi-graphqlCodegen = { id = "net.matsudamper.graphql.codegen", version.require = "5.10.5" }
 jetbrainsCompose = { id = "org.jetbrains.compose", version.ref = "compose" }
-protobuf = { id = "com.google.protobuf", version.require = "0.10.0" }
+protobuf = { id = "com.google.protobuf", version.require = "0.10.1" }
 paparazzi = { id = "app.cash.paparazzi", version.ref = "paparazzi" }
 graalvmNative = { id = "org.graalvm.buildtools.native", version.ref = "graalvmNative" }
 ksp = { id = "com.google.devtools.ksp", version.ref = "ksp" }
