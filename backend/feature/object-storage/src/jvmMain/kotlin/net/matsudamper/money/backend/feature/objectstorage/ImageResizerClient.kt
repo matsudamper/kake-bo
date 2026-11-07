@@ -113,6 +113,6 @@ class ImageResizerClient(
         /** 一覧は最大 120dp の正方形に Crop 表示するため、3x でも足りるよう短辺 384px */
         const val THUMBNAIL_SHORT_SIDE = 384
         const val THUMBNAIL_MAX_LONG_SIDE = 1536
-        const val THUMBNAIL_QUALITY = 80
+        const val THUMBNAIL_QUALITY = 75
     }
 }
