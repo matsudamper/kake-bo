@@ -167,6 +167,7 @@ public data class MoneyUsageScreenUiState(
 
     public data class ImageItem(
         val url: String,
+        val thumbnailUrl: String,
         val event: ImageItemEvent,
     )
 
@@ -709,7 +710,7 @@ private fun ImageItemContent(
 
     Box(modifier = Modifier.fillMaxSize()) {
         SubcomposeAsyncImage(
-            model = imageItem.url,
+            model = imageItem.thumbnailUrl,
             contentDescription = null,
             contentScale = ContentScale.Crop,
             modifier = Modifier

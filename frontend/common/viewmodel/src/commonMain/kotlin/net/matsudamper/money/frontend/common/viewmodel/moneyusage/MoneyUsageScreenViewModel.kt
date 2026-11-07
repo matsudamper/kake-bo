@@ -136,6 +136,7 @@ public class MoneyUsageScreenViewModel(
                                     images = moneyUsage.images.map { image ->
                                         MoneyUsageScreenUiState.ImageItem(
                                             url = image.url,
+                                            thumbnailUrl = image.thumbnailUrl,
                                             event = createImageItemEvent(imageId = image.id),
                                         )
                                     }.toImmutableList(),

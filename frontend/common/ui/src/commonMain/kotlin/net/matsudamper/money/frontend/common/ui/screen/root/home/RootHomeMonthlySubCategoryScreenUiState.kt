@@ -13,12 +13,17 @@ public data class RootHomeMonthlySubCategoryScreenUiState(
     val currentSortType: SortSectionType,
     val sortOrder: SortSectionOrder,
 ) {
+    public data class Image(
+        val url: String,
+        val thumbnailUrl: String,
+    )
+
     public data class Item(
         val title: String,
         val amount: String,
         val category: String,
         val date: String,
-        val imageUrls: ImmutableList<String>,
+        val images: ImmutableList<Image>,
         val event: Event,
     ) {
         @Immutable

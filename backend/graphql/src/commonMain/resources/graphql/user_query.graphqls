@@ -77,4 +77,5 @@ type MoneyUsage {
 type Image {
     id: ImageId!
     url: String! @lazy
+    thumbnailUrl: String! @lazy
 }
