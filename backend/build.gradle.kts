@@ -112,7 +112,7 @@ dependencies {
 
     testImplementation(kotlin("test"))
     testImplementation(libs.kotestRunnerJunit5)
-    testImplementation("io.mockk:mockk:1.14.11")
+    testImplementation("io.mockk:mockk:1.14.12")
 }
 
 tasks.withType<Test>().configureEach {
