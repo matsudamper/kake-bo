@@ -154,10 +154,13 @@ internal fun Route.postImage(
                         message = "ImageTooLarge",
                     )
 
-                    is ImageStorageGateway.CreateThumbnailResult.ConvertFailed -> call.respondApiError(
-                        status = HttpStatusCode.UnprocessableEntity,
-                        message = "ThumbnailFailed: ${cause.message}",
-                    )
+                    is ImageStorageGateway.CreateThumbnailResult.ConvertFailed -> {
+                        TraceLogger.impl().noticeInfo("thumbnail convert failed: ${cause.message}")
+                        call.respondApiError(
+                            status = HttpStatusCode.UnprocessableEntity,
+                            message = "ThumbnailFailed",
+                        )
+                    }
 
                     is ImageStorageGateway.CreateThumbnailResult.Unavailable -> {
                         TraceLogger.impl().noticeThrowable(cause.cause, true)

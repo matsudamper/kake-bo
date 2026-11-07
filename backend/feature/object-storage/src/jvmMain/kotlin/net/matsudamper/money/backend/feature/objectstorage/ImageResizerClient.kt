@@ -38,29 +38,19 @@ class ImageResizerClient(
         data class Unavailable(val cause: Throwable) : Result
     }
 
+    /**
+     * put / delete と同じく例外は結果型に畳み込み、呼び出し元がロールバックできるようにする
+     */
     fun resize(
         userId: UserId,
         sourceKey: String,
         destinationKey: String,
     ): Result {
-        val token = jwtIssuer.issueWebIdentityToken(
-            subject = userId.value.toString(),
-            name = userId.value.toString(),
-            audience = config.audience,
-            ttl = Duration.ofMinutes(5),
-        )
-        val body = ResizeRequest(
-            source = ObjectRef(bucket = config.bucket, key = sourceKey),
-            destination = ObjectRef(bucket = config.bucket, key = destinationKey),
-            resize = ResizeRequest.Resize(shortSide = THUMBNAIL_SHORT_SIDE, maxLongSide = THUMBNAIL_MAX_LONG_SIDE),
-            output = ResizeRequest.Output(format = "webp", quality = THUMBNAIL_QUALITY),
-        )
-        val request = HttpRequest.newBuilder(URI(config.imageResizerEndpoint.trimEnd('/') + "/v1/resize"))
-            .timeout(requestTimeout)
-            .header("Authorization", "Bearer $token")
-            .header("Content-Type", "application/json")
-            .POST(HttpRequest.BodyPublishers.ofString(json.encodeToString(ResizeRequest.serializer(), body)))
-            .build()
+        val request = try {
+            buildRequest(userId = userId, sourceKey = sourceKey, destinationKey = destinationKey)
+        } catch (e: Exception) {
+            return Result.Unavailable(e)
+        }
 
         val response = try {
             httpClient.send(request, HttpResponse.BodyHandlers.ofString())
@@ -73,13 +63,39 @@ class ImageResizerClient(
             return Result.Unavailable(e)
         }
 
+        // ConvertFailed は画像自体が原因のものに限る。認証や設定の不備（401 / 403 / 404）や 429 は再試行できる障害として扱う
         return when (response.statusCode()) {
             204 -> Result.Success
             415 -> Result.UnsupportedFormat
             413 -> Result.TooLarge
-            in 400..499 -> Result.ConvertFailed(errorMessage(response))
+            400, 422 -> Result.ConvertFailed(errorMessage(response))
             else -> Result.Unavailable(IOException("image resizer returned ${response.statusCode()}: ${errorMessage(response)}"))
         }
+    }
+
+    private fun buildRequest(
+        userId: UserId,
+        sourceKey: String,
+        destinationKey: String,
+    ): HttpRequest {
+        val token = jwtIssuer.issueWebIdentityToken(
+            subject = userId.value.toString(),
+            name = userId.value.toString(),
+            audience = config.audience,
+            ttl = Duration.ofMinutes(5),
+        )
+        val body = ResizeRequest(
+            source = ObjectRef(bucket = config.bucket, key = sourceKey),
+            destination = ObjectRef(bucket = config.bucket, key = destinationKey),
+            resize = ResizeRequest.Resize(shortSide = THUMBNAIL_SHORT_SIDE, maxLongSide = THUMBNAIL_MAX_LONG_SIDE),
+            output = ResizeRequest.Output(format = "webp", quality = THUMBNAIL_QUALITY),
+        )
+        return HttpRequest.newBuilder(URI(config.imageResizerEndpoint.trimEnd('/') + "/v1/resize"))
+            .timeout(requestTimeout)
+            .header("Authorization", "Bearer $token")
+            .header("Content-Type", "application/json")
+            .POST(HttpRequest.BodyPublishers.ofString(json.encodeToString(ResizeRequest.serializer(), body)))
+            .build()
     }
 
     private fun errorMessage(response: HttpResponse<String>): String {
