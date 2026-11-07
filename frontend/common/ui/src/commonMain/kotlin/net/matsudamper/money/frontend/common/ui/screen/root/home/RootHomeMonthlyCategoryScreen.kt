@@ -56,7 +56,6 @@ import net.matsudamper.money.frontend.common.ui.base.RootScreenScaffold
 import net.matsudamper.money.frontend.common.ui.layout.graph.pie.PieChart
 import net.matsudamper.money.frontend.common.ui.layout.graph.pie.PieChartItem
 import net.matsudamper.money.frontend.common.ui.layout.image.ImageLoadingPlaceholder
-import net.matsudamper.money.frontend.common.ui.layout.image.ListImage
 import net.matsudamper.money.frontend.common.ui.layout.image.ZoomableImageDialog
 
 public data class RootHomeMonthlyCategoryScreenUiState(
@@ -68,12 +67,17 @@ public data class RootHomeMonthlyCategoryScreenUiState(
     val currentSortType: SortSectionType,
     val sortOrder: SortSectionOrder,
 ) {
+    public data class ImageItem(
+        val thumbnailUrl: String,
+        val url: String,
+    )
+
     public data class Item(
         val title: String,
         val amount: String,
         val subCategory: String,
         val date: String,
-        val images: ImmutableList<ListImage>,
+        val images: ImmutableList<ImageItem>,
         val event: Event,
     ) {
         @Immutable

@@ -60,7 +60,6 @@ import net.matsudamper.money.frontend.common.ui.base.LoadingErrorContent
 import net.matsudamper.money.frontend.common.ui.layout.graph.pie.PieChart
 import net.matsudamper.money.frontend.common.ui.layout.graph.pie.PieChartItem
 import net.matsudamper.money.frontend.common.ui.layout.image.ImageLoadingPlaceholder
-import net.matsudamper.money.frontend.common.ui.layout.image.ListImage
 import net.matsudamper.money.frontend.common.ui.layout.image.ZoomableImageDialog
 import net.matsudamper.money.frontend.common.ui.screen.root.home.HomePreviewSurface
 import net.matsudamper.money.frontend.common.ui.screen.root.home.SortSection
@@ -88,13 +87,18 @@ public data class RootHomeMonthlyScreenUiState(
         ) : LoadingState
     }
 
+    public data class ImageItem(
+        val thumbnailUrl: String,
+        val url: String,
+    )
+
     public data class Item(
         val title: String,
         val amount: String,
         val date: String,
         val category: String,
         val categoryColor: Color,
-        val images: ImmutableList<ListImage>,
+        val images: ImmutableList<ImageItem>,
         val event: ItemEvent,
     )
 
@@ -384,7 +388,7 @@ private fun RootHomeMonthlyScreenPreviewContent(isDarkTheme: Boolean) {
                             date = "2026/02/25",
                             category = "ショッピング",
                             categoryColor = Color(0xFFE65100),
-                            images = listOf<ListImage>().toImmutableList(),
+                            images = listOf<RootHomeMonthlyScreenUiState.ImageItem>().toImmutableList(),
                             event = noOpItemEvent,
                         ),
                         RootHomeMonthlyScreenUiState.Item(
@@ -393,7 +397,7 @@ private fun RootHomeMonthlyScreenPreviewContent(isDarkTheme: Boolean) {
                             date = "2026/02/24",
                             category = "食費",
                             categoryColor = Color(0xFF558B2F),
-                            images = listOf<ListImage>().toImmutableList(),
+                            images = listOf<RootHomeMonthlyScreenUiState.ImageItem>().toImmutableList(),
                             event = noOpItemEvent,
                         ),
                         RootHomeMonthlyScreenUiState.Item(
@@ -402,7 +406,7 @@ private fun RootHomeMonthlyScreenPreviewContent(isDarkTheme: Boolean) {
                             date = "2026/02/20",
                             category = "光熱費",
                             categoryColor = Color(0xFF1565C0),
-                            images = listOf<ListImage>().toImmutableList(),
+                            images = listOf<RootHomeMonthlyScreenUiState.ImageItem>().toImmutableList(),
                             event = noOpItemEvent,
                         ),
                     ).toImmutableList(),

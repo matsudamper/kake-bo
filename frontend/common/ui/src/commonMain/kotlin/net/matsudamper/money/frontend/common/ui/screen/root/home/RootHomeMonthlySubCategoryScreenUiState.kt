@@ -3,7 +3,6 @@ package net.matsudamper.money.frontend.common.ui.screen.root.home
 import androidx.compose.runtime.Immutable
 import net.matsudamper.money.frontend.common.base.ImmutableList
 import net.matsudamper.money.frontend.common.ui.base.KakeboScaffoldListener
-import net.matsudamper.money.frontend.common.ui.layout.image.ListImage
 
 public data class RootHomeMonthlySubCategoryScreenUiState(
     val loadingState: LoadingState,
@@ -14,12 +13,17 @@ public data class RootHomeMonthlySubCategoryScreenUiState(
     val currentSortType: SortSectionType,
     val sortOrder: SortSectionOrder,
 ) {
+    public data class ImageItem(
+        val thumbnailUrl: String,
+        val url: String,
+    )
+
     public data class Item(
         val title: String,
         val amount: String,
         val category: String,
         val date: String,
-        val images: ImmutableList<ListImage>,
+        val images: ImmutableList<ImageItem>,
         val event: Event,
     ) {
         @Immutable

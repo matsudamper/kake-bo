@@ -32,7 +32,6 @@ import net.matsudamper.money.frontend.common.base.nav.user.RootHomeScreenStructu
 import net.matsudamper.money.frontend.common.base.nav.user.ScreenNavController
 import net.matsudamper.money.frontend.common.base.nav.user.ScreenStructure
 import net.matsudamper.money.frontend.common.ui.base.KakeboScaffoldListener
-import net.matsudamper.money.frontend.common.ui.layout.image.ListImage
 import net.matsudamper.money.frontend.common.ui.screen.root.home.RootHomeMonthlySubCategoryScreenUiState
 import net.matsudamper.money.frontend.common.ui.screen.root.home.SortSectionOrder
 import net.matsudamper.money.frontend.common.ui.screen.root.home.SortSectionType
@@ -182,7 +181,12 @@ public class RootHomeMonthlySubCategoryScreenViewModel(
             amount = "${Formatter.formatMoney(node.amount)}円",
             category = node.moneyUsageSubCategory?.name.orEmpty(),
             date = Formatter.formatDateTime(node.date),
-            images = node.images.map { ListImage(thumbnailUrl = it.thumbnailUrl ?: it.url, url = it.url) }.toImmutableList(),
+            images = node.images.map { image ->
+                RootHomeMonthlySubCategoryScreenUiState.ImageItem(
+                    thumbnailUrl = image.thumbnailUrl ?: image.url,
+                    url = image.url,
+                )
+            }.toImmutableList(),
             event = object : RootHomeMonthlySubCategoryScreenUiState.Item.Event {
                 override fun onClick() {
                     viewModelScope.launch {
