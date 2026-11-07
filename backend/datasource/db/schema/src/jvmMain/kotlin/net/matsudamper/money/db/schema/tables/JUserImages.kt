@@ -120,7 +120,7 @@ open class JUserImages(
     /**
      * The column <code>money.user_images.thumbnail_path</code>.
      */
-    val THUMBNAIL_PATH: TableField<JUserImagesRecord, String?> = createField(DSL.name("thumbnail_path"), SQLDataType.VARCHAR(1000), this, "")
+    val THUMBNAIL_PATH: TableField<JUserImagesRecord, String?> = createField(DSL.name("thumbnail_path"), SQLDataType.VARCHAR(1000).defaultValue(DSL.field(DSL.raw("NULL"), SQLDataType.VARCHAR)), this, "")
 
     private constructor(alias: Name, aliased: Table<JUserImagesRecord>?): this(alias, null, null, null, aliased, null, null)
     private constructor(alias: Name, aliased: Table<JUserImagesRecord>?, parameters: Array<Field<*>?>?): this(alias, null, null, null, aliased, parameters, null)
