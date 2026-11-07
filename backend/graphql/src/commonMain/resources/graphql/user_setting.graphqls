@@ -7,6 +7,7 @@ type UserSettings {
     hasPassword: Boolean! @lazy
     timezoneOffsetMinutes: Int! @lazy
     aiConfig: UserAiConfig! @lazy
+    isAdminUser: Boolean! @lazy
 }
 
 type ApiTokenAttributes {

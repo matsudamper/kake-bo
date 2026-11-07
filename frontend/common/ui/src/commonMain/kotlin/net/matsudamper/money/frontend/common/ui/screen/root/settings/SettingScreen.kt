@@ -36,6 +36,7 @@ import org.jetbrains.compose.resources.painterResource
 
 public data class RootSettingScreenUiState(
     val kotlinVersion: String,
+    val adminMenuVisible: Boolean,
     val kakeboScaffoldListener: KakeboScaffoldListener,
     val event: Event,
 ) {
@@ -56,6 +57,7 @@ public data class RootSettingScreenUiState(
         public fun onClickUploadQueueDebug()
         public fun onClickTimezoneSetting()
         public fun onClickAiSetting()
+        public fun onClickAdmin()
     }
 }
 
@@ -193,6 +195,13 @@ private fun MainContent(
                 ) {
                     Text("画像アップロードキュー")
                 }
+                if (uiState.adminMenuVisible) {
+                    SettingListMenuItemButton(
+                        onClick = { uiState.event.onClickAdmin() },
+                    ) {
+                        Text("管理画面")
+                    }
+                }
                 Spacer(modifier = Modifier.height(24.dp))
                 Text(
                     modifier = Modifier.fillMaxWidth(),
@@ -211,6 +220,7 @@ private fun Preview() {
         SettingRootScreen(
             uiState = RootSettingScreenUiState(
                 kotlinVersion = "preview",
+                adminMenuVisible = true,
                 kakeboScaffoldListener = object : KakeboScaffoldListener {
                     override fun onClickTitle() {}
                 },
@@ -226,6 +236,7 @@ private fun Preview() {
                     override fun onClickUploadQueueDebug() {}
                     override fun onClickTimezoneSetting() {}
                     override fun onClickAiSetting() {}
+                    override fun onClickAdmin() {}
                 },
             ),
             windowInsets = PaddingValues(),
