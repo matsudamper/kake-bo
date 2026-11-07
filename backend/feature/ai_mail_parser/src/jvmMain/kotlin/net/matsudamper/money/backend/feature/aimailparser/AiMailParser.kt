@@ -20,17 +20,32 @@ class AiMailParser(
     fun parse(
         apiKey: String,
         model: GeminiGateway.Model,
-        systemInstruction: String,
+        additionalRules: String,
         input: AiMailParseInput,
     ): Result<List<AiParsedUsage>> {
         return geminiGateway.generateJson(
             apiKey = apiKey,
             model = model,
-            systemInstruction = systemInstruction,
+            systemInstruction = buildSystemInstruction(additionalRules),
             userText = MailBodyTextBuilder.build(input = input, maxBodyLength = MAX_BODY_LENGTH),
             responseSchemaJson = RESPONSE_SCHEMA_JSON,
         ).mapCatching { text ->
             parseResponse(text)
+        }
+    }
+
+    private fun buildSystemInstruction(additionalRules: String): String {
+        if (additionalRules.isBlank()) return SYSTEM_INSTRUCTION
+        return buildString {
+            appendLine(SYSTEM_INSTRUCTION)
+            appendLine()
+            appendLine("## ユーザーの追加ルール")
+            appendLine("以下はユーザーが指定した追加ルールです。追加ルールは上記の指示より優先してください。")
+            appendLine("上記の指示と矛盾する場合は追加ルールに従い、矛盾しない部分は上記の指示にも従ってください。")
+            appendLine("ただし、出力は指定されたJSONの形式を必ず守ってください。")
+            appendLine("<additional_rules>")
+            appendLine(additionalRules)
+            append("</additional_rules>")
         }
     }
 
@@ -73,7 +88,7 @@ class AiMailParser(
         // 長い広告メールでトークンを使い過ぎないように本文を切り詰める
         private const val MAX_BODY_LENGTH = 30_000
 
-        val DEFAULT_SYSTEM_INSTRUCTION = """
+        private val SYSTEM_INSTRUCTION = """
             あなたは家計簿アプリのためにメールから支出を抽出するアシスタントです。
             与えられたメールから、実際に支払いや購入、利用が発生した項目を抽出してください。
             - 1通のメールに複数の支払いがある場合は、支払いごとに分けて出力してください。

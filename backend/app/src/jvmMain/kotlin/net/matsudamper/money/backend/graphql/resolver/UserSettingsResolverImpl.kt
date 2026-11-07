@@ -6,7 +6,6 @@ import java.util.concurrent.CompletionStage
 import graphql.execution.DataFetcherResult
 import graphql.schema.DataFetchingEnvironment
 import net.matsudamper.money.backend.base.ServerEnv
-import net.matsudamper.money.backend.feature.aimailparser.AiMailParser
 import net.matsudamper.money.backend.fido.AuthenticatorConverter
 import net.matsudamper.money.backend.graphql.GraphQlContext
 import net.matsudamper.money.backend.graphql.otelSupplyAsync
@@ -60,7 +59,6 @@ class UserSettingsResolverImpl : UserSettingsResolver {
             val apiKey = context.diContainer.createUserConfigRepository().getGeminiApiKey(userId)
             QlUserAiConfig(
                 hasGeminiApiKey = apiKey.isNullOrBlank().not(),
-                defaultMailParsePrompt = AiMailParser.DEFAULT_SYSTEM_INSTRUCTION,
             )
         }.toDataFetcher()
     }

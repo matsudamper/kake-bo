@@ -98,9 +98,9 @@ public data class MailScreenUiState(
     }
 
     public data class AiParsePromptDialog(
-        val prompt: String,
+        val additionalRules: String,
+        val clearAdditionalRulesButtonEnabled: Boolean,
         val modelOptions: ImmutableList<AiParseModelOption>,
-        val promptInputVisible: Boolean,
         val event: AiParsePromptDialogEvent,
     )
 
@@ -117,13 +117,9 @@ public data class MailScreenUiState(
 
     @Immutable
     public interface AiParsePromptDialogEvent {
-        public fun onClickEditPrompt()
+        public fun onChangeAdditionalRules(additionalRules: String)
 
-        public fun onCompletePromptEdit(prompt: String)
-
-        public fun onCancelPromptEdit()
-
-        public fun onClickResetPrompt()
+        public fun onClickClearAdditionalRules()
 
         public fun onClickSend()
 
