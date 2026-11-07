@@ -11,7 +11,7 @@ activity = "1.13.0"
 appcompat = "1.8.0"
 agp = "9.2.1"
 jackson = "2.22.4"
-compose = "1.12.1"
+compose = "1.12.2"
 androidxComposeRuntime = "1.12.1"
 protoBuf = "4.36.2"
 lifecycle = "2.11.0"
@@ -22,7 +22,7 @@ coil3 = "3.6.3"
 zoomable = "2.16.0"
 okhttp = "5.5.1"
 graalvmNative = "1.1.17"
-opentelemetry = "1.67.0"
+opentelemetry = "1.68.0"
 opentelemetryInstrumentation = "2.29.0-alpha"
 paparazzi = "2.0.0-alpha05.1"
 composablePreviewScanner = "0.10.0"
@@ -31,7 +31,7 @@ room3 = "3.0.3"
 sqlite = "2.7.1"
 workmanager = "2.12.0"
 timber = "5.0.1"
-ksp = "2.3.12"
+ksp = "2.3.13"
 detekt = "2.0.0-alpha.6"
 
 [plugins]
@@ -144,7 +144,7 @@ androidxNavigation3Runtime = { module = "androidx.navigation3:navigation3-runtim
 androidxNavigation3Ui = { module = "androidx.navigation3:navigation3-ui", version.ref = "nav3" }
 jetbrainsNavigation3Ui = { module = "org.jetbrains.androidx.navigation3:navigation3-ui", version.ref = "jetbrainsNav3" }
 androidxComposeSaveable = { module = "androidx.compose.runtime:runtime-saveable", version.ref = "androidxComposeRuntime" }
-composeUiToolingPreview = { module = "org.jetbrains.compose.ui:ui-tooling-preview", version = "1.12.1" }
+composeUiToolingPreview = { module = "org.jetbrains.compose.ui:ui-tooling-preview", version = "1.12.2" }
 composeUiTooling = { module = "org.jetbrains.compose.ui:ui-tooling", version.ref = "compose" }
 
 # Test
@@ -205,7 +205,7 @@ timber = { module = "com.jakewharton.timber:timber", version.ref = "timber" }
 
 # Other
 lettuce = { module = "io.lettuce:lettuce-core", version.require = "7.8.0.RELEASE" }
-jsoup = { module = "org.jsoup:jsoup", version.require = "1.23.2" }
+jsoup = { module = "org.jsoup:jsoup", version.require = "1.24.1" }
 hikariCP = { module = "com.zaxxer:HikariCP", version.require = "7.1.0" }
 mariadbClient = { module = "org.mariadb.jdbc:mariadb-java-client", version.require = "3.5.11" }
 
