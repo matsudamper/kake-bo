@@ -6,12 +6,7 @@ import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
-import androidx.compose.foundation.layout.heightIn
-import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.rememberScrollState
-import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.AlertDialog
-import androidx.compose.material3.Card
 import androidx.compose.material3.FilterChip
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedButton
@@ -23,27 +18,10 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import net.matsudamper.money.frontend.common.base.immutableListOf
 import net.matsudamper.money.frontend.common.ui.AppRoot
-import net.matsudamper.money.frontend.common.ui.layout.html.text.fullscreen.FullScreenTextInput
+import net.matsudamper.money.frontend.common.ui.layout.MultilineTextField
 
 @Composable
 internal fun AiParsePromptDialog(
-    uiState: MailScreenUiState.AiParsePromptDialog,
-) {
-    if (uiState.additionalRulesInputVisible) {
-        FullScreenTextInput(
-            title = "追加ルール",
-            onComplete = { uiState.event.onCompleteAdditionalRulesEdit(it) },
-            canceled = { uiState.event.onCancelAdditionalRulesEdit() },
-            default = uiState.additionalRules,
-            isMultiline = true,
-        )
-    } else {
-        AiParsePromptSettingDialog(uiState = uiState)
-    }
-}
-
-@Composable
-private fun AiParsePromptSettingDialog(
     uiState: MailScreenUiState.AiParsePromptDialog,
 ) {
     AlertDialog(
@@ -75,27 +53,19 @@ private fun AiParsePromptSettingDialog(
                     style = MaterialTheme.typography.bodySmall,
                 )
                 Spacer(modifier = Modifier.height(4.dp))
-                Card(modifier = Modifier.fillMaxWidth()) {
-                    Text(
-                        modifier = Modifier
-                            .heightIn(max = 240.dp)
-                            .verticalScroll(rememberScrollState())
-                            .padding(8.dp),
-                        text = uiState.additionalRulesDisplayText,
-                        style = MaterialTheme.typography.bodySmall,
-                    )
-                }
+                MultilineTextField(
+                    modifier = Modifier.fillMaxWidth(),
+                    text = uiState.additionalRules,
+                    onValueChange = { uiState.event.onChangeAdditionalRules(it) },
+                    placeholder = "例: 商品明細は支出ごとに分けてください",
+                    textStyle = MaterialTheme.typography.bodySmall,
+                )
                 Spacer(modifier = Modifier.height(8.dp))
-                Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
-                    OutlinedButton(onClick = { uiState.event.onClickEditAdditionalRules() }) {
-                        Text("編集")
-                    }
-                    OutlinedButton(
-                        onClick = { uiState.event.onClickClearAdditionalRules() },
-                        enabled = uiState.clearAdditionalRulesButtonEnabled,
-                    ) {
-                        Text("クリア")
-                    }
+                OutlinedButton(
+                    onClick = { uiState.event.onClickClearAdditionalRules() },
+                    enabled = uiState.clearAdditionalRulesButtonEnabled,
+                ) {
+                    Text("クリア")
                 }
             }
         },
@@ -119,17 +89,13 @@ private fun AiParsePromptDialogPreview() {
         AiParsePromptDialog(
             uiState = MailScreenUiState.AiParsePromptDialog(
                 additionalRules = "- 商品明細は支出ごとに分けてください。",
-                additionalRulesDisplayText = "- 商品明細は支出ごとに分けてください。",
                 clearAdditionalRulesButtonEnabled = true,
                 modelOptions = immutableListOf(
                     createPreviewModelOption(label = "Flash Lite", selected = true),
                     createPreviewModelOption(label = "Flash", selected = false),
                 ),
-                additionalRulesInputVisible = false,
                 event = object : MailScreenUiState.AiParsePromptDialogEvent {
-                    override fun onClickEditAdditionalRules() {}
-                    override fun onCompleteAdditionalRulesEdit(additionalRules: String) {}
-                    override fun onCancelAdditionalRulesEdit() {}
+                    override fun onChangeAdditionalRules(additionalRules: String) {}
                     override fun onClickClearAdditionalRules() {}
                     override fun onClickSend() {}
                     override fun onDismissRequest() {}
