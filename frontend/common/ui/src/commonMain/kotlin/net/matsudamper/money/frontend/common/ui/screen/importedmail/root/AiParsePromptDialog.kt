@@ -29,12 +29,12 @@ import net.matsudamper.money.frontend.common.ui.layout.html.text.fullscreen.Full
 internal fun AiParsePromptDialog(
     uiState: MailScreenUiState.AiParsePromptDialog,
 ) {
-    if (uiState.promptInputVisible) {
+    if (uiState.additionalRulesInputVisible) {
         FullScreenTextInput(
-            title = "プロンプト",
-            onComplete = { uiState.event.onCompletePromptEdit(it) },
-            canceled = { uiState.event.onCancelPromptEdit() },
-            default = uiState.prompt,
+            title = "追加ルール",
+            onComplete = { uiState.event.onCompleteAdditionalRulesEdit(it) },
+            canceled = { uiState.event.onCancelAdditionalRulesEdit() },
+            default = uiState.additionalRules,
             isMultiline = true,
         )
     } else {
@@ -67,11 +67,11 @@ private fun AiParsePromptSettingDialog(
                 }
                 Spacer(modifier = Modifier.height(12.dp))
                 Text(
-                    text = "プロンプト",
+                    text = "追加ルール",
                     style = MaterialTheme.typography.titleSmall,
                 )
                 Text(
-                    text = "レスポンスのJSON定義は自動で付与されます",
+                    text = "サーバーのプロンプトより優先して適用されます",
                     style = MaterialTheme.typography.bodySmall,
                 )
                 Spacer(modifier = Modifier.height(4.dp))
@@ -81,17 +81,20 @@ private fun AiParsePromptSettingDialog(
                             .heightIn(max = 240.dp)
                             .verticalScroll(rememberScrollState())
                             .padding(8.dp),
-                        text = uiState.prompt,
+                        text = uiState.additionalRulesDisplayText,
                         style = MaterialTheme.typography.bodySmall,
                     )
                 }
                 Spacer(modifier = Modifier.height(8.dp))
                 Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
-                    OutlinedButton(onClick = { uiState.event.onClickEditPrompt() }) {
+                    OutlinedButton(onClick = { uiState.event.onClickEditAdditionalRules() }) {
                         Text("編集")
                     }
-                    OutlinedButton(onClick = { uiState.event.onClickResetPrompt() }) {
-                        Text("初期値に戻す")
+                    OutlinedButton(
+                        onClick = { uiState.event.onClickClearAdditionalRules() },
+                        enabled = uiState.clearAdditionalRulesButtonEnabled,
+                    ) {
+                        Text("クリア")
                     }
                 }
             }
@@ -115,19 +118,19 @@ private fun AiParsePromptDialogPreview() {
     AppRoot {
         AiParsePromptDialog(
             uiState = MailScreenUiState.AiParsePromptDialog(
-                prompt = "あなたは家計簿アプリのためにメールから支出を抽出するアシスタントです。\n" +
-                    "与えられたメールから、実際に支払いや購入、利用が発生した項目を抽出してください。\n" +
-                    "- 1通のメールに複数の支払いがある場合は、支払いごとに分けて出力してください。",
+                additionalRules = "- 商品明細は支出ごとに分けてください。",
+                additionalRulesDisplayText = "- 商品明細は支出ごとに分けてください。",
+                clearAdditionalRulesButtonEnabled = true,
                 modelOptions = immutableListOf(
                     createPreviewModelOption(label = "Flash Lite", selected = true),
                     createPreviewModelOption(label = "Flash", selected = false),
                 ),
-                promptInputVisible = false,
+                additionalRulesInputVisible = false,
                 event = object : MailScreenUiState.AiParsePromptDialogEvent {
-                    override fun onClickEditPrompt() {}
-                    override fun onCompletePromptEdit(prompt: String) {}
-                    override fun onCancelPromptEdit() {}
-                    override fun onClickResetPrompt() {}
+                    override fun onClickEditAdditionalRules() {}
+                    override fun onCompleteAdditionalRulesEdit(additionalRules: String) {}
+                    override fun onCancelAdditionalRulesEdit() {}
+                    override fun onClickClearAdditionalRules() {}
                     override fun onClickSend() {}
                     override fun onDismissRequest() {}
                 },

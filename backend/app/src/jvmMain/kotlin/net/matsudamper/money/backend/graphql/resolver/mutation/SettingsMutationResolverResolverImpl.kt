@@ -6,7 +6,6 @@ import java.util.concurrent.CompletionStage
 import graphql.GraphqlErrorBuilder
 import graphql.execution.DataFetcherResult
 import graphql.schema.DataFetchingEnvironment
-import net.matsudamper.money.backend.feature.aimailparser.AiMailParser
 import net.matsudamper.money.backend.graphql.GraphQlContext
 import net.matsudamper.money.backend.graphql.otelSupplyAsync
 import net.matsudamper.money.backend.graphql.otelThenApplyAsync
@@ -163,7 +162,6 @@ class SettingsMutationResolverResolverImpl : SettingsMutationResolver {
             }
             QlUserAiConfig(
                 hasGeminiApiKey = userConfigRepository.getGeminiApiKey(userId).isNullOrBlank().not(),
-                defaultMailParsePrompt = AiMailParser.DEFAULT_SYSTEM_INSTRUCTION,
             )
         }.toDataFetcher()
     }

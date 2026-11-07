@@ -1,10 +1,5 @@
 query ImportedMailScreen($id: ImportedMailId!) {
     user {
-        settings {
-            aiConfig {
-                defaultMailParsePrompt
-            }
-        }
         importedMailAttributes {
             mail(id: $id) {
                 id
@@ -54,9 +49,9 @@ mutation ImportedMailScreenDeleteMail($id: ImportedMailId!) {
     }
 }
 
-mutation ImportedMailScreenParseWithAi($id: ImportedMailId!, $prompt: String!, $model: AiMailParseModel!) {
+mutation ImportedMailScreenParseWithAi($id: ImportedMailId!, $additionalRules: String!, $model: AiMailParseModel!) {
     userMutation {
-        parseImportedMailWithAi(id: $id, prompt: $prompt, model: $model) {
+        parseImportedMailWithAi(id: $id, additionalRules: $additionalRules, model: $model) {
             usages {
                 title
                 description
