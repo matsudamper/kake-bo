@@ -22,7 +22,6 @@ import software.amazon.awssdk.services.s3.presigner.model.GetObjectPresignReques
 
 class S3ImageStorageGateway(
     private val stsCredentialProvider: StsCredentialProvider,
-    private val imageResizerClient: ImageResizerClient,
     private val config: ObjectStorageConfig,
 ) : ImageStorageGateway {
 
@@ -193,21 +192,6 @@ class S3ImageStorageGateway(
         )
     }
 
-    override fun createThumbnail(request: ImageStorageGateway.CreateThumbnailRequest): ImageStorageGateway.CreateThumbnailResult {
-        val result = imageResizerClient.resize(
-            userId = request.userId,
-            sourceKey = buildKey(request.sourceRelativePath),
-            destinationKey = buildKey(request.thumbnailRelativePath),
-        )
-        return when (result) {
-            ImageResizerClient.Result.Success -> ImageStorageGateway.CreateThumbnailResult.Success
-            ImageResizerClient.Result.UnsupportedFormat -> ImageStorageGateway.CreateThumbnailResult.UnsupportedFormat
-            ImageResizerClient.Result.TooLarge -> ImageStorageGateway.CreateThumbnailResult.TooLarge
-            is ImageResizerClient.Result.ConvertFailed -> ImageStorageGateway.CreateThumbnailResult.ConvertFailed(result.message)
-            is ImageResizerClient.Result.Unavailable -> ImageStorageGateway.CreateThumbnailResult.Unavailable(result.cause)
-        }
-    }
-
     /**
      * 画像取得時にS3のpresigned URLを直接返している。
      * 呼び出しのたびにSTS APIとS3Presignerを構築するため、画像が多いと
@@ -250,6 +234,6 @@ class S3ImageStorageGateway(
     }
 
     private fun buildKey(relativePath: String): String {
-        return "img/$relativePath"
+        return S3ImageKey.of(relativePath)
     }
 }

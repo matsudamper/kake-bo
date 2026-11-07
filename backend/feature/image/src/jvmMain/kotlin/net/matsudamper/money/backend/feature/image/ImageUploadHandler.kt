@@ -3,6 +3,7 @@ package net.matsudamper.money.backend.feature.image
 import java.io.InputStream
 import java.time.YearMonth
 import java.util.UUID
+import net.matsudamper.money.backend.app.interfaces.ImageResizerGateway
 import net.matsudamper.money.backend.app.interfaces.ImageStorageGateway
 import net.matsudamper.money.backend.app.interfaces.UserImageRepository
 import net.matsudamper.money.element.ImageId
@@ -95,20 +96,21 @@ class ImageUploadHandler {
         relativePath: String,
         thumbnailRelativePath: String,
     ): Result {
-        val thumbnailResult = request.imageStorageGateway.createThumbnail(
-            ImageStorageGateway.CreateThumbnailRequest(
+        val imageResizerGateway = request.imageResizerGateway
+        val thumbnailResult = imageResizerGateway?.createThumbnail(
+            ImageResizerGateway.Request(
                 userId = userId,
                 sourceRelativePath = relativePath,
                 thumbnailRelativePath = thumbnailRelativePath,
             ),
         )
         val storedThumbnailRelativePath = when (thumbnailResult) {
-            ImageStorageGateway.CreateThumbnailResult.Success -> thumbnailRelativePath
-            ImageStorageGateway.CreateThumbnailResult.NotSupported -> null
-            ImageStorageGateway.CreateThumbnailResult.UnsupportedFormat,
-            ImageStorageGateway.CreateThumbnailResult.TooLarge,
-            is ImageStorageGateway.CreateThumbnailResult.ConvertFailed,
-            is ImageStorageGateway.CreateThumbnailResult.Unavailable,
+            null -> null
+            ImageResizerGateway.Result.Success -> thumbnailRelativePath
+            ImageResizerGateway.Result.UnsupportedFormat,
+            ImageResizerGateway.Result.TooLarge,
+            is ImageResizerGateway.Result.ConvertFailed,
+            is ImageResizerGateway.Result.Unavailable,
             -> {
                 rollbackUpload(
                     request = request,
@@ -181,6 +183,7 @@ class ImageUploadHandler {
         val userId: UserId?,
         val userImageRepository: UserImageRepository,
         val imageStorageGateway: ImageStorageGateway,
+        val imageResizerGateway: ImageResizerGateway?,
         val maxUploadBytes: Long,
         val contentType: String?,
         val inputStream: InputStream,
@@ -196,7 +199,7 @@ class ImageUploadHandler {
         data class BadRequest(val message: String) : Result
         data object PayloadTooLarge : Result
         data class UnsupportedMediaType(val mediaType: String) : Result
-        data class ThumbnailFailed(val cause: ImageStorageGateway.CreateThumbnailResult) : Result
+        data class ThumbnailFailed(val cause: ImageResizerGateway.Result) : Result
         data class InternalServerError(val e: Throwable) : Result
     }
 }

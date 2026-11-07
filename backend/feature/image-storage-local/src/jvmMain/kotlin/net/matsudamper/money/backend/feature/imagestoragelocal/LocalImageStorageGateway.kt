@@ -67,10 +67,6 @@ class LocalImageStorageGateway(
         }
     }
 
-    override fun createThumbnail(request: ImageStorageGateway.CreateThumbnailRequest): ImageStorageGateway.CreateThumbnailResult {
-        return ImageStorageGateway.CreateThumbnailResult.NotSupported
-    }
-
     override fun buildDisplayUrl(request: ImageStorageGateway.BuildUrlRequest): String {
         return when (request.purpose) {
             ImageStorageGateway.Purpose.USER -> "https://${request.domain}/api/image/v1/${request.displayId}"

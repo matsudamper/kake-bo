@@ -10,6 +10,7 @@ import net.matsudamper.money.backend.app.interfaces.ChallengeRepository
 import net.matsudamper.money.backend.app.interfaces.DeleteUsageImageRelationDao
 import net.matsudamper.money.backend.app.interfaces.FidoRepository
 import net.matsudamper.money.backend.app.interfaces.GeminiGateway
+import net.matsudamper.money.backend.app.interfaces.ImageResizerGateway
 import net.matsudamper.money.backend.app.interfaces.ImageStorageGateway
 import net.matsudamper.money.backend.app.interfaces.ImportedMailRepository
 import net.matsudamper.money.backend.app.interfaces.MailFilterRepository
@@ -52,8 +53,8 @@ import net.matsudamper.money.backend.datasource.session.AdminSessionRepositoryPr
 import net.matsudamper.money.backend.datasource.session.UserSessionRepositoryProvider
 import net.matsudamper.money.backend.feature.gemini.GeminiGatewayImpl
 import net.matsudamper.money.backend.feature.imagestoragelocal.LocalImageStorageGateway
-import net.matsudamper.money.backend.feature.objectstorage.ImageResizerClient
 import net.matsudamper.money.backend.feature.objectstorage.ObjectStorageConfig
+import net.matsudamper.money.backend.feature.objectstorage.S3ImageResizerGateway
 import net.matsudamper.money.backend.feature.objectstorage.S3ImageStorageGateway
 import net.matsudamper.money.backend.feature.objectstorage.StsCredentialProvider
 import net.matsudamper.money.backend.feature.oidc.JwtIssuer
@@ -114,6 +115,7 @@ interface DiContainer {
     fun createOidcKeyManager(): OidcKeyManager?
     fun createJwtIssuer(): JwtIssuer?
     fun createWriteImageStorageGateway(): ImageStorageGateway
+    fun createImageResizerGateway(): ImageResizerGateway?
     fun createReadImageStorageGateway(storageType: UserImageRepository.StorageType): ImageStorageGateway
 }
 
@@ -367,12 +369,30 @@ class MainDiContainer : DiContainer {
         if (provider != null && config != null) {
             S3ImageStorageGateway(
                 stsCredentialProvider = provider,
-                imageResizerClient = ImageResizerClient(
-                    jwtIssuer = requireNotNull(createJwtIssuer()),
-                    config = config,
-                ),
                 config = config,
             )
+        } else {
+            null
+        }
+    }
+
+    private val s3ImageResizerGateway by lazy {
+        val issuer = createJwtIssuer()
+        val config = objectStorageConfig
+        if (issuer != null && config != null) {
+            S3ImageResizerGateway(
+                jwtIssuer = issuer,
+                config = config,
+            )
+        } else {
+            null
+        }
+    }
+
+    // サムネイル生成は S3 のときだけ。LOCAL は元画像のみで完了する
+    override fun createImageResizerGateway(): ImageResizerGateway? {
+        return if (ServerEnv.enableS3) {
+            s3ImageResizerGateway ?: throw IllegalStateException("S3 is enabled but image resizer config is missing.")
         } else {
             null
         }
@@ -430,5 +450,6 @@ class MainDiContainer : DiContainer {
         jwtIssuer
         stsCredentialProvider
         s3ImageStorageGateway
+        s3ImageResizerGateway
     }
 }
