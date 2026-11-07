@@ -52,6 +52,7 @@ import net.matsudamper.money.backend.datasource.session.AdminSessionRepositoryPr
 import net.matsudamper.money.backend.datasource.session.UserSessionRepositoryProvider
 import net.matsudamper.money.backend.feature.gemini.GeminiGatewayImpl
 import net.matsudamper.money.backend.feature.imagestoragelocal.LocalImageStorageGateway
+import net.matsudamper.money.backend.feature.objectstorage.ImageResizerClient
 import net.matsudamper.money.backend.feature.objectstorage.ObjectStorageConfig
 import net.matsudamper.money.backend.feature.objectstorage.S3ImageStorageGateway
 import net.matsudamper.money.backend.feature.objectstorage.StsCredentialProvider
@@ -340,6 +341,7 @@ class MainDiContainer : DiContainer {
                 roleSessionName = s3.s3RoleSessionName,
                 audience = s3.s3Audience,
                 pathStyleAccess = s3.s3PathStyleAccess,
+                imageResizerEndpoint = s3.imageResizerEndpoint,
             )
         } else {
             null
@@ -365,6 +367,10 @@ class MainDiContainer : DiContainer {
         if (provider != null && config != null) {
             S3ImageStorageGateway(
                 stsCredentialProvider = provider,
+                imageResizerClient = ImageResizerClient(
+                    jwtIssuer = requireNotNull(createJwtIssuer()),
+                    config = config,
+                ),
                 config = config,
             )
         } else {

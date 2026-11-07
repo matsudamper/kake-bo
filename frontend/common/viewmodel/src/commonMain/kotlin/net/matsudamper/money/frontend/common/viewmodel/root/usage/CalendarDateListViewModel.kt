@@ -114,7 +114,10 @@ public class CalendarDateListViewModel(
                             "${subCategory.category.name} / ${subCategory.name}"
                         },
                         images = result.images.map { image ->
-                            CalendarDateListScreenUiState.ImageItem(url = image.url)
+                            CalendarDateListScreenUiState.ImageItem(
+                                thumbnailUrl = image.thumbnailUrl ?: image.url,
+                                url = image.url,
+                            )
                         }.toImmutableList(),
                         event = object : CalendarDateListScreenUiState.ItemEvent {
                             override fun onClick() {

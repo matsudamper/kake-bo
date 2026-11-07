@@ -35,6 +35,7 @@ import net.matsudamper.money.frontend.common.base.nav.user.ScreenStructure
 import net.matsudamper.money.frontend.common.ui.base.KakeboScaffoldListener
 import net.matsudamper.money.frontend.common.ui.layout.graph.pie.PieChartItem
 import net.matsudamper.money.frontend.common.ui.layout.graph.pie.PieChartItemEvent
+import net.matsudamper.money.frontend.common.ui.layout.image.ListImage
 import net.matsudamper.money.frontend.common.ui.screen.root.home.RootHomeMonthlyCategoryScreenUiState
 import net.matsudamper.money.frontend.common.ui.screen.root.home.SortSectionOrder
 import net.matsudamper.money.frontend.common.ui.screen.root.home.SortSectionType
@@ -188,7 +189,7 @@ public class RootHomeMonthlyCategoryScreenViewModel(
             amount = "${Formatter.formatMoney(node.amount)}円",
             subCategory = node.moneyUsageSubCategory?.name.orEmpty(),
             date = Formatter.formatDateTime(node.date),
-            imageUrls = node.images.map { it.url }.toImmutableList(),
+            images = node.images.map { ListImage(thumbnailUrl = it.thumbnailUrl ?: it.url, url = it.url) }.toImmutableList(),
             event = object : RootHomeMonthlyCategoryScreenUiState.Item.Event {
                 override fun onClick() {
                     viewModelScope.launch {

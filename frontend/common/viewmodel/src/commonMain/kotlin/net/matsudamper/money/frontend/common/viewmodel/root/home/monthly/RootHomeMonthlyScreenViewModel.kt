@@ -33,6 +33,7 @@ import net.matsudamper.money.frontend.common.base.nav.user.ScreenNavController
 import net.matsudamper.money.frontend.common.base.nav.user.ScreenStructure
 import net.matsudamper.money.frontend.common.ui.layout.graph.pie.PieChartItem
 import net.matsudamper.money.frontend.common.ui.layout.graph.pie.PieChartItemEvent
+import net.matsudamper.money.frontend.common.ui.layout.image.ListImage
 import net.matsudamper.money.frontend.common.ui.screen.root.home.SortSectionOrder
 import net.matsudamper.money.frontend.common.ui.screen.root.home.SortSectionType
 import net.matsudamper.money.frontend.common.ui.screen.root.home.monthly.RootHomeMonthlyScreenUiState
@@ -203,7 +204,7 @@ public class RootHomeMonthlyScreenViewModel(
                     date = Formatter.formatDateTime(node.date),
                     category = categoryName,
                     categoryColor = reservedColorModel.getColor(categoryName),
-                    imageUrls = node.images.map { it.url }.toImmutableList(),
+                    images = node.images.map { ListImage(thumbnailUrl = it.thumbnailUrl ?: it.url, url = it.url) }.toImmutableList(),
                     event = ItemEventImpl(
                         coroutineScope = viewModelScope,
                         eventSender = eventSender,

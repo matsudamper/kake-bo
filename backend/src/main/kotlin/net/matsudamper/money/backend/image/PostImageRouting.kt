@@ -10,6 +10,7 @@ import io.ktor.server.response.respondText
 import io.ktor.server.routing.Route
 import io.ktor.server.routing.post
 import io.ktor.utils.io.jvm.javaio.toInputStream
+import net.matsudamper.money.backend.app.interfaces.ImageStorageGateway
 import net.matsudamper.money.backend.base.ServerEnv
 import net.matsudamper.money.backend.base.TraceLogger
 import net.matsudamper.money.backend.di.DiContainer
@@ -139,6 +140,37 @@ internal fun Route.postImage(
                     status = HttpStatusCode.UnsupportedMediaType,
                     message = "UnsupportedMediaType: ${uploadResult.mediaType}",
                 )
+            }
+
+            is ImageUploadHandler.Result.ThumbnailFailed -> {
+                when (val cause = uploadResult.cause) {
+                    ImageStorageGateway.CreateThumbnailResult.UnsupportedFormat -> call.respondApiError(
+                        status = HttpStatusCode.UnsupportedMediaType,
+                        message = "UnsupportedImageFormat",
+                    )
+
+                    ImageStorageGateway.CreateThumbnailResult.TooLarge -> call.respondApiError(
+                        status = HttpStatusCode.PayloadTooLarge,
+                        message = "ImageTooLarge",
+                    )
+
+                    is ImageStorageGateway.CreateThumbnailResult.ConvertFailed -> call.respondApiError(
+                        status = HttpStatusCode.UnprocessableEntity,
+                        message = "ThumbnailFailed: ${cause.message}",
+                    )
+
+                    is ImageStorageGateway.CreateThumbnailResult.Unavailable -> {
+                        TraceLogger.impl().noticeThrowable(cause.cause, true)
+                        call.respondApiError(
+                            status = HttpStatusCode.ServiceUnavailable,
+                            message = "ThumbnailServiceUnavailable",
+                        )
+                    }
+
+                    ImageStorageGateway.CreateThumbnailResult.Success,
+                    ImageStorageGateway.CreateThumbnailResult.NotSupported,
+                    -> throw IllegalStateException("ThumbnailFailed に成功系の結果が渡されました: $cause")
+                }
             }
         }
     }

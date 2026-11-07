@@ -56,6 +56,7 @@ import net.matsudamper.money.frontend.common.ui.base.RootScreenScaffold
 import net.matsudamper.money.frontend.common.ui.layout.graph.pie.PieChart
 import net.matsudamper.money.frontend.common.ui.layout.graph.pie.PieChartItem
 import net.matsudamper.money.frontend.common.ui.layout.image.ImageLoadingPlaceholder
+import net.matsudamper.money.frontend.common.ui.layout.image.ListImage
 import net.matsudamper.money.frontend.common.ui.layout.image.ZoomableImageDialog
 
 public data class RootHomeMonthlyCategoryScreenUiState(
@@ -72,7 +73,7 @@ public data class RootHomeMonthlyCategoryScreenUiState(
         val amount: String,
         val subCategory: String,
         val date: String,
-        val imageUrls: ImmutableList<String>,
+        val images: ImmutableList<ListImage>,
         val event: Event,
     ) {
         @Immutable
@@ -317,7 +318,7 @@ private fun ListItem(
                         )
                     }
                 }
-                if (showImages && item.imageUrls.isNotEmpty()) {
+                if (showImages && item.images.isNotEmpty()) {
                     val imageRowScrollConnection = remember {
                         object : NestedScrollConnection {
                             override fun onPostScroll(
@@ -332,14 +333,14 @@ private fun ListItem(
                         horizontalArrangement = Arrangement.spacedBy(8.dp),
                         contentPadding = PaddingValues(padding),
                     ) {
-                        items(item.imageUrls) { url ->
+                        items(item.images) { image ->
                             SubcomposeAsyncImage(
-                                model = url,
+                                model = image.thumbnailUrl,
                                 contentDescription = null,
                                 contentScale = ContentScale.Crop,
                                 modifier = Modifier.size(80.dp)
                                     .clickable {
-                                        onClickImage(url)
+                                        onClickImage(image.url)
                                     },
                                 loading = { ImageLoadingPlaceholder() },
                             )

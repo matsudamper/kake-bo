@@ -20,9 +20,15 @@ class ImageUploadHandler {
         val contentType = request.contentType ?: return unsupportedMediaType
 
         val displayUUID = UUID.randomUUID().toString()
+        val yearMonth = YearMonth.now().toString()
         val relativePath = createRelativePath(
+            yearMonth = yearMonth,
             displayId = displayUUID,
             extension = extension,
+        )
+        val thumbnailRelativePath = createThumbnailRelativePath(
+            yearMonth = yearMonth,
+            displayId = displayUUID,
         )
 
         val storageType = when (request.imageStorageGateway.storageType) {
@@ -65,13 +71,81 @@ class ImageUploadHandler {
             }
 
             is ImageStorageGateway.PutResult.Success -> {
-                request.userImageRepository.markImageAsUploaded(userId = userId, imageId = imageId)
-                Result.Success(
+                completeWithThumbnail(
+                    request = request,
+                    userId = userId,
                     imageId = imageId,
                     displayId = displayUUID,
+                    relativePath = relativePath,
+                    thumbnailRelativePath = thumbnailRelativePath,
                 )
             }
         }
+    }
+
+    /**
+     * サムネイル生成の成功をアップロード成功の条件にする。
+     * 失敗したら元画像と予約行を消し、クライアントにはアップロード失敗として返す。
+     */
+    private fun completeWithThumbnail(
+        request: Request,
+        userId: UserId,
+        imageId: ImageId,
+        displayId: String,
+        relativePath: String,
+        thumbnailRelativePath: String,
+    ): Result {
+        val thumbnailResult = request.imageStorageGateway.createThumbnail(
+            ImageStorageGateway.CreateThumbnailRequest(
+                userId = userId,
+                sourceRelativePath = relativePath,
+                thumbnailRelativePath = thumbnailRelativePath,
+            ),
+        )
+        val storedThumbnailRelativePath = when (thumbnailResult) {
+            ImageStorageGateway.CreateThumbnailResult.Success -> thumbnailRelativePath
+            ImageStorageGateway.CreateThumbnailResult.NotSupported -> null
+            ImageStorageGateway.CreateThumbnailResult.UnsupportedFormat,
+            ImageStorageGateway.CreateThumbnailResult.TooLarge,
+            is ImageStorageGateway.CreateThumbnailResult.ConvertFailed,
+            is ImageStorageGateway.CreateThumbnailResult.Unavailable,
+            -> {
+                rollbackUpload(
+                    request = request,
+                    userId = userId,
+                    imageId = imageId,
+                    relativePaths = listOf(relativePath, thumbnailRelativePath),
+                )
+                return Result.ThumbnailFailed(thumbnailResult)
+            }
+        }
+
+        request.userImageRepository.markImageAsUploaded(
+            userId = userId,
+            imageId = imageId,
+            thumbnailRelativePath = storedThumbnailRelativePath,
+        )
+        return Result.Success(
+            imageId = imageId,
+            displayId = displayId,
+        )
+    }
+
+    private fun rollbackUpload(
+        request: Request,
+        userId: UserId,
+        imageId: ImageId,
+        relativePaths: List<String>,
+    ) {
+        for (relativePath in relativePaths) {
+            request.imageStorageGateway.delete(
+                ImageStorageGateway.DeleteRequest(
+                    userId = userId,
+                    relativePath = relativePath,
+                ),
+            )
+        }
+        request.userImageRepository.deleteReserveImage(userId = userId, imageId = imageId)
     }
 
     private fun resolveImageExtension(
@@ -82,7 +156,6 @@ class ImageUploadHandler {
             "image/png" -> "png"
             "image/gif" -> "gif"
             "image/webp" -> "webp"
-            "image/bmp" -> "bmp"
             "image/heic" -> "heic"
             "image/heif" -> "heif"
             else -> null
@@ -90,11 +163,18 @@ class ImageUploadHandler {
     }
 
     private fun createRelativePath(
+        yearMonth: String,
         displayId: String,
         extension: String,
     ): String {
-        val yearMonth = YearMonth.now().toString()
         return "$yearMonth/$displayId.$extension"
+    }
+
+    private fun createThumbnailRelativePath(
+        yearMonth: String,
+        displayId: String,
+    ): String {
+        return "$yearMonth/$displayId.thumb.webp"
     }
 
     data class Request(
@@ -116,6 +196,7 @@ class ImageUploadHandler {
         data class BadRequest(val message: String) : Result
         data object PayloadTooLarge : Result
         data class UnsupportedMediaType(val mediaType: String) : Result
+        data class ThumbnailFailed(val cause: ImageStorageGateway.CreateThumbnailResult) : Result
         data class InternalServerError(val e: Throwable) : Result
     }
 }

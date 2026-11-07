@@ -117,6 +117,11 @@ open class JUserImages(
      */
     val STORAGE_TYPE: TableField<JUserImagesRecord, String?> = createField(DSL.name("storage_type"), SQLDataType.VARCHAR(16).nullable(false).defaultValue(DSL.field(DSL.raw("'LOCAL'"), SQLDataType.VARCHAR)), this, "")
 
+    /**
+     * The column <code>money.user_images.thumbnail_path</code>.
+     */
+    val THUMBNAIL_PATH: TableField<JUserImagesRecord, String?> = createField(DSL.name("thumbnail_path"), SQLDataType.VARCHAR(1000), this, "")
+
     private constructor(alias: Name, aliased: Table<JUserImagesRecord>?): this(alias, null, null, null, aliased, null, null)
     private constructor(alias: Name, aliased: Table<JUserImagesRecord>?, parameters: Array<Field<*>?>?): this(alias, null, null, null, aliased, parameters, null)
     private constructor(alias: Name, aliased: Table<JUserImagesRecord>?, where: Condition?): this(alias, null, null, null, aliased, null, where)

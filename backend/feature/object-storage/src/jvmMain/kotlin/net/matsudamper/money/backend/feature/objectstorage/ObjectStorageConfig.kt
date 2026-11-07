@@ -9,4 +9,5 @@ public data class ObjectStorageConfig(
     val roleSessionName: String,
     val audience: String,
     val pathStyleAccess: Boolean,
+    val imageResizerEndpoint: String,
 )

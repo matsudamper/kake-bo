@@ -60,6 +60,7 @@ import net.matsudamper.money.frontend.common.ui.base.LoadingErrorContent
 import net.matsudamper.money.frontend.common.ui.layout.graph.pie.PieChart
 import net.matsudamper.money.frontend.common.ui.layout.graph.pie.PieChartItem
 import net.matsudamper.money.frontend.common.ui.layout.image.ImageLoadingPlaceholder
+import net.matsudamper.money.frontend.common.ui.layout.image.ListImage
 import net.matsudamper.money.frontend.common.ui.layout.image.ZoomableImageDialog
 import net.matsudamper.money.frontend.common.ui.screen.root.home.HomePreviewSurface
 import net.matsudamper.money.frontend.common.ui.screen.root.home.SortSection
@@ -93,7 +94,7 @@ public data class RootHomeMonthlyScreenUiState(
         val date: String,
         val category: String,
         val categoryColor: Color,
-        val imageUrls: ImmutableList<String>,
+        val images: ImmutableList<ListImage>,
         val event: ItemEvent,
     )
 
@@ -300,7 +301,7 @@ private fun LoadedContent(
                                     }
                                 }
                             }
-                            if (showImages && item.imageUrls.isNotEmpty()) {
+                            if (showImages && item.images.isNotEmpty()) {
                                 val imageRowScrollConnection = remember {
                                     object : NestedScrollConnection {
                                         override fun onPostScroll(
@@ -315,14 +316,14 @@ private fun LoadedContent(
                                     horizontalArrangement = Arrangement.spacedBy(8.dp),
                                     contentPadding = PaddingValues(padding),
                                 ) {
-                                    items(item.imageUrls) { url ->
+                                    items(item.images) { image ->
                                         SubcomposeAsyncImage(
-                                            model = url,
+                                            model = image.thumbnailUrl,
                                             contentDescription = null,
                                             contentScale = ContentScale.Crop,
                                             modifier = Modifier.size(80.dp)
                                                 .clickable {
-                                                    imageUrlState.value = url
+                                                    imageUrlState.value = image.url
                                                 },
                                             loading = { ImageLoadingPlaceholder() },
                                         )
@@ -383,7 +384,7 @@ private fun RootHomeMonthlyScreenPreviewContent(isDarkTheme: Boolean) {
                             date = "2026/02/25",
                             category = "ショッピング",
                             categoryColor = Color(0xFFE65100),
-                            imageUrls = listOf<String>().toImmutableList(),
+                            images = listOf<ListImage>().toImmutableList(),
                             event = noOpItemEvent,
                         ),
                         RootHomeMonthlyScreenUiState.Item(
@@ -392,7 +393,7 @@ private fun RootHomeMonthlyScreenPreviewContent(isDarkTheme: Boolean) {
                             date = "2026/02/24",
                             category = "食費",
                             categoryColor = Color(0xFF558B2F),
-                            imageUrls = listOf<String>().toImmutableList(),
+                            images = listOf<ListImage>().toImmutableList(),
                             event = noOpItemEvent,
                         ),
                         RootHomeMonthlyScreenUiState.Item(
@@ -401,7 +402,7 @@ private fun RootHomeMonthlyScreenPreviewContent(isDarkTheme: Boolean) {
                             date = "2026/02/20",
                             category = "光熱費",
                             categoryColor = Color(0xFF1565C0),
-                            imageUrls = listOf<String>().toImmutableList(),
+                            images = listOf<ListImage>().toImmutableList(),
                             event = noOpItemEvent,
                         ),
                     ).toImmutableList(),

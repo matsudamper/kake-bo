@@ -16,6 +16,7 @@ kotlin {
                 implementation(libs.awsS3)
                 implementation(libs.awsSts)
                 implementation(libs.kotlin.coroutines.core)
+                implementation(libs.kotlin.serialization.json)
             }
         }
     }

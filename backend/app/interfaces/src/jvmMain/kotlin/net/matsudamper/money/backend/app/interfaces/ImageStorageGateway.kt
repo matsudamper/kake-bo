@@ -10,6 +10,8 @@ public interface ImageStorageGateway {
 
     public fun delete(request: DeleteRequest): DeleteResult
 
+    public fun createThumbnail(request: CreateThumbnailRequest): CreateThumbnailResult
+
     public fun buildDisplayUrl(request: BuildUrlRequest): String
 
     public fun read(request: ReadRequest): ReadResult?
@@ -50,6 +52,25 @@ public interface ImageStorageGateway {
     public sealed interface DeleteResult {
         public data object Success : DeleteResult
         public data class Failure(val cause: Throwable) : DeleteResult
+    }
+
+    public data class CreateThumbnailRequest(
+        val userId: UserId,
+        val sourceRelativePath: String,
+        val thumbnailRelativePath: String,
+    )
+
+    public sealed interface CreateThumbnailResult {
+        public data object Success : CreateThumbnailResult
+
+        /** このストレージはサムネイル生成に対応しない。元画像のみで完了とする */
+        public data object NotSupported : CreateThumbnailResult
+        public data object UnsupportedFormat : CreateThumbnailResult
+        public data object TooLarge : CreateThumbnailResult
+        public data class ConvertFailed(val message: String) : CreateThumbnailResult
+
+        /** 変換サービスに到達できない、またはタイムアウト。クライアントは再試行してよい */
+        public data class Unavailable(val cause: Throwable) : CreateThumbnailResult
     }
 
     public data class BuildUrlRequest(
