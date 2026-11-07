@@ -45,4 +45,8 @@ type UserImapConfig {
 
 type UserAiConfig {
     hasGeminiApiKey: Boolean!
+    """
+    メールをAIで解析するときのプロンプトの初期値。レスポンスのJSON定義は含まない
+    """
+    defaultMailParsePrompt: String!
 }

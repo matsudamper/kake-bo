@@ -6,6 +6,7 @@ import java.util.concurrent.CompletableFuture
 import java.util.concurrent.CompletionStage
 import graphql.execution.DataFetcherResult
 import graphql.schema.DataFetchingEnvironment
+import net.matsudamper.money.backend.app.interfaces.GeminiGateway
 import net.matsudamper.money.backend.app.interfaces.MoneyUsageCategoryRepository
 import net.matsudamper.money.backend.app.interfaces.MoneyUsagePresetRepository
 import net.matsudamper.money.backend.app.interfaces.MoneyUsageRepository
@@ -55,6 +56,7 @@ import net.matsudamper.money.graphql.model.QlAddSubCategoryError
 import net.matsudamper.money.graphql.model.QlAddSubCategoryInput
 import net.matsudamper.money.graphql.model.QlAddSubCategoryResult
 import net.matsudamper.money.graphql.model.QlAddUsageQuery
+import net.matsudamper.money.graphql.model.QlAiMailParseModel
 import net.matsudamper.money.graphql.model.QlAiParsedMoneyUsage
 import net.matsudamper.money.graphql.model.QlChangeSessionNameResult
 import net.matsudamper.money.graphql.model.QlDeleteApiTokenResult
@@ -787,6 +789,8 @@ class UserMutationResolverImpl : UserMutationResolver {
     override fun parseImportedMailWithAi(
         userMutation: QlUserMutation,
         id: ImportedMailId,
+        prompt: String?,
+        model: QlAiMailParseModel?,
         env: DataFetchingEnvironment,
     ): CompletionStage<DataFetcherResult<QlParseImportedMailWithAiResult>> {
         val context = env.graphQlContext.get<GraphQlContext>(GraphQlContext::class.java.name)
@@ -801,6 +805,14 @@ class UserMutationResolverImpl : UserMutationResolver {
                 ).parse(
                     userId = userId,
                     importedMailId = id,
+                    model = when (model) {
+                        null,
+                        QlAiMailParseModel.FlashLite,
+                        -> GeminiGateway.Model.FlashLite
+
+                        QlAiMailParseModel.Flash -> GeminiGateway.Model.Flash
+                    },
+                    systemInstruction = prompt,
                 )
             }.onFailure {
                 TraceLogger.impl().noticeThrowable(it, isError = true)

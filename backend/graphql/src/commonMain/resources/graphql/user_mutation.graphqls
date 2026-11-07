@@ -8,8 +8,10 @@ type UserMutation {
     deleteImportedMail(id: ImportedMailId!): Boolean!
     """
     Gemini APIでメールを解析し、登録候補を返す。結果は保存しない
+    promptが未指定または空の場合はUserAiConfig.defaultMailParsePromptを使う
+    modelが未指定の場合はFlashLiteを使う
     """
-    parseImportedMailWithAi(id: ImportedMailId!): ParseImportedMailWithAiResult! @longRunning(timeoutSeconds: 90)
+    parseImportedMailWithAi(id: ImportedMailId!, prompt: String, model: AiMailParseModel): ParseImportedMailWithAiResult! @longRunning(timeoutSeconds: 90)
     deleteMail(mailIds: [MailId!]!): DeleteMailResult!
 
     addUsage(usage: AddUsageQuery!): MoneyUsage!
@@ -195,6 +197,11 @@ type AiParsedMoneyUsage {
     description: String!
     amount: Int
     dateTime: LocalDateTime
+}
+
+enum AiMailParseModel {
+    FlashLite,
+    Flash,
 }
 
 enum ParseImportedMailWithAiError {
