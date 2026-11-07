@@ -36,4 +36,29 @@ class ImageResolverImpl : ImageResolver {
             )
         }.toDataFetcher()
     }
+
+    override fun thumbnailUrl(
+        image: QlImage,
+        env: DataFetchingEnvironment,
+    ): CompletionStage<DataFetcherResult<String>> {
+        val context: GraphQlContext = env.graphQlContext.get(GraphQlContext::class.java.name)
+        val userId = context.verifyUserSessionAndGetUserId()
+        val domain = ServerEnv.domain
+            ?: throw IllegalStateException("DOMAIN is not configured")
+        return otelSupplyAsync {
+            val userImageRepository = context.diContainer.createUserImageRepository()
+
+            val displayIdMap = userImageRepository.getDisplayIdsByImageIds(
+                userId = userId,
+                imageIds = listOf(image.id),
+            )
+            val displayId = displayIdMap[image.id]
+                ?: throw IllegalStateException("displayId is not found: imageId=${image.id.value}")
+
+            ImageApiPath.imageV1ThumbnailAbsoluteByDisplayId(
+                domain = domain,
+                displayId = displayId,
+            )
+        }.toDataFetcher()
+    }
 }

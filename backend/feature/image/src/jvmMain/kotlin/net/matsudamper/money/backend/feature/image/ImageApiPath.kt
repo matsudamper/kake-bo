@@ -16,6 +16,13 @@ object ImageApiPath {
         return "https://$domain${imageV1ByDisplayId(displayId)}"
     }
 
+    fun imageV1ThumbnailAbsoluteByDisplayId(
+        domain: String,
+        displayId: String,
+    ): String {
+        return "${imageV1AbsoluteByDisplayId(domain = domain, displayId = displayId)}?type=thumbnail"
+    }
+
     fun adminImageV1AbsoluteByDisplayId(
         domain: String,
         displayId: String,
