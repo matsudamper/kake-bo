@@ -56,7 +56,6 @@ import net.matsudamper.money.frontend.common.viewmodel.root.home.LoginCheckUseCa
 import net.matsudamper.money.frontend.common.viewmodel.root.mail.HomeAddTabScreenViewModel
 import net.matsudamper.money.frontend.common.viewmodel.root.usage.RootUsageHostViewModel
 import net.matsudamper.money.frontend.feature.admin.AdminEntryProvider
-import net.matsudamper.money.frontend.graphql.GraphqlClient
 import net.matsudamper.money.frontend.graphql.GraphqlUserLoginQuery
 import net.matsudamper.money.ui.root.platform.PlatformTools
 import net.matsudamper.money.ui.root.viewmodel.LocalViewModelProviders
@@ -170,7 +169,7 @@ public fun Content(
                     ioDispatchers = Dispatchers.PlatformIO,
                     navController = navController,
                     api = SettingScreenGraphqlApi(
-                        apolloClient = koin.get<GraphqlClient>().apolloClient,
+                        graphqlClient = koin.get(),
                     ),
                 )
             }
