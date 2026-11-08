@@ -23,7 +23,10 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.semantics.Role
 import androidx.compose.ui.text.TextStyle
+import androidx.compose.ui.text.input.TextFieldValue
+import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import net.matsudamper.money.frontend.common.ui.AppRoot
 import net.matsudamper.money.frontend.common.ui.layout.TextField
 import net.matsudamper.money.frontend.common.ui.layout.TextFieldType
 import net.matsudamper.money.frontend.common.ui.rememberCustomFontFamily
@@ -136,4 +139,49 @@ private fun AccountTypeOption(
             },
         )
     }
+}
+
+@Preview
+@Composable
+private fun AdminLoginScreenAdminDisabledPreview() {
+    AppRoot(isDarkTheme = true) {
+        AdminLoginScreen(
+            uiState = createPreviewUiState(
+                selectedAccountType = AdminLoginScreenUiState.AccountType.User,
+                adminAccountOptionEnabled = false,
+            ),
+        )
+    }
+}
+
+@Preview
+@Composable
+private fun AdminLoginScreenAdminSelectedPreview() {
+    AppRoot(isDarkTheme = true) {
+        AdminLoginScreen(
+            uiState = createPreviewUiState(
+                selectedAccountType = AdminLoginScreenUiState.AccountType.Admin,
+                adminAccountOptionEnabled = true,
+            ),
+        )
+    }
+}
+
+private fun createPreviewUiState(
+    selectedAccountType: AdminLoginScreenUiState.AccountType,
+    adminAccountOptionEnabled: Boolean,
+): AdminLoginScreenUiState {
+    return AdminLoginScreenUiState(
+        selectedAccountType = selectedAccountType,
+        adminAccountOptionEnabled = adminAccountOptionEnabled,
+        passwordInputVisible = selectedAccountType == AdminLoginScreenUiState.AccountType.Admin,
+        password = TextFieldValue(),
+        listener = object : AdminLoginScreenUiState.Listener {
+            override fun onAccountTypeSelected(accountType: AdminLoginScreenUiState.AccountType) = Unit
+
+            override fun onPasswordChanged(text: String) = Unit
+
+            override fun onClickLogin() = Unit
+        },
+    )
 }
