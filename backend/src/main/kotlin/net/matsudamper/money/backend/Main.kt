@@ -98,7 +98,11 @@ fun Application.myApplicationModule(diContainer: DiContainer) {
     install(XForwardedHeaders)
     install(Compression)
     install(ConditionalHeaders)
-    install(WebSockets)
+    install(WebSockets) {
+        pingPeriodMillis = 15.seconds.inWholeMilliseconds
+        timeoutMillis = 30.seconds.inWholeMilliseconds
+        maxFrameSize = 1024L * 1024L
+    }
     install(ContentNegotiation) {
         json(
             json = ObjectMapper.kotlinxSerialization,

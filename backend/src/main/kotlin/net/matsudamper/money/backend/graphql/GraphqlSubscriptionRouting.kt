@@ -1,7 +1,9 @@
 package net.matsudamper.money.backend.graphql
 
 import java.time.OffsetDateTime
+import java.util.concurrent.ConcurrentHashMap
 import kotlinx.coroutines.CancellationException
+import kotlinx.coroutines.CoroutineStart
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.cancelAndJoin
 import kotlinx.coroutines.flow.onCompletion
@@ -34,7 +36,7 @@ internal fun Route.graphqlSubscription(diContainer: DiContainer) {
             cookieManager = WebSocketCookieManager(KtorCookieManager(call = call)),
             diContainer = diContainer,
         )
-        val subscriptions = mutableMapOf<String, Job>()
+        val subscriptions = ConcurrentHashMap<String, Job>()
 
         try {
             for (frame in incoming) {
@@ -52,11 +54,12 @@ internal fun Route.graphqlSubscription(diContainer: DiContainer) {
                             close(CloseReason(code = 4409, message = "Subscriber for $id already exists"))
                             return@webSocket
                         }
-                        subscriptions[id] = launch {
+                        val job = launch(start = CoroutineStart.LAZY) {
                             runSubscription(id = id, payload = payload, handler = handler)
-                        }.also { job ->
-                            job.invokeOnCompletion { subscriptions.remove(id) }
                         }
+                        subscriptions[id] = job
+                        job.invokeOnCompletion { subscriptions.remove(id, job) }
+                        job.start()
                     }
 
                     "complete" -> {

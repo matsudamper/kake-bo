@@ -1,9 +1,11 @@
 package net.matsudamper.money.backend.graphql.usecase
 
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.currentCoroutineContext
 import kotlinx.coroutines.ensureActive
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.flow
+import kotlinx.coroutines.flow.flowOn
 import net.matsudamper.money.backend.app.interfaces.AdminImageRepository
 import net.matsudamper.money.backend.app.interfaces.ImageResizerGateway
 import net.matsudamper.money.backend.feature.image.ThumbnailRelativePath
@@ -39,7 +41,7 @@ class AdminThumbnailBackfillUseCase(
                 afterImageId = image.imageId
             }
         }
-    }
+    }.flowOn(Dispatchers.IO)
 
     private fun process(image: AdminImageRepository.ImageWithoutThumbnail): Event {
         val thumbnailRelativePath = ThumbnailRelativePath.of(image.relativePath)
