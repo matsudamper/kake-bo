@@ -20,7 +20,7 @@ kotlin {
             dependencies {
                 implementation(kotlin("test"))
                 implementation(libs.kotestRunnerJunit5)
-                implementation("io.mockk:mockk:1.14.11")
+                implementation("io.mockk:mockk:1.14.12")
             }
         }
     }
