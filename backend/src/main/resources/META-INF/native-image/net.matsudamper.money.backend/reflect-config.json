@@ -403,6 +403,18 @@
     "allDeclaredFields": true
   },
   {
+    "name": "net.matsudamper.money.backend.graphql.ClientMessage",
+    "allDeclaredConstructors": true,
+    "allPublicMethods": true,
+    "allDeclaredFields": true
+  },
+  {
+    "name": "net.matsudamper.money.backend.graphql.SubscribePayload",
+    "allDeclaredConstructors": true,
+    "allPublicMethods": true,
+    "allDeclaredFields": true
+  },
+  {
     "name": "redis.clients.jedis.DefaultJedisClientConfig",
     "allPublicConstructors": true,
     "allDeclaredConstructors": true,

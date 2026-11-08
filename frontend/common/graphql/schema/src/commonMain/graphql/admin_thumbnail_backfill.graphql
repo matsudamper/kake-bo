@@ -1,0 +1,7 @@
+subscription AdminThumbnailBackfill {
+    adminThumbnailBackfill {
+        imageId
+        result
+        message
+    }
+}

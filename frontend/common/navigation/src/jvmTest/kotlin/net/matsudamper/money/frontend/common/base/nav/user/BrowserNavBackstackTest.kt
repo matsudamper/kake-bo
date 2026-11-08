@@ -150,13 +150,33 @@ public class BrowserNavBackstackTest : DescribeSpec(
             }
 
             context("delta == 0") {
-                it("エントリは変化しない") {
+                it("末尾がcurrentScreenと同じならエントリは変化しない") {
                     val backstack = BrowserNavBackstack(home)
                     backstack.navigate(screenA)
-                    backstack.handlePopState(delta = 0, currentScreen = screenB)
+                    backstack.handlePopState(delta = 0, currentScreen = screenA)
 
                     backstack.entries.map { it.sameScreenId }
                         .shouldBeEqual(listOf(home.sameScreenId, screenA.sameScreenId))
+                }
+
+                it("リロード後に戻ってindexが同じ場合は末尾がcurrentScreenに置き換わる") {
+                    val backstack = BrowserNavBackstack(home)
+                    backstack.addScreen(screenB)
+                    backstack.handlePopState(delta = 0, currentScreen = screenA)
+
+                    backstack.entries.map { it.sameScreenId }
+                        .shouldBeEqual(listOf(home.sameScreenId, screenA.sameScreenId))
+                }
+            }
+
+            context("リロード後にエントリに無い画面へ戻る") {
+                it("削除後の末尾がcurrentScreenと異なる場合は置き換わる") {
+                    val backstack = BrowserNavBackstack(home)
+                    backstack.addScreen(screenB)
+                    backstack.handlePopState(delta = -1, currentScreen = screenA)
+
+                    backstack.entries.map { it.sameScreenId }
+                        .shouldBeEqual(listOf(screenA.sameScreenId))
                 }
             }
         }

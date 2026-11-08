@@ -203,7 +203,12 @@ public class RootHomeMonthlyScreenViewModel(
                     date = Formatter.formatDateTime(node.date),
                     category = categoryName,
                     categoryColor = reservedColorModel.getColor(categoryName),
-                    imageUrls = node.images.map { it.url }.toImmutableList(),
+                    images = node.images.map { image ->
+                        RootHomeMonthlyScreenUiState.ImageItem(
+                            thumbnailUrl = image.thumbnailUrl ?: image.url,
+                            url = image.url,
+                        )
+                    }.toImmutableList(),
                     event = ItemEventImpl(
                         coroutineScope = viewModelScope,
                         eventSender = eventSender,

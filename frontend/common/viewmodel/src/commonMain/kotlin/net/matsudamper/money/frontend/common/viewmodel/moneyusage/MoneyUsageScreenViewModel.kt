@@ -135,6 +135,7 @@ public class MoneyUsageScreenViewModel(
                                     },
                                     images = moneyUsage.images.map { image ->
                                         MoneyUsageScreenUiState.ImageItem(
+                                            thumbnailUrl = image.thumbnailUrl ?: image.url,
                                             url = image.url,
                                             event = createImageItemEvent(imageId = image.id),
                                         )
