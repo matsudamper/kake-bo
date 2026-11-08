@@ -15,7 +15,10 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.TextStyle
+import androidx.compose.ui.text.input.TextFieldValue
+import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import net.matsudamper.money.frontend.common.ui.AppRoot
 import net.matsudamper.money.frontend.common.ui.Strings
 import net.matsudamper.money.frontend.common.ui.layout.TextField
 import net.matsudamper.money.frontend.common.ui.layout.TextFieldType
@@ -85,5 +88,25 @@ internal fun AddUserScreen(
                 )
             }
         }
+    }
+}
+
+@Preview
+@Composable
+private fun AddUserScreenPreview() {
+    AppRoot(isDarkTheme = true) {
+        AddUserScreen(
+            uiState = AdminAddUserUiState(
+                userName = TextFieldValue("dummy-user"),
+                password = TextFieldValue("dummy-password"),
+                listener = object : AdminAddUserUiState.Listener {
+                    override fun onChangeUserName(value: String) = Unit
+
+                    override fun onChangePassword(value: String) = Unit
+
+                    override fun onClickAddButton() = Unit
+                },
+            ),
+        )
     }
 }
