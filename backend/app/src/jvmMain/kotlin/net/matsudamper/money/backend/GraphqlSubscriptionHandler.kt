@@ -22,14 +22,6 @@ class GraphqlSubscriptionHandler(
     private val cookieManager: CookieManager,
     private val diContainer: DiContainer,
 ) {
-    sealed interface Result {
-        /** 各要素は GraphQL レスポンスの仕様形式（data / errors） */
-        data class Stream(val events: Flow<Map<String, Any?>>) : Result
-
-        /** 認証エラーなどで購読を開始できなかった */
-        data class Error(val errors: List<Map<String, Any?>>) : Result
-    }
-
     fun subscribe(
         query: String,
         operationName: String?,
@@ -65,5 +57,13 @@ class GraphqlSubscriptionHandler(
         return Result.Stream(
             publisher.asFlow().map { it.toSpecification() },
         )
+    }
+
+    sealed interface Result {
+        /** 各要素は GraphQL レスポンスの仕様形式（data / errors） */
+        data class Stream(val events: Flow<Map<String, Any?>>) : Result
+
+        /** 認証エラーなどで購読を開始できなかった */
+        data class Error(val errors: List<Map<String, Any?>>) : Result
     }
 }
