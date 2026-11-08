@@ -24,11 +24,13 @@ import net.matsudamper.money.frontend.common.viewmodel.root.GlobalEvent
 import net.matsudamper.money.frontend.feature.admin.ui.AddUserScreen
 import net.matsudamper.money.frontend.feature.admin.ui.AdminLoginScreen
 import net.matsudamper.money.frontend.feature.admin.ui.AdminRootScreen
+import net.matsudamper.money.frontend.feature.admin.ui.AdminThumbnailBackfillScreen
 import net.matsudamper.money.frontend.feature.admin.ui.AdminUnlinkedImagesScreen
 import net.matsudamper.money.frontend.feature.admin.ui.user.UserSearchScreen
 import net.matsudamper.money.frontend.feature.admin.viewmodel.AdminAddUserScreenViewModel
 import net.matsudamper.money.frontend.feature.admin.viewmodel.AdminLoginScreenViewModel
 import net.matsudamper.money.frontend.feature.admin.viewmodel.AdminRootScreenViewModel
+import net.matsudamper.money.frontend.feature.admin.viewmodel.AdminThumbnailBackfillScreenViewModel
 import net.matsudamper.money.frontend.feature.admin.viewmodel.AdminUnlinkedImagesScreenViewModel
 import net.matsudamper.money.frontend.feature.admin.viewmodel.AdminUserSearchPagingModel
 import net.matsudamper.money.frontend.feature.admin.viewmodel.AdminUserSearchScreenViewModel
@@ -98,6 +100,20 @@ public object AdminEntryProvider {
             }
             AdminUnlinkedImagesScreen(
                 uiState = adminUnlinkedImagesScreenViewModel.uiStateFlow.collectAsState().value,
+                onClickBack = { navController.back() },
+                modifier = Modifier.padding(paddingValues.value),
+            )
+        }
+        addEntryProvider<ScreenStructure.Admin.ThumbnailBackfill, IScreenStructure> { current ->
+            val koin = LocalKoin.current
+            val viewModel = LocalScopedObjectStore.current.putOrGet<AdminThumbnailBackfillScreenViewModel>(Unit) {
+                AdminThumbnailBackfillScreenViewModel(
+                    scopedObjectFeature = it,
+                    graphqlClient = koin.get<GraphqlClient>(),
+                )
+            }
+            AdminThumbnailBackfillScreen(
+                uiState = viewModel.uiStateFlow.collectAsState().value,
                 onClickBack = { navController.back() },
                 modifier = Modifier.padding(paddingValues.value),
             )

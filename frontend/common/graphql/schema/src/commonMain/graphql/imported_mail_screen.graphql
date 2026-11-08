@@ -49,9 +49,9 @@ mutation ImportedMailScreenDeleteMail($id: ImportedMailId!) {
     }
 }
 
-mutation ImportedMailScreenParseWithAi($id: ImportedMailId!) {
+mutation ImportedMailScreenParseWithAi($id: ImportedMailId!, $additionalRules: String!, $model: AiMailParseModel!) {
     userMutation {
-        parseImportedMailWithAi(id: $id) {
+        parseImportedMailWithAi(id: $id, additionalRules: $additionalRules, model: $model) {
             usages {
                 title
                 description

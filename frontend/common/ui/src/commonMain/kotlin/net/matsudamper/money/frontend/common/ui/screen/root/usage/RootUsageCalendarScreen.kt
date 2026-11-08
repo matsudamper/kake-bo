@@ -24,6 +24,7 @@ import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.material3.pulltorefresh.PullToRefreshBox
 import androidx.compose.material3.pulltorefresh.rememberPullToRefreshState
@@ -243,6 +244,7 @@ private fun CalendarCell(
     uiState: RootUsageCalendarScreenUiState.CalendarCell.Day,
 ) {
     val horizontalPadding = if (LocalIsLargeScreen.current) 2.dp else 1.dp
+    val todayBackgroundColor = MaterialTheme.colorScheme.primary
     Column(
         modifier = modifier
             .clickable { uiState.event.onClick() }
@@ -255,14 +257,14 @@ private fun CalendarCell(
                 .clip(MaterialTheme.shapes.small)
                 .background(
                     if (uiState.isToday) {
-                        MaterialTheme.colorScheme.secondaryContainer
+                        todayBackgroundColor
                     } else {
                         Color.Transparent
                     },
                 )
                 .padding(2.dp),
             color = if (uiState.isToday) {
-                MaterialTheme.colorScheme.onSecondaryContainer
+                ColorUtil.contrastTextColor(todayBackgroundColor)
             } else {
                 Color.Unspecified
             },
@@ -309,7 +311,18 @@ private fun CalendarCell(
 
 @Composable
 @Preview
-private fun Preview() {
+private fun DarkPreview() {
+    Preview(isDarkTheme = true)
+}
+
+@Composable
+@Preview
+private fun LightPreview() {
+    Preview(isDarkTheme = false)
+}
+
+@Composable
+private fun Preview(isDarkTheme: Boolean) {
     val noOpDayCellEvent = object : RootUsageCalendarScreenUiState.DayCellEvent {
         override fun onClick() {}
     }
@@ -362,22 +375,24 @@ private fun Preview() {
     }
     val emptyCells = List(3) { RootUsageCalendarScreenUiState.CalendarCell.Empty }
     val calendarCells = (dayOfWeeks + emptyCells + days).toImmutableList()
-    AppRoot(isDarkTheme = true) {
-        RootUsageCalendarScreen(
-            modifier = Modifier.fillMaxSize(),
-            uiState = RootUsageCalendarScreenUiState(
-                event = object : RootUsageCalendarScreenUiState.Event {
-                    override suspend fun onViewInitialized() {}
-                    override fun refresh() {}
-                },
-                loadingState = RootUsageCalendarScreenUiState.LoadingState.Loaded(
-                    calendarCells = calendarCells,
-                    event = object : RootUsageCalendarScreenUiState.LoadedEvent {
-                        override fun loadMore() {}
+    AppRoot(isDarkTheme = isDarkTheme) {
+        Surface(color = MaterialTheme.colorScheme.background) {
+            RootUsageCalendarScreen(
+                modifier = Modifier.fillMaxSize(),
+                uiState = RootUsageCalendarScreenUiState(
+                    event = object : RootUsageCalendarScreenUiState.Event {
+                        override suspend fun onViewInitialized() {}
+                        override fun refresh() {}
                     },
+                    loadingState = RootUsageCalendarScreenUiState.LoadingState.Loaded(
+                        calendarCells = calendarCells,
+                        event = object : RootUsageCalendarScreenUiState.LoadedEvent {
+                            override fun loadMore() {}
+                        },
+                    ),
                 ),
-            ),
-            stickyHeaderState = StickyHeaderState(enterAlways = false),
-        )
+                stickyHeaderState = StickyHeaderState(enterAlways = false),
+            )
+        }
     }
 }

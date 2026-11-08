@@ -3,10 +3,10 @@ package net.matsudamper.money.frontend.feature.admin.viewmodel
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.catch
 import com.apollographql.apollo.api.ApolloResponse
-import com.apollographql.apollo.cache.normalized.FetchPolicy
-import com.apollographql.apollo.cache.normalized.apolloStore
-import com.apollographql.apollo.cache.normalized.fetchPolicy
-import com.apollographql.apollo.cache.normalized.watch
+import com.apollographql.cache.normalized.FetchPolicy
+import com.apollographql.cache.normalized.apolloStore
+import com.apollographql.cache.normalized.fetchPolicy
+import com.apollographql.cache.normalized.watch
 import net.matsudamper.money.element.ImageId
 import net.matsudamper.money.frontend.common.base.Logger
 import net.matsudamper.money.frontend.graphql.AdminUnlinkedImagesTotalCountQuery
@@ -40,8 +40,7 @@ internal class AdminUnlinkedImagesTotalCountModel(
                 )
             graphqlClient.apolloClient.apolloStore.writeOperation(
                 operation = totalCountQuery,
-                operationData = data,
-                customScalarAdapters = graphqlClient.apolloClient.customScalarAdapters,
+                data = data,
                 publish = true,
             )
             UpdateOperationResponseResult.Success(response)
@@ -61,12 +60,11 @@ internal class AdminUnlinkedImagesTotalCountModel(
                 if (nextTotalCount != connection.totalCount) {
                     graphqlClient.apolloClient.apolloStore.writeOperation(
                         operation = totalCountQuery,
-                        operationData = before.copy(
+                        data = before.copy(
                             adminUnlinkedImages = connection.copy(
                                 totalCount = nextTotalCount,
                             ),
                         ),
-                        customScalarAdapters = graphqlClient.apolloClient.customScalarAdapters,
                         publish = true,
                     )
                 }

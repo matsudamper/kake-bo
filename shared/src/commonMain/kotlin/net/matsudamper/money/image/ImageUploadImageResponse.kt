@@ -13,5 +13,6 @@ public data class ImageUploadImageResponse(
     public data class Success(
         val imageId: ImageId,
         val url: String,
+        val thumbnailUrl: String? = null,
     )
 }

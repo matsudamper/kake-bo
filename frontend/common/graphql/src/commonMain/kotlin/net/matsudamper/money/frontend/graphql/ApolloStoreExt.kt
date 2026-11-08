@@ -3,8 +3,7 @@ package net.matsudamper.money.frontend.graphql
 import com.apollographql.apollo.ApolloClient
 import com.apollographql.apollo.api.ApolloResponse
 import com.apollographql.apollo.api.Operation
-import com.apollographql.apollo.cache.normalized.apolloStore
-import com.apollographql.apollo.exception.CacheMissException
+import com.apollographql.cache.normalized.apolloStore
 
 sealed interface UpdateOperationResponseResult<D : Operation.Data> {
     data class Success<D : Operation.Data>(val result: ApolloResponse<D>) : UpdateOperationResponseResult<D>
@@ -51,8 +50,7 @@ suspend fun <D : Operation.Data> ApolloClient.updateOperation(
                     )
                     apolloStore.writeOperation(
                         operation = cacheQueryKey,
-                        operationData = data,
-                        customScalarAdapters = customScalarAdapters,
+                        data = data,
                         publish = true,
                     )
                 }
@@ -62,10 +60,9 @@ suspend fun <D : Operation.Data> ApolloClient.updateOperation(
     )
 }
 
-private fun <D : Operation.Data> ApolloClient.readOperationOrNull(query: Operation<D>): D? {
-    return try {
-        apolloStore.readOperation(query, customScalarAdapters)
-    } catch (_: CacheMissException) {
-        null
-    }
+private suspend fun <D : Operation.Data> ApolloClient.readOperationOrNull(query: Operation<D>): D? {
+    // 新しいキャッシュは欠けたフィールドを errors に入れた部分データを返すため、従来どおり欠けがあれば未キャッシュとして扱う
+    val response = apolloStore.readOperation(query)
+    if (!response.errors.isNullOrEmpty()) return null
+    return response.data
 }

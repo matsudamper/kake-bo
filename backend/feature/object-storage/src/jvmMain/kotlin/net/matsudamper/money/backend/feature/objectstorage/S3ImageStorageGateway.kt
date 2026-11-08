@@ -234,6 +234,6 @@ class S3ImageStorageGateway(
     }
 
     private fun buildKey(relativePath: String): String {
-        return "img/$relativePath"
+        return S3ImageKey.of(relativePath)
     }
 }

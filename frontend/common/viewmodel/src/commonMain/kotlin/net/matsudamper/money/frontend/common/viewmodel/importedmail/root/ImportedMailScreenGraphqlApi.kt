@@ -3,14 +3,15 @@ package net.matsudamper.money.frontend.common.viewmodel.importedmail.root
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 import com.apollographql.apollo.api.ApolloResponse
-import com.apollographql.apollo.cache.normalized.FetchPolicy
-import com.apollographql.apollo.cache.normalized.fetchPolicy
+import com.apollographql.cache.normalized.FetchPolicy
+import com.apollographql.cache.normalized.fetchPolicy
 import net.matsudamper.money.element.ImportedMailId
 import net.matsudamper.money.frontend.common.base.PlatformIO
 import net.matsudamper.money.frontend.graphql.GraphqlClient
 import net.matsudamper.money.frontend.graphql.ImportedMailScreenDeleteMailMutation
 import net.matsudamper.money.frontend.graphql.ImportedMailScreenParseWithAiMutation
 import net.matsudamper.money.frontend.graphql.ImportedMailScreenQuery
+import net.matsudamper.money.frontend.graphql.type.AiMailParseModel
 import net.matsudamper.money.frontend.graphql.type.ParseImportedMailWithAiError
 
 public class ImportedMailScreenGraphqlApi(
@@ -33,11 +34,15 @@ public class ImportedMailScreenGraphqlApi(
         }
     }
 
-    public suspend fun parseWithAi(id: ImportedMailId): ParseWithAiResult {
+    public suspend fun parseWithAi(
+        id: ImportedMailId,
+        additionalRules: String,
+        model: AiMailParseModel,
+    ): ParseWithAiResult {
         return withContext(Dispatchers.PlatformIO) {
             runCatching {
                 graphqlClient.apolloClient
-                    .mutation(ImportedMailScreenParseWithAiMutation(id = id))
+                    .mutation(ImportedMailScreenParseWithAiMutation(id = id, additionalRules = additionalRules, model = model))
                     .execute()
             }.onFailure {
                 it.printStackTrace()

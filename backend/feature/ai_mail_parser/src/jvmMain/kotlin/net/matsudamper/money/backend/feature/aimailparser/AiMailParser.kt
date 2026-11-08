@@ -19,15 +19,33 @@ class AiMailParser(
 
     fun parse(
         apiKey: String,
+        model: GeminiGateway.Model,
+        additionalRules: String,
         input: AiMailParseInput,
     ): Result<List<AiParsedUsage>> {
         return geminiGateway.generateJson(
             apiKey = apiKey,
-            systemInstruction = SYSTEM_INSTRUCTION,
+            model = model,
+            systemInstruction = buildSystemInstruction(additionalRules),
             userText = MailBodyTextBuilder.build(input = input, maxBodyLength = MAX_BODY_LENGTH),
             responseSchemaJson = RESPONSE_SCHEMA_JSON,
         ).mapCatching { text ->
             parseResponse(text)
+        }
+    }
+
+    private fun buildSystemInstruction(additionalRules: String): String {
+        if (additionalRules.isBlank()) return SYSTEM_INSTRUCTION
+        return buildString {
+            appendLine(SYSTEM_INSTRUCTION)
+            appendLine()
+            appendLine("## ユーザーの追加ルール")
+            appendLine("以下はユーザーが指定した追加ルールです。追加ルールは上記の指示より優先してください。")
+            appendLine("上記の指示と矛盾する場合は追加ルールに従い、矛盾しない部分は上記の指示にも従ってください。")
+            appendLine("ただし、出力は指定されたJSONの形式を必ず守ってください。")
+            appendLine("<additional_rules>")
+            appendLine(additionalRules)
+            append("</additional_rules>")
         }
     }
 
@@ -66,7 +84,7 @@ class AiMailParser(
         @SerialName("dateTime") val dateTime: String? = null,
     )
 
-    private companion object {
+    companion object {
         // 長い広告メールでトークンを使い過ぎないように本文を切り詰める
         private const val MAX_BODY_LENGTH = 30_000
 

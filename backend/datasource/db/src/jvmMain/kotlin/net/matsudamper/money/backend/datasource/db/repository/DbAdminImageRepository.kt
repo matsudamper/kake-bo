@@ -88,6 +88,7 @@ class DbAdminImageRepository(
                     val records = context
                         .select(
                             userImages.IMAGE_PATH,
+                            userImages.THUMBNAIL_PATH,
                             userImages.STORAGE_TYPE,
                             userImages.USER_ID,
                             userImages.USER_IMAGE_ID,
@@ -102,36 +103,26 @@ class DbAdminImageRepository(
                         val storageType = record.get(userImages.STORAGE_TYPE)
                         val relativePath = record.get(userImages.IMAGE_PATH)
                             ?: throw IllegalStateException("画像パスが見つかりませんでした: ${userImages.USER_IMAGE_ID.name}=${record.get(userImages.USER_IMAGE_ID)}")
+                        val thumbnailPath = record.get(userImages.THUMBNAIL_PATH)
                         val userId = UserId(record.get(userImages.USER_ID)!!)
 
-                        when (storageType) {
-                            DbStorageType.LOCAL.dbValue -> {
-                                val result = localImageStorageGateway.delete(
-                                    ImageStorageGateway.DeleteRequest(
-                                        userId = userId,
-                                        relativePath = relativePath,
-                                    ),
-                                )
-                                if (result is ImageStorageGateway.DeleteResult.Failure) {
-                                    throw IOException("ファイルの削除に失敗しました: ${result.cause.message}", result.cause)
-                                }
-                            }
-
-                            DbStorageType.S3.dbValue -> {
-                                val gateway = s3ImageStorageGateway
+                        val gateway = when (storageType) {
+                            DbStorageType.LOCAL.dbValue -> localImageStorageGateway
+                            DbStorageType.S3.dbValue ->
+                                s3ImageStorageGateway
                                     ?: throw IllegalStateException("S3ストレージゲートウェイが設定されていません")
-                                val result = gateway.delete(
-                                    ImageStorageGateway.DeleteRequest(
-                                        userId = userId,
-                                        relativePath = relativePath,
-                                    ),
-                                )
-                                if (result is ImageStorageGateway.DeleteResult.Failure) {
-                                    throw IOException("S3オブジェクトの削除に失敗しました: ${result.cause.message}", result.cause)
-                                }
-                            }
-
                             else -> throw IllegalStateException("Unknown storage_type: $storageType")
+                        }
+                        for (path in listOfNotNull(relativePath, thumbnailPath)) {
+                            val result = gateway.delete(
+                                ImageStorageGateway.DeleteRequest(
+                                    userId = userId,
+                                    relativePath = path,
+                                ),
+                            )
+                            if (result is ImageStorageGateway.DeleteResult.Failure) {
+                                throw IOException("オブジェクトの削除に失敗しました: $path: ${result.cause.message}", result.cause)
+                            }
                         }
                     }
 
@@ -203,6 +194,55 @@ class DbAdminImageRepository(
                         storageType = storageType,
                     )
                 }
+        }
+    }
+
+    override fun getS3ImagesWithoutThumbnail(
+        size: Int,
+        afterImageId: ImageId?,
+    ): List<AdminImageRepository.ImageWithoutThumbnail> {
+        return DbConnectionImpl.use { connection ->
+            val condition = userImages.UPLOADED.eq(true)
+                .and(userImages.STORAGE_TYPE.eq(DbStorageType.S3.dbValue))
+                .and(userImages.THUMBNAIL_PATH.isNull)
+                .let { condition ->
+                    if (afterImageId == null) {
+                        condition
+                    } else {
+                        condition.and(userImages.USER_IMAGE_ID.gt(afterImageId.value))
+                    }
+                }
+            DSL.using(connection)
+                .select(
+                    userImages.USER_IMAGE_ID,
+                    userImages.USER_ID,
+                    userImages.IMAGE_PATH,
+                )
+                .from(userImages)
+                .where(condition)
+                .orderBy(userImages.USER_IMAGE_ID.asc())
+                .limit(size)
+                .fetch()
+                .map { record ->
+                    AdminImageRepository.ImageWithoutThumbnail(
+                        imageId = ImageId(record.get(userImages.USER_IMAGE_ID)!!),
+                        userId = UserId(record.get(userImages.USER_ID)!!),
+                        relativePath = record.get(userImages.IMAGE_PATH)!!,
+                    )
+                }
+        }
+    }
+
+    override fun updateThumbnailPath(
+        imageId: ImageId,
+        thumbnailRelativePath: String,
+    ) {
+        DbConnectionImpl.use { connection ->
+            DSL.using(connection)
+                .update(userImages)
+                .set(userImages.THUMBNAIL_PATH, thumbnailRelativePath)
+                .where(userImages.USER_IMAGE_ID.eq(imageId.value))
+                .execute()
         }
     }
 }

@@ -6,6 +6,7 @@ public interface ImageUploadClient {
     public data class UploadResult(
         val imageId: ImageId,
         val url: String,
+        val thumbnailUrl: String?,
     )
 
     public suspend fun upload(
