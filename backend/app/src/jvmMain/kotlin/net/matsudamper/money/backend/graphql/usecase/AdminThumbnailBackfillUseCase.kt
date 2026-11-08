@@ -37,13 +37,13 @@ class AdminThumbnailBackfillUseCase(
 
             for (image in images) {
                 currentCoroutineContext().ensureActive()
-                emit(process(image))
+                emit(createThumbnail(image))
                 afterImageId = image.imageId
             }
         }
     }.flowOn(Dispatchers.IO)
 
-    private fun process(image: AdminImageRepository.ImageWithoutThumbnail): Event {
+    private fun createThumbnail(image: AdminImageRepository.ImageWithoutThumbnail): Event {
         val thumbnailRelativePath = ThumbnailRelativePath.of(image.relativePath)
         val result = imageResizerGateway.createThumbnail(
             ImageResizerGateway.Request(
