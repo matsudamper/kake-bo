@@ -27,20 +27,24 @@ internal class AdminLoginScreenViewModel(
     private val viewModelStateFlow = MutableStateFlow(ViewModelState())
 
     private val listener = object : AdminLoginScreenUiState.Listener {
-        override fun onAccountTypeSelected(accountType: AdminLoginScreenUiState.AccountType) {
-            viewModelStateFlow.update { state -> state.copy(selectedAccountType = accountType) }
+        override fun onClickUserAccount() {
+            loginWithUserSession()
+        }
+
+        override fun onClickAdminAccount() {
+            viewModelStateFlow.update { state -> state.copy(passwordInputVisible = true) }
         }
 
         override fun onPasswordChanged(text: String) {
             viewModelStateFlow.update { state -> state.copy(password = TextFieldValue(text)) }
         }
 
-        override fun onClickLogin() {
-            val state = viewModelStateFlow.value
-            when (state.resolveAccountType()) {
-                AdminLoginScreenUiState.AccountType.Admin -> login(state.password.text)
-                AdminLoginScreenUiState.AccountType.User -> loginWithUserSession()
-            }
+        override fun onClickPasswordLogin() {
+            login(viewModelStateFlow.value.password.text)
+        }
+
+        override fun onClickBackToSelectAccount() {
+            viewModelStateFlow.update { state -> state.copy(passwordInputVisible = false) }
         }
     }
 
@@ -68,12 +72,16 @@ internal class AdminLoginScreenViewModel(
     }
 
     private fun createUiState(viewModelState: ViewModelState): AdminLoginScreenUiState {
-        val accountType = viewModelState.resolveAccountType()
         return AdminLoginScreenUiState(
-            selectedAccountType = accountType,
-            adminAccountOptionEnabled = !viewModelState.isPasswordLoginDisabled,
-            passwordInputVisible = accountType == AdminLoginScreenUiState.AccountType.Admin,
-            password = viewModelState.password,
+            content = if (viewModelState.passwordInputVisible) {
+                AdminLoginScreenUiState.Content.AdminPassword(
+                    password = viewModelState.password,
+                )
+            } else {
+                AdminLoginScreenUiState.Content.SelectAccount(
+                    adminAccountButtonEnabled = !viewModelState.isPasswordLoginDisabled,
+                )
+            },
             listener = listener,
         )
     }
@@ -112,16 +120,8 @@ internal class AdminLoginScreenViewModel(
     }
 
     private data class ViewModelState(
-        val selectedAccountType: AdminLoginScreenUiState.AccountType = AdminLoginScreenUiState.AccountType.User,
         val isPasswordLoginDisabled: Boolean = false,
+        val passwordInputVisible: Boolean = false,
         val password: TextFieldValue = TextFieldValue(),
-    ) {
-        fun resolveAccountType(): AdminLoginScreenUiState.AccountType {
-            return if (isPasswordLoginDisabled) {
-                AdminLoginScreenUiState.AccountType.User
-            } else {
-                selectedAccountType
-            }
-        }
-    }
+    )
 }

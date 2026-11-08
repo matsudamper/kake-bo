@@ -4,24 +4,30 @@ import androidx.compose.runtime.Immutable
 import androidx.compose.ui.text.input.TextFieldValue
 
 internal data class AdminLoginScreenUiState(
-    val selectedAccountType: AccountType,
-    val adminAccountOptionEnabled: Boolean,
-    val passwordInputVisible: Boolean,
-    val password: TextFieldValue,
+    val content: Content,
     val listener: Listener,
 ) {
-    enum class AccountType {
-        Admin,
-        User,
+    sealed interface Content {
+        data class SelectAccount(
+            val adminAccountButtonEnabled: Boolean,
+        ) : Content
+
+        data class AdminPassword(
+            val password: TextFieldValue,
+        ) : Content
     }
 
     @Immutable
     interface Listener {
-        fun onAccountTypeSelected(accountType: AccountType)
+        fun onClickUserAccount()
+
+        fun onClickAdminAccount()
 
         fun onPasswordChanged(text: String)
 
-        fun onClickLogin()
+        fun onClickPasswordLogin()
+
+        fun onClickBackToSelectAccount()
     }
 }
 

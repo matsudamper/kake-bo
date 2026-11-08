@@ -1,6 +1,7 @@
 package net.matsudamper.money.frontend.feature.admin.ui
 
 import androidx.compose.foundation.background
+import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -11,17 +12,15 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.layout.widthIn
-import androidx.compose.foundation.selection.selectable
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Button
 import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.RadioButton
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
+import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.semantics.Role
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.input.TextFieldValue
 import androidx.compose.ui.tooling.preview.Preview
@@ -63,40 +62,21 @@ internal fun AdminLoginScreen(uiState: AdminLoginScreenUiState) {
                     color = MaterialTheme.colorScheme.onSurface,
                 )
                 Spacer(Modifier.height(24.dp))
-                AccountTypeOption(
-                    text = "ユーザーアカウントでログイン",
-                    selected = uiState.selectedAccountType == AdminLoginScreenUiState.AccountType.User,
-                    enabled = true,
-                    onClick = { uiState.listener.onAccountTypeSelected(AdminLoginScreenUiState.AccountType.User) },
-                )
-                AccountTypeOption(
-                    text = "管理アカウントでログイン",
-                    selected = uiState.selectedAccountType == AdminLoginScreenUiState.AccountType.Admin,
-                    enabled = uiState.adminAccountOptionEnabled,
-                    onClick = { uiState.listener.onAccountTypeSelected(AdminLoginScreenUiState.AccountType.Admin) },
-                )
-                if (uiState.passwordInputVisible) {
-                    Spacer(Modifier.height(16.dp))
-                    TextField(
-                        modifier = Modifier.fillMaxWidth(),
-                        onValueChange = { uiState.listener.onPasswordChanged(it) },
-                        text = uiState.password.text,
-                        textStyle = textFieldTextStyle,
-                        label = "Password",
-                        maxLines = 1,
-                        type = TextFieldType.Password,
-                        autocomplete = "current-password",
-                    )
-                }
-                Spacer(Modifier.height(16.dp))
-                Button(
-                    modifier = Modifier.align(Alignment.End),
-                    onClick = { uiState.listener.onClickLogin() },
-                ) {
-                    Text(
-                        text = "ログイン",
-                        fontFamily = rememberCustomFontFamily(),
-                    )
+                when (val content = uiState.content) {
+                    is AdminLoginScreenUiState.Content.SelectAccount -> {
+                        SelectAccountContent(
+                            content = content,
+                            listener = uiState.listener,
+                        )
+                    }
+
+                    is AdminLoginScreenUiState.Content.AdminPassword -> {
+                        AdminPasswordContent(
+                            content = content,
+                            listener = uiState.listener,
+                            textFieldTextStyle = textFieldTextStyle,
+                        )
+                    }
                 }
             }
         }
@@ -104,40 +84,70 @@ internal fun AdminLoginScreen(uiState: AdminLoginScreenUiState) {
 }
 
 @Composable
-private fun AccountTypeOption(
-    text: String,
-    selected: Boolean,
-    enabled: Boolean,
-    onClick: () -> Unit,
+private fun SelectAccountContent(
+    content: AdminLoginScreenUiState.Content.SelectAccount,
+    listener: AdminLoginScreenUiState.Listener,
 ) {
-    Row(
-        modifier = Modifier
-            .fillMaxWidth()
-            .selectable(
-                selected = selected,
-                enabled = enabled,
-                role = Role.RadioButton,
-                onClick = onClick,
+    Column(modifier = Modifier.fillMaxWidth()) {
+        Button(
+            modifier = Modifier.fillMaxWidth(),
+            onClick = { listener.onClickUserAccount() },
+        ) {
+            Text(
+                text = "ユーザーアカウントでログイン",
+                fontFamily = rememberCustomFontFamily(),
             )
-            .padding(vertical = 4.dp),
-        verticalAlignment = Alignment.CenterVertically,
-    ) {
-        RadioButton(
-            selected = selected,
-            enabled = enabled,
-            onClick = null,
+        }
+        Spacer(Modifier.height(12.dp))
+        Button(
+            modifier = Modifier.fillMaxWidth(),
+            enabled = content.adminAccountButtonEnabled,
+            onClick = { listener.onClickAdminAccount() },
+        ) {
+            Text(
+                text = "管理アカウントでログイン",
+                fontFamily = rememberCustomFontFamily(),
+            )
+        }
+    }
+}
+
+@Composable
+private fun AdminPasswordContent(
+    content: AdminLoginScreenUiState.Content.AdminPassword,
+    listener: AdminLoginScreenUiState.Listener,
+    textFieldTextStyle: TextStyle,
+) {
+    Column(modifier = Modifier.fillMaxWidth()) {
+        TextField(
+            modifier = Modifier.fillMaxWidth(),
+            onValueChange = { listener.onPasswordChanged(it) },
+            text = content.password.text,
+            textStyle = textFieldTextStyle,
+            label = "Password",
+            maxLines = 1,
+            type = TextFieldType.Password,
+            autocomplete = "current-password",
         )
-        Spacer(Modifier.width(8.dp))
-        Text(
-            text = text,
-            fontFamily = rememberCustomFontFamily(),
-            style = MaterialTheme.typography.bodyLarge,
-            color = if (enabled) {
-                MaterialTheme.colorScheme.onSurface
-            } else {
-                MaterialTheme.colorScheme.onSurface.copy(alpha = 0.38f)
-            },
-        )
+        Spacer(Modifier.height(16.dp))
+        Row(
+            modifier = Modifier.fillMaxWidth(),
+            horizontalArrangement = Arrangement.End,
+        ) {
+            TextButton(onClick = { listener.onClickBackToSelectAccount() }) {
+                Text(
+                    text = "戻る",
+                    fontFamily = rememberCustomFontFamily(),
+                )
+            }
+            Spacer(Modifier.width(8.dp))
+            Button(onClick = { listener.onClickPasswordLogin() }) {
+                Text(
+                    text = "ログイン",
+                    fontFamily = rememberCustomFontFamily(),
+                )
+            }
+        }
     }
 }
 
@@ -147,8 +157,7 @@ private fun AdminLoginScreenAdminDisabledPreview() {
     AppRoot(isDarkTheme = true) {
         AdminLoginScreen(
             uiState = createPreviewUiState(
-                selectedAccountType = AdminLoginScreenUiState.AccountType.User,
-                adminAccountOptionEnabled = false,
+                content = AdminLoginScreenUiState.Content.SelectAccount(adminAccountButtonEnabled = false),
             ),
         )
     }
@@ -156,32 +165,41 @@ private fun AdminLoginScreenAdminDisabledPreview() {
 
 @Preview
 @Composable
-private fun AdminLoginScreenAdminSelectedPreview() {
+private fun AdminLoginScreenAdminEnabledPreview() {
     AppRoot(isDarkTheme = true) {
         AdminLoginScreen(
             uiState = createPreviewUiState(
-                selectedAccountType = AdminLoginScreenUiState.AccountType.Admin,
-                adminAccountOptionEnabled = true,
+                content = AdminLoginScreenUiState.Content.SelectAccount(adminAccountButtonEnabled = true),
             ),
         )
     }
 }
 
-private fun createPreviewUiState(
-    selectedAccountType: AdminLoginScreenUiState.AccountType,
-    adminAccountOptionEnabled: Boolean,
-): AdminLoginScreenUiState {
+@Preview
+@Composable
+private fun AdminLoginScreenAdminPasswordPreview() {
+    AppRoot(isDarkTheme = true) {
+        AdminLoginScreen(
+            uiState = createPreviewUiState(
+                content = AdminLoginScreenUiState.Content.AdminPassword(password = TextFieldValue()),
+            ),
+        )
+    }
+}
+
+private fun createPreviewUiState(content: AdminLoginScreenUiState.Content): AdminLoginScreenUiState {
     return AdminLoginScreenUiState(
-        selectedAccountType = selectedAccountType,
-        adminAccountOptionEnabled = adminAccountOptionEnabled,
-        passwordInputVisible = selectedAccountType == AdminLoginScreenUiState.AccountType.Admin,
-        password = TextFieldValue(),
+        content = content,
         listener = object : AdminLoginScreenUiState.Listener {
-            override fun onAccountTypeSelected(accountType: AdminLoginScreenUiState.AccountType) = Unit
+            override fun onClickUserAccount() = Unit
+
+            override fun onClickAdminAccount() = Unit
 
             override fun onPasswordChanged(text: String) = Unit
 
-            override fun onClickLogin() = Unit
+            override fun onClickPasswordLogin() = Unit
+
+            override fun onClickBackToSelectAccount() = Unit
         },
     )
 }
