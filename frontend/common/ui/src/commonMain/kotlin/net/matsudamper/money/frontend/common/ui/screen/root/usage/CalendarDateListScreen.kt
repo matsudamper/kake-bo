@@ -43,12 +43,15 @@ import androidx.compose.ui.layout.onGloballyPositioned
 import androidx.compose.ui.layout.positionInWindow
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.platform.LocalLayoutDirection
+import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import kotlin.time.Duration.Companion.milliseconds
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import coil3.compose.SubcomposeAsyncImage
 import net.matsudamper.money.frontend.common.base.ImmutableList
+import net.matsudamper.money.frontend.common.base.ImmutableList.Companion.toImmutableList
+import net.matsudamper.money.frontend.common.ui.AppRoot
 import net.matsudamper.money.frontend.common.ui.base.KakeBoTopAppBar
 import net.matsudamper.money.frontend.common.ui.base.KakeboScaffold
 import net.matsudamper.money.frontend.common.ui.base.KakeboScaffoldListener
@@ -342,5 +345,47 @@ private fun ItemCard(
                 }
             }
         }
+    }
+}
+
+@Composable
+@Preview
+private fun LoadedPreview() {
+    val noOpItemEvent = object : CalendarDateListScreenUiState.ItemEvent {
+        override fun onClick() {}
+    }
+    AppRoot(isDarkTheme = false) {
+        CalendarDateListScreen(
+            modifier = Modifier.fillMaxSize(),
+            uiState = CalendarDateListScreenUiState(
+                title = "2026/11/08",
+                event = object : CalendarDateListScreenUiState.Event {
+                    override fun onViewInitialized() {}
+                    override fun refresh() {}
+                    override fun onClickBack() {}
+                    override fun onClickAdd() {}
+                },
+                loadingState = CalendarDateListScreenUiState.LoadingState.Loaded(
+                    items = (1..5).map { index ->
+                        CalendarDateListScreenUiState.Item(
+                            title = "使用用途$index",
+                            date = "2026/11/08",
+                            amount = "${index * 1000}円",
+                            category = "食費",
+                            images = listOf<CalendarDateListScreenUiState.ImageItem>().toImmutableList(),
+                            event = noOpItemEvent,
+                        )
+                    }.toImmutableList(),
+                    loadToEnd = true,
+                    event = object : CalendarDateListScreenUiState.LoadedEvent {
+                        override fun loadMore() {}
+                    },
+                ),
+            ),
+            kakeboScaffoldListener = object : KakeboScaffoldListener {
+                override fun onClickTitle() {}
+            },
+            windowInsets = PaddingValues(),
+        )
     }
 }

@@ -27,8 +27,11 @@ import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalLayoutDirection
+import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import net.matsudamper.money.frontend.common.base.ImmutableList
+import net.matsudamper.money.frontend.common.base.ImmutableList.Companion.toImmutableList
+import net.matsudamper.money.frontend.common.ui.AppRoot
 import net.matsudamper.money.frontend.common.ui.base.KakeBoTopAppBar
 import net.matsudamper.money.frontend.common.ui.base.KakeboScaffoldListener
 import net.matsudamper.money.frontend.common.ui.base.LoadingErrorContent
@@ -245,5 +248,45 @@ private fun LoadedContent(
                 }
             }
         }
+    }
+}
+
+@Composable
+@Preview
+private fun RefreshingPreview() {
+    val noOpItemEvent = object : SettingMailCategoryFilterScreenUiState.ItemEvent {
+        override fun onClick() {}
+    }
+    AppRoot(isDarkTheme = false) {
+        SettingMailCategoryFiltersScreen(
+            uiState = SettingMailCategoryFilterScreenUiState(
+                event = object : SettingMailCategoryFilterScreenUiState.Event {
+                    override fun onClickRetry() {}
+                    override fun onViewInitialized() {}
+                    override fun onClickBack() {}
+                },
+                textInput = null,
+                loadingState = SettingMailCategoryFilterScreenUiState.LoadingState.Loaded(
+                    filters = (1..5).map { index ->
+                        SettingMailCategoryFilterScreenUiState.Item(
+                            title = "フィルタ$index",
+                            event = noOpItemEvent,
+                        )
+                    }.toImmutableList(),
+                    isError = false,
+                    loadToEnd = true,
+                    isRefreshing = true,
+                    event = object : SettingMailCategoryFilterScreenUiState.LoadedEvent {
+                        override fun onClickAdd() {}
+                        override fun onPullToRefresh() {}
+                        override fun loadMore() {}
+                    },
+                ),
+                kakeboScaffoldListener = object : KakeboScaffoldListener {
+                    override fun onClickTitle() {}
+                },
+            ),
+            windowInsets = PaddingValues(),
+        )
     }
 }
