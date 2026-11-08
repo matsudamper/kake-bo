@@ -127,6 +127,7 @@ class ImageUploadHandler {
         return Result.Success(
             imageId = imageId,
             displayId = displayId,
+            hasThumbnail = storedThumbnailRelativePath != null,
         )
     }
 
@@ -183,6 +184,7 @@ class ImageUploadHandler {
         data class Success(
             val imageId: ImageId,
             val displayId: String,
+            val hasThumbnail: Boolean,
         ) : Result
 
         data object Unauthorized : Result

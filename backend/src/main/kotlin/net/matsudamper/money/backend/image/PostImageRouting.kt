@@ -121,6 +121,14 @@ internal fun Route.postImage(
                     domain = domain,
                     displayId = uploadResult.displayId,
                 )
+                val thumbnailUrl = if (uploadResult.hasThumbnail) {
+                    ImageApiPath.thumbnailV1AbsoluteByDisplayId(
+                        domain = domain,
+                        displayId = uploadResult.displayId,
+                    )
+                } else {
+                    null
+                }
 
                 call.respondText(
                     status = HttpStatusCode.Created,
@@ -131,6 +139,7 @@ internal fun Route.postImage(
                             success = Success(
                                 imageId = uploadResult.imageId,
                                 url = displayUrl,
+                                thumbnailUrl = thumbnailUrl,
                             ),
                         ),
                     ),

@@ -270,6 +270,7 @@ public class AddMoneyUsageViewModel(
                                         viewModelState.usageImages + ViewModelState.UploadedImage(
                                             imageId = uploadResult.imageId,
                                             url = uploadResult.url,
+                                            thumbnailUrl = uploadResult.thumbnailUrl,
                                         )
                                         ).distinctBy { it.imageId.value },
                                     hasInputChanges = true,
@@ -579,7 +580,14 @@ public class AddMoneyUsageViewModel(
                             "$category / $subCategory"
                         },
                         images = buildList {
-                            addAll(viewModelState.usageImages.map { ImageItem.Uploaded(url = it.url) })
+                            addAll(
+                                viewModelState.usageImages.map {
+                                    ImageItem.Uploaded(
+                                        thumbnailUrl = it.thumbnailUrl ?: it.url,
+                                        url = it.url,
+                                    )
+                                },
+                            )
                             repeat(viewModelState.uploadingImageCount) { add(ImageItem.Uploading) }
                         }.toImmutableList(),
                         addButtonEnabled = viewModelState.uploadingImageCount == 0,
@@ -648,6 +656,6 @@ public class AddMoneyUsageViewModel(
         val sameDateUsages: List<SameDateUsage> = listOf(),
     ) {
         data class SameDateUsage(val id: MoneyUsageId, val title: String, val amount: Int, val time: LocalTime)
-        data class UploadedImage(val imageId: ImageId, val url: String)
+        data class UploadedImage(val imageId: ImageId, val url: String, val thumbnailUrl: String?)
     }
 }
