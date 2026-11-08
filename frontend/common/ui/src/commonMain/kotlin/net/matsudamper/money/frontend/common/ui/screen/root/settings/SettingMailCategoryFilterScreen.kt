@@ -210,7 +210,7 @@ private fun LoadedContent(
     val pullToRefreshState = rememberPullToRefreshState()
     PullToRefreshBox(
         isRefreshing = uiState.isRefreshing,
-        modifier = modifier,
+        modifier = modifier.padding(top = contentPadding.calculateTopPadding()),
         state = pullToRefreshState,
         onRefresh = { uiState.event.onPullToRefresh() },
     ) {
@@ -219,7 +219,6 @@ private fun LoadedContent(
                 .fillMaxSize(),
             state = lazyListState,
             contentPadding = PaddingValues(
-                top = contentPadding.calculateTopPadding(),
                 start = contentPadding.calculateStartPadding(layoutDirection),
                 end = contentPadding.calculateEndPadding(layoutDirection),
                 bottom = contentPadding.calculateBottomPadding() + fabSize + (FabPadding * 2),

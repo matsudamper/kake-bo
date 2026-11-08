@@ -164,9 +164,12 @@ public fun CalendarDateListScreen(
         var boxY by remember { mutableStateOf(0f) }
         PullToRefreshBox(
             isRefreshing = isRefreshing,
-            modifier = Modifier.fillMaxSize().onGloballyPositioned { coordinates ->
-                boxY = coordinates.boundsInWindow().height
-            },
+            modifier = Modifier
+                .fillMaxSize()
+                .padding(top = paddingValues.calculateTopPadding())
+                .onGloballyPositioned { coordinates ->
+                    boxY = coordinates.boundsInWindow().bottom
+                },
             state = state,
             onRefresh = {
                 coroutineScope.launch {
@@ -183,7 +186,6 @@ public fun CalendarDateListScreen(
                         modifier = Modifier.fillMaxSize(),
                         uiState = loadingState,
                         paddingValues = PaddingValues(
-                            top = paddingValues.calculateTopPadding(),
                             bottom = paddingValues.calculateBottomPadding() + with(localDensity) {
                                 (boxY - fabY).coerceAtLeast(0f).toDp()
                             },
@@ -197,7 +199,11 @@ public fun CalendarDateListScreen(
                     LaunchedEffect(Unit) { isRefreshing = false }
                     Box(
                         modifier = Modifier.fillMaxSize()
-                            .padding(paddingValues),
+                            .padding(
+                                start = paddingValues.calculateStartPadding(localDirection),
+                                end = paddingValues.calculateEndPadding(localDirection),
+                                bottom = paddingValues.calculateBottomPadding(),
+                            ),
                         contentAlignment = Alignment.Center,
                     ) {
                         CircularProgressIndicator()
