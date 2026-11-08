@@ -54,6 +54,10 @@ internal class BrowserNavBackstack(initial: IScreenStructure) {
     /**
      * popstateイベント時のバックスタック更新。
      * delta が負 = ブラウザの戻るボタン、正 = ブラウザの進むボタン
+     *
+     * リロードすると履歴の index が 0 から振り直されるため、リロード前の履歴へ戻ると
+     * delta が 0 になったり、エントリに無い画面へ戻ったりする。
+     * どの場合も末尾を URL から得た currentScreen に揃える。
      */
     fun handlePopState(delta: Int, currentScreen: IScreenStructure) {
         when {
@@ -64,6 +68,9 @@ internal class BrowserNavBackstack(initial: IScreenStructure) {
             delta > 0 -> {
                 entries = entries + currentScreen
             }
+        }
+        if (entries.last() != currentScreen) {
+            entries = entries.dropLast(1) + currentScreen
         }
     }
 
