@@ -110,7 +110,7 @@ private fun serverMessage(
     id: String? = null,
     payload: Any? = null,
 ): Frame.Text {
-    val message = buildMap<String, Any> {
+    val message: Map<String, Any> = buildMap {
         put("type", type)
         if (id != null) put("id", id)
         if (payload != null) put("payload", payload)
