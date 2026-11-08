@@ -10,7 +10,6 @@ import com.apollographql.apollo.annotations.ApolloExperimental
 import com.apollographql.apollo.api.ApolloRequest
 import com.apollographql.apollo.api.ApolloResponse
 import com.apollographql.apollo.api.Operation
-import com.apollographql.apollo.api.http.get
 import com.apollographql.apollo.interceptor.ApolloInterceptor
 import com.apollographql.apollo.interceptor.ApolloInterceptorChain
 import com.apollographql.apollo.network.http.HttpInfo
@@ -26,6 +25,7 @@ import net.matsudamper.money.frontend.common.feature.uploader.ImageUploadDatabas
 import net.matsudamper.money.frontend.common.feature.uploader.ImageUploadQueue
 import net.matsudamper.money.frontend.common.feature.webauth.WebAuthModel
 import net.matsudamper.money.frontend.common.feature.webauth.WebAuthModelAndroidImpl
+import net.matsudamper.money.frontend.graphql.AdminSessionMemoryStore
 import net.matsudamper.money.frontend.graphql.GraphqlClient
 import net.matsudamper.money.frontend.graphql.GraphqlClientImpl
 import net.matsudamper.money.frontend.graphql.ServerHostConfig
@@ -38,6 +38,7 @@ internal actual val platformDefaultModule: Module = module {
 
 internal actual val factory: Factory = object : Factory() {
     private val UserSessionIdKey = "user_session_id"
+    private val AdminSessionIdKey = "admin_session_id"
     override fun createWebAuthModule(scope: Scope): WebAuthModel {
         return WebAuthModelAndroidImpl(
             context = scope.get(),
@@ -78,28 +79,45 @@ internal actual val factory: Factory = object : Factory() {
                         chain: ApolloInterceptorChain,
                     ): Flow<ApolloResponse<D>> {
                         val userSessionId = runBlocking { sessionDataStore.data.firstOrNull() }?.userSessionId.orEmpty()
+                        val cookie = buildList {
+                            add("$UserSessionIdKey=$userSessionId")
+                            val adminSessionId = AdminSessionMemoryStore.adminSessionId
+                            if (adminSessionId != null) {
+                                add("$AdminSessionIdKey=$adminSessionId")
+                            }
+                        }.joinToString("; ")
                         val response = chain.proceed(
                             request.newBuilder()
-                                .addHttpHeader("Cookie", "$UserSessionIdKey=$userSessionId")
+                                .addHttpHeader("Cookie", cookie)
                                 .build(),
                         )
 
                         return response.onEach { eachResponse ->
                             @OptIn(ApolloExperimental::class)
-                            val cookies = eachResponse.executionContext[HttpInfo]?.headers
-                                ?.get("Set-Cookie")
-                                ?: return@onEach
-                            for (cookie in cookies.split(";")) {
-                                val parts = cookie.trim().split("=", limit = 2)
-                                if (parts.size < 2) continue
-                                val key = parts[0].trim()
-                                val value = parts[1]
-                                if (key != UserSessionIdKey) continue
-                                sessionDataStore.updateData {
-                                    it.toBuilder()
-                                        .setUserSessionId(value)
-                                        .setServerHost(activeHost)
-                                        .build()
+                            val setCookieHeaders = eachResponse.executionContext[HttpInfo]?.headers
+                                ?.filter { it.name.equals("Set-Cookie", ignoreCase = true) }
+                                ?.map { it.value }
+                                .orEmpty()
+                            for (setCookieHeader in setCookieHeaders) {
+                                for (cookie in setCookieHeader.split(";")) {
+                                    val parts = cookie.trim().split("=", limit = 2)
+                                    if (parts.size < 2) continue
+                                    val key = parts[0].trim()
+                                    val value = parts[1]
+                                    when (key) {
+                                        UserSessionIdKey -> {
+                                            sessionDataStore.updateData {
+                                                it.toBuilder()
+                                                    .setUserSessionId(value)
+                                                    .setServerHost(activeHost)
+                                                    .build()
+                                            }
+                                        }
+
+                                        AdminSessionIdKey -> {
+                                            AdminSessionMemoryStore.adminSessionId = value.ifBlank { null }
+                                        }
+                                    }
                                 }
                             }
                         }

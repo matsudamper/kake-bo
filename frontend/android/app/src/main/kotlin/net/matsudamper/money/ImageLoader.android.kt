@@ -15,9 +15,11 @@ import coil3.request.ImageRequest
 import coil3.request.SuccessResult
 import net.matsudamper.money.frontend.common.base.Logger
 import net.matsudamper.money.frontend.common.feature.localstore.generated.Session
+import net.matsudamper.money.frontend.graphql.AdminSessionMemoryStore
 import net.matsudamper.money.frontend.graphql.serverHost
 
 private const val UserSessionIdKey = "user_session_id"
+private const val AdminSessionIdKey = "admin_session_id"
 private const val ImageLoaderLogTag = "ImageLoader"
 
 internal fun initializeImageLoader(
@@ -56,10 +58,17 @@ internal fun initializeImageLoader(
                             return@Interceptor chain.proceed()
                         }
 
+                        val cookie = buildList {
+                            add("$UserSessionIdKey=$userSessionId")
+                            val adminSessionId = AdminSessionMemoryStore.adminSessionId
+                            if (adminSessionId != null) {
+                                add("$AdminSessionIdKey=$adminSessionId")
+                            }
+                        }.joinToString("; ")
                         val request = chain.request.newBuilder()
                             .httpHeaders(
                                 chain.request.httpHeaders.newBuilder()
-                                    .set("Cookie", "$UserSessionIdKey=$userSessionId")
+                                    .set("Cookie", cookie)
                                     .build(),
                             )
                             .build()

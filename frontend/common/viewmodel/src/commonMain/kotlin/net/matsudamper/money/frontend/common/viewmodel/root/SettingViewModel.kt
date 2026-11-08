@@ -13,8 +13,6 @@ import net.matsudamper.money.frontend.common.base.nav.user.ScreenStructure
 import net.matsudamper.money.frontend.common.ui.base.KakeboScaffoldListener
 import net.matsudamper.money.frontend.common.ui.screen.root.settings.RootSettingScreenUiState
 import net.matsudamper.money.frontend.common.viewmodel.CommonViewModel
-import net.matsudamper.money.frontend.common.viewmodel.PlatformType
-import net.matsudamper.money.frontend.common.viewmodel.PlatformTypeProvider
 import net.matsudamper.money.frontend.common.viewmodel.lib.EventHandler
 import net.matsudamper.money.frontend.common.viewmodel.lib.EventSender
 
@@ -171,8 +169,6 @@ public class SettingViewModel(
     }
 
     private fun fetchAdminUser() {
-        // Androidは管理セッションのCookieを保持しないため、遷移しても管理画面に入れない
-        if (PlatformTypeProvider.type != PlatformType.JS) return
         viewModelScope.launch {
             val isAdminUser = runCatching { api.getSettingRootScreen() }
                 .onFailure { Logger.e(TAG, it) }
