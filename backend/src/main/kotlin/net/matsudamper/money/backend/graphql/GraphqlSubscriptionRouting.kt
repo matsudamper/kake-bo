@@ -6,7 +6,9 @@ import kotlinx.coroutines.Job
 import kotlinx.coroutines.cancelAndJoin
 import kotlinx.coroutines.flow.onCompletion
 import kotlinx.coroutines.launch
-import com.fasterxml.jackson.module.kotlin.jacksonObjectMapper
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties
+import com.fasterxml.jackson.annotation.JsonProperty
+import com.fasterxml.jackson.module.kotlin.convertValue
 import com.fasterxml.jackson.module.kotlin.readValue
 import io.ktor.server.routing.Route
 import io.ktor.server.websocket.DefaultWebSocketServerSession
@@ -37,7 +39,7 @@ internal fun Route.graphqlSubscription(diContainer: DiContainer) {
         try {
             for (frame in incoming) {
                 if (frame !is Frame.Text) continue
-                val message = jacksonObjectMapper().readValue<ClientMessage>(frame.readText())
+                val message = ObjectMapper.jackson.readValue<ClientMessage>(frame.readText())
                 when (message.type) {
                     "connection_init" -> send(serverMessage(type = "connection_ack"))
 
@@ -45,7 +47,7 @@ internal fun Route.graphqlSubscription(diContainer: DiContainer) {
 
                     "subscribe" -> {
                         val id = message.id ?: continue
-                        val payload = message.payload ?: continue
+                        val payload = message.payload?.let { ObjectMapper.jackson.convertValue<SubscribePayload>(it) } ?: continue
                         if (subscriptions.containsKey(id)) {
                             close(CloseReason(code = 4409, message = "Subscriber for $id already exists"))
                             return@webSocket
@@ -116,16 +118,21 @@ private fun serverMessage(
     return Frame.Text(ObjectMapper.jackson.writeValueAsString(message))
 }
 
+/**
+ * payload は connection_init や ping では任意の JSON なので、subscribe のときだけ [SubscribePayload] に変換する
+ */
+@JsonIgnoreProperties(ignoreUnknown = true)
 private data class ClientMessage(
-    val type: String,
-    val id: String? = null,
-    val payload: SubscribePayload? = null,
+    @param:JsonProperty("type") val type: String,
+    @param:JsonProperty("id") val id: String? = null,
+    @param:JsonProperty("payload") val payload: Map<String, Any?>? = null,
 )
 
+@JsonIgnoreProperties(ignoreUnknown = true)
 private data class SubscribePayload(
-    val query: String,
-    val operationName: String? = null,
-    val variables: Map<String, Any?>? = null,
+    @param:JsonProperty("query") val query: String,
+    @param:JsonProperty("operationName") val operationName: String? = null,
+    @param:JsonProperty("variables") val variables: Map<String, Any?>? = null,
 )
 
 /**
