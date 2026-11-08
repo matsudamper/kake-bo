@@ -29,6 +29,7 @@ import net.matsudamper.money.frontend.graphql.AdminSessionMemoryStore
 import net.matsudamper.money.frontend.graphql.GraphqlClient
 import net.matsudamper.money.frontend.graphql.GraphqlClientImpl
 import net.matsudamper.money.frontend.graphql.ServerHostConfig
+import net.matsudamper.money.session.SessionCookieKeys
 import org.koin.core.module.Module
 import org.koin.core.scope.Scope
 import org.koin.dsl.module
@@ -37,8 +38,6 @@ internal actual val platformDefaultModule: Module = module {
 }
 
 internal actual val factory: Factory = object : Factory() {
-    private val UserSessionIdKey = "user_session_id"
-    private val AdminSessionIdKey = "admin_session_id"
     override fun createWebAuthModule(scope: Scope): WebAuthModel {
         return WebAuthModelAndroidImpl(
             context = scope.get(),
@@ -80,10 +79,10 @@ internal actual val factory: Factory = object : Factory() {
                     ): Flow<ApolloResponse<D>> {
                         val userSessionId = runBlocking { sessionDataStore.data.firstOrNull() }?.userSessionId.orEmpty()
                         val cookie = buildList {
-                            add("$UserSessionIdKey=$userSessionId")
+                            add("${SessionCookieKeys.USER_SESSION_ID}=$userSessionId")
                             val adminSessionId = AdminSessionMemoryStore.adminSessionId
                             if (adminSessionId != null) {
-                                add("$AdminSessionIdKey=$adminSessionId")
+                                add("${SessionCookieKeys.ADMIN_SESSION_ID}=$adminSessionId")
                             }
                         }.joinToString("; ")
                         val response = chain.proceed(
@@ -105,7 +104,7 @@ internal actual val factory: Factory = object : Factory() {
                                     val key = parts[0].trim()
                                     val value = parts[1]
                                     when (key) {
-                                        UserSessionIdKey -> {
+                                        SessionCookieKeys.USER_SESSION_ID -> {
                                             sessionDataStore.updateData {
                                                 it.toBuilder()
                                                     .setUserSessionId(value)
@@ -114,7 +113,7 @@ internal actual val factory: Factory = object : Factory() {
                                             }
                                         }
 
-                                        AdminSessionIdKey -> {
+                                        SessionCookieKeys.ADMIN_SESSION_ID -> {
                                             AdminSessionMemoryStore.adminSessionId = value.ifBlank { null }
                                         }
                                     }
