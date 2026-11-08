@@ -196,4 +196,53 @@ class DbAdminImageRepository(
                 }
         }
     }
+
+    override fun getS3ImagesWithoutThumbnail(
+        size: Int,
+        afterImageId: ImageId?,
+    ): List<AdminImageRepository.ImageWithoutThumbnail> {
+        return DbConnectionImpl.use { connection ->
+            val condition = userImages.UPLOADED.eq(true)
+                .and(userImages.STORAGE_TYPE.eq(DbStorageType.S3.dbValue))
+                .and(userImages.THUMBNAIL_PATH.isNull)
+                .let { condition ->
+                    if (afterImageId == null) {
+                        condition
+                    } else {
+                        condition.and(userImages.USER_IMAGE_ID.gt(afterImageId.value))
+                    }
+                }
+            DSL.using(connection)
+                .select(
+                    userImages.USER_IMAGE_ID,
+                    userImages.USER_ID,
+                    userImages.IMAGE_PATH,
+                )
+                .from(userImages)
+                .where(condition)
+                .orderBy(userImages.USER_IMAGE_ID.asc())
+                .limit(size)
+                .fetch()
+                .map { record ->
+                    AdminImageRepository.ImageWithoutThumbnail(
+                        imageId = ImageId(record.get(userImages.USER_IMAGE_ID)!!),
+                        userId = UserId(record.get(userImages.USER_ID)!!),
+                        relativePath = record.get(userImages.IMAGE_PATH)!!,
+                    )
+                }
+        }
+    }
+
+    override fun updateThumbnailPath(
+        imageId: ImageId,
+        thumbnailRelativePath: String,
+    ) {
+        DbConnectionImpl.use { connection ->
+            DSL.using(connection)
+                .update(userImages)
+                .set(userImages.THUMBNAIL_PATH, thumbnailRelativePath)
+                .where(userImages.USER_IMAGE_ID.eq(imageId.value))
+                .execute()
+        }
+    }
 }

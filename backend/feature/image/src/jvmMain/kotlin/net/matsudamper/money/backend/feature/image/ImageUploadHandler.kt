@@ -27,10 +27,7 @@ class ImageUploadHandler {
             displayId = displayUUID,
             extension = extension,
         )
-        val thumbnailRelativePath = createThumbnailRelativePath(
-            yearMonth = yearMonth,
-            displayId = displayUUID,
-        )
+        val thumbnailRelativePath = ThumbnailRelativePath.of(relativePath)
 
         val storageType = when (request.imageStorageGateway.storageType) {
             ImageStorageGateway.StorageType.LOCAL -> UserImageRepository.StorageType.LOCAL
@@ -170,13 +167,6 @@ class ImageUploadHandler {
         extension: String,
     ): String {
         return "$yearMonth/$displayId.$extension"
-    }
-
-    private fun createThumbnailRelativePath(
-        yearMonth: String,
-        displayId: String,
-    ): String {
-        return "$yearMonth/$displayId.thumb.webp"
     }
 
     data class Request(

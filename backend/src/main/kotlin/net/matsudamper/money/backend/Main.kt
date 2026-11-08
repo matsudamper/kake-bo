@@ -36,6 +36,7 @@ import io.ktor.server.routing.accept
 import io.ktor.server.routing.get
 import io.ktor.server.routing.post
 import io.ktor.server.routing.routing
+import io.ktor.server.websocket.WebSockets
 import io.opentelemetry.instrumentation.ktor.v3_0.KtorServerTelemetry
 import net.matsudamper.money.backend.base.ObjectMapper
 import net.matsudamper.money.backend.base.OpenTelemetryInitializer
@@ -49,6 +50,7 @@ import net.matsudamper.money.backend.feature.oidc.oidcDiscovery
 import net.matsudamper.money.backend.feature.session.KtorCookieManager
 import net.matsudamper.money.backend.graphql.GraphqlOperationTimeout
 import net.matsudamper.money.backend.graphql.MoneyGraphQlSchema
+import net.matsudamper.money.backend.graphql.graphqlSubscription
 import net.matsudamper.money.backend.image.ImageUploadConfig
 import net.matsudamper.money.backend.image.getImage
 import net.matsudamper.money.backend.image.postImage
@@ -96,6 +98,7 @@ fun Application.myApplicationModule(diContainer: DiContainer) {
     install(XForwardedHeaders)
     install(Compression)
     install(ConditionalHeaders)
+    install(WebSockets)
     install(ContentNegotiation) {
         json(
             json = ObjectMapper.kotlinxSerialization,
@@ -212,6 +215,7 @@ fun Application.myApplicationModule(diContainer: DiContainer) {
                 }
             }
         }
+        graphqlSubscription(diContainer = diContainer)
         postImage(
             diContainer = diContainer,
             config = ImageUploadConfig(
