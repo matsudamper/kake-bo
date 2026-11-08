@@ -17,10 +17,6 @@ public interface TraceLogger {
 }
 
 internal class OpenTracerRepository : TraceLogger {
-    private companion object {
-        private val logger = LoggerFactory.getLogger(OpenTracerRepository::class.java)
-    }
-
     private val span: Span get() = Span.current()
     override fun noticeThrowable(e: Throwable, isError: Boolean) {
         if (isError) {
@@ -43,5 +39,9 @@ internal class OpenTracerRepository : TraceLogger {
 
     override fun setAttribute(key: String, value: String) {
         span.setAttribute(key, value)
+    }
+
+    private companion object {
+        private val logger = LoggerFactory.getLogger(OpenTracerRepository::class.java)
     }
 }

@@ -25,6 +25,16 @@ class ScreenshotTest(
         deviceConfig = DeviceConfig.PIXEL_6,
     )
 
+    @OptIn(ExperimentalResourceApi::class)
+    @Test
+    fun snapshot() {
+        setResourceReaderAndroidContext(paparazzi.context)
+        paparazzi.snapshot(name = preview.methodName) {
+            PreviewContextConfigurationEffect()
+            preview()
+        }
+    }
+
     companion object {
         @JvmStatic
         @Parameterized.Parameters(name = "{0}")
@@ -37,15 +47,5 @@ class ScreenshotTest(
                 .scanPackageTrees("net.matsudamper.money.frontend.common.ui")
                 .includePrivatePreviews()
                 .getPreviews()
-    }
-
-    @OptIn(ExperimentalResourceApi::class)
-    @Test
-    fun snapshot() {
-        setResourceReaderAndroidContext(paparazzi.context)
-        paparazzi.snapshot(name = preview.methodName) {
-            PreviewContextConfigurationEffect()
-            preview()
-        }
     }
 }

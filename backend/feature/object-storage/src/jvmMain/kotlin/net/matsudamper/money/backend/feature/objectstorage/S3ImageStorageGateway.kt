@@ -24,12 +24,6 @@ class S3ImageStorageGateway(
     private val stsCredentialProvider: StsCredentialProvider,
     private val config: ObjectStorageConfig,
 ) : ImageStorageGateway {
-
-    private companion object {
-        /** S3 マルチパートアップロードの1パートサイズ（最小5MB） */
-        const val MULTIPART_PART_SIZE = 5 * 1024 * 1024
-    }
-
     override val storageType: ImageStorageGateway.StorageType = ImageStorageGateway.StorageType.S3
 
     override fun put(request: ImageStorageGateway.PutRequest): ImageStorageGateway.PutResult {
@@ -235,5 +229,10 @@ class S3ImageStorageGateway(
 
     private fun buildKey(relativePath: String): String {
         return S3ImageKey.of(relativePath)
+    }
+
+    private companion object {
+        /** S3 マルチパートアップロードの1パートサイズ（最小5MB） */
+        const val MULTIPART_PART_SIZE = 5 * 1024 * 1024
     }
 }
