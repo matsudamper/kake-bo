@@ -22,9 +22,9 @@ import kotlinx.datetime.plus
 import kotlinx.datetime.toLocalDateTime
 import com.apollographql.apollo.api.ApolloResponse
 import com.apollographql.apollo.api.Optional
-import com.apollographql.apollo.cache.normalized.FetchPolicy
-import com.apollographql.apollo.cache.normalized.fetchPolicy
-import com.apollographql.apollo.cache.normalized.watch
+import com.apollographql.cache.normalized.FetchPolicy
+import com.apollographql.cache.normalized.fetchPolicy
+import com.apollographql.cache.normalized.watch
 import net.matsudamper.money.element.MoneyUsageId
 import net.matsudamper.money.frontend.common.base.ImmutableList.Companion.toImmutableList
 import net.matsudamper.money.frontend.common.base.nav.ScopedObjectFeature
@@ -47,6 +47,7 @@ import net.matsudamper.money.frontend.graphql.GraphqlClient
 import net.matsudamper.money.frontend.graphql.MonthlyScreenListQuery
 import net.matsudamper.money.frontend.graphql.MonthlyScreenQuery
 import net.matsudamper.money.frontend.graphql.lib.ApolloResponseState
+import net.matsudamper.money.frontend.graphql.type.MoneyUsagesConnection
 import net.matsudamper.money.frontend.graphql.type.MoneyUsagesQueryOrderType
 import net.matsudamper.money.frontend.graphql.updateOperation
 
@@ -202,7 +203,12 @@ public class RootHomeMonthlyScreenViewModel(
                     date = Formatter.formatDateTime(node.date),
                     category = categoryName,
                     categoryColor = reservedColorModel.getColor(categoryName),
-                    imageUrls = node.images.map { it.url }.toImmutableList(),
+                    images = node.images.map { image ->
+                        RootHomeMonthlyScreenUiState.ImageItem(
+                            thumbnailUrl = image.thumbnailUrl ?: image.url,
+                            url = image.url,
+                        )
+                    }.toImmutableList(),
                     event = ItemEventImpl(
                         coroutineScope = viewModelScope,
                         eventSender = eventSender,
@@ -289,6 +295,7 @@ public class RootHomeMonthlyScreenViewModel(
                                 val usages = user.moneyUsages ?: return@user null
                                 user.copy(
                                     moneyUsages = MonthlyScreenListQuery.MoneyUsages(
+                                        __typename = MoneyUsagesConnection.type.name,
                                         cursor = newMoneyUsage.cursor,
                                         hasMore = newMoneyUsage.hasMore,
                                         nodes = usages.nodes + newMoneyUsage.nodes,

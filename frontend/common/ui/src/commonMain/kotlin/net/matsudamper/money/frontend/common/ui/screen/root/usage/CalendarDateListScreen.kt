@@ -86,6 +86,7 @@ public data class CalendarDateListScreenUiState(
     )
 
     public data class ImageItem(
+        val thumbnailUrl: String,
         val url: String,
     )
 
@@ -324,7 +325,7 @@ private fun ItemCard(
             ) {
                 items(item.images) { imageItem ->
                     SubcomposeAsyncImage(
-                        model = imageItem.url,
+                        model = imageItem.thumbnailUrl,
                         contentDescription = null,
                         contentScale = ContentScale.Crop,
                         modifier = Modifier

@@ -1,3 +1,5 @@
+import org.jetbrains.kotlin.gradle.ExperimentalWasmDsl
+
 plugins {
     alias(libs.plugins.kotlin.multiplatform)
     alias(libs.plugins.kotlin.serialization)
@@ -47,6 +49,7 @@ kotlin {
         namespace = "net.matsudamper.money.frontend.common.feature.localstore"
         withJava()
     }
+    @OptIn(ExperimentalWasmDsl::class)
     wasmJs {
         browser()
     }

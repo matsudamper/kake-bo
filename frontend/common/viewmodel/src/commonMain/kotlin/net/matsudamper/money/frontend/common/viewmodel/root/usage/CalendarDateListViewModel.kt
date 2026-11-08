@@ -18,10 +18,10 @@ import kotlinx.datetime.plus
 import kotlinx.datetime.toLocalDateTime
 import com.apollographql.apollo.api.ApolloResponse
 import com.apollographql.apollo.api.Optional
-import com.apollographql.apollo.cache.normalized.FetchPolicy
-import com.apollographql.apollo.cache.normalized.fetchPolicy
-import net.matsudamper.money.frontend.common.base.IO
+import com.apollographql.cache.normalized.FetchPolicy
+import com.apollographql.cache.normalized.fetchPolicy
 import net.matsudamper.money.frontend.common.base.ImmutableList.Companion.toImmutableList
+import net.matsudamper.money.frontend.common.base.PlatformIO
 import net.matsudamper.money.frontend.common.base.nav.ScopedObjectFeature
 import net.matsudamper.money.frontend.common.base.nav.user.ScreenStructure
 import net.matsudamper.money.frontend.common.ui.screen.root.usage.CalendarDateListScreenUiState
@@ -31,6 +31,7 @@ import net.matsudamper.money.frontend.common.viewmodel.lib.EventSender
 import net.matsudamper.money.frontend.common.viewmodel.lib.Formatter
 import net.matsudamper.money.frontend.graphql.CalendarDateListScreenPagingQuery
 import net.matsudamper.money.frontend.graphql.GraphqlClient
+import net.matsudamper.money.frontend.graphql.type.MoneyUsagesConnection
 import net.matsudamper.money.frontend.graphql.type.MoneyUsagesQuery
 import net.matsudamper.money.frontend.graphql.type.MoneyUsagesQueryFilter
 import net.matsudamper.money.frontend.graphql.type.MoneyUsagesQueryOrderType
@@ -113,7 +114,10 @@ public class CalendarDateListViewModel(
                             "${subCategory.category.name} / ${subCategory.name}"
                         },
                         images = result.images.map { image ->
-                            CalendarDateListScreenUiState.ImageItem(url = image.url)
+                            CalendarDateListScreenUiState.ImageItem(
+                                thumbnailUrl = image.thumbnailUrl ?: image.url,
+                                url = image.url,
+                            )
                         }.toImmutableList(),
                         event = object : CalendarDateListScreenUiState.ItemEvent {
                             override fun onClick() {
@@ -175,7 +179,7 @@ public class CalendarDateListViewModel(
             ),
         )
 
-        val response = withContext(Dispatchers.IO) {
+        val response = withContext(Dispatchers.PlatformIO) {
             graphqlClient.apolloClient.query(query)
                 .fetchPolicy(FetchPolicy.NetworkOnly)
                 .execute()
@@ -197,6 +201,7 @@ public class CalendarDateListViewModel(
                                 response.data?.copy(
                                     user = response.data?.user?.copy(
                                         moneyUsages = CalendarDateListScreenPagingQuery.MoneyUsages(
+                                            __typename = MoneyUsagesConnection.type.name,
                                             cursor = newUsages.cursor,
                                             hasMore = newUsages.hasMore,
                                             nodes = existingNodes + newUsages.nodes,

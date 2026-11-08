@@ -1,6 +1,6 @@
 type UserMutation {
-    userLogin(name: String!, password: String!): UserLoginResult!
-    userFidoLogin(userFidoLoginInput: UserFidoLoginInput!): UserLoginResult!
+    userLogin(name: String!, password: String!): UserLoginResult! @singleExecutionPerRequest
+    userFidoLogin(userFidoLoginInput: UserFidoLoginInput!): UserLoginResult! @singleExecutionPerRequest
     settingsMutation: SettingsMutation @lazy
     logout: Boolean! @lazy
 
@@ -8,8 +8,10 @@ type UserMutation {
     deleteImportedMail(id: ImportedMailId!): Boolean!
     """
     Gemini APIでメールを解析し、登録候補を返す。結果は保存しない
+    システムプロンプトはサーバーが持つ。additionalRulesはユーザーが追加する上書きルールで、システムプロンプトより優先される
+    modelが未指定の場合はFlashLiteを使う
     """
-    parseImportedMailWithAi(id: ImportedMailId!): ParseImportedMailWithAiResult! @longRunning(timeoutSeconds: 90)
+    parseImportedMailWithAi(id: ImportedMailId!, additionalRules: String, model: AiMailParseModel): ParseImportedMailWithAiResult! @longRunning(timeoutSeconds: 90)
     deleteMail(mailIds: [MailId!]!): DeleteMailResult!
 
     addUsage(usage: AddUsageQuery!): MoneyUsage!
@@ -199,6 +201,11 @@ type AiParsedMoneyUsage {
     description: String!
     amount: Int
     dateTime: LocalDateTime
+}
+
+enum AiMailParseModel {
+    FlashLite,
+    Flash,
 }
 
 enum ParseImportedMailWithAiError {

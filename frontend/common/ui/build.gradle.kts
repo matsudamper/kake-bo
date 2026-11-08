@@ -1,4 +1,5 @@
 import org.jetbrains.compose.resources.ResourcesExtension
+import org.jetbrains.kotlin.gradle.ExperimentalWasmDsl
 
 plugins {
     alias(libs.plugins.kotlin.multiplatform)
@@ -24,6 +25,7 @@ kotlin {
             isIncludeAndroidResources = true
         }
     }
+    @OptIn(ExperimentalWasmDsl::class)
     wasmJs {
         browser()
     }
@@ -84,7 +86,7 @@ kotlin {
 val byteBuddyAgent: Configuration = configurations.create("byteBuddyAgent")
 
 dependencies {
-    byteBuddyAgent("net.bytebuddy:byte-buddy-agent:1.18.15")
+    byteBuddyAgent("net.bytebuddy:byte-buddy-agent:1.18.17-jdk5")
 }
 
 val paparazziTaskRequested = gradle.startParameter.taskNames.any { requestedTask ->

@@ -16,14 +16,14 @@ import com.apollographql.apollo.api.CustomScalarAdapters
 import com.apollographql.apollo.api.Operation
 import com.apollographql.apollo.api.json.JsonReader
 import com.apollographql.apollo.api.json.JsonWriter
-import com.apollographql.apollo.cache.normalized.api.MemoryCacheFactory
-import com.apollographql.apollo.cache.normalized.normalizedCache
 import com.apollographql.apollo.exception.CacheMissException
 import com.apollographql.apollo.exception.DefaultApolloException
 import com.apollographql.apollo.interceptor.ApolloInterceptor
 import com.apollographql.apollo.interceptor.ApolloInterceptorChain
 import com.apollographql.apollo.network.http.DefaultHttpEngine
 import com.apollographql.apollo.network.http.HttpInterceptor
+import com.apollographql.apollo.network.websocket.WebSocketNetworkTransport
+import com.apollographql.cache.normalized.memory.MemoryCacheFactory
 import net.matsudamper.money.element.ApiTokenId
 import net.matsudamper.money.element.FidoId
 import net.matsudamper.money.element.ImageId
@@ -38,6 +38,7 @@ import net.matsudamper.money.element.MoneyUsageSubCategoryId
 import net.matsudamper.money.element.SessionRecordId
 import net.matsudamper.money.element.UserId
 import net.matsudamper.money.frontend.common.base.Logger
+import net.matsudamper.money.frontend.graphql.cache.Cache.cache
 import net.matsudamper.money.frontend.graphql.type.ApiTokenId as ApolloApiTokenId
 import net.matsudamper.money.frontend.graphql.type.FidoId as ApolloFidoId
 import net.matsudamper.money.frontend.graphql.type.ImageId as ApolloImageId
@@ -77,10 +78,15 @@ class GraphqlClientImpl(
 
     private fun buildClient(serverUrl: String): ApolloClient = ApolloClient.Builder()
         .serverUrl(serverUrl)
+        .subscriptionNetworkTransport(
+            WebSocketNetworkTransport.Builder()
+                .serverUrl(toSubscriptionUrl(serverUrl))
+                .build(),
+        )
         .httpEngine(DefaultHttpEngine(timeoutMillis = HTTP_ENGINE_TIMEOUT.inWholeMilliseconds))
         .httpInterceptors(listOf(OperationTimeoutHttpInterceptor) + httpInterceptors)
         .interceptors(listOf(OperationTimeoutInterceptor, ApolloErrorLoggingInterceptor) + interceptors)
-        .normalizedCache(cacheFactory)
+        .cache(cacheFactory)
         .addCustomScalarAdapter(
             ApolloLong.type,
             CustomLongAdapter(
@@ -401,4 +407,14 @@ private class CustomLongAdapter<T>(
             writer.nullValue()
         }
     }
+}
+
+/**
+ * Subscription は WebSocket で `/subscriptions` に繋ぐ。`https://host/query` → `wss://host/subscriptions`
+ */
+private fun toSubscriptionUrl(serverUrl: String): String {
+    return serverUrl
+        .removeSuffix("/query")
+        .replaceFirst("https://", "wss://")
+        .replaceFirst("http://", "ws://") + "/subscriptions"
 }

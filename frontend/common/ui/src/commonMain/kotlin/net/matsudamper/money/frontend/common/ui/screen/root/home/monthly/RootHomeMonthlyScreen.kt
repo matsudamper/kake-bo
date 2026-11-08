@@ -87,13 +87,18 @@ public data class RootHomeMonthlyScreenUiState(
         ) : LoadingState
     }
 
+    public data class ImageItem(
+        val thumbnailUrl: String,
+        val url: String,
+    )
+
     public data class Item(
         val title: String,
         val amount: String,
         val date: String,
         val category: String,
         val categoryColor: Color,
-        val imageUrls: ImmutableList<String>,
+        val images: ImmutableList<ImageItem>,
         val event: ItemEvent,
     )
 
@@ -300,7 +305,7 @@ private fun LoadedContent(
                                     }
                                 }
                             }
-                            if (showImages && item.imageUrls.isNotEmpty()) {
+                            if (showImages && item.images.isNotEmpty()) {
                                 val imageRowScrollConnection = remember {
                                     object : NestedScrollConnection {
                                         override fun onPostScroll(
@@ -315,14 +320,14 @@ private fun LoadedContent(
                                     horizontalArrangement = Arrangement.spacedBy(8.dp),
                                     contentPadding = PaddingValues(padding),
                                 ) {
-                                    items(item.imageUrls) { url ->
+                                    items(item.images) { image ->
                                         SubcomposeAsyncImage(
-                                            model = url,
+                                            model = image.thumbnailUrl,
                                             contentDescription = null,
                                             contentScale = ContentScale.Crop,
                                             modifier = Modifier.size(80.dp)
                                                 .clickable {
-                                                    imageUrlState.value = url
+                                                    imageUrlState.value = image.url
                                                 },
                                             loading = { ImageLoadingPlaceholder() },
                                         )
@@ -383,7 +388,7 @@ private fun RootHomeMonthlyScreenPreviewContent(isDarkTheme: Boolean) {
                             date = "2026/02/25",
                             category = "ショッピング",
                             categoryColor = Color(0xFFE65100),
-                            imageUrls = listOf<String>().toImmutableList(),
+                            images = listOf<RootHomeMonthlyScreenUiState.ImageItem>().toImmutableList(),
                             event = noOpItemEvent,
                         ),
                         RootHomeMonthlyScreenUiState.Item(
@@ -392,7 +397,7 @@ private fun RootHomeMonthlyScreenPreviewContent(isDarkTheme: Boolean) {
                             date = "2026/02/24",
                             category = "食費",
                             categoryColor = Color(0xFF558B2F),
-                            imageUrls = listOf<String>().toImmutableList(),
+                            images = listOf<RootHomeMonthlyScreenUiState.ImageItem>().toImmutableList(),
                             event = noOpItemEvent,
                         ),
                         RootHomeMonthlyScreenUiState.Item(
@@ -401,7 +406,7 @@ private fun RootHomeMonthlyScreenPreviewContent(isDarkTheme: Boolean) {
                             date = "2026/02/20",
                             category = "光熱費",
                             categoryColor = Color(0xFF1565C0),
-                            imageUrls = listOf<String>().toImmutableList(),
+                            images = listOf<RootHomeMonthlyScreenUiState.ImageItem>().toImmutableList(),
                             event = noOpItemEvent,
                         ),
                     ).toImmutableList(),

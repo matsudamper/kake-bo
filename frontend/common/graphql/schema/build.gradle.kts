@@ -1,4 +1,5 @@
 import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
+import org.jetbrains.kotlin.gradle.ExperimentalWasmDsl
 
 plugins {
     alias(libs.plugins.kotlin.multiplatform)
@@ -6,6 +7,7 @@ plugins {
 }
 
 kotlin {
+    @OptIn(ExperimentalWasmDsl::class)
     wasmJs {
         browser()
 
@@ -54,6 +56,8 @@ apollo {
             file("src/commonMain/graphql/extra.graphqls"),
         )
         plugin(project(":frontend:common:graphql:apollo-compiler-plugin"))
+        plugin(libs.apolloNormalizedCacheCompilerPlugin)
+        pluginArgument("com.apollographql.cache.packageName", packageName.get())
     }
 }
 

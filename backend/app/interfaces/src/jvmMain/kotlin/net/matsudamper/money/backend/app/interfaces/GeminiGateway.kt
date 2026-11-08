@@ -7,8 +7,14 @@ interface GeminiGateway {
      */
     fun generateJson(
         apiKey: String,
+        model: Model,
         systemInstruction: String,
         userText: String,
         responseSchemaJson: String,
     ): Result<String>
+
+    enum class Model {
+        FlashLite,
+        Flash,
+    }
 }

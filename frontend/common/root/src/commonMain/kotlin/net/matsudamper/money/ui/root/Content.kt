@@ -28,7 +28,7 @@ import androidx.navigation3.runtime.entryProvider
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
-import net.matsudamper.money.frontend.common.base.IO
+import net.matsudamper.money.frontend.common.base.PlatformIO
 import net.matsudamper.money.frontend.common.base.immutableListOf
 import net.matsudamper.money.frontend.common.base.lifecycle.LocalScopedObjectStore
 import net.matsudamper.money.frontend.common.base.nav.ContentKeyWrapper
@@ -165,7 +165,7 @@ public fun Content(
                 SettingViewModel(
                     scopedObjectFeature = it,
                     globalEventSender = globalEventSender,
-                    ioDispatchers = Dispatchers.IO,
+                    ioDispatchers = Dispatchers.PlatformIO,
                     navController = navController,
                 )
             }
@@ -378,7 +378,7 @@ public fun Content(
                                         override fun onClickReload() {
                                             rootCoroutineScope.launch {
                                                 isReloading = true
-                                                val result = withContext(Dispatchers.IO) {
+                                                val result = withContext(Dispatchers.PlatformIO) {
                                                     graphqlQuery.isLoggedIn()
                                                 }
                                                 isReloading = false

@@ -20,13 +20,13 @@ import kotlinx.datetime.LocalTime
 import kotlinx.datetime.plus
 import com.apollographql.apollo.api.ApolloResponse
 import com.apollographql.apollo.api.Optional
-import com.apollographql.apollo.cache.normalized.FetchPolicy
-import com.apollographql.apollo.cache.normalized.fetchPolicy
-import com.apollographql.apollo.cache.normalized.watch
+import com.apollographql.cache.normalized.FetchPolicy
+import com.apollographql.cache.normalized.fetchPolicy
+import com.apollographql.cache.normalized.watch
 import net.matsudamper.money.element.MoneyUsageSubCategoryId
 import net.matsudamper.money.frontend.common.base.AppSettingsRepository
-import net.matsudamper.money.frontend.common.base.IO
 import net.matsudamper.money.frontend.common.base.ImmutableList.Companion.toImmutableList
+import net.matsudamper.money.frontend.common.base.PlatformIO
 import net.matsudamper.money.frontend.common.base.nav.ScopedObjectFeature
 import net.matsudamper.money.frontend.common.base.nav.user.RootHomeScreenStructure
 import net.matsudamper.money.frontend.common.base.nav.user.ScreenNavController
@@ -43,6 +43,7 @@ import net.matsudamper.money.frontend.common.viewmodel.lib.Formatter
 import net.matsudamper.money.frontend.graphql.GraphqlClient
 import net.matsudamper.money.frontend.graphql.MonthlySubCategoryScreenListQuery
 import net.matsudamper.money.frontend.graphql.MonthlySubCategoryScreenQuery
+import net.matsudamper.money.frontend.graphql.type.MoneyUsagesConnection
 import net.matsudamper.money.frontend.graphql.type.MoneyUsagesQueryOrderType
 import net.matsudamper.money.frontend.graphql.updateOperation
 
@@ -180,7 +181,12 @@ public class RootHomeMonthlySubCategoryScreenViewModel(
             amount = "${Formatter.formatMoney(node.amount)}円",
             category = node.moneyUsageSubCategory?.name.orEmpty(),
             date = Formatter.formatDateTime(node.date),
-            imageUrls = node.images.map { it.url }.toImmutableList(),
+            images = node.images.map { image ->
+                RootHomeMonthlySubCategoryScreenUiState.ImageItem(
+                    thumbnailUrl = image.thumbnailUrl ?: image.url,
+                    url = image.url,
+                )
+            }.toImmutableList(),
             event = object : RootHomeMonthlySubCategoryScreenUiState.Item.Event {
                 override fun onClick() {
                     viewModelScope.launch {
@@ -216,7 +222,7 @@ public class RootHomeMonthlySubCategoryScreenViewModel(
     private suspend fun fetchSubCategoryName() {
         val subCategoryId = viewModelStateFlow.value.subCategoryId
         val query = MonthlySubCategoryScreenQuery(id = subCategoryId)
-        val response = withContext(Dispatchers.IO) {
+        val response = withContext(Dispatchers.PlatformIO) {
             graphqlClient.apolloClient.query(query)
                 .fetchPolicy(FetchPolicy.NetworkOnly)
                 .execute()
@@ -259,6 +265,7 @@ public class RootHomeMonthlySubCategoryScreenViewModel(
                         data = before.copy(
                             user = before.user?.copy(
                                 moneyUsages = MonthlySubCategoryScreenListQuery.MoneyUsages(
+                                    __typename = MoneyUsagesConnection.type.name,
                                     cursor = response.data?.user?.moneyUsages?.cursor,
                                     hasMore = response.data?.user?.moneyUsages?.hasMore ?: false,
                                     nodes = beforeNodes + newNodes,
@@ -272,7 +279,7 @@ public class RootHomeMonthlySubCategoryScreenViewModel(
     }
 
     private suspend fun queryExec(query: MonthlySubCategoryScreenListQuery): ApolloResponse<MonthlySubCategoryScreenListQuery.Data> {
-        return withContext(Dispatchers.IO) {
+        return withContext(Dispatchers.PlatformIO) {
             graphqlClient.apolloClient.query(query)
                 .fetchPolicy(FetchPolicy.NetworkOnly)
                 .execute()

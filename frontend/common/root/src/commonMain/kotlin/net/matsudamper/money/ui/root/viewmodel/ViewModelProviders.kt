@@ -5,7 +5,7 @@ import androidx.compose.runtime.ProvidableCompositionLocal
 import androidx.compose.runtime.compositionLocalOf
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
-import net.matsudamper.money.frontend.common.base.IO
+import net.matsudamper.money.frontend.common.base.PlatformIO
 import net.matsudamper.money.frontend.common.base.lifecycle.LocalScopedObjectStore
 import net.matsudamper.money.frontend.common.base.nav.user.ScreenNavController
 import net.matsudamper.money.frontend.common.base.nav.user.ScreenStructure
@@ -82,7 +82,7 @@ internal class ViewModelProviders(
         return LocalScopedObjectStore.current.putOrGet(Unit) { feature ->
             MailImportViewModel(
                 scopedObjectFeature = feature,
-                ioDispatcher = Dispatchers.IO,
+                ioDispatcher = Dispatchers.PlatformIO,
                 graphqlApi = MailImportScreenGraphqlApi(
                     graphqlClient = koin.get(),
                 ),
@@ -97,7 +97,7 @@ internal class ViewModelProviders(
         return LocalScopedObjectStore.current.putOrGet(Unit) { feature ->
             ImportedMailListViewModel(
                 scopedObjectFeature = feature,
-                ioDispatcher = Dispatchers.IO,
+                ioDispatcher = Dispatchers.PlatformIO,
                 graphqlApi = MailLinkScreenGraphqlApi(
                     graphqlClient = koin.get(),
                 ),

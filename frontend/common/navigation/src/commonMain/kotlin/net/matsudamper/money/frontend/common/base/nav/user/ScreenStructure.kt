@@ -330,6 +330,12 @@ public sealed interface ScreenStructure : IScreenStructure {
             override val direction: Screens = Screens.AdminUserSearch
             override val sameScreenId: String = "ScreenStructure#Admin#UserSearch"
         }
+
+        @Serializable
+        public data object ThumbnailBackfill : Admin {
+            override val direction: Screens = Screens.AdminThumbnailBackfill
+            override val sameScreenId: String = "ScreenStructure#Admin#ThumbnailBackfill"
+        }
     }
 
     @Serializable

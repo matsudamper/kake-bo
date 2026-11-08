@@ -1,8 +1,8 @@
 package net.matsudamper.money.frontend.graphql
 
 import com.apollographql.apollo.api.ApolloResponse
-import com.apollographql.apollo.cache.normalized.FetchPolicy
-import com.apollographql.apollo.cache.normalized.fetchPolicy
+import com.apollographql.cache.normalized.FetchPolicy
+import com.apollographql.cache.normalized.fetchPolicy
 import net.matsudamper.money.element.ImageId
 import net.matsudamper.money.element.UserId
 

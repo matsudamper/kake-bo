@@ -49,10 +49,15 @@ include(":detekt-rules")
 pluginManagement {
     includeBuild("build-logic")
     repositories {
+        maven("https://maven.matsudamper.net/releases") {
+            content {
+                includeGroupAndSubgroups("net.matsudamper")
+            }
+        }
         google()
         gradlePluginPortal()
-        mavenCentral()
         maven("https://maven.pkg.jetbrains.space/public/p/compose/dev")
+        mavenCentral()
     }
 }
 
@@ -63,7 +68,7 @@ plugins {
 dependencyResolutionManagement {
     repositories {
         google()
-        mavenCentral()
         maven("https://maven.pkg.jetbrains.space/public/p/compose/dev")
+        mavenCentral()
     }
 }

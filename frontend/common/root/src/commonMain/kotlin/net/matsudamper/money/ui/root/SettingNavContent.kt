@@ -10,7 +10,7 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.saveable.rememberSaveableStateHolder
 import androidx.compose.ui.Modifier
 import kotlinx.coroutines.Dispatchers
-import net.matsudamper.money.frontend.common.base.IO
+import net.matsudamper.money.frontend.common.base.PlatformIO
 import net.matsudamper.money.frontend.common.base.lifecycle.LocalScopedObjectStore
 import net.matsudamper.money.frontend.common.base.nav.user.ScreenNavController
 import net.matsudamper.money.frontend.common.base.nav.user.ScreenStructure
@@ -140,7 +140,7 @@ internal fun SettingNavContent(
                             graphqlClient = koin.get<GraphqlClient>(),
                         ),
                         globalEventSender = globalEventSender,
-                        ioDispatchers = Dispatchers.IO,
+                        ioDispatchers = Dispatchers.PlatformIO,
                         navController = navController,
                     )
                 }

@@ -128,7 +128,7 @@ public class LoginSettingViewModel(
         return LoginSettingScreenUiState.LoadingState.Loaded(
             fidoList = run fidoList@{
                 val fidoList = viewModelState.apolloScreenResponse
-                    ?.data?.user?.settings?.registeredFidoList
+                    .data?.user?.settings?.registeredFidoList
                 if (fidoList == null) {
                     immutableListOf()
                 } else {
@@ -142,7 +142,7 @@ public class LoginSettingViewModel(
             },
             password = run password@{
                 val hasPassword = viewModelState.apolloScreenResponse
-                    ?.data?.user?.settings?.hasPassword ?: false
+                    .data?.user?.settings?.hasPassword ?: false
                 LoginSettingScreenUiState.Password(
                     isRegistered = hasPassword,
                     maskedDisplay = "••••••••",
@@ -151,7 +151,7 @@ public class LoginSettingViewModel(
             },
             sessionList = run sessionList@{
                 val sessionList = viewModelState.apolloScreenResponse
-                    ?.data?.user?.settings?.sessionAttributes?.sessions
+                    .data?.user?.settings?.sessionAttributes?.sessions
                 if (sessionList == null) {
                     return@sessionList immutableListOf()
                 } else {

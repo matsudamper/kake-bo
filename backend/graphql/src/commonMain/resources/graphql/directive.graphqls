@@ -4,3 +4,7 @@ directive @optional on INPUT_FIELD_DEFINITION
 通常のタイムアウトに収まらない処理であることを示す。サーバーとクライアントはこのフィールドを含む操作のタイムアウトをtimeoutSecondsに延ばす
 """
 directive @longRunning(timeoutSeconds: Int!) on FIELD_DEFINITION
+"""
+1リクエスト内で1回までしか実行できないことを示す。2つ以上含む操作は実行前にエラーになる
+"""
+directive @singleExecutionPerRequest on FIELD_DEFINITION

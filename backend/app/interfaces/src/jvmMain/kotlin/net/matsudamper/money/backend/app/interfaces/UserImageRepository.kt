@@ -8,8 +8,14 @@ interface UserImageRepository {
 
     data class ImageData(
         val relativePath: String,
+        val thumbnailRelativePath: String?,
         val contentType: String,
         val storageType: StorageType,
+    )
+
+    data class ImageSummary(
+        val displayId: String,
+        val hasThumbnail: Boolean,
     )
 
     fun saveImage(
@@ -23,6 +29,7 @@ interface UserImageRepository {
     fun markImageAsUploaded(
         userId: UserId,
         imageId: ImageId,
+        thumbnailRelativePath: String?,
     )
 
     fun deleteReserveImage(
@@ -40,8 +47,8 @@ interface UserImageRepository {
         imageId: ImageId,
     ): Boolean
 
-    fun getDisplayIdsByImageIds(
+    fun getImageSummariesByImageIds(
         userId: UserId,
         imageIds: List<ImageId>,
-    ): Map<ImageId, String>
+    ): Map<ImageId, ImageSummary>
 }

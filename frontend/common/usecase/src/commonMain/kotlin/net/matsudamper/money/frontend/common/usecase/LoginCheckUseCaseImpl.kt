@@ -2,7 +2,7 @@ package net.matsudamper.money.frontend.common.usecase
 
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
-import net.matsudamper.money.frontend.common.base.IO
+import net.matsudamper.money.frontend.common.base.PlatformIO
 import net.matsudamper.money.frontend.graphql.GraphqlUserLoginQuery
 
 public sealed interface LoginCheckResult {
@@ -20,7 +20,7 @@ public class LoginCheckUseCaseImpl(
     private val eventListener: EventListener,
 ) : LoginCheckUseCase {
     override suspend fun check(): LoginCheckResult {
-        return when (withContext(Dispatchers.IO) { graphqlQuery.isLoggedIn() }) {
+        return when (withContext(Dispatchers.PlatformIO) { graphqlQuery.isLoggedIn() }) {
             GraphqlUserLoginQuery.IsLoggedInResult.LoggedIn -> LoginCheckResult.Success
             GraphqlUserLoginQuery.IsLoggedInResult.NotLoggedIn -> {
                 eventListener.logout()

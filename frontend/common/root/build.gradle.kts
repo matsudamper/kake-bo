@@ -1,3 +1,5 @@
+import org.jetbrains.kotlin.gradle.ExperimentalWasmDsl
+
 
 
 plugins {
@@ -13,6 +15,7 @@ kotlin {
     android {
         namespace = "net.matsudamper.money.ui.root"
     }
+    @OptIn(ExperimentalWasmDsl::class)
     wasmJs {
         browser()
     }

@@ -2,6 +2,7 @@ package net.matsudamper.money.buildlogic
 
 import org.gradle.api.Plugin
 import org.gradle.api.Project
+import org.jetbrains.kotlin.gradle.ExperimentalWasmDsl
 import org.jetbrains.kotlin.gradle.dsl.KotlinMultiplatformExtension
 
 @Suppress("unused")
@@ -15,6 +16,7 @@ class ComposePlugin : Plugin<Project> {
             afterEvaluate {
                 extensions.findByType(KotlinMultiplatformExtension::class.java)?.apply {
                     if (targets.any { it.name == "wasmJs" }) {
+                        @OptIn(ExperimentalWasmDsl::class)
                         wasmJs {
                             binaries.executable()
                         }
