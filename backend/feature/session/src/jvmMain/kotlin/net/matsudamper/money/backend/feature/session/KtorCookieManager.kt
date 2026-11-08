@@ -6,6 +6,7 @@ import io.ktor.server.request.host
 import io.ktor.server.util.toGMTDate
 import net.matsudamper.money.backend.base.CookieManager
 import net.matsudamper.money.backend.base.ServerEnv
+import net.matsudamper.money.session.SessionCookieKeys
 
 class KtorCookieManager(
     private val call: ApplicationCall,
@@ -17,7 +18,7 @@ class KtorCookieManager(
         expires: OffsetDateTime,
     ) {
         setCookie(
-            key = ADMIN_SESSION_ID_KEY,
+            key = SessionCookieKeys.ADMIN_SESSION_ID,
             value = idValue,
             expires = expires,
         )
@@ -28,23 +29,23 @@ class KtorCookieManager(
         expires: OffsetDateTime,
     ) {
         setCookie(
-            key = USER_SESSION_ID_KEY,
+            key = SessionCookieKeys.USER_SESSION_ID,
             value = idValue,
             expires = expires,
         )
     }
 
     override fun getAdminSessionId(): String? {
-        return call.request.cookies[ADMIN_SESSION_ID_KEY]
+        return call.request.cookies[SessionCookieKeys.ADMIN_SESSION_ID]
     }
 
     override fun getUserSessionId(): String? {
-        return call.request.cookies[USER_SESSION_ID_KEY]
+        return call.request.cookies[SessionCookieKeys.USER_SESSION_ID]
     }
 
     override fun clearAdminSession() {
         setCookie(
-            key = ADMIN_SESSION_ID_KEY,
+            key = SessionCookieKeys.ADMIN_SESSION_ID,
             value = "",
             expires = OffsetDateTime.now(),
         )
@@ -52,7 +53,7 @@ class KtorCookieManager(
 
     override fun clearUserSession() {
         setCookie(
-            key = USER_SESSION_ID_KEY,
+            key = SessionCookieKeys.USER_SESSION_ID,
             value = "",
             expires = OffsetDateTime.now(),
         )
@@ -75,10 +76,5 @@ class KtorCookieManager(
                 "SameSite" to "Strict",
             ),
         )
-    }
-
-    private companion object {
-        private const val ADMIN_SESSION_ID_KEY = "admin_session_id"
-        private const val USER_SESSION_ID_KEY = "user_session_id"
     }
 }
