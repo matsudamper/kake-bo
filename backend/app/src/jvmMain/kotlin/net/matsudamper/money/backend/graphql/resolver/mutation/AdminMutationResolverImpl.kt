@@ -3,6 +3,7 @@ package net.matsudamper.money.backend.graphql.resolver.mutation
 import java.util.concurrent.CompletionStage
 import graphql.execution.DataFetcherResult
 import graphql.schema.DataFetchingEnvironment
+import net.matsudamper.money.backend.app.interfaces.UserLoginRepository
 import net.matsudamper.money.backend.base.ServerEnv
 import net.matsudamper.money.backend.graphql.GraphQlContext
 import net.matsudamper.money.backend.graphql.otelSupplyAsync
@@ -154,6 +155,47 @@ class AdminMutationResolverImpl : AdminMutationResolver {
         return otelSupplyAsync {
             if (userId.value !in ServerEnv.adminUserIds) {
                 return@otelSupplyAsync QlAdminLoginResult(isSuccess = false)
+            }
+            val adminSession = context.diContainer.createAdminUserSessionRepository().createSession()
+            context.setAdminSessionCookie(
+                value = adminSession.adminSessionId.id,
+                expires = adminSession.expire,
+            )
+            QlAdminLoginResult(isSuccess = true)
+        }.toDataFetcher()
+    }
+
+    override fun adminLoginWithUserPassword(
+        adminMutation: QlAdminMutation,
+        name: String,
+        password: String,
+        env: DataFetchingEnvironment,
+    ): CompletionStage<DataFetcherResult<QlAdminLoginResult>> {
+        val context = env.graphQlContext.get<GraphQlContext>(GraphQlContext::class.java.name)
+        return minExecutionTime(LOGIN_MINIMUM_EXECUTION_TIME_MILLIS) {
+            val userLoginRepository = context.diContainer.userLoginRepository()
+            val encryptInfo = userLoginRepository.getLoginEncryptInfo(name)
+                ?: return@minExecutionTime QlAdminLoginResult(isSuccess = false)
+            val algorithm = IPasswordManager.Algorithm.entries
+                .firstOrNull { it.algorithmName == encryptInfo.algorithm }
+                ?: return@minExecutionTime QlAdminLoginResult(isSuccess = false)
+            val hashedPassword = PasswordManager().getHashedPassword(
+                password = password,
+                salt = encryptInfo.salt,
+                iterationCount = encryptInfo.iterationCount,
+                keyLength = encryptInfo.keyLength,
+                algorithm = algorithm,
+            )
+            val loginResult = userLoginRepository.login(
+                userName = name,
+                hashedPassword = hashedPassword,
+            )
+            val userId = when (loginResult) {
+                is UserLoginRepository.Result.Failure -> return@minExecutionTime QlAdminLoginResult(isSuccess = false)
+                is UserLoginRepository.Result.Success -> loginResult.uerId
+            }
+            if (userId.value !in ServerEnv.adminUserIds) {
+                return@minExecutionTime QlAdminLoginResult(isSuccess = false)
             }
             val adminSession = context.diContainer.createAdminUserSessionRepository().createSession()
             context.setAdminSessionCookie(
