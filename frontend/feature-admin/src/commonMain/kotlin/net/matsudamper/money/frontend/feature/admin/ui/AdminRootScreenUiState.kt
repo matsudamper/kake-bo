@@ -25,6 +25,8 @@ internal data class AdminRootScreenUiState(
 
         fun onClickUserSearch()
 
+        fun onClickThumbnailBackfill()
+
         fun onClickLogout()
     }
 }

@@ -10,6 +10,7 @@ import io.ktor.server.response.respondText
 import io.ktor.server.routing.Route
 import io.ktor.server.routing.post
 import io.ktor.utils.io.jvm.javaio.toInputStream
+import net.matsudamper.money.backend.app.interfaces.ImageResizerGateway
 import net.matsudamper.money.backend.base.ServerEnv
 import net.matsudamper.money.backend.base.TraceLogger
 import net.matsudamper.money.backend.di.DiContainer
@@ -43,6 +44,7 @@ internal fun Route.postImage(
 
         var result: ImageUploadHandler.Result? = null
         val imageStorageGateway = diContainer.createWriteImageStorageGateway()
+        val imageResizerGateway = diContainer.createImageResizerGateway()
         while (true) {
             val part = multipart.readPart() ?: break
             if (part !is PartData.FileItem) {
@@ -66,6 +68,7 @@ internal fun Route.postImage(
                     userId = userId,
                     userImageRepository = diContainer.createUserImageRepository(),
                     imageStorageGateway = imageStorageGateway,
+                    imageResizerGateway = imageResizerGateway,
                     maxUploadBytes = config.maxUploadBytes,
                     contentType = part.contentType?.withoutParameters()?.toString(),
                     inputStream = byteReadChannel,
@@ -118,6 +121,14 @@ internal fun Route.postImage(
                     domain = domain,
                     displayId = uploadResult.displayId,
                 )
+                val thumbnailUrl = if (uploadResult.hasThumbnail) {
+                    ImageApiPath.thumbnailV1AbsoluteByDisplayId(
+                        domain = domain,
+                        displayId = uploadResult.displayId,
+                    )
+                } else {
+                    null
+                }
 
                 call.respondText(
                     status = HttpStatusCode.Created,
@@ -128,6 +139,7 @@ internal fun Route.postImage(
                             success = Success(
                                 imageId = uploadResult.imageId,
                                 url = displayUrl,
+                                thumbnailUrl = thumbnailUrl,
                             ),
                         ),
                     ),
@@ -139,6 +151,39 @@ internal fun Route.postImage(
                     status = HttpStatusCode.UnsupportedMediaType,
                     message = "UnsupportedMediaType: ${uploadResult.mediaType}",
                 )
+            }
+
+            is ImageUploadHandler.Result.ThumbnailFailed -> {
+                when (val cause = uploadResult.cause) {
+                    ImageResizerGateway.Result.UnsupportedFormat -> call.respondApiError(
+                        status = HttpStatusCode.UnsupportedMediaType,
+                        message = "UnsupportedImageFormat",
+                    )
+
+                    ImageResizerGateway.Result.TooLarge -> call.respondApiError(
+                        status = HttpStatusCode.PayloadTooLarge,
+                        message = "ImageTooLarge",
+                    )
+
+                    is ImageResizerGateway.Result.ConvertFailed -> {
+                        TraceLogger.impl().noticeInfo("thumbnail convert failed: ${cause.message}")
+                        call.respondApiError(
+                            status = HttpStatusCode.UnprocessableEntity,
+                            message = "ThumbnailFailed",
+                        )
+                    }
+
+                    is ImageResizerGateway.Result.Unavailable -> {
+                        TraceLogger.impl().noticeThrowable(cause.cause, true)
+                        call.respondApiError(
+                            status = HttpStatusCode.ServiceUnavailable,
+                            message = "ThumbnailServiceUnavailable",
+                        )
+                    }
+
+                    ImageResizerGateway.Result.Success ->
+                        throw IllegalStateException("ThumbnailFailed に成功の結果が渡されました: $cause")
+                }
             }
         }
     }

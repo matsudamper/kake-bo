@@ -35,6 +35,7 @@ fragment MoneyUsageScreenMoneyUsage on MoneyUsage {
     images {
         id
         url
+        thumbnailUrl
     }
     linkedMail {
         id

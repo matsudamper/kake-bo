@@ -11,6 +11,7 @@ query CalendarDateListScreenPaging($query: MoneyUsagesQuery!) {
                 images {
                     id
                     url
+                    thumbnailUrl
                 }
                 moneyUsageSubCategory {
                     id

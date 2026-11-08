@@ -789,7 +789,7 @@ class UserMutationResolverImpl : UserMutationResolver {
     override fun parseImportedMailWithAi(
         userMutation: QlUserMutation,
         id: ImportedMailId,
-        prompt: String?,
+        additionalRules: String?,
         model: QlAiMailParseModel?,
         env: DataFetchingEnvironment,
     ): CompletionStage<DataFetcherResult<QlParseImportedMailWithAiResult>> {
@@ -812,7 +812,7 @@ class UserMutationResolverImpl : UserMutationResolver {
 
                         QlAiMailParseModel.Flash -> GeminiGateway.Model.Flash
                     },
-                    systemInstruction = prompt,
+                    additionalRules = additionalRules,
                 )
             }.onFailure {
                 TraceLogger.impl().noticeThrowable(it, isError = true)

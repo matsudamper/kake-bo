@@ -20,17 +20,32 @@ class AiMailParser(
     fun parse(
         apiKey: String,
         model: GeminiGateway.Model,
-        systemInstruction: String,
+        additionalRules: String,
         input: AiMailParseInput,
     ): Result<List<AiParsedUsage>> {
         return geminiGateway.generateJson(
             apiKey = apiKey,
             model = model,
-            systemInstruction = systemInstruction,
+            systemInstruction = buildSystemInstruction(additionalRules),
             userText = MailBodyTextBuilder.build(input = input, maxBodyLength = MAX_BODY_LENGTH),
             responseSchemaJson = RESPONSE_SCHEMA_JSON,
         ).mapCatching { text ->
             parseResponse(text)
+        }
+    }
+
+    private fun buildSystemInstruction(additionalRules: String): String {
+        if (additionalRules.isBlank()) return SYSTEM_INSTRUCTION
+        return buildString {
+            appendLine(SYSTEM_INSTRUCTION)
+            appendLine()
+            appendLine("## ユーザーの追加ルール")
+            appendLine("以下はユーザーが指定した追加ルールです。追加ルールは上記の指示より優先してください。")
+            appendLine("上記の指示と矛盾する場合は追加ルールに従い、矛盾しない部分は上記の指示にも従ってください。")
+            appendLine("ただし、出力は指定されたJSONの形式を必ず守ってください。")
+            appendLine("<additional_rules>")
+            appendLine(additionalRules)
+            append("</additional_rules>")
         }
     }
 
@@ -73,12 +88,14 @@ class AiMailParser(
         // 長い広告メールでトークンを使い過ぎないように本文を切り詰める
         private const val MAX_BODY_LENGTH = 30_000
 
-        val DEFAULT_SYSTEM_INSTRUCTION = """
+        private val SYSTEM_INSTRUCTION = """
             あなたは家計簿アプリのためにメールから支出を抽出するアシスタントです。
             与えられたメールから、実際に支払いや購入、利用が発生した項目を抽出してください。
             - 1通のメールに複数の支払いがある場合は、支払いごとに分けて出力してください。
             - 同じ注文の商品明細は1つの支出にまとめ、商品名などは description に記載してください。
-            - title は家計簿に表示する短い名前にしてください。店名やサービス名を含めてください。
+            - title は家計簿に表示する短い名前にしてください。
+              - 注文の商品が1つだけの場合は、その商品名を title にしてください。店名やサービス名は description に記載してください。
+              - 商品が複数ある場合や商品名が分からない場合は、店名やサービス名を含めた名前にしてください。
             - amount は日本円の支払金額を整数で入れてください。返金の場合は負の値にしてください。不明な場合は null にしてください。
             - dateTime は利用日時を yyyy-MM-ddTHH:mm:ss 形式で入れてください。時刻が不明な場合は 00:00:00、日付が不明な場合は null にしてください。年が書かれていない場合は受信日時から補ってください。
             - 広告、キャンペーン案内、ポイント付与のお知らせなど支払いが発生していないメールの場合は空の配列を返してください。

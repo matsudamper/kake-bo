@@ -22,6 +22,7 @@ import com.apollographql.apollo.interceptor.ApolloInterceptor
 import com.apollographql.apollo.interceptor.ApolloInterceptorChain
 import com.apollographql.apollo.network.http.DefaultHttpEngine
 import com.apollographql.apollo.network.http.HttpInterceptor
+import com.apollographql.apollo.network.websocket.WebSocketNetworkTransport
 import com.apollographql.cache.normalized.memory.MemoryCacheFactory
 import net.matsudamper.money.element.ApiTokenId
 import net.matsudamper.money.element.FidoId
@@ -77,6 +78,11 @@ class GraphqlClientImpl(
 
     private fun buildClient(serverUrl: String): ApolloClient = ApolloClient.Builder()
         .serverUrl(serverUrl)
+        .subscriptionNetworkTransport(
+            WebSocketNetworkTransport.Builder()
+                .serverUrl(toSubscriptionUrl(serverUrl))
+                .build(),
+        )
         .httpEngine(DefaultHttpEngine(timeoutMillis = HTTP_ENGINE_TIMEOUT.inWholeMilliseconds))
         .httpInterceptors(listOf(OperationTimeoutHttpInterceptor) + httpInterceptors)
         .interceptors(listOf(OperationTimeoutInterceptor, ApolloErrorLoggingInterceptor) + interceptors)
@@ -401,4 +407,14 @@ private class CustomLongAdapter<T>(
             writer.nullValue()
         }
     }
+}
+
+/**
+ * Subscription は WebSocket で `/subscriptions` に繋ぐ。`https://host/query` → `wss://host/subscriptions`
+ */
+private fun toSubscriptionUrl(serverUrl: String): String {
+    return serverUrl
+        .removeSuffix("/query")
+        .replaceFirst("https://", "wss://")
+        .replaceFirst("http://", "ws://") + "/subscriptions"
 }

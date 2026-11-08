@@ -104,6 +104,8 @@ dependencies {
     implementation(libs.ktorServerCallLogging)
     implementation(libs.ktorServerCompression)
     implementation(libs.ktorServerConditionalHeaders)
+    implementation(libs.ktorServerWebsockets)
+    implementation(libs.kotlin.coroutines.reactive)
 
     implementation(libs.opentelemetryKtor3)
     implementation(libs.opentelemetryKotlinExtension)
@@ -112,7 +114,7 @@ dependencies {
 
     testImplementation(kotlin("test"))
     testImplementation(libs.kotestRunnerJunit5)
-    testImplementation("io.mockk:mockk:1.14.11")
+    testImplementation("io.mockk:mockk:1.14.12")
 }
 
 tasks.withType<Test>().configureEach {

@@ -181,7 +181,12 @@ public class RootHomeMonthlySubCategoryScreenViewModel(
             amount = "${Formatter.formatMoney(node.amount)}円",
             category = node.moneyUsageSubCategory?.name.orEmpty(),
             date = Formatter.formatDateTime(node.date),
-            imageUrls = node.images.map { it.url }.toImmutableList(),
+            images = node.images.map { image ->
+                RootHomeMonthlySubCategoryScreenUiState.ImageItem(
+                    thumbnailUrl = image.thumbnailUrl ?: image.url,
+                    url = image.url,
+                )
+            }.toImmutableList(),
             event = object : RootHomeMonthlySubCategoryScreenUiState.Item.Event {
                 override fun onClick() {
                     viewModelScope.launch {

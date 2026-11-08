@@ -14,10 +14,7 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
-import androidx.compose.runtime.setValue
 import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
@@ -42,7 +39,16 @@ public actual fun FullScreenTextInput(
     autocomplete: String?,
     errorMessage: String?,
 ) {
-    var text by remember { mutableStateOf(default) }
+    val inputElement = remember {
+        createTextInputElement(
+            isMultiline = isMultiline,
+            inputType = inputType.htmlString(),
+            name = name,
+            placeholder = title,
+            autocomplete = autocomplete,
+            initialValue = default,
+        )
+    }
     Dialog(onDismissRequest = canceled) {
         Card(
             modifier = Modifier
@@ -65,17 +71,7 @@ public actual fun FullScreenTextInput(
                     modifier = Modifier
                         .fillMaxWidth()
                         .height(if (isMultiline) 160.dp else 48.dp),
-                    factory = {
-                        createTextInputElement(
-                            isMultiline = isMultiline,
-                            inputType = inputType.htmlString(),
-                            name = name,
-                            placeholder = title,
-                            autocomplete = autocomplete,
-                            initialValue = default,
-                            onValueChange = { text = it },
-                        )
-                    },
+                    factory = { inputElement },
                 )
                 if (errorMessage != null) {
                     Spacer(modifier = Modifier.height(8.dp))
@@ -93,7 +89,7 @@ public actual fun FullScreenTextInput(
                     TextButton(onClick = canceled) {
                         Text("CANCEL")
                     }
-                    TextButton(onClick = { onComplete(text) }) {
+                    TextButton(onClick = { onComplete(inputElement.currentValue()) }) {
                         Text("OK")
                     }
                 }
@@ -109,18 +105,15 @@ private fun createTextInputElement(
     placeholder: String,
     autocomplete: String?,
     initialValue: String,
-    onValueChange: (String) -> Unit,
 ): HTMLElement {
     val element = if (isMultiline) {
         val textArea = document.createElement("textarea") as HTMLTextAreaElement
         textArea.value = initialValue
-        textArea.oninput = { onValueChange(textArea.value) }
         textArea
     } else {
         val input = document.createElement("input") as HTMLInputElement
         input.type = inputType
         input.value = initialValue
-        input.oninput = { onValueChange(input.value) }
         input
     }
     element.setAttribute("name", name)
@@ -136,4 +129,13 @@ private fun createTextInputElement(
         fontSize = "16px"
     }
     return element
+}
+
+// ブラウザのパスワード自動入力は input イベントを発火しないことがあるため、確定時に要素から直接読む
+private fun HTMLElement.currentValue(): String {
+    return when (this) {
+        is HTMLTextAreaElement -> value
+        is HTMLInputElement -> value
+        else -> ""
+    }
 }

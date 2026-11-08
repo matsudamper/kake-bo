@@ -21,7 +21,7 @@ jetbrainsNav3 = "1.2.0"
 coil3 = "3.6.3"
 zoomable = "2.16.0"
 okhttp = "5.5.1"
-graalvmNative = "1.1.17"
+graalvmNative = "1.1.18"
 opentelemetry = "1.68.0"
 opentelemetryInstrumentation = "2.29.0-alpha"
 paparazzi = "2.0.0-alpha05.1"
@@ -61,6 +61,7 @@ awsSts = { module = "software.amazon.awssdk:sts", version.ref = "awsSdk" }
 nimbusJoseJwt = { module = "com.nimbusds:nimbus-jose-jwt", version.ref = "nimbusJoseJwt" }
 kotlinRefrect = { module = "org.jetbrains.kotlin:kotlin-reflect", version.ref = "kotlin" }
 kotlin-coroutines-core = { module = "org.jetbrains.kotlinx:kotlinx-coroutines-core", version.require = "1.11.0" }
+kotlin-coroutines-reactive = { module = "org.jetbrains.kotlinx:kotlinx-coroutines-reactive", version.require = "1.11.0" }
 kotlin-datetime = { module = "org.jetbrains.kotlinx:kotlinx-datetime", version.require = "0.8.0-0.6.x-compat" }
 kotlin-serialization-json = { module = "org.jetbrains.kotlinx:kotlinx-serialization-json", version.require = "1.12.0" }
 kotlinxBrowser = { module = "org.jetbrains.kotlinx:kotlinx-browser", version = "0.5.0" }
@@ -92,6 +93,7 @@ ktorSerializationJson = { module = "io.ktor:ktor-serialization-kotlinx-json", ve
 ktorServerContentNegotiation = { module = "io.ktor:ktor-server-content-negotiation", version.ref = "ktor" }
 ktorServerCallLogging = { module = "io.ktor:ktor-server-call-logging", version.ref = "ktor" }
 ktorServerConditionalHeaders = { module = "io.ktor:ktor-server-conditional-headers", version.ref = "ktor" }
+ktorServerWebsockets = { module = "io.ktor:ktor-server-websockets", version.ref = "ktor" }
 ktorClientCore = { module = "io.ktor:ktor-client-core", version.ref = "ktor" }
 ktorClientCio = { module = "io.ktor:ktor-client-cio", version.ref = "ktor" }
 ktorClientJs = { module = "io.ktor:ktor-client-js", version.ref = "ktor" }
@@ -177,7 +179,7 @@ zoomable = { module = "net.engawapg.lib:zoomable", version.ref = "zoomable" }
 
 # Log
 log4j-api = { module = "org.slf4j:slf4j-api", version.require = "2.0.20" }
-logback-classic = { module = "ch.qos.logback:logback-classic", version.require = "1.6.3" }
+logback-classic = { module = "ch.qos.logback:logback-classic", version.require = "1.6.6" }
 logstashLogbackEncoder = { module = "net.logstash.logback:logstash-logback-encoder", version.require = "9.0" }
 
 # Graphql
@@ -207,7 +209,7 @@ timber = { module = "com.jakewharton.timber:timber", version.ref = "timber" }
 lettuce = { module = "io.lettuce:lettuce-core", version.require = "7.8.0.RELEASE" }
 jsoup = { module = "org.jsoup:jsoup", version.require = "1.24.1" }
 hikariCP = { module = "com.zaxxer:HikariCP", version.require = "7.1.0" }
-mariadbClient = { module = "org.mariadb.jdbc:mariadb-java-client", version.require = "3.5.11" }
+mariadbClient = { module = "org.mariadb.jdbc:mariadb-java-client", version.require = "4.0.0" }
 
 # Play
 androidxCredentialsPlayServicesAuth = { module = "androidx.credentials:credentials-play-services-auth", version.require = "1.6.0" }

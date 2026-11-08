@@ -58,11 +58,16 @@ class DbUserImageRepository : UserImageRepository {
         }
     }
 
-    override fun markImageAsUploaded(userId: UserId, imageId: ImageId) {
+    override fun markImageAsUploaded(
+        userId: UserId,
+        imageId: ImageId,
+        thumbnailRelativePath: String?,
+    ) {
         DbConnectionImpl.use { connection ->
             DSL.using(connection)
                 .update(jUserImages)
                 .set(jUserImages.UPLOADED, true)
+                .set(jUserImages.THUMBNAIL_PATH, thumbnailRelativePath)
                 .where(jUserImages.USER_IMAGE_ID.eq(imageId.value))
                 .and(jUserImages.USER_ID.eq(userId.value))
                 .execute()
@@ -77,6 +82,7 @@ class DbUserImageRepository : UserImageRepository {
             DSL.using(connection)
                 .select(
                     jUserImages.IMAGE_PATH,
+                    jUserImages.THUMBNAIL_PATH,
                     jUserImages.CONTENT_TYPE,
                     jUserImages.STORAGE_TYPE,
                 )
@@ -96,6 +102,7 @@ class DbUserImageRepository : UserImageRepository {
                     }
                     UserImageRepository.ImageData(
                         relativePath = record.get(jUserImages.IMAGE_PATH)!!,
+                        thumbnailRelativePath = record.get(jUserImages.THUMBNAIL_PATH),
                         contentType = record.get(jUserImages.CONTENT_TYPE)!!,
                         storageType = storageType,
                     )
@@ -121,10 +128,10 @@ class DbUserImageRepository : UserImageRepository {
         }
     }
 
-    override fun getDisplayIdsByImageIds(
+    override fun getImageSummariesByImageIds(
         userId: UserId,
         imageIds: List<ImageId>,
-    ): Map<ImageId, String> {
+    ): Map<ImageId, UserImageRepository.ImageSummary> {
         if (imageIds.isEmpty()) {
             return mapOf()
         }
@@ -134,6 +141,7 @@ class DbUserImageRepository : UserImageRepository {
                 .select(
                     jUserImages.USER_IMAGE_ID,
                     jUserImages.DISPLAY_ID,
+                    jUserImages.THUMBNAIL_PATH,
                 )
                 .from(jUserImages)
                 .where(
@@ -142,7 +150,10 @@ class DbUserImageRepository : UserImageRepository {
                 )
                 .fetch()
                 .associate { record ->
-                    ImageId(record.get(jUserImages.USER_IMAGE_ID)!!) to record.get(jUserImages.DISPLAY_ID)!!
+                    ImageId(record.get(jUserImages.USER_IMAGE_ID)!!) to UserImageRepository.ImageSummary(
+                        displayId = record.get(jUserImages.DISPLAY_ID)!!,
+                        hasThumbnail = record.get(jUserImages.THUMBNAIL_PATH) != null,
+                    )
                 }
         }
     }

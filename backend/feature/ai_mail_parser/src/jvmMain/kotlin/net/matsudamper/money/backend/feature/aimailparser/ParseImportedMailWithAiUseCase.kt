@@ -17,7 +17,7 @@ class ParseImportedMailWithAiUseCase(
         userId: UserId,
         importedMailId: ImportedMailId,
         model: GeminiGateway.Model,
-        systemInstruction: String?,
+        additionalRules: String?,
     ): Result {
         val apiKey = userConfigRepository.getGeminiApiKey(userId)
         if (apiKey.isNullOrBlank()) return Result.ApiKeyNotSet
@@ -38,7 +38,7 @@ class ParseImportedMailWithAiUseCase(
         return aiMailParser.parse(
             apiKey = apiKey,
             model = model,
-            systemInstruction = systemInstruction?.takeIf { it.isNotBlank() } ?: AiMailParser.DEFAULT_SYSTEM_INSTRUCTION,
+            additionalRules = additionalRules?.trim().orEmpty(),
             input = input,
         ).fold(
             onSuccess = { usages -> Result.Success(usages) },

@@ -142,6 +142,7 @@ private fun UrlPlaceHolderParser.ScreenState<Screens>.toScreenStructure(queryPar
         Screens.AdminAddUser -> ScreenStructure.Admin.AddUser
         Screens.AdminUnlinkedImages -> ScreenStructure.Admin.UnlinkedImages
         Screens.AdminUserSearch -> ScreenStructure.Admin.UserSearch
+        Screens.AdminThumbnailBackfill -> ScreenStructure.Admin.ThumbnailBackfill
         Screens.MailImport -> ScreenStructure.Root.Add.Import
         Screens.Add -> {
             ScreenStructure.Root.Add.Root

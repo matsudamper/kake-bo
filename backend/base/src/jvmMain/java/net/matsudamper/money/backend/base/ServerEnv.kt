@@ -67,5 +67,6 @@ public object ServerEnv {
         public val s3Audience: String get() = requireNotNull(System.getenv("S3_AUDIENCE")) { "S3_AUDIENCE が未設定です" }
         public val s3PathStyleAccess: Boolean get() = System.getenv("S3_PATH_STYLE_ACCESS")?.toBooleanStrictOrNull() ?: true
         public val stsEndpoint: String get() = requireNotNull(System.getenv("STS_ENDPOINT")) { "STS_ENDPOINT が未設定です" }
+        public val imageResizerEndpoint: String get() = requireNotNull(System.getenv("IMAGE_RESIZER_ENDPOINT")) { "IMAGE_RESIZER_ENDPOINT が未設定です" }
     }
 }
