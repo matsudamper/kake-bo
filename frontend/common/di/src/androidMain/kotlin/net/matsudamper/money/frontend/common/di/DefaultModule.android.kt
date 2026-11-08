@@ -140,6 +140,7 @@ internal actual val factory: Factory = object : Factory() {
             ),
             onServerUrlChanged = { url ->
                 activeHost = url.substringAfter("://").substringBefore("/")
+                AdminSessionMemoryStore.adminSessionId = null
             },
         )
     }
