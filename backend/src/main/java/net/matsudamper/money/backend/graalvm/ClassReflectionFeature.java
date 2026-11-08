@@ -114,6 +114,8 @@ public class ClassReflectionFeature implements Feature {
                 new Target("net.matsudamper.money.backend.GraphQlRequest$Extensions", ReflectedMember.DECLARED_CONSTRUCTORS, ReflectedMember.PUBLIC_METHODS, ReflectedMember.DECLARED_FIELDS),
                 new Target("net.matsudamper.money.backend.GraphQlRequest$ClientLibrary", ReflectedMember.DECLARED_CONSTRUCTORS, ReflectedMember.PUBLIC_METHODS, ReflectedMember.DECLARED_FIELDS),
                 new Target("net.matsudamper.money.backend.GraphQlRequest$PersistedQuery", ReflectedMember.DECLARED_CONSTRUCTORS, ReflectedMember.PUBLIC_METHODS, ReflectedMember.DECLARED_FIELDS),
+                new Target("net.matsudamper.money.backend.graphql.ClientMessage", ReflectedMember.DECLARED_CONSTRUCTORS, ReflectedMember.PUBLIC_METHODS, ReflectedMember.DECLARED_FIELDS),
+                new Target("net.matsudamper.money.backend.graphql.SubscribePayload", ReflectedMember.DECLARED_CONSTRUCTORS, ReflectedMember.PUBLIC_METHODS, ReflectedMember.DECLARED_FIELDS),
                 new Target("redis.clients.jedis.DefaultJedisClientConfig", ReflectedMember.PUBLIC_CONSTRUCTORS, ReflectedMember.DECLARED_CONSTRUCTORS, ReflectedMember.PUBLIC_METHODS, ReflectedMember.DECLARED_METHODS, ReflectedMember.DECLARED_FIELDS),
                 new Target("redis.clients.jedis.JedisClientConfig", ReflectedMember.PUBLIC_METHODS),
                 new Target("redis.clients.jedis.JedisFactory", ReflectedMember.DECLARED_METHODS, ReflectedMember.DECLARED_FIELDS),

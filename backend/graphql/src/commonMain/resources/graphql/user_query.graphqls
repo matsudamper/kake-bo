@@ -77,4 +77,8 @@ type MoneyUsage {
 type Image {
     id: ImageId!
     url: String! @lazy
+    """
+    一覧表示用のサムネイル。サムネイル機能より前にアップロードされた画像と、ローカル保存の画像は null
+    """
+    thumbnailUrl: String @lazy
 }

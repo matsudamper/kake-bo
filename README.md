@@ -33,6 +33,10 @@
   - ここに購入メールを転送する
 - MariaDB
   - [テーブルを作成する](https://github.com/matsudamper/kake-bo/tree/70e838f4d1c31460ccb110290cb0a3343b124858/backend/db/src/jvmMain/resources/sql)
+- S3 互換ストレージに画像を保存する場合（`ENABLE_S3=true`）
+  - [s3-image-resizer](https://github.com/matsudamper/s3-image-resizer)
+    - アップロード時にサムネイルを作る。`IMAGE_RESIZER_ENDPOINT` で指定する
+    - 認証はこのサーバーが発行する WebIdentity JWT を使うので、resizer の `OIDC_ISSUER` / `OIDC_AUDIENCE` / `STS_ROLE_ARN` は `OIDC_ISSUER` / `S3_AUDIENCE` / `S3_ROLE_ARN` と同じ値にする
 
 # 動作手順
 まずはフロントをビルドする。その後にバックエンドを起動する。

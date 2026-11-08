@@ -104,6 +104,8 @@ dependencies {
     implementation(libs.ktorServerCallLogging)
     implementation(libs.ktorServerCompression)
     implementation(libs.ktorServerConditionalHeaders)
+    implementation(libs.ktorServerWebsockets)
+    implementation(libs.kotlin.coroutines.reactive)
 
     implementation(libs.opentelemetryKtor3)
     implementation(libs.opentelemetryKotlinExtension)

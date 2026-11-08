@@ -75,7 +75,7 @@ import org.jetbrains.compose.resources.painterResource
 
 public sealed interface ImageItem {
     public data object Uploading : ImageItem
-    public data class Uploaded(val url: String) : ImageItem
+    public data class Uploaded(val thumbnailUrl: String, val url: String) : ImageItem
 }
 
 public data class AddMoneyUsageScreenUiState(
@@ -393,7 +393,7 @@ public fun AddMoneyUsageScreen(
                                             }
                                             is ImageItem.Uploaded -> {
                                                 SubcomposeAsyncImage(
-                                                    model = image.url,
+                                                    model = image.thumbnailUrl,
                                                     contentDescription = null,
                                                     contentScale = ContentScale.Crop,
                                                     modifier = Modifier

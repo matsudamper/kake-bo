@@ -53,6 +53,10 @@ internal class AdminRootScreenViewModel(
                     navController.navigate(ScreenStructure.Admin.UserSearch)
                 }
 
+                override fun onClickThumbnailBackfill() {
+                    navController.navigate(ScreenStructure.Admin.ThumbnailBackfill)
+                }
+
                 override fun onClickLogout() {
                     logout()
                 }

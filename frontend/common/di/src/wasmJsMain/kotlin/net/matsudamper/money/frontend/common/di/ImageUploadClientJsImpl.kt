@@ -46,6 +46,7 @@ public class ImageUploadClientJsImpl : ImageUploadClient {
             ImageUploadClient.UploadResult(
                 imageId = success.imageId,
                 url = success.url,
+                thumbnailUrl = success.thumbnailUrl,
             )
         }.onFailure {
             Logger.e(TAG, it)

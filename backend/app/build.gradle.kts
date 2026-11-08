@@ -40,6 +40,7 @@ kotlin {
                 implementation(libs.jackson.jsr310)
                 implementation(libs.kotlin.serialization.json)
                 implementation(libs.kotlin.coroutines.core)
+                implementation(libs.kotlin.coroutines.reactive)
                 implementation(libs.logback.classic)
                 implementation(libs.opentelemetryApi)
                 implementation(libs.opentelemetryGraphqlJava)

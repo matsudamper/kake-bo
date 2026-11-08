@@ -67,12 +67,17 @@ public data class RootHomeMonthlyCategoryScreenUiState(
     val currentSortType: SortSectionType,
     val sortOrder: SortSectionOrder,
 ) {
+    public data class ImageItem(
+        val thumbnailUrl: String,
+        val url: String,
+    )
+
     public data class Item(
         val title: String,
         val amount: String,
         val subCategory: String,
         val date: String,
-        val imageUrls: ImmutableList<String>,
+        val images: ImmutableList<ImageItem>,
         val event: Event,
     ) {
         @Immutable
@@ -317,7 +322,7 @@ private fun ListItem(
                         )
                     }
                 }
-                if (showImages && item.imageUrls.isNotEmpty()) {
+                if (showImages && item.images.isNotEmpty()) {
                     val imageRowScrollConnection = remember {
                         object : NestedScrollConnection {
                             override fun onPostScroll(
@@ -332,14 +337,14 @@ private fun ListItem(
                         horizontalArrangement = Arrangement.spacedBy(8.dp),
                         contentPadding = PaddingValues(padding),
                     ) {
-                        items(item.imageUrls) { url ->
+                        items(item.images) { image ->
                             SubcomposeAsyncImage(
-                                model = url,
+                                model = image.thumbnailUrl,
                                 contentDescription = null,
                                 contentScale = ContentScale.Crop,
                                 modifier = Modifier.size(80.dp)
                                     .clickable {
-                                        onClickImage(url)
+                                        onClickImage(image.url)
                                     },
                                 loading = { ImageLoadingPlaceholder() },
                             )
