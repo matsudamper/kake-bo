@@ -28,23 +28,39 @@ internal class AdminLoginScreenViewModel(
 
     private val listener = object : AdminLoginScreenUiState.Listener {
         override fun onClickUserAccount() {
-            loginWithUserSession()
+            viewModelStateFlow.update { state -> state.copy(step = Step.UserAccount) }
         }
 
         override fun onClickAdminAccount() {
-            viewModelStateFlow.update { state -> state.copy(passwordInputVisible = true) }
+            viewModelStateFlow.update { state -> state.copy(step = Step.AdminAccount) }
         }
 
-        override fun onPasswordChanged(text: String) {
-            viewModelStateFlow.update { state -> state.copy(password = TextFieldValue(text)) }
+        override fun onUserNameChanged(text: String) {
+            viewModelStateFlow.update { state -> state.copy(userName = TextFieldValue(text)) }
         }
 
-        override fun onClickPasswordLogin() {
-            login(viewModelStateFlow.value.password.text)
+        override fun onUserPasswordChanged(text: String) {
+            viewModelStateFlow.update { state -> state.copy(userPassword = TextFieldValue(text)) }
+        }
+
+        override fun onClickUserLogin() {
+            val state = viewModelStateFlow.value
+            loginWithUserPassword(
+                userName = state.userName.text,
+                password = state.userPassword.text,
+            )
+        }
+
+        override fun onAdminPasswordChanged(text: String) {
+            viewModelStateFlow.update { state -> state.copy(adminPassword = TextFieldValue(text)) }
+        }
+
+        override fun onClickAdminLogin() {
+            login(viewModelStateFlow.value.adminPassword.text)
         }
 
         override fun onClickBackToSelectAccount() {
-            viewModelStateFlow.update { state -> state.copy(passwordInputVisible = false) }
+            viewModelStateFlow.update { state -> state.copy(step = Step.SelectAccount) }
         }
     }
 
@@ -73,13 +89,18 @@ internal class AdminLoginScreenViewModel(
 
     private fun createUiState(viewModelState: ViewModelState): AdminLoginScreenUiState {
         return AdminLoginScreenUiState(
-            content = if (viewModelState.passwordInputVisible) {
-                AdminLoginScreenUiState.Content.AdminPassword(
-                    password = viewModelState.password,
-                )
-            } else {
-                AdminLoginScreenUiState.Content.SelectAccount(
+            content = when (viewModelState.step) {
+                Step.SelectAccount -> AdminLoginScreenUiState.Content.SelectAccount(
                     adminAccountButtonEnabled = !viewModelState.isPasswordLoginDisabled,
+                )
+
+                Step.UserAccount -> AdminLoginScreenUiState.Content.UserAccount(
+                    userName = viewModelState.userName,
+                    password = viewModelState.userPassword,
+                )
+
+                Step.AdminAccount -> AdminLoginScreenUiState.Content.AdminAccount(
+                    password = viewModelState.adminPassword,
                 )
             },
             listener = listener,
@@ -100,12 +121,20 @@ internal class AdminLoginScreenViewModel(
         }
     }
 
-    private fun loginWithUserSession() {
+    private fun loginWithUserPassword(
+        userName: String,
+        password: String,
+    ) {
         viewModelScope.launch {
-            val isSuccess = runCatching { adminQuery.adminLoginWithUserSession() }
+            val isSuccess = runCatching {
+                adminQuery.adminLoginWithUserPassword(
+                    userName = userName,
+                    password = password,
+                )
+            }
                 .onFailure { Logger.e(TAG, it) }
                 .getOrNull()
-                ?.data?.adminMutation?.adminLoginWithUserSession?.isSuccess
+                ?.data?.adminMutation?.adminLoginWithUserPassword?.isSuccess
                 ?: false
             onLoginResult(isSuccess)
         }
@@ -119,9 +148,17 @@ internal class AdminLoginScreenViewModel(
         }
     }
 
+    private enum class Step {
+        SelectAccount,
+        UserAccount,
+        AdminAccount,
+    }
+
     private data class ViewModelState(
         val isPasswordLoginDisabled: Boolean = false,
-        val passwordInputVisible: Boolean = false,
-        val password: TextFieldValue = TextFieldValue(),
+        val step: Step = Step.SelectAccount,
+        val userName: TextFieldValue = TextFieldValue(),
+        val userPassword: TextFieldValue = TextFieldValue(),
+        val adminPassword: TextFieldValue = TextFieldValue(),
     )
 }

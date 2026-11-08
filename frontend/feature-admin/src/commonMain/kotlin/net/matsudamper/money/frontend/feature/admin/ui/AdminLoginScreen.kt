@@ -70,8 +70,16 @@ internal fun AdminLoginScreen(uiState: AdminLoginScreenUiState) {
                         )
                     }
 
-                    is AdminLoginScreenUiState.Content.AdminPassword -> {
-                        AdminPasswordContent(
+                    is AdminLoginScreenUiState.Content.UserAccount -> {
+                        UserAccountContent(
+                            content = content,
+                            listener = uiState.listener,
+                            textFieldTextStyle = textFieldTextStyle,
+                        )
+                    }
+
+                    is AdminLoginScreenUiState.Content.AdminAccount -> {
+                        AdminAccountContent(
                             content = content,
                             listener = uiState.listener,
                             textFieldTextStyle = textFieldTextStyle,
@@ -113,15 +121,25 @@ private fun SelectAccountContent(
 }
 
 @Composable
-private fun AdminPasswordContent(
-    content: AdminLoginScreenUiState.Content.AdminPassword,
+private fun UserAccountContent(
+    content: AdminLoginScreenUiState.Content.UserAccount,
     listener: AdminLoginScreenUiState.Listener,
     textFieldTextStyle: TextStyle,
 ) {
     Column(modifier = Modifier.fillMaxWidth()) {
         TextField(
             modifier = Modifier.fillMaxWidth(),
-            onValueChange = { listener.onPasswordChanged(it) },
+            onValueChange = { listener.onUserNameChanged(it) },
+            text = content.userName.text,
+            textStyle = textFieldTextStyle,
+            label = "User Name",
+            maxLines = 1,
+            autocomplete = "username",
+        )
+        Spacer(Modifier.height(12.dp))
+        TextField(
+            modifier = Modifier.fillMaxWidth(),
+            onValueChange = { listener.onUserPasswordChanged(it) },
             text = content.password.text,
             textStyle = textFieldTextStyle,
             label = "Password",
@@ -130,23 +148,59 @@ private fun AdminPasswordContent(
             autocomplete = "current-password",
         )
         Spacer(Modifier.height(16.dp))
-        Row(
+        LoginActions(
+            onClickBack = { listener.onClickBackToSelectAccount() },
+            onClickLogin = { listener.onClickUserLogin() },
+        )
+    }
+}
+
+@Composable
+private fun AdminAccountContent(
+    content: AdminLoginScreenUiState.Content.AdminAccount,
+    listener: AdminLoginScreenUiState.Listener,
+    textFieldTextStyle: TextStyle,
+) {
+    Column(modifier = Modifier.fillMaxWidth()) {
+        TextField(
             modifier = Modifier.fillMaxWidth(),
-            horizontalArrangement = Arrangement.End,
-        ) {
-            TextButton(onClick = { listener.onClickBackToSelectAccount() }) {
-                Text(
-                    text = "戻る",
-                    fontFamily = rememberCustomFontFamily(),
-                )
-            }
-            Spacer(Modifier.width(8.dp))
-            Button(onClick = { listener.onClickPasswordLogin() }) {
-                Text(
-                    text = "ログイン",
-                    fontFamily = rememberCustomFontFamily(),
-                )
-            }
+            onValueChange = { listener.onAdminPasswordChanged(it) },
+            text = content.password.text,
+            textStyle = textFieldTextStyle,
+            label = "Password",
+            maxLines = 1,
+            type = TextFieldType.Password,
+            autocomplete = "current-password",
+        )
+        Spacer(Modifier.height(16.dp))
+        LoginActions(
+            onClickBack = { listener.onClickBackToSelectAccount() },
+            onClickLogin = { listener.onClickAdminLogin() },
+        )
+    }
+}
+
+@Composable
+private fun LoginActions(
+    onClickBack: () -> Unit,
+    onClickLogin: () -> Unit,
+) {
+    Row(
+        modifier = Modifier.fillMaxWidth(),
+        horizontalArrangement = Arrangement.End,
+    ) {
+        TextButton(onClick = onClickBack) {
+            Text(
+                text = "戻る",
+                fontFamily = rememberCustomFontFamily(),
+            )
+        }
+        Spacer(Modifier.width(8.dp))
+        Button(onClick = onClickLogin) {
+            Text(
+                text = "ログイン",
+                fontFamily = rememberCustomFontFamily(),
+            )
         }
     }
 }
@@ -177,11 +231,26 @@ private fun AdminLoginScreenAdminEnabledPreview() {
 
 @Preview
 @Composable
-private fun AdminLoginScreenAdminPasswordPreview() {
+private fun AdminLoginScreenUserAccountPreview() {
     AppRoot(isDarkTheme = true) {
         AdminLoginScreen(
             uiState = createPreviewUiState(
-                content = AdminLoginScreenUiState.Content.AdminPassword(password = TextFieldValue()),
+                content = AdminLoginScreenUiState.Content.UserAccount(
+                    userName = TextFieldValue(),
+                    password = TextFieldValue(),
+                ),
+            ),
+        )
+    }
+}
+
+@Preview
+@Composable
+private fun AdminLoginScreenAdminAccountPreview() {
+    AppRoot(isDarkTheme = true) {
+        AdminLoginScreen(
+            uiState = createPreviewUiState(
+                content = AdminLoginScreenUiState.Content.AdminAccount(password = TextFieldValue()),
             ),
         )
     }
@@ -195,9 +264,15 @@ private fun createPreviewUiState(content: AdminLoginScreenUiState.Content): Admi
 
             override fun onClickAdminAccount() = Unit
 
-            override fun onPasswordChanged(text: String) = Unit
+            override fun onUserNameChanged(text: String) = Unit
 
-            override fun onClickPasswordLogin() = Unit
+            override fun onUserPasswordChanged(text: String) = Unit
+
+            override fun onClickUserLogin() = Unit
+
+            override fun onAdminPasswordChanged(text: String) = Unit
+
+            override fun onClickAdminLogin() = Unit
 
             override fun onClickBackToSelectAccount() = Unit
         },

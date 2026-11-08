@@ -6,9 +6,9 @@ mutation AdminLogin($password: String!) {
     }
 }
 
-mutation AdminLoginWithUserSession {
+mutation AdminLoginWithUserPassword($name: String!, $password: String!) {
     adminMutation {
-        adminLoginWithUserSession {
+        adminLoginWithUserPassword(name: $name, password: $password) {
             isSuccess
         }
     }

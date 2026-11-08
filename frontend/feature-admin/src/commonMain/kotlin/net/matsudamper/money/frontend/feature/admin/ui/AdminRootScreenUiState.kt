@@ -12,7 +12,12 @@ internal data class AdminLoginScreenUiState(
             val adminAccountButtonEnabled: Boolean,
         ) : Content
 
-        data class AdminPassword(
+        data class UserAccount(
+            val userName: TextFieldValue,
+            val password: TextFieldValue,
+        ) : Content
+
+        data class AdminAccount(
             val password: TextFieldValue,
         ) : Content
     }
@@ -23,9 +28,15 @@ internal data class AdminLoginScreenUiState(
 
         fun onClickAdminAccount()
 
-        fun onPasswordChanged(text: String)
+        fun onUserNameChanged(text: String)
 
-        fun onClickPasswordLogin()
+        fun onUserPasswordChanged(text: String)
+
+        fun onClickUserLogin()
+
+        fun onAdminPasswordChanged(text: String)
+
+        fun onClickAdminLogin()
 
         fun onClickBackToSelectAccount()
     }
