@@ -51,11 +51,15 @@ class GraphqlSubscriptionHandler(
             .variables(variables)
 
         val result = MoneyGraphQlSchema.graphql.execute(executionInput)
-        val publisher = result.getData<Publisher<ExecutionResult>?>()
-            ?: return Result.Error(result.errors.map { it.toSpecification() })
+        // query や mutation を流すと data は Map になるので、Publisher 以外は購読として扱わない
+        val publisher = result.getData<Any?>() as? Publisher<*>
+            ?: return Result.Error(
+                result.errors.map { it.toSpecification() }
+                    .ifEmpty { listOf(mapOf("message" to "Subscription 以外の操作は実行できません")) },
+            )
 
         return Result.Stream(
-            publisher.asFlow().map { it.toSpecification() },
+            publisher.asFlow().map { (it as ExecutionResult).toSpecification() },
         )
     }
 

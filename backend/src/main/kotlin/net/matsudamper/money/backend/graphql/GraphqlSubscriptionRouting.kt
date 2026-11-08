@@ -5,7 +5,6 @@ import java.util.concurrent.ConcurrentHashMap
 import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.CoroutineStart
 import kotlinx.coroutines.Job
-import kotlinx.coroutines.cancelAndJoin
 import kotlinx.coroutines.flow.onCompletion
 import kotlinx.coroutines.launch
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties
@@ -64,7 +63,7 @@ internal fun Route.graphqlSubscription(diContainer: DiContainer) {
 
                     "complete" -> {
                         val id = message.id ?: continue
-                        subscriptions.remove(id)?.cancelAndJoin()
+                        subscriptions.remove(id)?.cancel()
                     }
                 }
             }
@@ -79,18 +78,18 @@ private suspend fun DefaultWebSocketServerSession.runSubscription(
     payload: SubscribePayload,
     handler: GraphqlSubscriptionHandler,
 ) {
-    val result = handler.subscribe(
-        query = payload.query,
-        operationName = payload.operationName,
-        variables = payload.variables.orEmpty(),
-    )
-    when (result) {
-        is GraphqlSubscriptionHandler.Result.Error -> {
-            send(serverMessage(type = "error", id = id, payload = result.errors))
-        }
+    try {
+        val result = handler.subscribe(
+            query = payload.query,
+            operationName = payload.operationName,
+            variables = payload.variables.orEmpty(),
+        )
+        when (result) {
+            is GraphqlSubscriptionHandler.Result.Error -> {
+                send(serverMessage(type = "error", id = id, payload = result.errors))
+            }
 
-        is GraphqlSubscriptionHandler.Result.Stream -> {
-            try {
+            is GraphqlSubscriptionHandler.Result.Stream -> {
                 result.events
                     .onCompletion { cause ->
                         if (cause == null) send(serverMessage(type = "complete", id = id))
@@ -98,13 +97,13 @@ private suspend fun DefaultWebSocketServerSession.runSubscription(
                     .collect { event ->
                         send(serverMessage(type = "next", id = id, payload = event))
                     }
-            } catch (e: CancellationException) {
-                throw e
-            } catch (e: Exception) {
-                TraceLogger.impl().noticeThrowable(e, true)
-                send(serverMessage(type = "error", id = id, payload = listOf(mapOf("message" to "InternalServerError"))))
             }
         }
+    } catch (e: CancellationException) {
+        throw e
+    } catch (e: Exception) {
+        TraceLogger.impl().noticeThrowable(e, true)
+        send(serverMessage(type = "error", id = id, payload = listOf(mapOf("message" to "InternalServerError"))))
     }
 }
 
