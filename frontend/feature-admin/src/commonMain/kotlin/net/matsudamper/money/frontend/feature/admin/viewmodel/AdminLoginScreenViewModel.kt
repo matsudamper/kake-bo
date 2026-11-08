@@ -60,8 +60,10 @@ internal class AdminLoginScreenViewModel(
                 .onFailure { Logger.e(TAG, it) }
                 .getOrNull()
                 ?.data?.isAdminPasswordLoginEnabled
-                ?: false
-            viewModelStateFlow.update { it.copy(isPasswordLoginEnabled = isPasswordLoginEnabled) }
+            // 取得に失敗しただけで管理アカウントを選べなくすると、ユーザーセッションを持たない管理者が入れなくなる
+            if (isPasswordLoginEnabled == false) {
+                viewModelStateFlow.update { it.copy(isPasswordLoginDisabled = true) }
+            }
         }
     }
 
@@ -69,7 +71,7 @@ internal class AdminLoginScreenViewModel(
         val accountType = viewModelState.resolveAccountType()
         return AdminLoginScreenUiState(
             selectedAccountType = accountType,
-            adminAccountOptionEnabled = viewModelState.isPasswordLoginEnabled,
+            adminAccountOptionEnabled = !viewModelState.isPasswordLoginDisabled,
             passwordInputVisible = accountType == AdminLoginScreenUiState.AccountType.Admin,
             password = viewModelState.password,
             listener = listener,
@@ -111,14 +113,14 @@ internal class AdminLoginScreenViewModel(
 
     private data class ViewModelState(
         val selectedAccountType: AdminLoginScreenUiState.AccountType = AdminLoginScreenUiState.AccountType.User,
-        val isPasswordLoginEnabled: Boolean = false,
+        val isPasswordLoginDisabled: Boolean = false,
         val password: TextFieldValue = TextFieldValue(),
     ) {
         fun resolveAccountType(): AdminLoginScreenUiState.AccountType {
-            return if (isPasswordLoginEnabled) {
-                selectedAccountType
-            } else {
+            return if (isPasswordLoginDisabled) {
                 AdminLoginScreenUiState.AccountType.User
+            } else {
+                selectedAccountType
             }
         }
     }
