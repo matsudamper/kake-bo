@@ -48,6 +48,7 @@ query MonthlyScreenList(
                 images {
                     id
                     url
+                    thumbnailUrl
                 }
                 moneyUsageSubCategory {
                     id

@@ -82,6 +82,7 @@ val graphqlCodegen = tasks.named<GraphQLCodegenGradleTask>("graphqlCodegen") {
     generateParameterizedFieldsResolvers = true
     generateBuilder = false
     apiReturnType = "java.util.concurrent.CompletionStage<graphql.execution.DataFetcherResult<{{TYPE}}>>"
+    subscriptionReturnType = "org.reactivestreams.Publisher"
     generateDataFetchingEnvironmentArgumentInApis = true
     generateImmutableModels = true
     modelNamePrefix = "Ql"

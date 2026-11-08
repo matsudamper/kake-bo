@@ -61,6 +61,7 @@ awsSts = { module = "software.amazon.awssdk:sts", version.ref = "awsSdk" }
 nimbusJoseJwt = { module = "com.nimbusds:nimbus-jose-jwt", version.ref = "nimbusJoseJwt" }
 kotlinRefrect = { module = "org.jetbrains.kotlin:kotlin-reflect", version.ref = "kotlin" }
 kotlin-coroutines-core = { module = "org.jetbrains.kotlinx:kotlinx-coroutines-core", version.require = "1.11.0" }
+kotlin-coroutines-reactive = { module = "org.jetbrains.kotlinx:kotlinx-coroutines-reactive", version.require = "1.11.0" }
 kotlin-datetime = { module = "org.jetbrains.kotlinx:kotlinx-datetime", version.require = "0.8.0-0.6.x-compat" }
 kotlin-serialization-json = { module = "org.jetbrains.kotlinx:kotlinx-serialization-json", version.require = "1.12.0" }
 kotlinxBrowser = { module = "org.jetbrains.kotlinx:kotlinx-browser", version = "0.5.0" }
@@ -92,6 +93,7 @@ ktorSerializationJson = { module = "io.ktor:ktor-serialization-kotlinx-json", ve
 ktorServerContentNegotiation = { module = "io.ktor:ktor-server-content-negotiation", version.ref = "ktor" }
 ktorServerCallLogging = { module = "io.ktor:ktor-server-call-logging", version.ref = "ktor" }
 ktorServerConditionalHeaders = { module = "io.ktor:ktor-server-conditional-headers", version.ref = "ktor" }
+ktorServerWebsockets = { module = "io.ktor:ktor-server-websockets", version.ref = "ktor" }
 ktorClientCore = { module = "io.ktor:ktor-client-core", version.ref = "ktor" }
 ktorClientCio = { module = "io.ktor:ktor-client-cio", version.ref = "ktor" }
 ktorClientJs = { module = "io.ktor:ktor-client-js", version.ref = "ktor" }
