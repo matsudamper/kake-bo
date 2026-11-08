@@ -26,30 +26,55 @@ internal class AdminLoginScreenViewModel(
 ) : CommonViewModel(scopedObjectFeature) {
     private val viewModelStateFlow = MutableStateFlow(ViewModelState())
 
-    public val uiStateFlow: StateFlow<AdminLoginScreenUiState> = MutableStateFlow(
-        AdminLoginScreenUiState(
-            password = TextFieldValue(),
-            listener = object : AdminLoginScreenUiState.Listener {
-                override fun onPasswordChanged(text: String) {
-                    viewModelStateFlow.update { state -> state.copy(password = TextFieldValue(text)) }
-                }
+    private val listener = object : AdminLoginScreenUiState.Listener {
+        override fun onAccountTypeSelected(accountType: AdminLoginScreenUiState.AccountType) {
+            viewModelStateFlow.update { state -> state.copy(selectedAccountType = accountType) }
+        }
 
-                override fun onClickLogin() {
-                    login(viewModelStateFlow.value.password.text)
-                }
-            },
-        ),
+        override fun onPasswordChanged(text: String) {
+            viewModelStateFlow.update { state -> state.copy(password = TextFieldValue(text)) }
+        }
+
+        override fun onClickLogin() {
+            val state = viewModelStateFlow.value
+            when (state.resolveAccountType()) {
+                AdminLoginScreenUiState.AccountType.Admin -> login(state.password.text)
+                AdminLoginScreenUiState.AccountType.User -> loginWithUserSession()
+            }
+        }
+    }
+
+    public val uiStateFlow: StateFlow<AdminLoginScreenUiState> = MutableStateFlow(
+        createUiState(ViewModelState()),
     ).also { uiStateFlow ->
         viewModelScope.launch {
             viewModelStateFlow.collect { viewModelState ->
-                uiStateFlow.update { uiState ->
-                    uiState.copy(
-                        password = viewModelState.password,
-                    )
-                }
+                uiStateFlow.update { createUiState(viewModelState) }
             }
         }
     }.asStateFlow()
+
+    init {
+        viewModelScope.launch {
+            val isPasswordLoginEnabled = runCatching { adminQuery.getLoginScreen() }
+                .onFailure { Logger.e(TAG, it) }
+                .getOrNull()
+                ?.data?.isAdminPasswordLoginEnabled
+                ?: false
+            viewModelStateFlow.update { it.copy(isPasswordLoginEnabled = isPasswordLoginEnabled) }
+        }
+    }
+
+    private fun createUiState(viewModelState: ViewModelState): AdminLoginScreenUiState {
+        val accountType = viewModelState.resolveAccountType()
+        return AdminLoginScreenUiState(
+            selectedAccountType = accountType,
+            adminAccountOptionEnabled = viewModelState.isPasswordLoginEnabled,
+            passwordInputVisible = accountType == AdminLoginScreenUiState.AccountType.Admin,
+            password = viewModelState.password,
+            listener = listener,
+        )
+    }
 
     private fun login(password: String) {
         // TODO: validate  "!@#$%^&*()_+-?<>,."
@@ -61,16 +86,40 @@ internal class AdminLoginScreenViewModel(
             }.getOrNull()
 
             val isSuccess = result?.data?.adminMutation?.adminLogin?.isSuccess ?: false
-            if (isSuccess) {
-                navController.navigateReplace(ScreenStructure.Admin.Root)
-            } else {
-                globalEventSender.send { it.showSnackBar("ログインに失敗しました") }
-            }
+            onLoginResult(isSuccess)
+        }
+    }
+
+    private fun loginWithUserSession() {
+        viewModelScope.launch {
+            val isSuccess = runCatching { adminQuery.adminLoginWithUserSession() }
+                .onFailure { Logger.e(TAG, it) }
+                .getOrNull()
+                ?.data?.adminMutation?.adminLoginWithUserSession?.isSuccess
+                ?: false
+            onLoginResult(isSuccess)
+        }
+    }
+
+    private suspend fun onLoginResult(isSuccess: Boolean) {
+        if (isSuccess) {
+            navController.navigateReplace(ScreenStructure.Admin.Root)
+        } else {
+            globalEventSender.send { it.showSnackBar("ログインに失敗しました") }
         }
     }
 
     private data class ViewModelState(
+        val selectedAccountType: AdminLoginScreenUiState.AccountType = AdminLoginScreenUiState.AccountType.User,
+        val isPasswordLoginEnabled: Boolean = false,
         val password: TextFieldValue = TextFieldValue(),
-        val isLoggedIn: Boolean = false,
-    )
+    ) {
+        fun resolveAccountType(): AdminLoginScreenUiState.AccountType {
+            return if (isPasswordLoginEnabled) {
+                selectedAccountType
+            } else {
+                AdminLoginScreenUiState.AccountType.User
+            }
+        }
+    }
 }

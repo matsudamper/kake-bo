@@ -3,20 +3,25 @@ package net.matsudamper.money.frontend.feature.admin.ui
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.layout.widthIn
+import androidx.compose.foundation.selection.selectable
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Button
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.RadioButton
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.semantics.Role
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.unit.dp
 import net.matsudamper.money.frontend.common.ui.layout.TextField
@@ -55,16 +60,31 @@ internal fun AdminLoginScreen(uiState: AdminLoginScreenUiState) {
                     color = MaterialTheme.colorScheme.onSurface,
                 )
                 Spacer(Modifier.height(24.dp))
-                TextField(
-                    modifier = Modifier.fillMaxWidth(),
-                    onValueChange = { uiState.listener.onPasswordChanged(it) },
-                    text = uiState.password.text,
-                    textStyle = textFieldTextStyle,
-                    label = "Password",
-                    maxLines = 1,
-                    type = TextFieldType.Password,
-                    autocomplete = "current-password",
+                AccountTypeOption(
+                    text = "ユーザーアカウントでログイン",
+                    selected = uiState.selectedAccountType == AdminLoginScreenUiState.AccountType.User,
+                    enabled = true,
+                    onClick = { uiState.listener.onAccountTypeSelected(AdminLoginScreenUiState.AccountType.User) },
                 )
+                AccountTypeOption(
+                    text = "管理アカウントでログイン",
+                    selected = uiState.selectedAccountType == AdminLoginScreenUiState.AccountType.Admin,
+                    enabled = uiState.adminAccountOptionEnabled,
+                    onClick = { uiState.listener.onAccountTypeSelected(AdminLoginScreenUiState.AccountType.Admin) },
+                )
+                if (uiState.passwordInputVisible) {
+                    Spacer(Modifier.height(16.dp))
+                    TextField(
+                        modifier = Modifier.fillMaxWidth(),
+                        onValueChange = { uiState.listener.onPasswordChanged(it) },
+                        text = uiState.password.text,
+                        textStyle = textFieldTextStyle,
+                        label = "Password",
+                        maxLines = 1,
+                        type = TextFieldType.Password,
+                        autocomplete = "current-password",
+                    )
+                }
                 Spacer(Modifier.height(16.dp))
                 Button(
                     modifier = Modifier.align(Alignment.End),
@@ -77,5 +97,43 @@ internal fun AdminLoginScreen(uiState: AdminLoginScreenUiState) {
                 }
             }
         }
+    }
+}
+
+@Composable
+private fun AccountTypeOption(
+    text: String,
+    selected: Boolean,
+    enabled: Boolean,
+    onClick: () -> Unit,
+) {
+    Row(
+        modifier = Modifier
+            .fillMaxWidth()
+            .selectable(
+                selected = selected,
+                enabled = enabled,
+                role = Role.RadioButton,
+                onClick = onClick,
+            )
+            .padding(vertical = 4.dp),
+        verticalAlignment = Alignment.CenterVertically,
+    ) {
+        RadioButton(
+            selected = selected,
+            enabled = enabled,
+            onClick = null,
+        )
+        Spacer(Modifier.width(8.dp))
+        Text(
+            text = text,
+            fontFamily = rememberCustomFontFamily(),
+            style = MaterialTheme.typography.bodyLarge,
+            color = if (enabled) {
+                MaterialTheme.colorScheme.onSurface
+            } else {
+                MaterialTheme.colorScheme.onSurface.copy(alpha = 0.38f)
+            },
+        )
     }
 }

@@ -40,6 +40,19 @@ class GraphqlAdminQuery(
             .execute()
     }
 
+    suspend fun adminLoginWithUserSession(): ApolloResponse<AdminLoginWithUserSessionMutation.Data> {
+        return graphqlClient.apolloClient
+            .mutation(AdminLoginWithUserSessionMutation())
+            .execute()
+    }
+
+    suspend fun getLoginScreen(): ApolloResponse<AdminLoginScreenQuery.Data> {
+        return graphqlClient.apolloClient
+            .query(AdminLoginScreenQuery())
+            .fetchPolicy(FetchPolicy.NetworkOnly)
+            .execute()
+    }
+
     suspend fun adminLogout(): Boolean {
         return graphqlClient.apolloClient
             .mutation(AdminLogoutMutation())

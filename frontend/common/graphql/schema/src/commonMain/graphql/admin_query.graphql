@@ -2,6 +2,10 @@ query AdminIsLoggedIn {
     isAdminLoggedIn
 }
 
+query AdminLoginScreen {
+    isAdminPasswordLoginEnabled
+}
+
 query AdminUnlinkedImages($size: Int!, $cursor: String) {
     adminUnlinkedImages(input: { size: $size, cursor: $cursor }) {
         nodes {
