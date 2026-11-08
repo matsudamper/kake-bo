@@ -35,8 +35,12 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.text.input.TextFieldValue
+import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import net.matsudamper.money.frontend.common.base.immutableListOf
+import net.matsudamper.money.frontend.common.ui.AppRoot
 import net.matsudamper.money.frontend.common.ui.base.KakeBoTopAppBar
+import net.matsudamper.money.frontend.common.ui.base.KakeboScaffoldListener
 import net.matsudamper.money.frontend.common.ui.base.RootScreenScaffold
 
 @Composable
@@ -244,4 +248,89 @@ public fun NotificationUsageListScreen(
             }
         }
     }
+}
+
+@Preview
+@Composable
+private fun ListLoadedPreview() {
+    AppRoot(isDarkTheme = true) {
+        NotificationUsageListScreen(
+            uiState = NotificationUsageListScreenUiState(
+                title = "通知一覧",
+                itemsState = NotificationUsageListScreenUiState.ItemsState.Loaded(
+                    items = immutableListOf(
+                        createPreviewItem(
+                            title = "ダミー決済サービス",
+                            statusLabel = "解析済み",
+                            description = "ダミー店舗で1,000円の支払いがありました",
+                        ),
+                        createPreviewItem(
+                            title = "ダミーカード",
+                            statusLabel = "未解析",
+                            description = "ダミーカードのご利用がありました",
+                        ),
+                    ),
+                    emptyText = "通知はありません。",
+                ),
+                filters = immutableListOf(
+                    createPreviewFilter(label = "すべて", selected = true),
+                    createPreviewFilter(label = "未登録", selected = false),
+                ),
+                searchListener = object : NotificationUsageListScreenUiState.SearchListener {
+                    override fun onSearchQueryChange(query: String) = Unit
+                },
+                accessSection = NotificationUsageListScreenUiState.AccessSection(
+                    title = "通知へのアクセス",
+                    description = "通知を取得するには通知へのアクセスを許可してください。",
+                    buttonLabel = "設定を開く",
+                    listener = object : NotificationUsageListScreenUiState.AccessSectionListener {
+                        override fun onClickButton() = Unit
+                    },
+                ),
+                topBarActions = immutableListOf(
+                    NotificationUsageListScreenUiState.TopBarAction(
+                        label = "フィルター",
+                        listener = object : NotificationUsageListScreenUiState.TopBarActionListener {
+                            override fun onClick() = Unit
+                        },
+                    ),
+                ),
+                kakeboScaffoldListener = object : KakeboScaffoldListener {
+                    override fun onClickTitle() = Unit
+                },
+            ),
+            windowInsets = PaddingValues(),
+        )
+    }
+}
+
+private fun createPreviewItem(
+    title: String,
+    statusLabel: String,
+    description: String,
+): NotificationUsageListScreenUiState.Item {
+    return NotificationUsageListScreenUiState.Item(
+        title = title,
+        receivedAt = "2024/01/01 12:00",
+        statusLabel = statusLabel,
+        description = description,
+        listener = object : NotificationUsageListScreenUiState.ItemListener {
+            override fun onClick() = Unit
+
+            override fun onClickCopyJson() = Unit
+        },
+    )
+}
+
+private fun createPreviewFilter(
+    label: String,
+    selected: Boolean,
+): NotificationUsageListScreenUiState.Filter {
+    return NotificationUsageListScreenUiState.Filter(
+        label = label,
+        selected = selected,
+        listener = object : NotificationUsageListScreenUiState.FilterListener {
+            override fun onClick() = Unit
+        },
+    )
 }
