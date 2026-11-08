@@ -31,8 +31,10 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import coil3.compose.SubcomposeAsyncImage
+import net.matsudamper.money.frontend.common.ui.AppRoot
 import net.matsudamper.money.frontend.common.ui.generated.resources.Res
 import net.matsudamper.money.frontend.common.ui.generated.resources.ic_arrow_back
 import net.matsudamper.money.frontend.common.ui.layout.AlertDialog
@@ -255,4 +257,70 @@ private fun UnlinkedImageItem(
             maxLines = 1,
         )
     }
+}
+
+@Preview
+@Composable
+private fun AdminUnlinkedImagesScreenLoadedPreview() {
+    AppRoot(isDarkTheme = true) {
+        AdminUnlinkedImagesScreen(
+            uiState = createPreviewUiState(
+                loadingState = AdminUnlinkedImagesScreenUiState.LoadingState.Loaded(
+                    items = (1..4).map { index ->
+                        AdminUnlinkedImagesScreenUiState.Item(
+                            id = "image-$index",
+                            imageUrl = "https://example.com/image-$index.png",
+                            userId = "$index",
+                            userName = "dummy-user-$index",
+                            isSelected = index == 1,
+                            event = object : AdminUnlinkedImagesScreenUiState.Item.Event {
+                                override fun onClickSelect() = Unit
+                            },
+                        )
+                    },
+                    hasMore = true,
+                    isLoadingMore = false,
+                    totalCount = 10,
+                    selectedCount = 1,
+                    isAllSelected = false,
+                    isSelectingAll = false,
+                    isDeleting = false,
+                ),
+            ),
+            onClickBack = {},
+        )
+    }
+}
+
+@Preview
+@Composable
+private fun AdminUnlinkedImagesScreenErrorPreview() {
+    AppRoot(isDarkTheme = true) {
+        AdminUnlinkedImagesScreen(
+            uiState = createPreviewUiState(
+                loadingState = AdminUnlinkedImagesScreenUiState.LoadingState.Error,
+            ),
+            onClickBack = {},
+        )
+    }
+}
+
+private fun createPreviewUiState(
+    loadingState: AdminUnlinkedImagesScreenUiState.LoadingState,
+): AdminUnlinkedImagesScreenUiState {
+    return AdminUnlinkedImagesScreenUiState(
+        loadingState = loadingState,
+        deleteDialog = null,
+        event = object : AdminUnlinkedImagesScreenUiState.Event {
+            override fun onResume() = Unit
+
+            override fun onClickRetry() = Unit
+
+            override fun onClickLoadMore() = Unit
+
+            override fun onClickSelectAll() = Unit
+
+            override fun onClickDelete() = Unit
+        },
+    )
 }
