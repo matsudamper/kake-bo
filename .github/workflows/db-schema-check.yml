@@ -52,4 +52,4 @@ jobs:
       - name: 生成コードに差分が無いことを確認
         run: |
           git add -N .
-          git diff --exit-code --stat
+          git diff --exit-code
