@@ -65,3 +65,19 @@ query CategorySettingScreen($categoryId: MoneyUsageCategoryId!) {
         }
     }
 }
+
+query SettingRootScreen {
+    user {
+        settings {
+            isAdminUser
+        }
+    }
+}
+
+mutation SettingRootScreenAdminLogin {
+    adminMutation {
+        adminLoginWithUserSession {
+            isSuccess
+        }
+    }
+}

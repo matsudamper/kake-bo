@@ -36,6 +36,15 @@ public object ServerEnv {
     public val adminPasswordHash: String? get() = System.getenv("ADMIN_PASSWORD_HASH")
     public val adminPasswordSalt: String? get() = System.getenv("ADMIN_PASSWORD_SALT")
 
+    /**
+     * 管理画面へユーザーセッションでログインできるユーザーのID。カンマ区切りで指定する。例: `1,2`
+     */
+    public val adminUserIds: Set<Int>
+        get() = System.getenv("ADMIN_USER_IDS").orEmpty()
+            .split(",")
+            .mapNotNull { it.trim().toIntOrNull() }
+            .toSet()
+
     public val adminPasswordAlgorithm: String get() = "PBKDF2WithHmacSHA512"
     public val adminPasswordIterationCount: Int get() = 100000
     public val adminPasswordKeyLength: Int get() = 512
