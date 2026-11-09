@@ -15,6 +15,7 @@ import androidx.compose.foundation.layout.widthIn
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Button
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
@@ -152,6 +153,26 @@ private fun UserAccountContent(
             onClickBack = { listener.onClickBackToSelectAccount() },
             onClickLogin = { listener.onClickUserLogin() },
         )
+        Spacer(Modifier.height(16.dp))
+        OutlinedButton(
+            modifier = Modifier.align(Alignment.End),
+            onClick = { listener.onClickUserSecurityKeyLogin() },
+        ) {
+            Text(
+                text = "セキュリティキーでログイン",
+                fontFamily = rememberCustomFontFamily(),
+            )
+        }
+        Spacer(Modifier.height(4.dp))
+        OutlinedButton(
+            modifier = Modifier.align(Alignment.End),
+            onClick = { listener.onClickUserDeviceKeyLogin() },
+        ) {
+            Text(
+                text = "デバイスのロックでログイン",
+                fontFamily = rememberCustomFontFamily(),
+            )
+        }
     }
 }
 
@@ -269,6 +290,10 @@ private fun createPreviewUiState(content: AdminLoginScreenUiState.Content): Admi
             override fun onUserPasswordChanged(text: String) = Unit
 
             override fun onClickUserLogin() = Unit
+
+            override fun onClickUserSecurityKeyLogin() = Unit
+
+            override fun onClickUserDeviceKeyLogin() = Unit
 
             override fun onAdminPasswordChanged(text: String) = Unit
 

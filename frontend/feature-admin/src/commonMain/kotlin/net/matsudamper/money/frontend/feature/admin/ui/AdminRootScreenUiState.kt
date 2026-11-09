@@ -34,6 +34,10 @@ internal data class AdminLoginScreenUiState(
 
         fun onClickUserLogin()
 
+        fun onClickUserSecurityKeyLogin()
+
+        fun onClickUserDeviceKeyLogin()
+
         fun onAdminPasswordChanged(text: String)
 
         fun onClickAdminLogin()

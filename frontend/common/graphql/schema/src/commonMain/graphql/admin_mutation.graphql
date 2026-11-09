@@ -14,6 +14,14 @@ mutation AdminLoginWithUserPassword($name: String!, $password: String!) {
     }
 }
 
+mutation AdminLoginWithUserFido($input: UserFidoLoginInput!) {
+    adminMutation {
+        adminLoginWithUserFido(userFidoLoginInput: $input) {
+            isSuccess
+        }
+    }
+}
+
 mutation AdminLogout {
     adminMutation {
         adminLogout

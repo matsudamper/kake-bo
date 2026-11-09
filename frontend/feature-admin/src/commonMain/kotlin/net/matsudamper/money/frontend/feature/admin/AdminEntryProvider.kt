@@ -19,6 +19,7 @@ import net.matsudamper.money.frontend.common.base.nav.user.IScreenStructure
 import net.matsudamper.money.frontend.common.base.nav.user.ScreenNavController
 import net.matsudamper.money.frontend.common.base.nav.user.ScreenStructure
 import net.matsudamper.money.frontend.common.di.LocalKoin
+import net.matsudamper.money.frontend.common.feature.webauth.WebAuthModel
 import net.matsudamper.money.frontend.common.viewmodel.lib.EventSender
 import net.matsudamper.money.frontend.common.viewmodel.root.GlobalEvent
 import net.matsudamper.money.frontend.feature.admin.ui.AddUserScreen
@@ -67,6 +68,7 @@ public object AdminEntryProvider {
                     navController = navController,
                     adminQuery = GraphqlAdminQuery(koin.get<GraphqlClient>()),
                     globalEventSender = globalEventSender,
+                    webAuthModel = koin.get<WebAuthModel>(),
                 )
             }
             AdminLoginScreen(

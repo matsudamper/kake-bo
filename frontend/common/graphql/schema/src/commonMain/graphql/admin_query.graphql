@@ -6,6 +6,13 @@ query AdminLoginScreen {
     isAdminPasswordLoginEnabled
 }
 
+query AdminLoginScreenFidoInfo {
+    fidoLoginInfo {
+        domain
+        challenge
+    }
+}
+
 query AdminUnlinkedImages($size: Int!, $cursor: String) {
     adminUnlinkedImages(input: { size: $size, cursor: $cursor }) {
         nodes {
