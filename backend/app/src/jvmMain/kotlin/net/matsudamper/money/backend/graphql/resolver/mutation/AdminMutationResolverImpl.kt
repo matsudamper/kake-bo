@@ -154,15 +154,7 @@ class AdminMutationResolverImpl : AdminMutationResolver {
         val userId = context.verifyUserSessionAndGetUserId()
 
         return otelSupplyAsync {
-            if (userId.value !in ServerEnv.adminUserIds) {
-                return@otelSupplyAsync QlAdminLoginResult(isSuccess = false)
-            }
-            val adminSession = context.diContainer.createAdminUserSessionRepository().createSession()
-            context.setAdminSessionCookie(
-                value = adminSession.adminSessionId.id,
-                expires = adminSession.expire,
-            )
-            QlAdminLoginResult(isSuccess = true)
+            createAdminSessionIfAdminUser(context = context, userId = userId)
         }.toDataFetcher()
     }
 
