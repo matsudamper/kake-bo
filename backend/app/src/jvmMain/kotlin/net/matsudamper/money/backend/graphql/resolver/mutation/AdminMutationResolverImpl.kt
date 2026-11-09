@@ -21,6 +21,7 @@ import net.matsudamper.money.graphql.model.QlAdminLoginResult
 import net.matsudamper.money.graphql.model.QlAdminMutation
 import net.matsudamper.money.graphql.model.QlAdminReplacePasswordErrorType
 import net.matsudamper.money.graphql.model.QlAdminReplacePasswordResult
+import net.matsudamper.money.graphql.model.QlUserFidoLoginInput
 
 class AdminMutationResolverImpl : AdminMutationResolver {
     override fun adminLogout(
@@ -194,15 +195,20 @@ class AdminMutationResolverImpl : AdminMutationResolver {
                 is UserLoginRepository.Result.Failure -> return@minExecutionTime QlAdminLoginResult(isSuccess = false)
                 is UserLoginRepository.Result.Success -> loginResult.uerId
             }
-            if (userId.value !in ServerEnv.adminUserIds) {
-                return@minExecutionTime QlAdminLoginResult(isSuccess = false)
-            }
-            val adminSession = context.diContainer.createAdminUserSessionRepository().createSession()
-            context.setAdminSessionCookie(
-                value = adminSession.adminSessionId.id,
-                expires = adminSession.expire,
-            )
-            QlAdminLoginResult(isSuccess = true)
+            createAdminSessionIfAdminUser(context = context, userId = userId)
+        }.toDataFetcher()
+    }
+
+    override fun adminLoginWithUserFido(
+        adminMutation: QlAdminMutation,
+        userFidoLoginInput: QlUserFidoLoginInput,
+        env: DataFetchingEnvironment,
+    ): CompletionStage<DataFetcherResult<QlAdminLoginResult>> {
+        val context = env.graphQlContext.get<GraphQlContext>(GraphQlContext::class.java.name)
+        return minExecutionTime(LOGIN_MINIMUM_EXECUTION_TIME_MILLIS) {
+            val userId = FidoLoginVerifier(context).verifyAndGetUserId(userFidoLoginInput)
+                ?: return@minExecutionTime QlAdminLoginResult(isSuccess = false)
+            createAdminSessionIfAdminUser(context = context, userId = userId)
         }.toDataFetcher()
     }
 
@@ -258,5 +264,20 @@ class AdminMutationResolverImpl : AdminMutationResolver {
                 }
             }
         }.toDataFetcher()
+    }
+
+    private fun createAdminSessionIfAdminUser(
+        context: GraphQlContext,
+        userId: UserId,
+    ): QlAdminLoginResult {
+        if (userId.value !in ServerEnv.adminUserIds) {
+            return QlAdminLoginResult(isSuccess = false)
+        }
+        val adminSession = context.diContainer.createAdminUserSessionRepository().createSession()
+        context.setAdminSessionCookie(
+            value = adminSession.adminSessionId.id,
+            expires = adminSession.expire,
+        )
+        return QlAdminLoginResult(isSuccess = true)
     }
 }
