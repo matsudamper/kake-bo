@@ -25,20 +25,19 @@ configure<ApplicationExtension> {
     }
 
     signingConfigs {
-        fun signingProperty(envName: String, propertyName: String): String? {
-            return System.getenv(envName)?.takeIf { it.isNotEmpty() }
-                ?: localProperties[propertyName] as? String
+        val sharedDebugKeystorePath = System.getenv("DEBUG_KEYSTORE_PATH")?.takeIf { it.isNotEmpty() }
+        if (sharedDebugKeystorePath != null) {
+            getByName("debug") {
+                storeFile = file(sharedDebugKeystorePath)
+            }
         }
-        val keystorePath = signingProperty("ANDROID_KEYSTORE_PATH", "KEYSTORE_PATH")
-        val keystorePassword = signingProperty("ANDROID_KEYSTORE_PASSWORD", "KEYSTORE_PASSWORD")
-        val keyAlias = signingProperty("ANDROID_KEY_ALIAS", "KEY_ALIAS")
-        val keyPassword = signingProperty("ANDROID_KEY_PASSWORD", "KEY_PASSWORD")
-        if (keystorePath != null && keystorePassword != null && keyAlias != null && keyPassword != null) {
+        val keystorePath = localProperties["KEYSTORE_PATH"] as? String
+        if (keystorePath != null) {
             create("release") {
-                storeFile = file(keystorePath)
-                storePassword = keystorePassword
-                this.keyAlias = keyAlias
-                this.keyPassword = keyPassword
+                storeFile = (localProperties["KEYSTORE_PATH"] as? String)?.let { file(it) } ?: return@create
+                storePassword = localProperties["KEYSTORE_PASSWORD"] as? String ?: return@create
+                keyAlias = localProperties["KEY_ALIAS"] as? String ?: return@create
+                keyPassword = localProperties["KEY_PASSWORD"] as? String ?: return@create
             }
         }
     }
@@ -47,15 +46,14 @@ configure<ApplicationExtension> {
     buildTypes {
         debug {
             val isCI = System.getenv("CI")?.toBoolean() ?: false
-            val releaseSigningConfig = signingConfigs.findByName("release")
             if (isCI) {
                 resValue("string", "app_name", "$appName.ci")
-                if (releaseSigningConfig == null) {
-                    // 共有鍵で署名したアプリと署名が異なり上書きインストールできないため、別アプリとして入れる
+                if (System.getenv("DEBUG_KEYSTORE_PATH").isNullOrEmpty()) {
+                    // 共有のdebug鍵が無いとランナー生成の鍵で署名され、上書きインストールできないため別アプリにする
                     applicationIdSuffix = ".ci"
                 }
             }
-            signingConfig = releaseSigningConfig ?: signingConfigs.getByName("debug")
+            signingConfig = signingConfigs.getByName("debug")
         }
         release {
             signingConfig = signingConfigs.findByName("release")
