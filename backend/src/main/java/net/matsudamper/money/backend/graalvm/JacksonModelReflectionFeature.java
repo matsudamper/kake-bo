@@ -10,6 +10,7 @@ import java.lang.annotation.Annotation;
 import java.lang.reflect.AnnotatedElement;
 import java.lang.reflect.Constructor;
 import java.util.Arrays;
+import java.util.List;
 import java.util.stream.Stream;
 
 /**
@@ -23,7 +24,12 @@ public class JacksonModelReflectionFeature implements Feature {
 
     @Override
     public void beforeAnalysis(BeforeAnalysisAccess access) {
-        for (String className : PackageClassScanner.findClassNames(TARGET_PACKAGE)) {
+        List<String> classNames = PackageClassScanner.findClassNames(TARGET_PACKAGE);
+        // 走査に失敗しても native-image のビルドは通り、実行時に初めて落ちるので、ここで止める
+        if (classNames.isEmpty()) {
+            throw new IllegalStateException(TARGET_PACKAGE + " にクラスが 1 つも無い。パッケージを移したか、走査に失敗している");
+        }
+        for (String className : classNames) {
             Class<?> clazz = loadWithoutInitialization(className);
             if (clazz != null && isJacksonTarget(clazz)) {
                 register(clazz);
