@@ -47,10 +47,15 @@ configure<ApplicationExtension> {
     buildTypes {
         debug {
             val isCI = System.getenv("CI")?.toBoolean() ?: false
+            val releaseSigningConfig = signingConfigs.findByName("release")
             if (isCI) {
                 resValue("string", "app_name", "$appName.ci")
+                if (releaseSigningConfig == null) {
+                    // 共有鍵で署名したアプリと署名が異なり上書きインストールできないため、別アプリとして入れる
+                    applicationIdSuffix = ".ci"
+                }
             }
-            signingConfig = signingConfigs.findByName("release") ?: signingConfigs.getByName("debug")
+            signingConfig = releaseSigningConfig ?: signingConfigs.getByName("debug")
         }
         release {
             signingConfig = signingConfigs.findByName("release")
