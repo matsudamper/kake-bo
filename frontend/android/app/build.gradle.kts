@@ -42,7 +42,7 @@ configure<ApplicationExtension> {
             val isCI = System.getenv("CI")?.toBoolean() ?: false
             if (isCI) {
                 applicationIdSuffix = ".ci"
-                resValue("string", "app_name", "$appName.$applicationIdSuffix")
+                resValue("string", "app_name", "$appName$applicationIdSuffix")
             } else {
                 signingConfig = signingConfigs.findByName("release") ?: signingConfigs.getByName("debug")
             }
