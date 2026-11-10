@@ -157,8 +157,6 @@ kotestAssertionsCore = { module = "io.kotest:kotest-assertions-core", version.re
 kotestFrameworkEngine = { module = "io.kotest:kotest-framework-engine", version.require = "6.2.6" }
 kotestRunnerJunit5 = { module = "io.kotest:kotest-runner-junit5", version.require = "6.2.6" }
 paparazzi = { module = "app.cash.paparazzi:paparazzi", version.ref = "paparazzi" }
-paparazziGradlePlugin = { module = "app.cash.paparazzi:paparazzi-gradle-plugin", version.ref = "paparazzi" }
-byteBuddyAgent = { module = "net.bytebuddy:byte-buddy-agent", version = "1.18.17-jdk5" }
 composablePreviewScanner = { module = "io.github.sergio-sastre.ComposablePreviewScanner:android", version.ref = "composablePreviewScanner" }
 
 # Mail
