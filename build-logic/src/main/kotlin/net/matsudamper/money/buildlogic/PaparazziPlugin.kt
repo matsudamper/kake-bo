@@ -38,27 +38,33 @@ class PaparazziPlugin : Plugin<Project> {
             val byteBuddyAgent = configurations.create("byteBuddyAgent")
             dependencies.add(byteBuddyAgent.name, libs.library("byteBuddyAgent"))
 
-            val paparazziTaskRequested = gradle.startParameter.taskNames.any { requestedTask ->
-                requestedTask.contains("paparazzi", ignoreCase = true)
-            }
             tasks.withType<Test>().configureEach {
                 // Preview が無いモジュールや、撮影用のテストしか無いモジュールでも失敗させない
                 filter.isFailOnNoMatchingTests = false
-                if (paparazziTaskRequested || name.contains("paparazzi", ignoreCase = true)) {
-                    filter.includeTestsMatching(SCREENSHOT_TEST_CLASS_PATTERN)
-                    // 回避策: Gradle 9.3.1 では Paparazzi のHTMLレポーターが
-                    // NoSuchMethodError(TestResultsProvider.hasOutput) で落ちるため、
-                    // Paparazzi実行時のみ Gradle のテストHTMLレポート生成を無効化する。
-                    // https://github.com/cashapp/paparazzi/issues/2111
-                    reports.html.required.set(false)
-                } else {
-                    // 撮影は重く、通常のテストでは不要なため除外する
-                    filter.excludeTestsMatching(SCREENSHOT_TEST_CLASS_PATTERN)
-                }
                 jvmArgs(
                     "-javaagent:${byteBuddyAgent.asPath}",
                     "-Djdk.attach.allowAttachSelf=true",
                 )
+            }
+            // 撮影タスクは testAndroidHostTest を使うため、このプロジェクトの撮影タスクが実行されるかで絞り込みを切り替える。
+            // 他のプロジェクトの撮影タスクだけを指定したときに、このプロジェクトの通常のテストを絞り込まないようにする
+            gradle.taskGraph.whenReady {
+                val paparazziTaskScheduled = allTasks.any { task ->
+                    task.project == target && task.name.contains("paparazzi", ignoreCase = true)
+                }
+                tasks.withType<Test>().forEach { testTask ->
+                    if (paparazziTaskScheduled) {
+                        testTask.filter.includeTestsMatching(SCREENSHOT_TEST_CLASS_PATTERN)
+                        // 回避策: Gradle 9.3.1 では Paparazzi のHTMLレポーターが
+                        // NoSuchMethodError(TestResultsProvider.hasOutput) で落ちるため、
+                        // Paparazzi実行時のみ Gradle のテストHTMLレポート生成を無効化する。
+                        // https://github.com/cashapp/paparazzi/issues/2111
+                        testTask.reports.html.required.set(false)
+                    } else {
+                        // 撮影は重く、通常のテストでは不要なため除外する
+                        testTask.filter.excludeTestsMatching(SCREENSHOT_TEST_CLASS_PATTERN)
+                    }
+                }
             }
         }
     }
