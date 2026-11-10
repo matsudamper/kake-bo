@@ -107,7 +107,6 @@ internal fun RootNavContent(
                                     scopedObjectFeature = it,
                                     initial = current,
                                     navController = navController,
-                                    appSettingsRepository = koin.get<AppSettingsRepository>(),
                                 )
                             }
                             LaunchedEffect(hostViewModel, current) {
@@ -210,7 +209,6 @@ internal fun RootNavContent(
                                 loginCheckUseCase = loginCheckUseCase,
                                 graphqlClient = koin.get<GraphqlClient>(),
                                 navController = navController,
-                                appSettingsRepository = koin.get<AppSettingsRepository>(),
                             )
                         }
                         LaunchedEffect(monthlyCategoryViewModel.eventHandler) {
@@ -237,7 +235,6 @@ internal fun RootNavContent(
                                 loginCheckUseCase = loginCheckUseCase,
                                 graphqlClient = koin.get<GraphqlClient>(),
                                 navController = navController,
-                                appSettingsRepository = koin.get<AppSettingsRepository>(),
                             )
                         }
                         LaunchedEffect(monthlySubCategoryViewModel.eventHandler) {

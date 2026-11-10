@@ -15,6 +15,10 @@ val localProperties = Properties().also { properties ->
     }
 }
 
+val ciDebugKeystoreFile = System.getenv("DEBUG_KEYSTORE_PATH")
+    ?.let { file(it) }
+    ?.takeIf { it.exists() }
+
 configure<ApplicationExtension> {
     compileSdk = 37
     namespace = "net.matsudamper.money"
@@ -25,6 +29,14 @@ configure<ApplicationExtension> {
     }
 
     signingConfigs {
+        if (ciDebugKeystoreFile != null) {
+            create("debugCi") {
+                storeFile = ciDebugKeystoreFile
+                storePassword = "android"
+                keyAlias = "androiddebugkey"
+                keyPassword = "android"
+            }
+        }
         val keystorePath = localProperties["KEYSTORE_PATH"] as? String
         if (keystorePath != null) {
             create("release") {
@@ -42,7 +54,10 @@ configure<ApplicationExtension> {
             val isCI = System.getenv("CI")?.toBoolean() ?: false
             if (isCI) {
                 applicationIdSuffix = ".ci"
-                resValue("string", "app_name", "$appName.$applicationIdSuffix")
+                resValue("string", "app_name", "$appName$applicationIdSuffix")
+                if (ciDebugKeystoreFile != null) {
+                    signingConfig = signingConfigs.getByName("debugCi")
+                }
             } else {
                 signingConfig = signingConfigs.findByName("release") ?: signingConfigs.getByName("debug")
             }
