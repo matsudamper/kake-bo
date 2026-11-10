@@ -9,19 +9,7 @@ import kotlinx.coroutines.flow.update
 
 public class AppSettingsRepositoryAndroidImpl(context: Context) : AppSettingsRepository {
     private val prefs = context.getSharedPreferences("app_settings", Context.MODE_PRIVATE)
-    private val showImagesKey = "showImagesInMonthlyScreen"
     private val notificationUsageAutoAddEnabledFlow = MutableStateFlow<Map<String, Boolean>>(emptyMap())
-
-    private val _showImagesInMonthlyScreen = MutableStateFlow(
-        prefs.getBoolean(showImagesKey, false),
-    )
-
-    override val showImagesInMonthlyScreen: Flow<Boolean> = _showImagesInMonthlyScreen
-
-    override fun setShowImagesInMonthlyScreen(value: Boolean) {
-        prefs.edit { putBoolean(showImagesKey, value) }
-        _showImagesInMonthlyScreen.value = value
-    }
 
     override fun notificationUsageAutoAddEnabled(filterId: String): Flow<Boolean> {
         if (!notificationUsageAutoAddEnabledFlow.value.containsKey(filterId)) {
