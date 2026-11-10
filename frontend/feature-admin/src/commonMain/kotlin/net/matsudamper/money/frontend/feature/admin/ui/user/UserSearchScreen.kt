@@ -36,7 +36,9 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import net.matsudamper.money.frontend.common.ui.AppRoot
 import net.matsudamper.money.frontend.common.ui.Strings
 import net.matsudamper.money.frontend.common.ui.generated.resources.Res
 import net.matsudamper.money.frontend.common.ui.generated.resources.ic_arrow_back
@@ -253,6 +255,42 @@ internal fun UserSearchScreen(
                     )
                 }
             },
+        )
+    }
+}
+
+@Preview
+@Composable
+private fun UserSearchScreenPreview() {
+    AppRoot(isDarkTheme = true) {
+        UserSearchScreen(
+            uiState = AdminUserSearchUiState(
+                searchQuery = "dummy",
+                users = (1..3).map { index ->
+                    AdminUserSearchUiState.User(
+                        displayId = "$index",
+                        name = "dummy-user-$index",
+                        listener = object : AdminUserSearchUiState.User.Listener {
+                            override fun onClick() = Unit
+
+                            override fun dismiss() = Unit
+                        },
+                    )
+                },
+                hasMore = false,
+                replacePasswordDialogState = null,
+                confirmDeletePasswordDialogState = null,
+                userOperationDialogUiState = null,
+                listener = object : AdminUserSearchUiState.Listener {
+                    override fun onSearchQueryChanged(query: String) = Unit
+
+                    override fun onClickSearch() = Unit
+
+                    override fun loadMore() = Unit
+                },
+            ),
+            snackbarHostState = remember { SnackbarHostState() },
+            onClickBack = {},
         )
     }
 }
