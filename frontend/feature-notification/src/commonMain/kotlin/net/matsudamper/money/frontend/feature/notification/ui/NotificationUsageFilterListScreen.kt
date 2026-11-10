@@ -21,8 +21,11 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.Immutable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import net.matsudamper.money.frontend.common.base.ImmutableList
+import net.matsudamper.money.frontend.common.base.immutableListOf
+import net.matsudamper.money.frontend.common.ui.AppRoot
 import net.matsudamper.money.frontend.common.ui.base.KakeBoTopAppBar
 import net.matsudamper.money.frontend.common.ui.base.KakeboScaffoldListener
 import net.matsudamper.money.frontend.common.ui.base.RootScreenScaffold
@@ -123,4 +126,46 @@ public fun NotificationUsageFilterListScreen(
             }
         }
     }
+}
+
+@Preview
+@Composable
+private fun FilterListPreview() {
+    AppRoot(isDarkTheme = true) {
+        NotificationUsageFilterListScreen(
+            uiState = NotificationUsageFilterListScreenUiState(
+                filters = immutableListOf(
+                    createPreviewFilterItem(
+                        title = "ダミー決済サービス",
+                        description = "ダミー決済サービスの支払い通知を解析します。",
+                        autoAddEnabled = true,
+                    ),
+                    createPreviewFilterItem(
+                        title = "ダミーカード",
+                        description = "ダミーカードの利用通知を解析します。",
+                        autoAddEnabled = false,
+                    ),
+                ),
+                kakeboScaffoldListener = object : KakeboScaffoldListener {
+                    override fun onClickTitle() = Unit
+                },
+            ),
+            windowInsets = PaddingValues(),
+        )
+    }
+}
+
+private fun createPreviewFilterItem(
+    title: String,
+    description: String,
+    autoAddEnabled: Boolean,
+): NotificationUsageFilterListScreenUiState.FilterItem {
+    return NotificationUsageFilterListScreenUiState.FilterItem(
+        title = title,
+        description = description,
+        autoAddEnabled = autoAddEnabled,
+        listener = object : NotificationUsageFilterListScreenUiState.FilterItemListener {
+            override fun onToggleAutoAdd(value: Boolean) = Unit
+        },
+    )
 }

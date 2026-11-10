@@ -39,7 +39,9 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalClipboardManager
 import androidx.compose.ui.text.AnnotatedString
 import androidx.compose.ui.text.font.FontFamily
+import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import net.matsudamper.money.frontend.common.ui.AppRoot
 import net.matsudamper.money.frontend.common.ui.base.KakeBoTopAppBar
 import net.matsudamper.money.frontend.common.ui.generated.resources.Res
 import net.matsudamper.money.frontend.common.ui.generated.resources.ic_add
@@ -469,4 +471,53 @@ private fun EmptyText(
         text = text,
         style = MaterialTheme.typography.bodyMedium,
     )
+}
+
+@Preview
+@Composable
+private fun DetailLoadedPreview() {
+    AppRoot(isDarkTheme = true) {
+        NotificationUsageDetailScreen(
+            uiState = NotificationUsageDetailScreenUiState(
+                loadingState = NotificationUsageDetailScreenUiState.LoadingState.Loaded(
+                    notification = NotificationUsageDetailScreenUiState.Notification(
+                        packageName = "com.example.dummy",
+                        status = "解析済み",
+                        postedAt = "2024/01/01 12:00",
+                        receivedAt = "2024/01/01 12:01",
+                        text = "ダミー店舗で1,000円の支払いがありました",
+                        metadata = "{\"dummy\":true}",
+                        event = object : NotificationUsageDetailScreenUiState.NotificationEvent {
+                            override fun onClickMetadata() = Unit
+                        },
+                    ),
+                    filter = NotificationUsageDetailScreenUiState.Filter.Matched(
+                        title = "ダミー決済サービス",
+                        description = "ダミー決済サービスの支払い通知を解析します。",
+                    ),
+                    draft = NotificationUsageDetailScreenUiState.Draft(
+                        title = "ダミー店舗",
+                        description = "ダミーの説明",
+                        amount = "1,000円",
+                        dateTime = "2024/01/01 12:00",
+                        subCategory = "食費",
+                    ),
+                    linkedUsage = NotificationUsageDetailScreenUiState.LinkedUsageState.None,
+                    metadataDialog = null,
+                    event = object : NotificationUsageDetailScreenUiState.LoadedEvent {
+                        override fun onClickRegister() = Unit
+                    },
+                ),
+                deleteConfirmDialog = null,
+                event = object : NotificationUsageDetailScreenUiState.Event {
+                    override fun onClickBack() = Unit
+
+                    override fun onClickTitle() = Unit
+
+                    override fun onClickDelete() = Unit
+                },
+            ),
+            windowInsets = PaddingValues(),
+        )
+    }
 }
