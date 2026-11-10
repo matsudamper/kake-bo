@@ -12,7 +12,6 @@ import kotlinx.datetime.TimeZone
 import kotlinx.datetime.minus
 import kotlinx.datetime.plus
 import kotlinx.datetime.todayIn
-import net.matsudamper.money.frontend.common.base.AppSettingsRepository
 import net.matsudamper.money.frontend.common.base.ImmutableList.Companion.toImmutableList
 import net.matsudamper.money.frontend.common.base.nav.ScopedObjectFeature
 import net.matsudamper.money.frontend.common.base.nav.user.RootHomeScreenStructure
@@ -25,22 +24,15 @@ public class RootHomeMonthlyPagerHostViewModel(
     scopedObjectFeature: ScopedObjectFeature,
     initial: RootHomeScreenStructure.Monthly,
     navController: ScreenNavController,
-    private val appSettingsRepository: AppSettingsRepository,
 ) : CommonViewModel(scopedObjectFeature) {
     private val viewModelStateFlow: MutableStateFlow<ViewModelState> = MutableStateFlow(
         ViewModelState(
             current = initial,
-            showImages = false,
         ),
     )
     private val betweenPageCount = 100
 
     private val event = object : RootHomeMonthlyPagerHostScreenUiState.Event {
-        override fun onToggleShowImages() {
-            val current = viewModelStateFlow.value.showImages
-            appSettingsRepository.setShowImagesInMonthlyScreen(!current)
-        }
-
         override fun onPageChanged(page: RootHomeMonthlyPagerHostScreenUiState.Page) {
             navController.navigateReplace(page.navigation)
         }
@@ -71,7 +63,6 @@ public class RootHomeMonthlyPagerHostViewModel(
                 }
             }.toImmutableList(),
             currentPage = betweenPageCount,
-            showImages = false,
         ),
     ).also { mutableUiStateFlow ->
         viewModelScope.launch {
@@ -81,14 +72,8 @@ public class RootHomeMonthlyPagerHostViewModel(
                         currentPage = uiState.pages.indexOfFirst { page ->
                             page.navigation.date == viewModelState.current.date
                         }.takeIf { it >= 0 } ?: TODO("範囲外: ${viewModelState.current.date}"),
-                        showImages = viewModelState.showImages,
                     )
                 }
-            }
-        }
-        viewModelScope.launch {
-            appSettingsRepository.showImagesInMonthlyScreen.collectLatest { showImages ->
-                viewModelStateFlow.update { it.copy(showImages = showImages) }
             }
         }
     }.asStateFlow()
@@ -101,6 +86,5 @@ public class RootHomeMonthlyPagerHostViewModel(
 
     public data class ViewModelState(
         val current: RootHomeScreenStructure.Monthly,
-        val showImages: Boolean,
     )
 }
