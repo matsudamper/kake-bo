@@ -4,7 +4,6 @@ import java.io.IOException;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.nio.file.FileSystem;
-import java.nio.file.FileSystemNotFoundException;
 import java.nio.file.FileSystems;
 import java.nio.file.Files;
 import java.nio.file.Path;
@@ -15,18 +14,17 @@ import java.util.List;
 import java.util.stream.Stream;
 
 /**
- * クラスパスと JDK のモジュールから、パッケージに含まれるクラス名を集める。
+ * クラスパスから、パッケージとそのサブパッケージに含まれるクラス名を集める。
  */
 final class PackageClassScanner {
 
     private PackageClassScanner() {
     }
 
-    static List<String> findClassNames(String targetPackage, boolean includeSubPackages) {
+    static List<String> findClassNames(String targetPackage) {
         List<String> classNames = new ArrayList<>();
         try {
-            collectFromClassPath(targetPackage, includeSubPackages, classNames);
-            collectFromJdkModules(targetPackage, includeSubPackages, classNames);
+            collectFromClassPath(targetPackage, classNames);
         } catch (IOException | URISyntaxException e) {
             throw new RuntimeException("Failed to scan package: " + targetPackage, e);
         }
@@ -34,7 +32,7 @@ final class PackageClassScanner {
         return classNames;
     }
 
-    private static void collectFromClassPath(String targetPackage, boolean includeSubPackages, List<String> classNames)
+    private static void collectFromClassPath(String targetPackage, List<String> classNames)
             throws IOException, URISyntaxException {
         String targetPath = targetPackage.replace('.', '/');
         ClassLoader classLoader = Thread.currentThread().getContextClassLoader();
@@ -45,42 +43,19 @@ final class PackageClassScanner {
         while (resources.hasMoreElements()) {
             URI uri = resources.nextElement().toURI();
             if ("file".equals(uri.getScheme())) {
-                collectFromDirectory(targetPackage, Paths.get(uri), includeSubPackages, classNames);
+                collectFromDirectory(targetPackage, Paths.get(uri), classNames);
             } else if ("jar".equals(uri.getScheme())) {
                 try (FileSystem fs = FileSystems.newFileSystem(uri, Collections.emptyMap())) {
-                    collectFromDirectory(targetPackage, fs.getPath(targetPath), includeSubPackages, classNames);
+                    collectFromDirectory(targetPackage, fs.getPath(targetPath), classNames);
                 }
             }
         }
     }
 
-    /**
-     * JDK のクラスは ClassLoader.getResources でパッケージのディレクトリが返らないので、jrt ファイルシステムから探す。
-     */
-    private static void collectFromJdkModules(String targetPackage, boolean includeSubPackages, List<String> classNames)
-            throws IOException {
-        FileSystem jrt;
-        try {
-            jrt = FileSystems.getFileSystem(URI.create("jrt:/"));
-        } catch (FileSystemNotFoundException e) {
-            return;
-        }
-        Path packageLinks = jrt.getPath("/packages", targetPackage);
-        if (!Files.isDirectory(packageLinks)) return;
-        String targetPath = targetPackage.replace('.', '/');
-        try (Stream<Path> modules = Files.list(packageLinks)) {
-            for (Path module : modules.toList()) {
-                Path packageDir = jrt.getPath("/modules", module.getFileName().toString(), targetPath);
-                collectFromDirectory(targetPackage, packageDir, includeSubPackages, classNames);
-            }
-        }
-    }
-
-    private static void collectFromDirectory(String targetPackage, Path packageDir, boolean includeSubPackages, List<String> classNames)
+    private static void collectFromDirectory(String targetPackage, Path packageDir, List<String> classNames)
             throws IOException {
         if (!Files.isDirectory(packageDir)) return;
-        int maxDepth = includeSubPackages ? Integer.MAX_VALUE : 1;
-        try (Stream<Path> files = Files.walk(packageDir, maxDepth)) {
+        try (Stream<Path> files = Files.walk(packageDir)) {
             for (Path file : files.toList()) {
                 String relativePath = packageDir.relativize(file).toString();
                 if (!relativePath.endsWith(".class")) continue;

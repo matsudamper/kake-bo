@@ -141,6 +141,7 @@ graalvmNative {
                     "net.matsudamper.money.backend.graalvm.SharedElementReflectionFeature",
                     "net.matsudamper.money.backend.graalvm.WebAuthnReflectionFeature",
                     "net.matsudamper.money.backend.graalvm.ClassReflectionFeature",
+                    "net.matsudamper.money.backend.graalvm.JacksonModelReflectionFeature",
                 ).joinToString(","),
             )
             javaLauncher.set(graalVmLauncher)

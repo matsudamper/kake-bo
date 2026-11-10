@@ -31,7 +31,7 @@ public abstract class PackageReflectionFeature implements Feature {
     }
 
     private void registerPackage(String targetPackage) {
-        List<String> classNames = PackageClassScanner.findClassNames(targetPackage, true);
+        List<String> classNames = PackageClassScanner.findClassNames(targetPackage);
         // 走査に失敗しても native-image のビルドは通り、実行時に初めて落ちるので、ここで止める
         if (classNames.isEmpty()) {
             throw new IllegalStateException(targetPackage + " にクラスが 1 つも無い。パッケージを移したか、走査に失敗している");
