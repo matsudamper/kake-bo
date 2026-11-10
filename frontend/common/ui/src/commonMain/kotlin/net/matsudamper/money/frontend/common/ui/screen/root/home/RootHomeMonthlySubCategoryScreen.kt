@@ -24,7 +24,6 @@ import androidx.compose.material3.Card
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.ProvideTextStyle
-import androidx.compose.material3.Switch
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
@@ -65,22 +64,6 @@ public fun RootHomeMonthlySubCategoryScreen(
             KakeBoTopAppBar(
                 title = {
                     Text(uiState.headerTitle)
-                },
-                menu = {
-                    Row(
-                        verticalAlignment = Alignment.CenterVertically,
-                    ) {
-                        Text(
-                            modifier = Modifier.padding(end = 4.dp),
-                            style = MaterialTheme.typography.titleMedium,
-                            text = "画像",
-                        )
-                        Switch(
-                            checked = uiState.showImages,
-                            onCheckedChange = { uiState.event.onToggleShowImages() },
-                        )
-                        Spacer(modifier = Modifier.width(8.dp))
-                    }
                 },
                 windowInsets = windowInsets,
             )
@@ -164,7 +147,6 @@ private fun LoadedContent(
             items(loadingState.items) { item ->
                 ListItem(
                     item = item,
-                    showImages = uiState.showImages,
                     onClickImage = { url -> imageUrlState.value = url },
                     modifier = Modifier
                         .fillMaxWidth()
@@ -191,7 +173,6 @@ private fun LoadedContent(
 @Composable
 private fun ListItem(
     item: RootHomeMonthlySubCategoryScreenUiState.Item,
-    showImages: Boolean,
     onClickImage: (String) -> Unit,
     modifier: Modifier = Modifier,
 ) {
@@ -242,7 +223,7 @@ private fun ListItem(
                         )
                     }
                 }
-                if (showImages && item.images.isNotEmpty()) {
+                if (item.images.isNotEmpty()) {
                     val imageRowScrollConnection = remember {
                         object : NestedScrollConnection {
                             override fun onPostScroll(

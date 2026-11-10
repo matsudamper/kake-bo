@@ -125,7 +125,6 @@ public data class RootHomeMonthlyScreenUiState(
 @Composable
 public fun RootHomeMonthlyScreen(
     uiState: RootHomeMonthlyScreenUiState,
-    showImages: Boolean,
     windowInsets: PaddingValues,
     modifier: Modifier = Modifier,
 ) {
@@ -154,7 +153,6 @@ public fun RootHomeMonthlyScreen(
                     modifier = Modifier.fillMaxSize(),
                     loadingState = loadingState,
                     uiState = uiState,
-                    showImages = showImages,
                 )
             }
 
@@ -180,7 +178,6 @@ public fun RootHomeMonthlyScreen(
 private fun LoadedContent(
     loadingState: RootHomeMonthlyScreenUiState.LoadingState.Loaded,
     uiState: RootHomeMonthlyScreenUiState,
-    showImages: Boolean,
     modifier: Modifier = Modifier,
 ) {
     val imageUrlState: MutableState<String?> = remember { mutableStateOf(null) }
@@ -305,7 +302,7 @@ private fun LoadedContent(
                                     }
                                 }
                             }
-                            if (showImages && item.images.isNotEmpty()) {
+                            if (item.images.isNotEmpty()) {
                                 val imageRowScrollConnection = remember {
                                     object : NestedScrollConnection {
                                         override fun onPostScroll(
@@ -429,7 +426,6 @@ private fun RootHomeMonthlyScreenPreviewContent(isDarkTheme: Boolean) {
                 currentSortType = SortSectionType.Date,
                 sortOrder = SortSectionOrder.Descending,
             ),
-            showImages = false,
             windowInsets = PaddingValues(),
         )
     }
