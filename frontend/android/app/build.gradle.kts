@@ -25,13 +25,20 @@ configure<ApplicationExtension> {
     }
 
     signingConfigs {
-        val keystorePath = localProperties["KEYSTORE_PATH"] as? String
-        if (keystorePath != null) {
+        fun signingProperty(envName: String, propertyName: String): String? {
+            return System.getenv(envName)?.takeIf { it.isNotEmpty() }
+                ?: localProperties[propertyName] as? String
+        }
+        val keystorePath = signingProperty("ANDROID_KEYSTORE_PATH", "KEYSTORE_PATH")
+        val keystorePassword = signingProperty("ANDROID_KEYSTORE_PASSWORD", "KEYSTORE_PASSWORD")
+        val keyAlias = signingProperty("ANDROID_KEY_ALIAS", "KEY_ALIAS")
+        val keyPassword = signingProperty("ANDROID_KEY_PASSWORD", "KEY_PASSWORD")
+        if (keystorePath != null && keystorePassword != null && keyAlias != null && keyPassword != null) {
             create("release") {
-                storeFile = (localProperties["KEYSTORE_PATH"] as? String)?.let { file(it) } ?: return@create
-                storePassword = localProperties["KEYSTORE_PASSWORD"] as? String ?: return@create
-                keyAlias = localProperties["KEY_ALIAS"] as? String ?: return@create
-                keyPassword = localProperties["KEY_PASSWORD"] as? String ?: return@create
+                storeFile = file(keystorePath)
+                storePassword = keystorePassword
+                this.keyAlias = keyAlias
+                this.keyPassword = keyPassword
             }
         }
     }
@@ -41,11 +48,9 @@ configure<ApplicationExtension> {
         debug {
             val isCI = System.getenv("CI")?.toBoolean() ?: false
             if (isCI) {
-                applicationIdSuffix = ".ci"
-                resValue("string", "app_name", "$appName.$applicationIdSuffix")
-            } else {
-                signingConfig = signingConfigs.findByName("release") ?: signingConfigs.getByName("debug")
+                resValue("string", "app_name", "$appName.ci")
             }
+            signingConfig = signingConfigs.findByName("release") ?: signingConfigs.getByName("debug")
         }
         release {
             signingConfig = signingConfigs.findByName("release")
