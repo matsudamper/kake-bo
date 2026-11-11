@@ -51,6 +51,10 @@ configure<ApplicationExtension> {
     val appName = "家計簿"
     buildTypes {
         debug {
+            val isCI = System.getenv("CI")?.toBoolean() ?: false
+            if (isCI) {
+                resValue("string", "app_name", "$appName.ci")
+            }
             signingConfig = signingConfigs.findByName("debugCi")
                 ?: signingConfigs.findByName("release")
                 ?: signingConfigs.getByName("debug")
