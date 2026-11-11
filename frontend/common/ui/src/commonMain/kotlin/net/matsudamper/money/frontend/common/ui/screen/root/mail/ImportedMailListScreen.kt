@@ -35,7 +35,6 @@ import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.Text
-import androidx.compose.material3.pulltorefresh.PullToRefreshBox
 import androidx.compose.material3.pulltorefresh.rememberPullToRefreshState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.DisposableEffect
@@ -59,6 +58,7 @@ import kotlinx.coroutines.isActive
 import kotlinx.coroutines.launch
 import net.matsudamper.money.frontend.common.base.immutableListOf
 import net.matsudamper.money.frontend.common.ui.AppRoot
+import net.matsudamper.money.frontend.common.ui.base.KakeBoPullToRefreshBox
 import net.matsudamper.money.frontend.common.ui.base.KakeBoTopAppBar
 import net.matsudamper.money.frontend.common.ui.base.KakeboScaffoldListener
 import net.matsudamper.money.frontend.common.ui.base.LocalScrollToTopHandler
@@ -184,7 +184,7 @@ private fun MainContent(
         ) {
             val refreshState = rememberPullToRefreshState()
             val coroutineScope = rememberCoroutineScope()
-            PullToRefreshBox(
+            KakeBoPullToRefreshBox(
                 modifier = Modifier.fillMaxSize(),
                 state = refreshState,
                 isRefreshing = isRefreshing,

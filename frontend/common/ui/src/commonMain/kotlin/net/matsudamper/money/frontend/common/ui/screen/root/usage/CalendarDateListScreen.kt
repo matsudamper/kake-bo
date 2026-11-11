@@ -25,7 +25,6 @@ import androidx.compose.material3.FloatingActionButton
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.Text
-import androidx.compose.material3.pulltorefresh.PullToRefreshBox
 import androidx.compose.material3.pulltorefresh.rememberPullToRefreshState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.Immutable
@@ -52,6 +51,7 @@ import coil3.compose.SubcomposeAsyncImage
 import net.matsudamper.money.frontend.common.base.ImmutableList
 import net.matsudamper.money.frontend.common.base.ImmutableList.Companion.toImmutableList
 import net.matsudamper.money.frontend.common.ui.AppRoot
+import net.matsudamper.money.frontend.common.ui.base.KakeBoPullToRefreshBox
 import net.matsudamper.money.frontend.common.ui.base.KakeBoTopAppBar
 import net.matsudamper.money.frontend.common.ui.base.KakeboScaffold
 import net.matsudamper.money.frontend.common.ui.base.KakeboScaffoldListener
@@ -165,7 +165,7 @@ public fun CalendarDateListScreen(
         var isRefreshing by remember { mutableStateOf(false) }
         val localDirection = LocalLayoutDirection.current
         var boxY by remember { mutableStateOf(0f) }
-        PullToRefreshBox(
+        KakeBoPullToRefreshBox(
             isRefreshing = isRefreshing,
             modifier = Modifier
                 .fillMaxSize()
