@@ -200,4 +200,8 @@ public enum class MoneyUsageServiceType(
         id = 50,
         displayName = "ハイウェイバスドットコム",
     ),
+    SmtCinema(
+        id = 51,
+        displayName = "SMTシネマ",
+    ),
 }
