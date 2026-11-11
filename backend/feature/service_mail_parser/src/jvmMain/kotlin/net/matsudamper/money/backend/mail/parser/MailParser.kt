@@ -48,6 +48,7 @@ import net.matsudamper.money.backend.mail.parser.services.SquareEnixMogStationUs
 import net.matsudamper.money.backend.mail.parser.services.SteamUsageService
 import net.matsudamper.money.backend.mail.parser.services.TakaraTomyMallUsageServices
 import net.matsudamper.money.backend.mail.parser.services.TixplusTradeUsageServices
+import net.matsudamper.money.backend.mail.parser.services.TohoCinemasUsageServices
 import net.matsudamper.money.backend.mail.parser.services.UberEatsUsageService
 import net.matsudamper.money.backend.mail.parser.services.ViewCardUsageServices
 import net.matsudamper.money.backend.mail.parser.services.VpassUsageServices
@@ -120,6 +121,7 @@ public object MailParser {
             CinecittaUsageServices,
             ViewCardUsageServices,
             HighwayBusUsageServices,
+            TohoCinemasUsageServices,
         )
             .mapNotNull {
                 runCatching {
