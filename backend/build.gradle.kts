@@ -42,7 +42,7 @@ val nativeBuildArgs = listOf(
     // DefaultDataType の静的ブロックが SQLDataType の初期化をトリガーし、
     // その中で ArrayDataType.getArrayType() が呼ばれる。
     // GraalVM native-image では Class.arrayType() が image に含まれていない型に対して
-    // null を返すため、reflect-config.json に jOOQ カスタム型の配列クラスを登録している。
+    // null を返すため、ClassReflectionFeature で jOOQ カスタム型の配列クラスを登録している。
     "--initialize-at-run-time=org.jooq",
     "-H:+AddAllCharsets",
     "--initialize-at-run-time=io.opentelemetry.sdk",
@@ -140,6 +140,8 @@ graalvmNative {
                     "net.matsudamper.money.backend.graalvm.GraphqlResolverReflectionFeature",
                     "net.matsudamper.money.backend.graalvm.SharedElementReflectionFeature",
                     "net.matsudamper.money.backend.graalvm.WebAuthnReflectionFeature",
+                    "net.matsudamper.money.backend.graalvm.ClassReflectionFeature",
+                    "net.matsudamper.money.backend.graalvm.JacksonModelReflectionFeature",
                 ).joinToString(","),
             )
             javaLauncher.set(graalVmLauncher)
