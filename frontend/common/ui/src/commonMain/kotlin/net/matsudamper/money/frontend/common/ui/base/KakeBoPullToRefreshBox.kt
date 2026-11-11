@@ -26,7 +26,7 @@ import androidx.compose.ui.input.pointer.pointerInput
 public fun KakeBoPullToRefreshBox(
     isRefreshing: Boolean,
     onRefresh: () -> Unit,
-    modifier: Modifier = Modifier,
+    modifier: Modifier,
     state: PullToRefreshState,
     content: @Composable BoxScope.() -> Unit,
 ) {
