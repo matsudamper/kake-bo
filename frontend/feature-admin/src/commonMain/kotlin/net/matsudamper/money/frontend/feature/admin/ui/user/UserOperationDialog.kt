@@ -17,8 +17,10 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.Immutable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.window.Dialog
+import net.matsudamper.money.frontend.common.ui.AppRoot
 import net.matsudamper.money.frontend.common.ui.generated.resources.Res
 import net.matsudamper.money.frontend.common.ui.generated.resources.ic_close
 import net.matsudamper.money.frontend.common.ui.rememberCustomFontFamily
@@ -88,5 +90,24 @@ internal fun UserOperationDialog(
                 }
             }
         }
+    }
+}
+
+@Preview
+@Composable
+private fun UserOperationDialogPreview() {
+    AppRoot(isDarkTheme = true) {
+        UserOperationDialog(
+            uiState = UserOperationDialogState(
+                userName = "dummy-user",
+                listener = object : UserOperationDialogState.Listener {
+                    override fun onDismissUserMenu() = Unit
+
+                    override fun onClickReplacePassword() = Unit
+
+                    override fun onClickDeletePassword() = Unit
+                },
+            ),
+        )
     }
 }

@@ -4,6 +4,7 @@ plugins {
     alias(libs.plugins.kotlin.multiplatform)
     id("net.matsudamper.money.buildlogic.multiplatform.library")
     id("net.matsudamper.money.buildlogic.compose")
+    id("net.matsudamper.money.buildlogic.paparazzi")
 }
 
 kotlin {
@@ -28,6 +29,7 @@ kotlin {
                 implementation(libs.composeFoundation)
                 implementation(libs.composeMaterial3)
                 implementation(libs.composeRuntime)
+                implementation(libs.composeUiToolingPreview)
                 implementation(libs.composeComponentsResources)
                 implementation(libs.kotlin.datetime)
                 implementation(libs.kotlin.serialization.json)
