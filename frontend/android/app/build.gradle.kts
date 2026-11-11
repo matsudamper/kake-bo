@@ -51,16 +51,9 @@ configure<ApplicationExtension> {
     val appName = "家計簿"
     buildTypes {
         debug {
-            val isCI = System.getenv("CI")?.toBoolean() ?: false
-            if (isCI) {
-                applicationIdSuffix = ".ci"
-                resValue("string", "app_name", "$appName$applicationIdSuffix")
-                if (ciDebugKeystoreFile != null) {
-                    signingConfig = signingConfigs.getByName("debugCi")
-                }
-            } else {
-                signingConfig = signingConfigs.findByName("release") ?: signingConfigs.getByName("debug")
-            }
+            signingConfig = signingConfigs.findByName("debugCi")
+                ?: signingConfigs.findByName("release")
+                ?: signingConfigs.getByName("debug")
         }
         release {
             signingConfig = signingConfigs.findByName("release")
