@@ -70,8 +70,9 @@ class PaparazziPlugin : Plugin<Project> {
             // 撮影タスクは testAndroidHostTest を使うため、このプロジェクトの撮影タスクが実行されるかで絞り込みを切り替える。
             // 他のプロジェクトの撮影タスクだけを指定したときに、このプロジェクトの通常のテストを絞り込まないようにする
             gradle.taskGraph.whenReady {
+                // preparePaparazzi*Resources は通常のテストにも依存として入るため、記録・検証タスクだけで判定する
                 val paparazziTaskScheduled = allTasks.any { task ->
-                    task.project == target && task.name.contains("paparazzi", ignoreCase = true)
+                    task.project == target && SCREENSHOT_TASK_NAME_REGEX.matches(task.name)
                 }
                 tasks.withType<Test>().forEach { testTask ->
                     if (paparazziTaskScheduled) {
@@ -120,5 +121,6 @@ class PaparazziPlugin : Plugin<Project> {
     private companion object {
         private const val SCREENSHOT_PROJECT_PATH = ":frontend:common:screenshot"
         private const val SCREENSHOT_TEST_CLASS_PATTERN = "*.ScreenshotTest"
+        private val SCREENSHOT_TASK_NAME_REGEX = Regex("^(record|verify)Paparazzi.*")
     }
 }
