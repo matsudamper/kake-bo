@@ -13,8 +13,7 @@ import sergio.sastre.composable.preview.scanner.core.preview.ComposablePreview
 import sergio.sastre.composable.preview.scanner.core.scanner.config.classpath.Classpath
 
 /**
- * 継承したクラスを各モジュールの androidHostTest に ScreenshotTest という名前で置き、
- * Parameterized の引数に [scanPreviews] の結果を渡す。
+ * buildlogic の paparazzi プラグインが各モジュールに生成する ScreenshotTest が継承する。
  */
 public abstract class PreviewScreenshotTest(
     private val preview: ComposablePreview<AndroidPreviewInfo>,

@@ -9,8 +9,8 @@ import org.gradle.kotlin.dsl.withType
 import org.jetbrains.kotlin.gradle.dsl.KotlinMultiplatformExtension
 
 /**
- * Preview を Paparazzi で撮影する。撮影用のテストは各モジュールの androidHostTest に置く ScreenshotTest で、
- * frontend:common:screenshot の PreviewScreenshotTest を継承する。
+ * Preview を Paparazzi で撮影する。撮影用の ScreenshotTest は android の namespace 配下の Preview を探すクラスとして生成するため、
+ * 各モジュールにテストを置く必要はない。
  */
 @Suppress("unused")
 class PaparazziPlugin : Plugin<Project> {
@@ -28,7 +28,28 @@ class PaparazziPlugin : Plugin<Project> {
                         isIncludeAndroidResources = true
                     }
                 }
+            }
+
+            val generateScreenshotTest = tasks.register("generateScreenshotTest") {
+                val outputDir = layout.buildDirectory.dir("generated/screenshotTest/kotlin")
+                val previewPackageName = provider {
+                    target.extensions.getByType(KotlinMultiplatformExtension::class.java)
+                        .targets.withType<KotlinMultiplatformAndroidLibraryTarget>()
+                        .single().namespace
+                        ?: error("android の namespace が未設定です")
+                }
+                inputs.property("previewPackageName", previewPackageName)
+                outputs.dir(outputDir)
+                doLast {
+                    val packageName = "${previewPackageName.get()}.screenshot"
+                    val file = outputDir.get().file("${packageName.replace('.', '/')}/ScreenshotTest.kt").asFile
+                    file.parentFile.mkdirs()
+                    file.writeText(createScreenshotTestSource(packageName = packageName, previewPackageName = previewPackageName.get()))
+                }
+            }
+            extensions.configure<KotlinMultiplatformExtension> {
                 sourceSets.matching { it.name == "androidHostTest" }.configureEach {
+                    kotlin.srcDir(generateScreenshotTest)
                     dependencies {
                         implementation(project(SCREENSHOT_PROJECT_PATH))
                     }
@@ -67,6 +88,33 @@ class PaparazziPlugin : Plugin<Project> {
                 }
             }
         }
+    }
+
+    private fun createScreenshotTestSource(
+        packageName: String,
+        previewPackageName: String,
+    ): String {
+        return """
+            |package $packageName
+            |
+            |import net.matsudamper.money.frontend.common.screenshot.PreviewScreenshotTest
+            |import org.junit.runner.RunWith
+            |import org.junit.runners.Parameterized
+            |import sergio.sastre.composable.preview.scanner.android.AndroidPreviewInfo
+            |import sergio.sastre.composable.preview.scanner.core.preview.ComposablePreview
+            |
+            |@RunWith(Parameterized::class)
+            |class ScreenshotTest(
+            |    preview: ComposablePreview<AndroidPreviewInfo>,
+            |) : PreviewScreenshotTest(preview) {
+            |    companion object {
+            |        @JvmStatic
+            |        @Parameterized.Parameters(name = "{0}")
+            |        fun previews(): List<ComposablePreview<AndroidPreviewInfo>> = scanPreviews(packageName = "$previewPackageName")
+            |    }
+            |}
+            |
+        """.trimMargin()
     }
 
     private companion object {
