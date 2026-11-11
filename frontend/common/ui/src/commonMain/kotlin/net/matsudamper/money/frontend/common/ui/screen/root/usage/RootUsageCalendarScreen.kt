@@ -26,7 +26,6 @@ import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
-import androidx.compose.material3.pulltorefresh.PullToRefreshBox
 import androidx.compose.material3.pulltorefresh.rememberPullToRefreshState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.Immutable
@@ -56,6 +55,7 @@ import net.matsudamper.money.frontend.common.base.ImmutableList.Companion.toImmu
 import net.matsudamper.money.frontend.common.ui.AppRoot
 import net.matsudamper.money.frontend.common.ui.LocalIsLargeScreen
 import net.matsudamper.money.frontend.common.ui.StickyHeaderState
+import net.matsudamper.money.frontend.common.ui.base.KakeBoPullToRefreshBox
 import net.matsudamper.money.frontend.common.ui.stickyHeaderScrollable
 
 public data class RootUsageCalendarScreenUiState(
@@ -135,7 +135,7 @@ public fun RootUsageCalendarScreen(
     val state = rememberPullToRefreshState()
     val coroutineScope = rememberCoroutineScope()
     var isRefreshing by remember { mutableStateOf(false) }
-    PullToRefreshBox(
+    KakeBoPullToRefreshBox(
         isRefreshing = isRefreshing,
         modifier = modifier,
         state = state,
