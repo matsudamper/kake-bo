@@ -31,7 +31,6 @@ public actual fun LoginCredentialsFields(
             label = usernameLabel,
             maxLines = 1,
             enabled = enabled,
-            autocomplete = "username",
         )
         Spacer(modifier = Modifier.height(8.dp))
         TextField(
@@ -43,7 +42,6 @@ public actual fun LoginCredentialsFields(
             maxLines = 1,
             type = TextFieldType.Password,
             enabled = enabled,
-            autocomplete = "current-password",
         )
     }
 }

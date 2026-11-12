@@ -94,7 +94,6 @@ public class RootUsageHostViewModel(
                             closeTextInput()
                         },
                         isMultiline = false,
-                        name = "",
                     ),
                 )
             }

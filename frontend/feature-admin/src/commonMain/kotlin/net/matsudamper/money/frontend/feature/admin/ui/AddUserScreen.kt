@@ -60,7 +60,6 @@ internal fun AddUserScreen(
                 label = "User Name",
                 maxLines = 1,
                 onValueChange = { uiState.listener.onChangeUserName(it) },
-                autocomplete = "username",
             )
             Spacer(modifier = Modifier.height(12.dp))
             TextField(
@@ -71,7 +70,6 @@ internal fun AddUserScreen(
                 maxLines = 1,
                 onValueChange = { uiState.listener.onChangePassword(it) },
                 type = TextFieldType.Password,
-                autocomplete = "new-password",
             )
             Text(
                 Strings.PASSWORD_ALLOW_SYMBOLS_DESCRIPTION,

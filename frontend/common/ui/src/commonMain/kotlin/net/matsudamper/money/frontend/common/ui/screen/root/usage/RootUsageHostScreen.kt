@@ -81,7 +81,6 @@ public data class RootUsageHostScreenUiState(
         val textComplete: (String) -> Unit,
         val canceled: () -> Unit,
         val isMultiline: Boolean,
-        val name: String,
     )
 
     public data class CategoryFilterState(
@@ -168,7 +167,6 @@ public fun RootUsageHostScreen(
             onComplete = uiState.textInputUiState.textComplete,
             canceled = uiState.textInputUiState.canceled,
             isMultiline = uiState.textInputUiState.isMultiline,
-            name = uiState.textInputUiState.name,
         )
     }
 

@@ -63,7 +63,6 @@ internal fun AdminLoginScreen(uiState: AdminLoginScreenUiState) {
                     label = "Password",
                     maxLines = 1,
                     type = TextFieldType.Password,
-                    autocomplete = "current-password",
                 )
                 Spacer(Modifier.height(16.dp))
                 Button(
