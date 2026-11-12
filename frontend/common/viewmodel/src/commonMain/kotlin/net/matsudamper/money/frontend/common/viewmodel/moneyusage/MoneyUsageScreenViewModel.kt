@@ -92,9 +92,10 @@ public class MoneyUsageScreenViewModel(
                     description = editingText,
                 )
                 viewModelStateFlow.update { viewModelState ->
+                    val editedWhileSaving = viewModelState.descriptionEditingText != editingText
                     viewModelState.copy(
                         isDescriptionSaving = false,
-                        descriptionEditingText = if (isSuccess) null else viewModelState.descriptionEditingText,
+                        descriptionEditingText = if (isSuccess && !editedWhileSaving) null else viewModelState.descriptionEditingText,
                     )
                 }
                 if (!isSuccess) {
