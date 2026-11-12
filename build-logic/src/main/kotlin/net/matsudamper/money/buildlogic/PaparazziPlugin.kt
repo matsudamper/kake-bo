@@ -52,6 +52,9 @@ class PaparazziPlugin : Plugin<Project> {
                     kotlin.srcDir(generateScreenshotTest)
                     dependencies {
                         implementation(project(SCREENSHOT_PROJECT_PATH))
+                        // Paparazzi は main の実行時依存の R クラスをテストのクラスパスから読み込むため、
+                        // ComposePlugin が main の実行時だけに追加している ui-tooling をテストにも入れて R を生成させる
+                        runtimeOnly(libs.library("composeUiTooling"))
                     }
                 }
             }
