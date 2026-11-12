@@ -43,6 +43,7 @@ import net.matsudamper.money.backend.mail.parser.services.RakutenOnlineUsageServ
 import net.matsudamper.money.backend.mail.parser.services.RakutenUsageServices
 import net.matsudamper.money.backend.mail.parser.services.RentioUsageServices
 import net.matsudamper.money.backend.mail.parser.services.ShunsuguUsageService
+import net.matsudamper.money.backend.mail.parser.services.SmtCinemaUsageServices
 import net.matsudamper.money.backend.mail.parser.services.SofmapUsageServices
 import net.matsudamper.money.backend.mail.parser.services.SonyBankUsageServices
 import net.matsudamper.money.backend.mail.parser.services.SquareEnixMogStationUsageServices
@@ -119,6 +120,7 @@ public object MailParser {
             KeurigOnlineStoreUsageServices,
             TixplusTradeUsageServices,
             CinecittaUsageServices,
+            SmtCinemaUsageServices,
             CinemaCityUsageServices,
             ViewCardUsageServices,
             HighwayBusUsageServices,
