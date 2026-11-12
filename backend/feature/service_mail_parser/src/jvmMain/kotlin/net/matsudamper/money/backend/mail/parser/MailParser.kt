@@ -11,6 +11,7 @@ import net.matsudamper.money.backend.mail.parser.services.BicCameraUsageServices
 import net.matsudamper.money.backend.mail.parser.services.BookWalkerUsageServices
 import net.matsudamper.money.backend.mail.parser.services.BoothUsageService
 import net.matsudamper.money.backend.mail.parser.services.CinecittaUsageServices
+import net.matsudamper.money.backend.mail.parser.services.CinemaCityUsageServices
 import net.matsudamper.money.backend.mail.parser.services.DLSiteUsageServices
 import net.matsudamper.money.backend.mail.parser.services.DmmUsageServices
 import net.matsudamper.money.backend.mail.parser.services.EPlusUsageServices
@@ -120,6 +121,7 @@ public object MailParser {
             TixplusTradeUsageServices,
             CinecittaUsageServices,
             SmtCinemaUsageServices,
+            CinemaCityUsageServices,
             ViewCardUsageServices,
             HighwayBusUsageServices,
         )
