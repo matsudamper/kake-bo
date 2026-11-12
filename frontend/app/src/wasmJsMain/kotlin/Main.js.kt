@@ -3,6 +3,7 @@ import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.window.ComposeViewport
 import lib.js.NormalizeInputKeyCapture
+import lib.js.installDuplicateCompositionCommitGuard
 import net.matsudamper.money.MoneyCompositionLocalProvider
 import net.matsudamper.money.frontend.common.base.nav.user.RootHomeScreenStructure
 import net.matsudamper.money.frontend.common.base.nav.user.rememberMainScreenNavController
@@ -17,6 +18,7 @@ import platform.PlatformToolsProvider
 
 @OptIn(ExperimentalComposeUiApi::class)
 fun main() {
+    installDuplicateCompositionCommitGuard()
     configureWebResources {
         resourcePathMapping { path -> "/$path" }
     }
