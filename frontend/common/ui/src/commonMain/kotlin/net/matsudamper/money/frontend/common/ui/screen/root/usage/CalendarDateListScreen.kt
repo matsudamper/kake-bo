@@ -17,6 +17,7 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.lazy.itemsIndexed
 import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.material3.Card
 import androidx.compose.material3.CircularProgressIndicator
@@ -25,7 +26,6 @@ import androidx.compose.material3.FloatingActionButton
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.Text
-import androidx.compose.material3.pulltorefresh.PullToRefreshBox
 import androidx.compose.material3.pulltorefresh.rememberPullToRefreshState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.Immutable
@@ -52,6 +52,7 @@ import coil3.compose.SubcomposeAsyncImage
 import net.matsudamper.money.frontend.common.base.ImmutableList
 import net.matsudamper.money.frontend.common.base.ImmutableList.Companion.toImmutableList
 import net.matsudamper.money.frontend.common.ui.AppRoot
+import net.matsudamper.money.frontend.common.ui.base.KakeBoPullToRefreshBox
 import net.matsudamper.money.frontend.common.ui.base.KakeBoTopAppBar
 import net.matsudamper.money.frontend.common.ui.base.KakeboScaffold
 import net.matsudamper.money.frontend.common.ui.base.KakeboScaffoldListener
@@ -61,6 +62,7 @@ import net.matsudamper.money.frontend.common.ui.generated.resources.ic_arrow_bac
 import net.matsudamper.money.frontend.common.ui.layout.GridColumn
 import net.matsudamper.money.frontend.common.ui.layout.image.ImageLoadingPlaceholder
 import net.matsudamper.money.frontend.common.ui.layout.image.ZoomableImageDialog
+import net.matsudamper.money.frontend.common.ui.layout.image.ZoomableImageDialogImages
 import org.jetbrains.compose.resources.painterResource
 
 public data class CalendarDateListScreenUiState(
@@ -165,7 +167,7 @@ public fun CalendarDateListScreen(
         var isRefreshing by remember { mutableStateOf(false) }
         val localDirection = LocalLayoutDirection.current
         var boxY by remember { mutableStateOf(0f) }
-        PullToRefreshBox(
+        KakeBoPullToRefreshBox(
             isRefreshing = isRefreshing,
             modifier = Modifier
                 .fillMaxSize()
@@ -273,12 +275,15 @@ private fun ItemCard(
     item: CalendarDateListScreenUiState.Item,
     modifier: Modifier = Modifier,
 ) {
-    var selectedImageUrl by remember { mutableStateOf<String?>(null) }
-    val currentSelectedImageUrl = selectedImageUrl
-    if (currentSelectedImageUrl != null) {
+    var selectedImageIndex by remember { mutableStateOf<Int?>(null) }
+    val currentSelectedImageIndex = selectedImageIndex
+    if (currentSelectedImageIndex != null) {
         ZoomableImageDialog(
-            imageUrl = currentSelectedImageUrl,
-            onDismissRequest = { selectedImageUrl = null },
+            images = ZoomableImageDialogImages(
+                imageUrls = item.images.map { it.url }.toImmutableList(),
+                initialIndex = currentSelectedImageIndex,
+            ),
+            onDismissRequest = { selectedImageIndex = null },
         )
     }
     Card(
@@ -332,14 +337,14 @@ private fun ItemCard(
                     .padding(bottom = 12.dp),
                 horizontalArrangement = Arrangement.spacedBy(8.dp),
             ) {
-                items(item.images) { imageItem ->
+                itemsIndexed(item.images) { index, imageItem ->
                     SubcomposeAsyncImage(
                         model = imageItem.thumbnailUrl,
                         contentDescription = null,
                         contentScale = ContentScale.Crop,
                         modifier = Modifier
                             .size(100.dp)
-                            .clickable { selectedImageUrl = imageItem.url },
+                            .clickable { selectedImageIndex = index },
                         loading = { ImageLoadingPlaceholder() },
                     )
                 }

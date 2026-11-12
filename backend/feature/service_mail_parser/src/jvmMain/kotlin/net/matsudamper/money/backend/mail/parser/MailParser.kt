@@ -11,6 +11,7 @@ import net.matsudamper.money.backend.mail.parser.services.BicCameraUsageServices
 import net.matsudamper.money.backend.mail.parser.services.BookWalkerUsageServices
 import net.matsudamper.money.backend.mail.parser.services.BoothUsageService
 import net.matsudamper.money.backend.mail.parser.services.CinecittaUsageServices
+import net.matsudamper.money.backend.mail.parser.services.CinemaCityUsageServices
 import net.matsudamper.money.backend.mail.parser.services.DLSiteUsageServices
 import net.matsudamper.money.backend.mail.parser.services.DmmUsageServices
 import net.matsudamper.money.backend.mail.parser.services.EPlusUsageServices
@@ -42,12 +43,14 @@ import net.matsudamper.money.backend.mail.parser.services.RakutenOnlineUsageServ
 import net.matsudamper.money.backend.mail.parser.services.RakutenUsageServices
 import net.matsudamper.money.backend.mail.parser.services.RentioUsageServices
 import net.matsudamper.money.backend.mail.parser.services.ShunsuguUsageService
+import net.matsudamper.money.backend.mail.parser.services.SmtCinemaUsageServices
 import net.matsudamper.money.backend.mail.parser.services.SofmapUsageServices
 import net.matsudamper.money.backend.mail.parser.services.SonyBankUsageServices
 import net.matsudamper.money.backend.mail.parser.services.SquareEnixMogStationUsageServices
 import net.matsudamper.money.backend.mail.parser.services.SteamUsageService
 import net.matsudamper.money.backend.mail.parser.services.TakaraTomyMallUsageServices
 import net.matsudamper.money.backend.mail.parser.services.TixplusTradeUsageServices
+import net.matsudamper.money.backend.mail.parser.services.TohoCinemasUsageServices
 import net.matsudamper.money.backend.mail.parser.services.UberEatsUsageService
 import net.matsudamper.money.backend.mail.parser.services.ViewCardUsageServices
 import net.matsudamper.money.backend.mail.parser.services.VpassUsageServices
@@ -118,8 +121,11 @@ public object MailParser {
             KeurigOnlineStoreUsageServices,
             TixplusTradeUsageServices,
             CinecittaUsageServices,
+            SmtCinemaUsageServices,
+            CinemaCityUsageServices,
             ViewCardUsageServices,
             HighwayBusUsageServices,
+            TohoCinemasUsageServices,
         )
             .mapNotNull {
                 runCatching {
