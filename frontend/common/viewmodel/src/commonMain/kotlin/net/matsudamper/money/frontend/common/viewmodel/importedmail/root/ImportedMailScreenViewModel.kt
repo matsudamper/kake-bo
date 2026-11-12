@@ -313,7 +313,7 @@ public class ImportedMailScreenViewModel(
                     event = AiParseModelOptionEventImpl(model),
                 )
             }.toImmutableList(),
-            thinkingSelected = viewModelState.aiParseSetting.thinking,
+            thinkingChecked = viewModelState.aiParseSetting.thinking,
             event = aiParsePromptDialogEvent,
         )
     }

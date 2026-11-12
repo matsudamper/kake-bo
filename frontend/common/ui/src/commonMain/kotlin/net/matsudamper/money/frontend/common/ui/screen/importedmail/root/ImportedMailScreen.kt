@@ -101,7 +101,7 @@ public data class MailScreenUiState(
         val additionalRules: String,
         val clearAdditionalRulesButtonEnabled: Boolean,
         val modelOptions: ImmutableList<AiParseModelOption>,
-        val thinkingSelected: Boolean,
+        val thinkingChecked: Boolean,
         val event: AiParsePromptDialogEvent,
     )
 

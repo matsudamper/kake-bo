@@ -6,14 +6,20 @@ import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.selection.toggleable
 import androidx.compose.material3.AlertDialog
+import androidx.compose.material3.Checkbox
 import androidx.compose.material3.FilterChip
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
+import androidx.compose.ui.semantics.Role
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import net.matsudamper.money.frontend.common.base.immutableListOf
@@ -44,11 +50,24 @@ internal fun AiParsePromptDialog(
                     }
                 }
                 Spacer(modifier = Modifier.height(4.dp))
-                FilterChip(
-                    selected = uiState.thinkingSelected,
-                    onClick = { uiState.event.onClickThinking() },
-                    label = { Text("Thinking") },
-                )
+                Row(
+                    modifier = Modifier
+                        .clip(MaterialTheme.shapes.small)
+                        .toggleable(
+                            value = uiState.thinkingChecked,
+                            role = Role.Checkbox,
+                            onValueChange = { uiState.event.onClickThinking() },
+                        )
+                        .padding(end = 8.dp),
+                    verticalAlignment = Alignment.CenterVertically,
+                ) {
+                    Checkbox(
+                        checked = uiState.thinkingChecked,
+                        onCheckedChange = null,
+                        modifier = Modifier.padding(top = 12.dp, bottom = 12.dp, end = 8.dp),
+                    )
+                    Text("Thinking")
+                }
                 Spacer(modifier = Modifier.height(12.dp))
                 Text(
                     text = "追加ルール",
@@ -100,7 +119,7 @@ private fun AiParsePromptDialogPreview() {
                     createPreviewModelOption(label = "Flash Lite", selected = true),
                     createPreviewModelOption(label = "Flash", selected = false),
                 ),
-                thinkingSelected = true,
+                thinkingChecked = true,
                 event = object : MailScreenUiState.AiParsePromptDialogEvent {
                     override fun onChangeAdditionalRules(additionalRules: String) {}
                     override fun onClickClearAdditionalRules() {}
