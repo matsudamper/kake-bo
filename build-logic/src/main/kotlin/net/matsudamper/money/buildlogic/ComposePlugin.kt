@@ -15,9 +15,7 @@ class ComposePlugin : Plugin<Project> {
             }
             // Android Studio の Preview は ComposeViewAdapter を実行時に読み込むため、リリースに含まれない実行時専用で追加する
             pluginManager.withPlugin("com.android.kotlin.multiplatform.library") {
-                configurations.matching { it.name == "androidRuntimeClasspath" }.configureEach {
-                    dependencies.add(project.dependencies.create(libs.library("composeUiTooling")))
-                }
+                dependencies.add("androidRuntimeClasspath", libs.library("composeUiTooling"))
             }
             afterEvaluate {
                 extensions.findByType(KotlinMultiplatformExtension::class.java)?.apply {
