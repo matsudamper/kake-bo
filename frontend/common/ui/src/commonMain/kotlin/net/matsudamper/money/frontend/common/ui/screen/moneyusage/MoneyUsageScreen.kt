@@ -36,6 +36,7 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.ProvideTextStyle
 import androidx.compose.material3.Text
+import androidx.compose.material3.TextField
 import androidx.compose.material3.ripple
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.Immutable
@@ -80,7 +81,6 @@ import net.matsudamper.money.frontend.common.ui.layout.AlertDialog
 import net.matsudamper.money.frontend.common.ui.layout.CalendarDialog
 import net.matsudamper.money.frontend.common.ui.layout.NumberInput
 import net.matsudamper.money.frontend.common.ui.layout.NumberInputValue
-import net.matsudamper.money.frontend.common.ui.layout.TextField
 import net.matsudamper.money.frontend.common.ui.layout.TimePickerDialog
 import net.matsudamper.money.frontend.common.ui.layout.UrlClickableText
 import net.matsudamper.money.frontend.common.ui.layout.UrlMenuDialog
@@ -595,7 +595,7 @@ private fun DescriptionEditorRow(
             Spacer(modifier = Modifier.height(4.dp))
             TextField(
                 modifier = Modifier.fillMaxWidth(),
-                text = uiState.text,
+                value = uiState.text,
                 onValueChange = { uiState.event.onChangeText(it) },
                 textStyle = MaterialTheme.typography.bodyLarge,
             )
