@@ -11,6 +11,7 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.widthIn
 import androidx.compose.foundation.text.BasicSecureTextField
 import androidx.compose.foundation.text.BasicTextField
+import androidx.compose.foundation.text.input.TextFieldLineLimits
 import androidx.compose.foundation.text.input.rememberTextFieldState
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
@@ -71,6 +72,11 @@ public fun FullScreenTextInput(
                             textStyle = textStyle,
                             cursorBrush = cursorBrush,
                             state = state,
+                            lineLimits = if (isMultiline) {
+                                TextFieldLineLimits.MultiLine(maxHeightInLines = MultilineMaxHeightInLines)
+                            } else {
+                                TextFieldLineLimits.SingleLine
+                            },
                         )
                     }
 
@@ -111,3 +117,5 @@ public fun FullScreenTextInput(
         }
     }
 }
+
+private const val MultilineMaxHeightInLines = 8
