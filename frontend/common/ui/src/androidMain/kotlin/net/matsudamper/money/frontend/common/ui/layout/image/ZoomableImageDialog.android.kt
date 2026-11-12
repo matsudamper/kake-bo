@@ -25,10 +25,9 @@ import net.engawapg.lib.zoomable.zoomable
 
 @Composable
 public actual fun ZoomableImageDialog(
-    imageUrl: String,
+    images: ZoomableImageDialogImages,
     onDismissRequest: () -> Unit,
 ) {
-    val zoomState = rememberZoomState()
     val dialogWindow = (LocalView.current.parent as? DialogWindowProvider)?.window
 
     SideEffect {
@@ -41,7 +40,8 @@ public actual fun ZoomableImageDialog(
             usePlatformDefaultWidth = false,
         ),
     ) {
-        Box(
+        ZoomableImagePager(
+            images = images,
             modifier = Modifier
                 .fillMaxSize()
                 .clickable(
@@ -49,31 +49,39 @@ public actual fun ZoomableImageDialog(
                     indication = null,
                     onClick = onDismissRequest,
                 ),
-            contentAlignment = Alignment.Center,
-        ) {
-            val painter = rememberAsyncImagePainter(imageUrl)
-            when (val state = painter.state.collectAsState().value) {
-                is AsyncImagePainter.State.Empty,
-                is AsyncImagePainter.State.Error,
-                is AsyncImagePainter.State.Loading,
-                -> {
-                    Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
-                        CircularProgressIndicator()
-                    }
-                }
+        ) { imageUrl ->
+            ZoomableImagePage(imageUrl = imageUrl)
+        }
+    }
+}
 
-                is AsyncImagePainter.State.Success -> {
-                    LaunchedEffect(state.painter.intrinsicSize) {
-                        zoomState.setContentSize(state.painter.intrinsicSize)
-                    }
-                    Image(
-                        modifier = Modifier
-                            .zoomable(zoomState),
-                        painter = state.painter,
-                        contentDescription = null,
-                        contentScale = ContentScale.Fit,
-                    )
+@Composable
+private fun ZoomableImagePage(imageUrl: String) {
+    val zoomState = rememberZoomState()
+    Box(
+        modifier = Modifier.fillMaxSize(),
+        contentAlignment = Alignment.Center,
+    ) {
+        val painter = rememberAsyncImagePainter(imageUrl)
+        when (val state = painter.state.collectAsState().value) {
+            is AsyncImagePainter.State.Empty,
+            is AsyncImagePainter.State.Error,
+            is AsyncImagePainter.State.Loading,
+            -> {
+                CircularProgressIndicator()
+            }
+
+            is AsyncImagePainter.State.Success -> {
+                LaunchedEffect(state.painter.intrinsicSize) {
+                    zoomState.setContentSize(state.painter.intrinsicSize)
                 }
+                Image(
+                    modifier = Modifier
+                        .zoomable(zoomState),
+                    painter = state.painter,
+                    contentDescription = null,
+                    contentScale = ContentScale.Fit,
+                )
             }
         }
     }
