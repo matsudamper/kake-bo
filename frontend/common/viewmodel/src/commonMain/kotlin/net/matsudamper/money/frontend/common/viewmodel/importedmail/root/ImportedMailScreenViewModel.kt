@@ -35,6 +35,7 @@ public class ImportedMailScreenViewModel(
             aiParseSetting = ViewModelState.AiParseSetting(
                 additionalRules = "",
                 model = AiMailParseModel.FlashLite,
+                thinking = false,
             ),
             aiParsePromptDialogVisible = false,
         ),
@@ -100,12 +101,17 @@ public class ImportedMailScreenViewModel(
             viewModelStateFlow.update { it.copy(aiParseSetting = it.aiParseSetting.copy(additionalRules = "")) }
         }
 
+        override fun onClickThinking() {
+            viewModelStateFlow.update { it.copy(aiParseSetting = it.aiParseSetting.copy(thinking = !it.aiParseSetting.thinking)) }
+        }
+
         override fun onClickSend() {
             val viewModelState = viewModelStateFlow.value
             viewModelStateFlow.update { it.copy(aiParsePromptDialogVisible = false) }
             parseWithAi(
                 additionalRules = viewModelState.aiParseSetting.additionalRules,
                 model = viewModelState.aiParseSetting.model,
+                thinking = viewModelState.aiParseSetting.thinking,
             )
         }
 
@@ -307,6 +313,7 @@ public class ImportedMailScreenViewModel(
                     event = AiParseModelOptionEventImpl(model),
                 )
             }.toImmutableList(),
+            thinkingSelected = viewModelState.aiParseSetting.thinking,
             event = aiParsePromptDialogEvent,
         )
     }
@@ -378,6 +385,7 @@ public class ImportedMailScreenViewModel(
     private fun parseWithAi(
         additionalRules: String,
         model: AiMailParseModel,
+        thinking: Boolean,
     ) {
         val previousState = viewModelStateFlow.getAndUpdate { it.copy(aiParse = ViewModelState.AiParse.Running) }
         if (previousState.aiParse == ViewModelState.AiParse.Running) return
@@ -386,6 +394,7 @@ public class ImportedMailScreenViewModel(
                 id = importedMailId,
                 additionalRules = additionalRules,
                 model = model,
+                thinking = thinking,
             )
             val aiParse = when (result) {
                 is ImportedMailScreenGraphqlApi.ParseWithAiResult.Success -> ViewModelState.AiParse.Succeeded(usages = result.usages)
@@ -501,6 +510,7 @@ public class ImportedMailScreenViewModel(
         data class AiParseSetting(
             val additionalRules: String,
             val model: AiMailParseModel,
+            val thinking: Boolean,
         )
 
         sealed interface AiParse {

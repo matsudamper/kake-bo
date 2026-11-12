@@ -43,6 +43,12 @@ internal fun AiParsePromptDialog(
                         )
                     }
                 }
+                Spacer(modifier = Modifier.height(4.dp))
+                FilterChip(
+                    selected = uiState.thinkingSelected,
+                    onClick = { uiState.event.onClickThinking() },
+                    label = { Text("Thinking") },
+                )
                 Spacer(modifier = Modifier.height(12.dp))
                 Text(
                     text = "追加ルール",
@@ -94,9 +100,11 @@ private fun AiParsePromptDialogPreview() {
                     createPreviewModelOption(label = "Flash Lite", selected = true),
                     createPreviewModelOption(label = "Flash", selected = false),
                 ),
+                thinkingSelected = true,
                 event = object : MailScreenUiState.AiParsePromptDialogEvent {
                     override fun onChangeAdditionalRules(additionalRules: String) {}
                     override fun onClickClearAdditionalRules() {}
+                    override fun onClickThinking() {}
                     override fun onClickSend() {}
                     override fun onDismissRequest() {}
                 },

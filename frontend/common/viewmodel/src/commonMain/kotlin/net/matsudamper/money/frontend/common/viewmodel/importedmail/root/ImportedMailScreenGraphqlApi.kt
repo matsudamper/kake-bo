@@ -38,11 +38,12 @@ public class ImportedMailScreenGraphqlApi(
         id: ImportedMailId,
         additionalRules: String,
         model: AiMailParseModel,
+        thinking: Boolean,
     ): ParseWithAiResult {
         return withContext(Dispatchers.PlatformIO) {
             runCatching {
                 graphqlClient.apolloClient
-                    .mutation(ImportedMailScreenParseWithAiMutation(id = id, additionalRules = additionalRules, model = model))
+                    .mutation(ImportedMailScreenParseWithAiMutation(id = id, additionalRules = additionalRules, model = model, thinking = thinking))
                     .execute()
             }.onFailure {
                 it.printStackTrace()
