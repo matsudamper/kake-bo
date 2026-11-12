@@ -10,17 +10,20 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.widthIn
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material3.Button
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
+import androidx.compose.material3.TextField
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.TextStyle
+import androidx.compose.ui.text.input.KeyboardType
+import androidx.compose.ui.text.input.PasswordVisualTransformation
 import androidx.compose.ui.unit.dp
-import net.matsudamper.money.frontend.common.ui.layout.TextField
-import net.matsudamper.money.frontend.common.ui.layout.TextFieldType
+import net.matsudamper.money.frontend.common.ui.layout.TextFieldDefaults
 import net.matsudamper.money.frontend.common.ui.rememberCustomFontFamily
 
 @Composable
@@ -58,11 +61,16 @@ internal fun AdminLoginScreen(uiState: AdminLoginScreenUiState) {
                 TextField(
                     modifier = Modifier.fillMaxWidth(),
                     onValueChange = { uiState.listener.onPasswordChanged(it) },
-                    text = uiState.password.text,
+                    value = uiState.password.text,
                     textStyle = textFieldTextStyle,
-                    label = "Password",
+                    label = { Text("Password") },
                     maxLines = 1,
-                    type = TextFieldType.Password,
+                    keyboardOptions = KeyboardOptions(
+                        autoCorrectEnabled = false,
+                        keyboardType = KeyboardType.Password,
+                    ),
+                    visualTransformation = PasswordVisualTransformation(),
+                    colors = TextFieldDefaults.colors(),
                 )
                 Spacer(Modifier.height(16.dp))
                 Button(

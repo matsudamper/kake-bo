@@ -23,6 +23,7 @@ import androidx.compose.material3.Card
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
+import androidx.compose.material3.TextField
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -36,7 +37,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.window.Dialog
 import net.matsudamper.money.frontend.common.base.ColorUtil
 import net.matsudamper.money.frontend.common.base.HsvColor
-import net.matsudamper.money.frontend.common.ui.layout.TextField
+import net.matsudamper.money.frontend.common.ui.layout.TextFieldDefaults
 
 private val presetColors: List<Color> = listOf(
     Color(0xFFF44336),
@@ -150,7 +151,7 @@ public fun ColorPickerDialog(
                     )
                     Spacer(Modifier.width(12.dp))
                     TextField(
-                        text = hexInput,
+                        value = hexInput,
                         onValueChange = { newText ->
                             val filtered = newText
                                 .filter { it.isLetterOrDigit() }
@@ -165,7 +166,8 @@ public fun ColorPickerDialog(
                             }
                         },
                         singleLine = true,
-                        label = "HEX",
+                        label = { Text("HEX") },
+                        colors = TextFieldDefaults.colors(),
                         prefix = { Text("#") },
                         modifier = Modifier.weight(1f),
                         isError = isHexInputValid.not(),

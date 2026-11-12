@@ -4,9 +4,14 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.text.KeyboardOptions
+import androidx.compose.material3.Text
+import androidx.compose.material3.TextField
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.TextStyle
+import androidx.compose.ui.text.input.KeyboardType
+import androidx.compose.ui.text.input.PasswordVisualTransformation
 import androidx.compose.ui.unit.dp
 
 @Composable
@@ -26,22 +31,28 @@ public actual fun LoginCredentialsFields(
         TextField(
             modifier = Modifier.fillMaxWidth(),
             onValueChange = onUsernameChange,
-            text = username,
+            value = username,
             textStyle = textStyle,
-            label = usernameLabel,
+            label = { Text(usernameLabel) },
             maxLines = 1,
             enabled = enabled,
+            colors = TextFieldDefaults.colors(),
         )
         Spacer(modifier = Modifier.height(8.dp))
         TextField(
             modifier = Modifier.fillMaxWidth(),
             onValueChange = onPasswordChange,
-            text = password,
+            value = password,
             textStyle = textStyle,
-            label = passwordLabel,
+            label = { Text(passwordLabel) },
             maxLines = 1,
-            type = TextFieldType.Password,
+            keyboardOptions = KeyboardOptions(
+                autoCorrectEnabled = false,
+                keyboardType = KeyboardType.Password,
+            ),
+            visualTransformation = PasswordVisualTransformation(),
             enabled = enabled,
+            colors = TextFieldDefaults.colors(),
         )
     }
 }

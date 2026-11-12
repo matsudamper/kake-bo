@@ -14,6 +14,7 @@ import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.layout.widthIn
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Button
 import androidx.compose.material3.CircularProgressIndicator
@@ -27,6 +28,7 @@ import androidx.compose.material3.SnackbarHost
 import androidx.compose.material3.SnackbarHostState
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
+import androidx.compose.material3.TextField
 import androidx.compose.material3.TopAppBar
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
@@ -36,14 +38,15 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.text.input.KeyboardType
+import androidx.compose.ui.text.input.PasswordVisualTransformation
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import net.matsudamper.money.frontend.common.ui.AppRoot
 import net.matsudamper.money.frontend.common.ui.Strings
 import net.matsudamper.money.frontend.common.ui.generated.resources.Res
 import net.matsudamper.money.frontend.common.ui.generated.resources.ic_arrow_back
-import net.matsudamper.money.frontend.common.ui.layout.TextField
-import net.matsudamper.money.frontend.common.ui.layout.TextFieldType
+import net.matsudamper.money.frontend.common.ui.layout.TextFieldDefaults
 import net.matsudamper.money.frontend.common.ui.rememberCustomFontFamily
 import org.jetbrains.compose.resources.painterResource
 
@@ -97,12 +100,12 @@ internal fun UserSearchScreen(
                 ) {
                     TextField(
                         modifier = Modifier.weight(1f),
-                        text = uiState.searchQuery,
-                        placeholder = "ユーザー名を入力",
+                        value = uiState.searchQuery,
+                        placeholder = { Text("ユーザー名を入力") },
                         onValueChange = {
                             uiState.listener.onSearchQueryChanged(it)
                         },
-                        type = TextFieldType.Text,
+                        colors = TextFieldDefaults.colors(),
                     )
                     Spacer(modifier = Modifier.width(8.dp))
                     Button(
@@ -213,13 +216,18 @@ internal fun UserSearchScreen(
             text = {
                 Column {
                     TextField(
-                        text = password,
+                        value = password,
                         modifier = Modifier.fillMaxWidth(),
-                        placeholder = "新しいパスワード",
+                        placeholder = { Text("新しいパスワード") },
                         onValueChange = {
                             password = it
                         },
-                        type = TextFieldType.Password,
+                        keyboardOptions = KeyboardOptions(
+                            autoCorrectEnabled = false,
+                            keyboardType = KeyboardType.Password,
+                        ),
+                        visualTransformation = PasswordVisualTransformation(),
+                        colors = TextFieldDefaults.colors(),
                     )
                     Text(
                         Strings.PASSWORD_ALLOW_SYMBOLS_DESCRIPTION,

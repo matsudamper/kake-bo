@@ -20,6 +20,7 @@ import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.Text
+import androidx.compose.material3.TextField
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.Immutable
 import androidx.compose.runtime.LaunchedEffect
@@ -37,7 +38,7 @@ import net.matsudamper.money.frontend.common.ui.base.LoadingErrorContent
 import net.matsudamper.money.frontend.common.ui.base.RootScreenScaffold
 import net.matsudamper.money.frontend.common.ui.generated.resources.Res
 import net.matsudamper.money.frontend.common.ui.generated.resources.ic_arrow_back
-import net.matsudamper.money.frontend.common.ui.layout.TextField
+import net.matsudamper.money.frontend.common.ui.layout.TextFieldDefaults
 import org.jetbrains.compose.resources.painterResource
 
 public data class TimezoneSettingScreenUiState(
@@ -184,9 +185,10 @@ private fun LoadedContent(
         ) {
             TextField(
                 modifier = Modifier.weight(1f),
-                text = uiState.inputValue,
+                value = uiState.inputValue,
                 onValueChange = { uiState.event.onChangeValue(it) },
                 singleLine = true,
+                colors = TextFieldDefaults.colors(),
             )
             Spacer(modifier = Modifier.width(8.dp))
             Box {

@@ -22,6 +22,8 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.SolidColor
+import androidx.compose.ui.semantics.contentDescription
+import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.window.Dialog
 import net.matsudamper.money.frontend.common.ui.layout.TextFieldType
@@ -58,6 +60,7 @@ public fun FullScreenTextInput(
                 Spacer(modifier = Modifier.height(8.dp))
                 val textFieldModifier = Modifier
                     .fillMaxWidth()
+                    .semantics { contentDescription = title }
                     .clip(MaterialTheme.shapes.large)
                     .background(MaterialTheme.colorScheme.onSurface.copy(alpha = 0.1f))
                     .padding(8.dp)
