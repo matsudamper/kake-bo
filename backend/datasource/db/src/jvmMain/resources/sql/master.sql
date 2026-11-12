@@ -57,10 +57,10 @@ CREATE TABLE user_mails
     user_id          INT                                not null,
     plain            LONGTEXT,
     html             LONGTEXT,
-    from_mail        VARCHAR(500)                       not null,
-    subject          VARCHAR(500)                       not null,
     datetime         DATETIME                           not null,
-    created_datetime DATETIME DEFAULT CURRENT_TIMESTAMP not null
+    created_datetime DATETIME DEFAULT CURRENT_TIMESTAMP not null,
+    from_mail        VARCHAR(500)                       not null,
+    subject          VARCHAR(500)                       not null
 );
 CREATE INDEX user_id ON user_mails (user_id);
 CREATE INDEX user_index ON user_mails (user_mail_id, user_id);
@@ -70,7 +70,6 @@ CREATE TABLE money_usage_categories
     money_usage_category_id INT                                not null PRIMARY KEY AUTO_INCREMENT,
     user_id                 INT                                not null,
     name                    VARCHAR(500)                       not null,
-    color                   VARCHAR(7),
     created_datetime        DATETIME DEFAULT CURRENT_TIMESTAMP not null,
     update_datetime         DATETIME DEFAULT CURRENT_TIMESTAMP not null ON UPDATE CURRENT_TIMESTAMP,
     INDEX user_id (user_id),
@@ -95,11 +94,11 @@ CREATE TABLE money_usages
     user_id                     INT                                not null,
     title                       VARCHAR(500)                       not null,
     description                 VARCHAR(1000)                      not null,
-    amount                      int                                not null,
     money_usage_sub_category_id INT,
     datetime                    DATETIME                           not null,
     created_datetime            DATETIME DEFAULT CURRENT_TIMESTAMP not null,
     update_datetime             DATETIME DEFAULT CURRENT_TIMESTAMP not null ON UPDATE CURRENT_TIMESTAMP,
+    amount                      int                                not null,
     INDEX user_id (user_id),
     INDEX user_index (money_usage_id, user_id)
 );

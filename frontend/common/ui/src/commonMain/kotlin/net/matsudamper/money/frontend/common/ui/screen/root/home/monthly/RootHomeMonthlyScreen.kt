@@ -20,6 +20,7 @@ import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.lazy.itemsIndexed
 import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Card
@@ -28,7 +29,6 @@ import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.ProvideTextStyle
 import androidx.compose.material3.Text
-import androidx.compose.material3.pulltorefresh.PullToRefreshBox
 import androidx.compose.material3.pulltorefresh.rememberPullToRefreshState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.Immutable
@@ -56,11 +56,13 @@ import kotlinx.coroutines.launch
 import coil3.compose.SubcomposeAsyncImage
 import net.matsudamper.money.frontend.common.base.ImmutableList
 import net.matsudamper.money.frontend.common.base.ImmutableList.Companion.toImmutableList
+import net.matsudamper.money.frontend.common.ui.base.KakeBoPullToRefreshBox
 import net.matsudamper.money.frontend.common.ui.base.LoadingErrorContent
 import net.matsudamper.money.frontend.common.ui.layout.graph.pie.PieChart
 import net.matsudamper.money.frontend.common.ui.layout.graph.pie.PieChartItem
 import net.matsudamper.money.frontend.common.ui.layout.image.ImageLoadingPlaceholder
 import net.matsudamper.money.frontend.common.ui.layout.image.ZoomableImageDialog
+import net.matsudamper.money.frontend.common.ui.layout.image.ZoomableImageDialogImages
 import net.matsudamper.money.frontend.common.ui.screen.root.home.HomePreviewSurface
 import net.matsudamper.money.frontend.common.ui.screen.root.home.SortSection
 import net.matsudamper.money.frontend.common.ui.screen.root.home.SortSectionOrder
@@ -87,13 +89,18 @@ public data class RootHomeMonthlyScreenUiState(
         ) : LoadingState
     }
 
+    public data class ImageItem(
+        val thumbnailUrl: String,
+        val url: String,
+    )
+
     public data class Item(
         val title: String,
         val amount: String,
         val date: String,
         val category: String,
         val categoryColor: Color,
-        val imageUrls: ImmutableList<String>,
+        val images: ImmutableList<ImageItem>,
         val event: ItemEvent,
     )
 
@@ -120,7 +127,6 @@ public data class RootHomeMonthlyScreenUiState(
 @Composable
 public fun RootHomeMonthlyScreen(
     uiState: RootHomeMonthlyScreenUiState,
-    showImages: Boolean,
     windowInsets: PaddingValues,
     modifier: Modifier = Modifier,
 ) {
@@ -130,7 +136,7 @@ public fun RootHomeMonthlyScreen(
     val pullToRefreshState = rememberPullToRefreshState()
     val coroutineScope = rememberCoroutineScope()
     var isRefreshing by remember { mutableStateOf(false) }
-    PullToRefreshBox(
+    KakeBoPullToRefreshBox(
         modifier = modifier.fillMaxSize(),
         state = pullToRefreshState,
         isRefreshing = isRefreshing,
@@ -149,7 +155,6 @@ public fun RootHomeMonthlyScreen(
                     modifier = Modifier.fillMaxSize(),
                     loadingState = loadingState,
                     uiState = uiState,
-                    showImages = showImages,
                 )
             }
 
@@ -175,15 +180,14 @@ public fun RootHomeMonthlyScreen(
 private fun LoadedContent(
     loadingState: RootHomeMonthlyScreenUiState.LoadingState.Loaded,
     uiState: RootHomeMonthlyScreenUiState,
-    showImages: Boolean,
     modifier: Modifier = Modifier,
 ) {
-    val imageUrlState: MutableState<String?> = remember { mutableStateOf(null) }
-    val imageUrl = imageUrlState.value
-    if (imageUrl != null) {
+    val selectedImagesState: MutableState<ZoomableImageDialogImages?> = remember { mutableStateOf(null) }
+    val selectedImages = selectedImagesState.value
+    if (selectedImages != null) {
         ZoomableImageDialog(
-            imageUrl = imageUrl,
-            onDismissRequest = { imageUrlState.value = null },
+            images = selectedImages,
+            onDismissRequest = { selectedImagesState.value = null },
         )
     }
 
@@ -300,7 +304,7 @@ private fun LoadedContent(
                                     }
                                 }
                             }
-                            if (showImages && item.imageUrls.isNotEmpty()) {
+                            if (item.images.isNotEmpty()) {
                                 val imageRowScrollConnection = remember {
                                     object : NestedScrollConnection {
                                         override fun onPostScroll(
@@ -315,14 +319,17 @@ private fun LoadedContent(
                                     horizontalArrangement = Arrangement.spacedBy(8.dp),
                                     contentPadding = PaddingValues(padding),
                                 ) {
-                                    items(item.imageUrls) { url ->
+                                    itemsIndexed(item.images) { index, image ->
                                         SubcomposeAsyncImage(
-                                            model = url,
+                                            model = image.thumbnailUrl,
                                             contentDescription = null,
                                             contentScale = ContentScale.Crop,
                                             modifier = Modifier.size(80.dp)
                                                 .clickable {
-                                                    imageUrlState.value = url
+                                                    selectedImagesState.value = ZoomableImageDialogImages(
+                                                        imageUrls = item.images.map { it.url }.toImmutableList(),
+                                                        initialIndex = index,
+                                                    )
                                                 },
                                             loading = { ImageLoadingPlaceholder() },
                                         )
@@ -383,7 +390,7 @@ private fun RootHomeMonthlyScreenPreviewContent(isDarkTheme: Boolean) {
                             date = "2026/02/25",
                             category = "ショッピング",
                             categoryColor = Color(0xFFE65100),
-                            imageUrls = listOf<String>().toImmutableList(),
+                            images = listOf<RootHomeMonthlyScreenUiState.ImageItem>().toImmutableList(),
                             event = noOpItemEvent,
                         ),
                         RootHomeMonthlyScreenUiState.Item(
@@ -392,7 +399,7 @@ private fun RootHomeMonthlyScreenPreviewContent(isDarkTheme: Boolean) {
                             date = "2026/02/24",
                             category = "食費",
                             categoryColor = Color(0xFF558B2F),
-                            imageUrls = listOf<String>().toImmutableList(),
+                            images = listOf<RootHomeMonthlyScreenUiState.ImageItem>().toImmutableList(),
                             event = noOpItemEvent,
                         ),
                         RootHomeMonthlyScreenUiState.Item(
@@ -401,7 +408,7 @@ private fun RootHomeMonthlyScreenPreviewContent(isDarkTheme: Boolean) {
                             date = "2026/02/20",
                             category = "光熱費",
                             categoryColor = Color(0xFF1565C0),
-                            imageUrls = listOf<String>().toImmutableList(),
+                            images = listOf<RootHomeMonthlyScreenUiState.ImageItem>().toImmutableList(),
                             event = noOpItemEvent,
                         ),
                     ).toImmutableList(),
@@ -424,7 +431,6 @@ private fun RootHomeMonthlyScreenPreviewContent(isDarkTheme: Boolean) {
                 currentSortType = SortSectionType.Date,
                 sortOrder = SortSectionOrder.Descending,
             ),
-            showImages = false,
             windowInsets = PaddingValues(),
         )
     }

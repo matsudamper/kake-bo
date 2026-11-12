@@ -13,13 +13,13 @@ import net.matsudamper.money.frontend.graphql.serverHost
 import net.matsudamper.money.frontend.graphql.serverProtocol
 import net.matsudamper.money.image.ImageUploadApiPath
 import net.matsudamper.money.image.ImageUploadImageResponse
+import net.matsudamper.money.session.SessionCookieKeys
 import okhttp3.MediaType.Companion.toMediaTypeOrNull
 import okhttp3.MultipartBody
 import okhttp3.OkHttpClient
 import okhttp3.Request
 import okhttp3.RequestBody.Companion.toRequestBody
 
-private const val UserSessionIdKey = "user_session_id"
 private const val TAG = "ImageUploadClientAndroidImpl"
 
 public class ImageUploadClientAndroidImpl(
@@ -28,7 +28,7 @@ public class ImageUploadClientAndroidImpl(
     private val okHttpClient: OkHttpClient by lazy {
         OkHttpClient.Builder()
             .connectTimeout(5, TimeUnit.SECONDS)
-            .readTimeout(10, TimeUnit.SECONDS)
+            .readTimeout(120, TimeUnit.SECONDS)
             .build()
     }
 
@@ -63,7 +63,7 @@ public class ImageUploadClientAndroidImpl(
                     .post(requestBody)
                     .apply {
                         if (userSessionId.isNotBlank()) {
-                            header("Cookie", "$UserSessionIdKey=$userSessionId")
+                            header("Cookie", "${SessionCookieKeys.USER_SESSION_ID}=$userSessionId")
                         }
                     }
                     .build()
@@ -77,6 +77,7 @@ public class ImageUploadClientAndroidImpl(
                 ImageUploadClient.UploadResult(
                     imageId = success.imageId,
                     url = success.url,
+                    thumbnailUrl = success.thumbnailUrl,
                 )
             }.onFailure {
                 Logger.e(TAG, it)

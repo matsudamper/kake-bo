@@ -29,6 +29,7 @@ include(":frontend:feature-notification")
 include(":frontend:feature-admin")
 include(":frontend:android:feature-notification-usage")
 include(":frontend:common:ui")
+include(":frontend:common:screenshot")
 include(":frontend:common:root")
 include(":frontend:common:base")
 include(":frontend:common:di")
@@ -56,8 +57,8 @@ pluginManagement {
         }
         google()
         gradlePluginPortal()
-        mavenCentral()
         maven("https://maven.pkg.jetbrains.space/public/p/compose/dev")
+        mavenCentral()
     }
 }
 
@@ -68,7 +69,7 @@ plugins {
 dependencyResolutionManagement {
     repositories {
         google()
-        mavenCentral()
         maven("https://maven.pkg.jetbrains.space/public/p/compose/dev")
+        mavenCentral()
     }
 }

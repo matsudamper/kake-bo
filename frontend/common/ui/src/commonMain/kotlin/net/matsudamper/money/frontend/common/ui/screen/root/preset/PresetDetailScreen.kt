@@ -19,7 +19,6 @@ import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.Text
-import androidx.compose.material3.pulltorefresh.PullToRefreshBox
 import androidx.compose.material3.pulltorefresh.rememberPullToRefreshState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
@@ -34,6 +33,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.window.Dialog
 import kotlinx.coroutines.launch
 import net.matsudamper.money.frontend.common.ui.base.CategorySelectDialog
+import net.matsudamper.money.frontend.common.ui.base.KakeBoPullToRefreshBox
 import net.matsudamper.money.frontend.common.ui.base.KakeBoTopAppBar
 import net.matsudamper.money.frontend.common.ui.base.LoadingErrorContent
 import net.matsudamper.money.frontend.common.ui.base.RootScreenScaffold
@@ -145,7 +145,7 @@ public fun PresetDetailScreen(
                     val refreshState = rememberPullToRefreshState()
                     val coroutineScope = rememberCoroutineScope()
                     @OptIn(ExperimentalMaterial3Api::class)
-                    PullToRefreshBox(
+                    KakeBoPullToRefreshBox(
                         modifier = Modifier
                             .fillMaxSize()
                             .padding(paddingValues),

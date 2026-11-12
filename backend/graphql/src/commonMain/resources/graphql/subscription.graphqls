@@ -1,0 +1,17 @@
+type Subscription {
+    """
+    サムネイルが無い S3 の画像を順に生成する。1 件処理するごとにイベントを流し、購読が切れたら止まる
+    """
+    adminThumbnailBackfill: AdminThumbnailBackfillEvent!
+}
+
+type AdminThumbnailBackfillEvent {
+    imageId: ImageId!
+    result: AdminThumbnailBackfillResult!
+    message: String
+}
+
+enum AdminThumbnailBackfillResult {
+    SUCCESS
+    FAILED
+}

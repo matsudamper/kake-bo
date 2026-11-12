@@ -6,32 +6,32 @@ javaToolchain = "25"
 kotlin = "2.4.21"
 apollo = "5.2.0"
 apolloNormalizedCache = "1.0.9"
-ktor = "3.6.0"
+ktor = "3.6.1"
 activity = "1.13.0"
 appcompat = "1.8.0"
 agp = "9.2.1"
-jackson = "2.22.4"
-compose = "1.12.1"
+jackson = "2.23.0"
+compose = "1.12.2"
 androidxComposeRuntime = "1.12.1"
 protoBuf = "4.36.2"
 lifecycle = "2.11.0"
 jooq = "3.21.9"
-nav3 = "1.2.0"
+nav3 = "1.2.1"
 jetbrainsNav3 = "1.2.0"
 coil3 = "3.6.3"
 zoomable = "2.16.0"
 okhttp = "5.5.1"
-graalvmNative = "1.1.17"
-opentelemetry = "1.67.0"
+graalvmNative = "1.1.18"
+opentelemetry = "1.68.0"
 opentelemetryInstrumentation = "2.29.0-alpha"
 paparazzi = "2.0.0-alpha05.1"
-composablePreviewScanner = "0.9.3"
+composablePreviewScanner = "0.10.0"
 room = "2.8.5"
 room3 = "3.0.3"
 sqlite = "2.7.1"
 workmanager = "2.12.0"
 timber = "5.0.1"
-ksp = "2.3.12"
+ksp = "2.3.13"
 detekt = "2.0.0-alpha.6"
 
 [plugins]
@@ -45,11 +45,11 @@ kotlin-serialization = { id = "org.jetbrains.kotlin.plugin.serialization", versi
 kotlinJvm = { id = "org.jetbrains.kotlin.jvm", version.ref = "kotlin" }
 kotlinAndroid = { id = "org.jetbrains.kotlin.android", version.ref = "kotlin" }
 ktlint = { id = "org.jlleitschuh.gradle.ktlint", version.require = "14.2.0" }
-kotest = { id = "io.kotest", version.require = "6.2.6" }
+kotest = { id = "io.kotest", version.require = "6.2.7" }
 detekt = { id = "dev.detekt", version.ref = "detekt" }
 kobylynskyi-graphqlCodegen = { id = "net.matsudamper.graphql.codegen", version.require = "5.10.5" }
 jetbrainsCompose = { id = "org.jetbrains.compose", version.ref = "compose" }
-protobuf = { id = "com.google.protobuf", version.require = "0.10.0" }
+protobuf = { id = "com.google.protobuf", version.require = "0.10.1" }
 paparazzi = { id = "app.cash.paparazzi", version.ref = "paparazzi" }
 graalvmNative = { id = "org.graalvm.buildtools.native", version.ref = "graalvmNative" }
 ksp = { id = "com.google.devtools.ksp", version.ref = "ksp" }
@@ -61,8 +61,9 @@ awsSts = { module = "software.amazon.awssdk:sts", version.ref = "awsSdk" }
 nimbusJoseJwt = { module = "com.nimbusds:nimbus-jose-jwt", version.ref = "nimbusJoseJwt" }
 kotlinRefrect = { module = "org.jetbrains.kotlin:kotlin-reflect", version.ref = "kotlin" }
 kotlin-coroutines-core = { module = "org.jetbrains.kotlinx:kotlinx-coroutines-core", version.require = "1.11.0" }
+kotlin-coroutines-reactive = { module = "org.jetbrains.kotlinx:kotlinx-coroutines-reactive", version.require = "1.11.0" }
 kotlin-datetime = { module = "org.jetbrains.kotlinx:kotlinx-datetime", version.require = "0.8.0-0.6.x-compat" }
-kotlin-serialization-json = { module = "org.jetbrains.kotlinx:kotlinx-serialization-json", version.require = "1.12.0" }
+kotlin-serialization-json = { module = "org.jetbrains.kotlinx:kotlinx-serialization-json", version.require = "1.13.0" }
 kotlinxBrowser = { module = "org.jetbrains.kotlinx:kotlinx-browser", version = "0.5.0" }
 
 # Plugin
@@ -92,6 +93,7 @@ ktorSerializationJson = { module = "io.ktor:ktor-serialization-kotlinx-json", ve
 ktorServerContentNegotiation = { module = "io.ktor:ktor-server-content-negotiation", version.ref = "ktor" }
 ktorServerCallLogging = { module = "io.ktor:ktor-server-call-logging", version.ref = "ktor" }
 ktorServerConditionalHeaders = { module = "io.ktor:ktor-server-conditional-headers", version.ref = "ktor" }
+ktorServerWebsockets = { module = "io.ktor:ktor-server-websockets", version.ref = "ktor" }
 ktorClientCore = { module = "io.ktor:ktor-client-core", version.ref = "ktor" }
 ktorClientCio = { module = "io.ktor:ktor-client-cio", version.ref = "ktor" }
 ktorClientJs = { module = "io.ktor:ktor-client-js", version.ref = "ktor" }
@@ -144,17 +146,19 @@ androidxNavigation3Runtime = { module = "androidx.navigation3:navigation3-runtim
 androidxNavigation3Ui = { module = "androidx.navigation3:navigation3-ui", version.ref = "nav3" }
 jetbrainsNavigation3Ui = { module = "org.jetbrains.androidx.navigation3:navigation3-ui", version.ref = "jetbrainsNav3" }
 androidxComposeSaveable = { module = "androidx.compose.runtime:runtime-saveable", version.ref = "androidxComposeRuntime" }
-composeUiToolingPreview = { module = "org.jetbrains.compose.ui:ui-tooling-preview", version = "1.12.1" }
+composeUiToolingPreview = { module = "org.jetbrains.compose.ui:ui-tooling-preview", version = "1.12.2" }
 composeUiTooling = { module = "org.jetbrains.compose.ui:ui-tooling", version.ref = "compose" }
 
 # Test
 detektApi = { module = "dev.detekt:detekt-api", version.ref = "detekt" }
 detektKotlinAnalysisApi = { module = "dev.detekt:detekt-kotlin-analysis-api", version.ref = "detekt" }
 detektTest = { module = "dev.detekt:detekt-test", version.ref = "detekt" }
-kotestAssertionsCore = { module = "io.kotest:kotest-assertions-core", version.require = "6.2.6" }
-kotestFrameworkEngine = { module = "io.kotest:kotest-framework-engine", version.require = "6.2.6" }
-kotestRunnerJunit5 = { module = "io.kotest:kotest-runner-junit5", version.require = "6.2.6" }
+kotestAssertionsCore = { module = "io.kotest:kotest-assertions-core", version.require = "6.2.7" }
+kotestFrameworkEngine = { module = "io.kotest:kotest-framework-engine", version.require = "6.2.7" }
+kotestRunnerJunit5 = { module = "io.kotest:kotest-runner-junit5", version.require = "6.2.7" }
 paparazzi = { module = "app.cash.paparazzi:paparazzi", version.ref = "paparazzi" }
+paparazziGradlePlugin = { module = "app.cash.paparazzi:paparazzi-gradle-plugin", version.ref = "paparazzi" }
+byteBuddyAgent = { module = "net.bytebuddy:byte-buddy-agent", version = "1.18.17-jdk5" }
 composablePreviewScanner = { module = "io.github.sergio-sastre.ComposablePreviewScanner:android", version.ref = "composablePreviewScanner" }
 
 # Mail
@@ -177,7 +181,7 @@ zoomable = { module = "net.engawapg.lib:zoomable", version.ref = "zoomable" }
 
 # Log
 log4j-api = { module = "org.slf4j:slf4j-api", version.require = "2.0.20" }
-logback-classic = { module = "ch.qos.logback:logback-classic", version.require = "1.6.3" }
+logback-classic = { module = "ch.qos.logback:logback-classic", version.require = "1.6.6" }
 logstashLogbackEncoder = { module = "net.logstash.logback:logstash-logback-encoder", version.require = "9.0" }
 
 # Graphql
@@ -205,9 +209,9 @@ timber = { module = "com.jakewharton.timber:timber", version.ref = "timber" }
 
 # Other
 lettuce = { module = "io.lettuce:lettuce-core", version.require = "7.8.0.RELEASE" }
-jsoup = { module = "org.jsoup:jsoup", version.require = "1.23.2" }
+jsoup = { module = "org.jsoup:jsoup", version.require = "1.24.1" }
 hikariCP = { module = "com.zaxxer:HikariCP", version.require = "7.1.0" }
-mariadbClient = { module = "org.mariadb.jdbc:mariadb-java-client", version.require = "3.5.11" }
+mariadbClient = { module = "org.mariadb.jdbc:mariadb-java-client", version.require = "4.0.0" }
 
 # Play
 androidxCredentialsPlayServicesAuth = { module = "androidx.credentials:credentials-play-services-auth", version.require = "1.6.0" }

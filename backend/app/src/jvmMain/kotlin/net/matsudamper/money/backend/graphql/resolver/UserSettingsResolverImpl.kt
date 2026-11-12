@@ -20,6 +20,16 @@ import net.matsudamper.money.graphql.model.QlUserSettings
 import net.matsudamper.money.graphql.model.UserSettingsResolver
 
 class UserSettingsResolverImpl : UserSettingsResolver {
+    override fun isAdminUser(
+        userSettings: QlUserSettings,
+        env: DataFetchingEnvironment,
+    ): CompletionStage<DataFetcherResult<Boolean>> {
+        val context = env.graphQlContext.get<GraphQlContext>(GraphQlContext::class.java.name)
+        val userId = context.verifyUserSessionAndGetUserId()
+
+        return CompletableFuture.completedFuture(userId.value in ServerEnv.adminUserIds).toDataFetcher()
+    }
+
     override fun hasPassword(
         userSettings: QlUserSettings,
         env: DataFetchingEnvironment,

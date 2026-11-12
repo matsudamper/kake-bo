@@ -39,6 +39,7 @@ import net.matsudamper.money.frontend.graphql.serverProtocol
 import net.matsudamper.money.frontend.graphql.type.UpdateUsageQuery
 import net.matsudamper.money.image.ImageUploadApiPath
 import net.matsudamper.money.image.ImageUploadImageResponse
+import net.matsudamper.money.session.SessionCookieKeys
 import okhttp3.MediaType.Companion.toMediaTypeOrNull
 import okhttp3.MultipartBody
 import okhttp3.OkHttpClient
@@ -60,7 +61,7 @@ internal class ImageUploadWorker(
     private val okHttpClient by lazy {
         OkHttpClient.Builder()
             .connectTimeout(30, TimeUnit.SECONDS)
-            .readTimeout(60, TimeUnit.SECONDS)
+            .readTimeout(120, TimeUnit.SECONDS)
             .build()
     }
 
@@ -251,7 +252,7 @@ internal class ImageUploadWorker(
             .post(requestBody)
             .apply {
                 if (userSessionId.isNotBlank()) {
-                    header("Cookie", "user_session_id=$userSessionId")
+                    header("Cookie", "${SessionCookieKeys.USER_SESSION_ID}=$userSessionId")
                 }
             }
             .build()

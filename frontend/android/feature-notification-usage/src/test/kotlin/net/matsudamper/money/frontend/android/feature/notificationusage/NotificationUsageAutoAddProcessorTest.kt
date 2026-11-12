@@ -190,12 +190,8 @@ private class FakeNotificationUsageCategoryFilterRepository(
 private class AutoAddFakeAppSettingsRepository(
     autoAddEnabledByFilterId: Map<String, Boolean>,
 ) : AppSettingsRepository {
-    override val showImagesInMonthlyScreen: Flow<Boolean> = MutableStateFlow(false)
     private val notificationUsageAutoAddEnabledFlows = autoAddEnabledByFilterId
         .mapValuesTo(mutableMapOf()) { (_, enabled) -> MutableStateFlow(enabled) }
-
-    override fun setShowImagesInMonthlyScreen(value: Boolean) {
-    }
 
     override fun notificationUsageAutoAddEnabled(filterId: String): Flow<Boolean> {
         return notificationUsageAutoAddEnabledFlows.getOrPut(filterId) { MutableStateFlow(false) }

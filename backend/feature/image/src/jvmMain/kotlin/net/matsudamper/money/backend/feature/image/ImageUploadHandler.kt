@@ -3,6 +3,7 @@ package net.matsudamper.money.backend.feature.image
 import java.io.InputStream
 import java.time.YearMonth
 import java.util.UUID
+import net.matsudamper.money.backend.app.interfaces.ImageResizerGateway
 import net.matsudamper.money.backend.app.interfaces.ImageStorageGateway
 import net.matsudamper.money.backend.app.interfaces.UserImageRepository
 import net.matsudamper.money.element.ImageId
@@ -20,10 +21,13 @@ class ImageUploadHandler {
         val contentType = request.contentType ?: return unsupportedMediaType
 
         val displayUUID = UUID.randomUUID().toString()
+        val yearMonth = YearMonth.now().toString()
         val relativePath = createRelativePath(
+            yearMonth = yearMonth,
             displayId = displayUUID,
             extension = extension,
         )
+        val thumbnailRelativePath = ThumbnailRelativePath.of(relativePath)
 
         val storageType = when (request.imageStorageGateway.storageType) {
             ImageStorageGateway.StorageType.LOCAL -> UserImageRepository.StorageType.LOCAL
@@ -65,13 +69,83 @@ class ImageUploadHandler {
             }
 
             is ImageStorageGateway.PutResult.Success -> {
-                request.userImageRepository.markImageAsUploaded(userId = userId, imageId = imageId)
-                Result.Success(
+                completeWithThumbnail(
+                    request = request,
+                    userId = userId,
                     imageId = imageId,
                     displayId = displayUUID,
+                    relativePath = relativePath,
+                    thumbnailRelativePath = thumbnailRelativePath,
                 )
             }
         }
+    }
+
+    /**
+     * サムネイル生成の成功をアップロード成功の条件にする。
+     * 失敗したら元画像と予約行を消し、クライアントにはアップロード失敗として返す。
+     */
+    private fun completeWithThumbnail(
+        request: Request,
+        userId: UserId,
+        imageId: ImageId,
+        displayId: String,
+        relativePath: String,
+        thumbnailRelativePath: String,
+    ): Result {
+        val imageResizerGateway = request.imageResizerGateway
+        val thumbnailResult = imageResizerGateway?.createThumbnail(
+            ImageResizerGateway.Request(
+                userId = userId,
+                sourceRelativePath = relativePath,
+                thumbnailRelativePath = thumbnailRelativePath,
+            ),
+        )
+        val storedThumbnailRelativePath = when (thumbnailResult) {
+            null -> null
+            ImageResizerGateway.Result.Success -> thumbnailRelativePath
+            ImageResizerGateway.Result.UnsupportedFormat,
+            ImageResizerGateway.Result.TooLarge,
+            is ImageResizerGateway.Result.ConvertFailed,
+            is ImageResizerGateway.Result.Unavailable,
+            -> {
+                rollbackUpload(
+                    request = request,
+                    userId = userId,
+                    imageId = imageId,
+                    relativePaths = listOf(relativePath, thumbnailRelativePath),
+                )
+                return Result.ThumbnailFailed(thumbnailResult)
+            }
+        }
+
+        request.userImageRepository.markImageAsUploaded(
+            userId = userId,
+            imageId = imageId,
+            thumbnailRelativePath = storedThumbnailRelativePath,
+        )
+        return Result.Success(
+            imageId = imageId,
+            displayId = displayId,
+            hasThumbnail = storedThumbnailRelativePath != null,
+        )
+    }
+
+    private fun rollbackUpload(
+        request: Request,
+        userId: UserId,
+        imageId: ImageId,
+        relativePaths: List<String>,
+    ) {
+        for (relativePath in relativePaths) {
+            request.imageStorageGateway.delete(
+                ImageStorageGateway.DeleteRequest(
+                    userId = userId,
+                    relativePath = relativePath,
+                ),
+            )
+        }
+        request.userImageRepository.deleteReserveImage(userId = userId, imageId = imageId)
     }
 
     private fun resolveImageExtension(
@@ -82,7 +156,6 @@ class ImageUploadHandler {
             "image/png" -> "png"
             "image/gif" -> "gif"
             "image/webp" -> "webp"
-            "image/bmp" -> "bmp"
             "image/heic" -> "heic"
             "image/heif" -> "heif"
             else -> null
@@ -90,10 +163,10 @@ class ImageUploadHandler {
     }
 
     private fun createRelativePath(
+        yearMonth: String,
         displayId: String,
         extension: String,
     ): String {
-        val yearMonth = YearMonth.now().toString()
         return "$yearMonth/$displayId.$extension"
     }
 
@@ -101,6 +174,7 @@ class ImageUploadHandler {
         val userId: UserId?,
         val userImageRepository: UserImageRepository,
         val imageStorageGateway: ImageStorageGateway,
+        val imageResizerGateway: ImageResizerGateway?,
         val maxUploadBytes: Long,
         val contentType: String?,
         val inputStream: InputStream,
@@ -110,12 +184,14 @@ class ImageUploadHandler {
         data class Success(
             val imageId: ImageId,
             val displayId: String,
+            val hasThumbnail: Boolean,
         ) : Result
 
         data object Unauthorized : Result
         data class BadRequest(val message: String) : Result
         data object PayloadTooLarge : Result
         data class UnsupportedMediaType(val mediaType: String) : Result
+        data class ThumbnailFailed(val cause: ImageResizerGateway.Result) : Result
         data class InternalServerError(val e: Throwable) : Result
     }
 }

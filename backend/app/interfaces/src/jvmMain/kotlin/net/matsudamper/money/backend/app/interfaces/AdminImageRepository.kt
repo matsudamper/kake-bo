@@ -22,6 +22,23 @@ interface AdminImageRepository {
 
     fun getImageDataByDisplayId(displayId: String): ImageData?
 
+    /** S3 に保存済みでサムネイルが無い画像を imageId の昇順で返す */
+    fun getS3ImagesWithoutThumbnail(
+        size: Int,
+        afterImageId: ImageId?,
+    ): List<ImageWithoutThumbnail>
+
+    fun updateThumbnailPath(
+        imageId: ImageId,
+        thumbnailRelativePath: String,
+    )
+
+    data class ImageWithoutThumbnail(
+        val imageId: ImageId,
+        val userId: UserId,
+        val relativePath: String,
+    )
+
     data class Cursor(
         val imageId: ImageId,
     )

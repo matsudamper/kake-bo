@@ -24,22 +24,6 @@ class S3ImageStorageGateway(
     private val stsCredentialProvider: StsCredentialProvider,
     private val config: ObjectStorageConfig,
 ) : ImageStorageGateway {
-
-    private companion object {
-        /** S3 マルチパートアップロードの1パートサイズ（最小5MB） */
-        const val MULTIPART_PART_SIZE = 5 * 1024 * 1024
-
-        // キャッシュしたSTSクレデンシャルを再利用できるよう、クレデンシャルの有効期間より十分短くする
-        val PRESIGNED_URL_DURATION: Duration = Duration.ofMinutes(15)
-
-        // presigned URLはクレデンシャル失効時点で無効になるため、署名期間分の残りを要求する
-        val CREDENTIAL_REMAINING_FOR_PRESIGN: Duration = PRESIGNED_URL_DURATION.plusMinutes(5)
-        val CREDENTIAL_REMAINING_FOR_DELETE: Duration = Duration.ofMinutes(10)
-
-        // アップロード中はクレデンシャルを更新しないため、クライアントからの受信が遅くても完了できる長さにする
-        val CREDENTIAL_REMAINING_FOR_UPLOAD: Duration = Duration.ofMinutes(30)
-    }
-
     override val storageType: ImageStorageGateway.StorageType = ImageStorageGateway.StorageType.S3
 
     override fun put(request: ImageStorageGateway.PutRequest): ImageStorageGateway.PutResult {
@@ -243,6 +227,21 @@ class S3ImageStorageGateway(
     }
 
     private fun buildKey(relativePath: String): String {
-        return "img/$relativePath"
+        return S3ImageKey.of(relativePath)
+    }
+
+    private companion object {
+        /** S3 マルチパートアップロードの1パートサイズ（最小5MB） */
+        const val MULTIPART_PART_SIZE = 5 * 1024 * 1024
+
+        // キャッシュしたSTSクレデンシャルを再利用できるよう、クレデンシャルの有効期間より十分短くする
+        val PRESIGNED_URL_DURATION: Duration = Duration.ofMinutes(15)
+
+        // presigned URLはクレデンシャル失効時点で無効になるため、署名期間分の残りを要求する
+        val CREDENTIAL_REMAINING_FOR_PRESIGN: Duration = PRESIGNED_URL_DURATION.plusMinutes(5)
+        val CREDENTIAL_REMAINING_FOR_DELETE: Duration = Duration.ofMinutes(10)
+
+        // アップロード中はクレデンシャルを更新しないため、クライアントからの受信が遅くても完了できる長さにする
+        val CREDENTIAL_REMAINING_FOR_UPLOAD: Duration = Duration.ofMinutes(30)
     }
 }

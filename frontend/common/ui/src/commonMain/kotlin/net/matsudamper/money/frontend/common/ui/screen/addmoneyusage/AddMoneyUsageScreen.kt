@@ -52,6 +52,7 @@ import kotlinx.datetime.LocalDate
 import kotlinx.datetime.LocalTime
 import coil3.compose.SubcomposeAsyncImage
 import net.matsudamper.money.frontend.common.base.ImmutableList
+import net.matsudamper.money.frontend.common.base.ImmutableList.Companion.toImmutableList
 import net.matsudamper.money.frontend.common.ui.AppRoot
 import net.matsudamper.money.frontend.common.ui.base.CategorySelectDialog
 import net.matsudamper.money.frontend.common.ui.base.CategorySelectDialogUiState
@@ -70,12 +71,13 @@ import net.matsudamper.money.frontend.common.ui.layout.html.text.fullscreen.Full
 import net.matsudamper.money.frontend.common.ui.layout.image.ImageLoadingPlaceholder
 import net.matsudamper.money.frontend.common.ui.layout.image.ImageUploadButton
 import net.matsudamper.money.frontend.common.ui.layout.image.ZoomableImageDialog
+import net.matsudamper.money.frontend.common.ui.layout.image.ZoomableImageDialogImages
 import net.matsudamper.money.frontend.common.ui.lib.asWindowInsets
 import org.jetbrains.compose.resources.painterResource
 
 public sealed interface ImageItem {
     public data object Uploading : ImageItem
-    public data class Uploaded(val url: String) : ImageItem
+    public data class Uploaded(val thumbnailUrl: String, val url: String) : ImageItem
 }
 
 public data class AddMoneyUsageScreenUiState(
@@ -393,7 +395,7 @@ public fun AddMoneyUsageScreen(
                                             }
                                             is ImageItem.Uploaded -> {
                                                 SubcomposeAsyncImage(
-                                                    model = image.url,
+                                                    model = image.thumbnailUrl,
                                                     contentDescription = null,
                                                     contentScale = ContentScale.Crop,
                                                     modifier = Modifier
@@ -467,8 +469,15 @@ public fun AddMoneyUsageScreen(
     }
 
     selectedImageUrl?.let { imageUrl ->
+        val uploadedImageUrls = uiState.images
+            .filterIsInstance<ImageItem.Uploaded>()
+            .map { it.url }
+            .toImmutableList()
         ZoomableImageDialog(
-            imageUrl = imageUrl,
+            images = ZoomableImageDialogImages(
+                imageUrls = uploadedImageUrls,
+                initialIndex = uploadedImageUrls.indexOf(imageUrl).coerceAtLeast(0),
+            ),
             onDismissRequest = { selectedImageUrl = null },
         )
     }

@@ -58,6 +58,43 @@ internal fun Route.getImage(
         )
     }
 
+    get(ImageApiPath.thumbnailV1ByDisplayId("{displayId}")) {
+        val userId = call.requireUserId(diContainer = diContainer) ?: return@get
+        val displayId = call.parameters["displayId"]
+        if (displayId == null) {
+            call.respondApiError(
+                status = HttpStatusCode.BadRequest,
+                message = "InvalidImageId",
+            )
+            return@get
+        }
+
+        val imageData = diContainer.createUserImageRepository().getImageDataByDisplayId(
+            userId = userId,
+            displayId = displayId,
+        )
+        val thumbnailRelativePath = imageData?.thumbnailRelativePath
+        if (imageData == null || thumbnailRelativePath == null) {
+            call.respondApiError(
+                status = HttpStatusCode.NotFound,
+                message = "NotFound",
+            )
+            return@get
+        }
+
+        call.respondImageByDisplayId(
+            diContainer = diContainer,
+            imageData = RoutingImageData(
+                relativePath = thumbnailRelativePath,
+                contentType = "image/webp",
+                storageType = imageData.storageType,
+                userId = userId,
+            ),
+            displayId = displayId,
+            purpose = ImageStorageGateway.Purpose.USER,
+        )
+    }
+
     get(ImageApiPath.adminImageV1ByDisplayId("{displayId}")) {
         val isAuthorized = call.requireAdminAuthorization(diContainer = diContainer)
         if (!isAuthorized) return@get

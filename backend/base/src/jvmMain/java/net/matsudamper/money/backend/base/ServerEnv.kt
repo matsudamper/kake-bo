@@ -36,6 +36,15 @@ public object ServerEnv {
     public val adminPasswordHash: String? get() = System.getenv("ADMIN_PASSWORD_HASH")
     public val adminPasswordSalt: String? get() = System.getenv("ADMIN_PASSWORD_SALT")
 
+    /**
+     * 管理画面へユーザーセッションでログインできるユーザーのID。カンマ区切りで指定する。例: `1,2`
+     */
+    public val adminUserIds: Set<Int>
+        get() = System.getenv("ADMIN_USER_IDS").orEmpty()
+            .split(",")
+            .mapNotNull { it.trim().toIntOrNull() }
+            .toSet()
+
     public val adminPasswordAlgorithm: String get() = "PBKDF2WithHmacSHA512"
     public val adminPasswordIterationCount: Int get() = 100000
     public val adminPasswordKeyLength: Int get() = 512
@@ -58,5 +67,6 @@ public object ServerEnv {
         public val s3Audience: String get() = requireNotNull(System.getenv("S3_AUDIENCE")) { "S3_AUDIENCE が未設定です" }
         public val s3PathStyleAccess: Boolean get() = System.getenv("S3_PATH_STYLE_ACCESS")?.toBooleanStrictOrNull() ?: true
         public val stsEndpoint: String get() = requireNotNull(System.getenv("STS_ENDPOINT")) { "STS_ENDPOINT が未設定です" }
+        public val imageResizerEndpoint: String get() = requireNotNull(System.getenv("IMAGE_RESIZER_ENDPOINT")) { "IMAGE_RESIZER_ENDPOINT が未設定です" }
     }
 }

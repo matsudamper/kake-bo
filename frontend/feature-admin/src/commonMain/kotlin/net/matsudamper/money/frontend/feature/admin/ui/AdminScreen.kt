@@ -24,10 +24,13 @@ import androidx.compose.material3.TopAppBar
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.coerceAtLeast
 import androidx.compose.ui.unit.dp
+import net.matsudamper.money.frontend.common.ui.AppRoot
 import net.matsudamper.money.frontend.common.ui.generated.resources.Res
 import net.matsudamper.money.frontend.common.ui.generated.resources.ic_add
+import net.matsudamper.money.frontend.common.ui.generated.resources.ic_image
 import net.matsudamper.money.frontend.common.ui.generated.resources.ic_search
 import net.matsudamper.money.frontend.common.ui.generated.resources.ic_settings
 import net.matsudamper.money.frontend.common.ui.rememberCustomFontFamily
@@ -127,6 +130,23 @@ internal fun AdminRootScreen(
                         onClick = { uiState.listener.onClickUserSearch() },
                     )
                 }
+                item {
+                    RootTileItem(
+                        modifier = Modifier.padding(8.dp),
+                        title = {
+                            Text(
+                                text = "サムネイル生成",
+                                fontFamily = rememberCustomFontFamily(),
+                            )
+                        },
+                        icon = {
+                            Row {
+                                Icon(painter = painterResource(Res.drawable.ic_image), contentDescription = null)
+                            }
+                        },
+                        onClick = { uiState.listener.onClickThumbnailBackfill() },
+                    )
+                }
             }
         }
     }
@@ -164,5 +184,27 @@ private fun RootTileItem(
                 title()
             }
         }
+    }
+}
+
+@Preview
+@Composable
+private fun AdminRootScreenPreview() {
+    AppRoot(isDarkTheme = true) {
+        AdminRootScreen(
+            uiState = AdminRootScreenUiState(
+                listener = object : AdminRootScreenUiState.Listener {
+                    override fun onClickAddUser() = Unit
+
+                    override fun onClickUnlinkedImages() = Unit
+
+                    override fun onClickUserSearch() = Unit
+
+                    override fun onClickThumbnailBackfill() = Unit
+
+                    override fun onClickLogout() = Unit
+                },
+            ),
+        )
     }
 }

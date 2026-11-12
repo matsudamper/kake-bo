@@ -61,6 +61,7 @@ import kotlinx.datetime.LocalTime
 import coil3.compose.AsyncImage
 import coil3.compose.SubcomposeAsyncImage
 import net.matsudamper.money.frontend.common.base.ImmutableList
+import net.matsudamper.money.frontend.common.base.ImmutableList.Companion.toImmutableList
 import net.matsudamper.money.frontend.common.ui.AppRoot
 import net.matsudamper.money.frontend.common.ui.LocalIsLargeScreen
 import net.matsudamper.money.frontend.common.ui.base.CategorySelectDialog
@@ -85,6 +86,7 @@ import net.matsudamper.money.frontend.common.ui.layout.html.text.fullscreen.Full
 import net.matsudamper.money.frontend.common.ui.layout.image.ImageLoadingPlaceholder
 import net.matsudamper.money.frontend.common.ui.layout.image.ImageUploadButton
 import net.matsudamper.money.frontend.common.ui.layout.image.ZoomableImageDialog
+import net.matsudamper.money.frontend.common.ui.layout.image.ZoomableImageDialogImages
 import org.jetbrains.compose.resources.painterResource
 
 public data class MoneyUsageScreenUiState(
@@ -166,6 +168,7 @@ public data class MoneyUsageScreenUiState(
     )
 
     public data class ImageItem(
+        val thumbnailUrl: String,
         val url: String,
         val event: ImageItemEvent,
     )
@@ -692,8 +695,12 @@ private fun ImagesCard(
     }
 
     selectedImageUrl?.let { imageUrl ->
+        val imageUrls = uiState.images.map { it.url }.toImmutableList()
         ZoomableImageDialog(
-            imageUrl = imageUrl,
+            images = ZoomableImageDialogImages(
+                imageUrls = imageUrls,
+                initialIndex = imageUrls.indexOf(imageUrl).coerceAtLeast(0),
+            ),
             onDismissRequest = { selectedImageUrl = null },
         )
     }
@@ -709,7 +716,7 @@ private fun ImageItemContent(
 
     Box(modifier = Modifier.fillMaxSize()) {
         SubcomposeAsyncImage(
-            model = imageItem.url,
+            model = imageItem.thumbnailUrl,
             contentDescription = null,
             contentScale = ContentScale.Crop,
             modifier = Modifier

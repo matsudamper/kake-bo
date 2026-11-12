@@ -32,6 +32,7 @@ dependencies {
     implementation(libs.androidGradlePlugin)
     implementation(libs.androidLibraryGradlePlugin)
     implementation(libs.androidKotlinMultiplatformLibraryGradlePlugin)
+    implementation(libs.paparazziGradlePlugin)
 }
 
 gradlePlugin {
@@ -47,6 +48,10 @@ gradlePlugin {
         register("multiplatformLibrary") {
             id = "net.matsudamper.money.buildlogic.multiplatform.library"
             implementationClass = "net.matsudamper.money.buildlogic.MultiplatformLibraryPlugin"
+        }
+        register("paparazzi") {
+            id = "net.matsudamper.money.buildlogic.paparazzi"
+            implementationClass = "net.matsudamper.money.buildlogic.PaparazziPlugin"
         }
         register("webpackBundleHash") {
             id = "net.matsudamper.money.buildlogic.webpackBundleHash"

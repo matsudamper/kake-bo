@@ -42,13 +42,17 @@ val nativeBuildArgs = listOf(
     // DefaultDataType の静的ブロックが SQLDataType の初期化をトリガーし、
     // その中で ArrayDataType.getArrayType() が呼ばれる。
     // GraalVM native-image では Class.arrayType() が image に含まれていない型に対して
-    // null を返すため、reflect-config.json に jOOQ カスタム型の配列クラスを登録している。
+    // null を返すため、ClassReflectionFeature で jOOQ カスタム型の配列クラスを登録している。
     "--initialize-at-run-time=org.jooq",
     "-H:+AddAllCharsets",
     "--initialize-at-run-time=io.opentelemetry.sdk",
     "--initialize-at-run-time=io.opentelemetry.exporter",
     "--initialize-at-run-time=io.opentelemetry.instrumentation",
     "--initialize-at-run-time=io.opentelemetry.extension",
+    // AWS SDK 経由の netty-codec-http(2) 4.1 が io.netty 全体をビルド時初期化にする。Netty 4.2 で基準時刻が SystemTicker に移ったが
+    // netty-common の設定は旧来の ScheduledFutureTask しか実行時初期化にしておらず、ビルドしたマシンの nanoTime が焼き込まれる。
+    // 実行するホストの稼働時間がそれより短いと、Valkey への接続に使う Lettuce の DNS 問い合わせなどのタイムアウトが即座に発火する
+    "--initialize-at-run-time=io.netty.util.concurrent.SystemTicker",
     // Jackson: コアクラスはビルド時初期化、リフレクション依存部分はランタイム初期化
     "--initialize-at-build-time=com.fasterxml.jackson.core",
     "--initialize-at-build-time=com.fasterxml.jackson.databind",
@@ -100,15 +104,17 @@ dependencies {
     implementation(libs.ktorServerCallLogging)
     implementation(libs.ktorServerCompression)
     implementation(libs.ktorServerConditionalHeaders)
+    implementation(libs.ktorServerWebsockets)
+    implementation(libs.kotlin.coroutines.reactive)
 
     implementation(libs.opentelemetryKtor3)
     implementation(libs.opentelemetryKotlinExtension)
 
-    compileOnly("org.graalvm.sdk:nativeimage:25.4.4.1.1")
+    compileOnly("org.graalvm.sdk:nativeimage:25.5.5.0.3")
 
     testImplementation(kotlin("test"))
     testImplementation(libs.kotestRunnerJunit5)
-    testImplementation("io.mockk:mockk:1.14.11")
+    testImplementation("io.mockk:mockk:1.14.12")
 }
 
 tasks.withType<Test>().configureEach {
@@ -134,6 +140,8 @@ graalvmNative {
                     "net.matsudamper.money.backend.graalvm.GraphqlResolverReflectionFeature",
                     "net.matsudamper.money.backend.graalvm.SharedElementReflectionFeature",
                     "net.matsudamper.money.backend.graalvm.WebAuthnReflectionFeature",
+                    "net.matsudamper.money.backend.graalvm.ClassReflectionFeature",
+                    "net.matsudamper.money.backend.graalvm.JacksonModelReflectionFeature",
                 ).joinToString(","),
             )
             javaLauncher.set(graalVmLauncher)

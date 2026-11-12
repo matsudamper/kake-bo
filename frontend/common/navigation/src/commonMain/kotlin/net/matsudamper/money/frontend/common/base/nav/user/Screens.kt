@@ -146,6 +146,10 @@ public enum class Screens : Direction {
         override val title: String = "ユーザー検索"
         override val placeholderUrl: String = "/admin/user-search"
     },
+    AdminThumbnailBackfill {
+        override val title: String = "サムネイル生成"
+        override val placeholderUrl: String = "/admin/thumbnail-backfill"
+    },
     MailImport {
         override val title: String = "メールインポート"
         override val placeholderUrl: String = "/mail/import"
