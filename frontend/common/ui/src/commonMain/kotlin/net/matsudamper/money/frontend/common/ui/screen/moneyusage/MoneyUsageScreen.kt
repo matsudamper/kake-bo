@@ -172,6 +172,8 @@ public data class MoneyUsageScreenUiState(
         public fun onChangeText(text: String)
 
         public fun onClickSave()
+
+        public fun onClickCancel()
     }
 
     public data class UploadQueueItem(
@@ -601,14 +603,27 @@ private fun DescriptionEditorRow(
             )
         }
         Spacer(modifier = Modifier.width(8.dp))
-        Button(
-            onClick = { uiState.event.onClickSave() },
-            enabled = uiState.saveButtonEnabled,
-            contentPadding = PaddingValues(horizontal = 12.dp, vertical = 0.dp),
-            modifier = Modifier.height(32.dp),
-            shape = MaterialTheme.shapes.small,
+        Column(
+            modifier = Modifier.width(IntrinsicSize.Max),
+            verticalArrangement = Arrangement.spacedBy(8.dp),
         ) {
-            Text("保存", style = MaterialTheme.typography.labelMedium)
+            Button(
+                onClick = { uiState.event.onClickSave() },
+                enabled = uiState.saveButtonEnabled,
+                contentPadding = PaddingValues(horizontal = 12.dp, vertical = 0.dp),
+                modifier = Modifier.fillMaxWidth().height(32.dp),
+                shape = MaterialTheme.shapes.small,
+            ) {
+                Text("保存", style = MaterialTheme.typography.labelMedium)
+            }
+            OutlinedButton(
+                onClick = { uiState.event.onClickCancel() },
+                contentPadding = PaddingValues(horizontal = 12.dp, vertical = 0.dp),
+                modifier = Modifier.fillMaxWidth().height(32.dp),
+                shape = MaterialTheme.shapes.small,
+            ) {
+                Text("キャンセル", style = MaterialTheme.typography.labelMedium)
+            }
         }
     }
 }
@@ -977,6 +992,8 @@ private fun MoneyUsageScreenDescriptionEditingPreview() {
                 override fun onChangeText(text: String) = Unit
 
                 override fun onClickSave() = Unit
+
+                override fun onClickCancel() = Unit
             },
         ),
     )

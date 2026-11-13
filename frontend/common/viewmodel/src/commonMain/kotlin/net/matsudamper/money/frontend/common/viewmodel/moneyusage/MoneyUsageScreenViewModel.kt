@@ -78,6 +78,14 @@ public class MoneyUsageScreenViewModel(
             }
         }
 
+        override fun onClickCancel() {
+            viewModelStateFlow.update { viewModelState ->
+                viewModelState.copy(
+                    descriptionEditingText = null,
+                )
+            }
+        }
+
         override fun onClickSave() {
             val editingText = viewModelStateFlow.value.descriptionEditingText ?: return
             if (viewModelStateFlow.value.isDescriptionSaving) return
