@@ -127,6 +127,13 @@ class QueryResolverImpl : QueryResolver {
         }.toDataFetcher()
     }
 
+    override fun isAdminPasswordLoginEnabled(env: DataFetchingEnvironment): CompletionStage<DataFetcherResult<Boolean>> {
+        val context = env.graphQlContext.get<GraphQlContext>(GraphQlContext::class.java.name)
+        return CompletableFuture.completedFuture(
+            context.diContainer.createAdminLoginRepository().isPasswordLoginConfigured(),
+        ).toDataFetcher()
+    }
+
     override fun fidoLoginInfo(env: DataFetchingEnvironment): CompletionStage<DataFetcherResult<QlFidoLoginInfo>> {
         val context = env.graphQlContext.get<GraphQlContext>(GraphQlContext::class.java.name)
         val challengeRepository = context.diContainer.createChallengeRepository()
