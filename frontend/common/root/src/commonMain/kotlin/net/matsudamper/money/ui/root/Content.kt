@@ -35,6 +35,7 @@ import net.matsudamper.money.frontend.common.base.nav.ContentKeyWrapper
 import net.matsudamper.money.frontend.common.base.nav.NavHost
 import net.matsudamper.money.frontend.common.base.nav.rememberScopedObjectStoreOwner
 import net.matsudamper.money.frontend.common.base.nav.user.IScreenStructure
+import net.matsudamper.money.frontend.common.base.nav.user.RootHomeScreenStructure
 import net.matsudamper.money.frontend.common.base.nav.user.ScreenNavController
 import net.matsudamper.money.frontend.common.base.nav.user.ScreenStructure
 import net.matsudamper.money.frontend.common.di.LocalKoin
@@ -389,7 +390,11 @@ public fun Content(
                                                 when (result) {
                                                     GraphqlUserLoginQuery.IsLoggedInResult.LoggedIn -> {
                                                         showServerError = false
-                                                        reloadCounter++
+                                                        if (navController.currentBackstackEntry is ScreenStructure.Splash) {
+                                                            navController.navigateReplace(RootHomeScreenStructure.Home)
+                                                        } else {
+                                                            reloadCounter++
+                                                        }
                                                     }
                                                     GraphqlUserLoginQuery.IsLoggedInResult.NotLoggedIn -> {
                                                         showServerError = false
