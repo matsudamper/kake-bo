@@ -84,7 +84,6 @@ internal fun RootScreenContainer(
                     scopedObjectFeature = it,
                     rootUsageHostViewModel = rootUsageHostViewModel,
                     initial = current,
-                    navController = navController,
                 )
             }
             LaunchedEffect(viewModel.viewModelEventHandler) {

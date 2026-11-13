@@ -25,12 +25,14 @@ class GeminiGatewayImpl : GeminiGateway {
     override fun generateJson(
         apiKey: String,
         model: GeminiGateway.Model,
+        thinking: Boolean,
         systemInstruction: String,
         userText: String,
         responseSchemaJson: String,
     ): Result<String> {
         return runCatching {
             val requestBody = createRequestBody(
+                thinking = thinking,
                 systemInstruction = systemInstruction,
                 userText = userText,
                 responseSchemaJson = responseSchemaJson,
@@ -54,6 +56,7 @@ class GeminiGatewayImpl : GeminiGateway {
     }
 
     private fun createRequestBody(
+        thinking: Boolean,
         systemInstruction: String,
         userText: String,
         responseSchemaJson: String,
@@ -76,6 +79,11 @@ class GeminiGatewayImpl : GeminiGateway {
                 put("temperature", 0)
                 put("responseMimeType", "application/json")
                 put("responseSchema", json.parseToJsonElement(responseSchemaJson))
+                if (thinking) {
+                    putJsonObject("thinkingConfig") {
+                        put("thinkingBudget", THINKING_BUDGET_DYNAMIC)
+                    }
+                }
             }
         }
     }
@@ -145,5 +153,6 @@ class GeminiGatewayImpl : GeminiGateway {
 
     private companion object {
         private const val API_BASE_URL = "https://generativelanguage.googleapis.com/v1beta"
+        private const val THINKING_BUDGET_DYNAMIC = -1
     }
 }

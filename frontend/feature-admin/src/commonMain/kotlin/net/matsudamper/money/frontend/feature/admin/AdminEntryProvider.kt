@@ -19,6 +19,7 @@ import net.matsudamper.money.frontend.common.base.nav.user.IScreenStructure
 import net.matsudamper.money.frontend.common.base.nav.user.ScreenNavController
 import net.matsudamper.money.frontend.common.base.nav.user.ScreenStructure
 import net.matsudamper.money.frontend.common.di.LocalKoin
+import net.matsudamper.money.frontend.common.feature.webauth.WebAuthModel
 import net.matsudamper.money.frontend.common.viewmodel.lib.EventSender
 import net.matsudamper.money.frontend.common.viewmodel.root.GlobalEvent
 import net.matsudamper.money.frontend.feature.admin.ui.AddUserScreen
@@ -36,6 +37,7 @@ import net.matsudamper.money.frontend.feature.admin.viewmodel.AdminUserSearchPag
 import net.matsudamper.money.frontend.feature.admin.viewmodel.AdminUserSearchScreenViewModel
 import net.matsudamper.money.frontend.graphql.GraphqlAdminQuery
 import net.matsudamper.money.frontend.graphql.GraphqlClient
+import net.matsudamper.money.frontend.graphql.GraphqlUserLoginQuery
 
 @OptIn(ExperimentalMaterial3Api::class)
 public object AdminEntryProvider {
@@ -66,7 +68,9 @@ public object AdminEntryProvider {
                     scopedObjectFeature = it,
                     navController = navController,
                     adminQuery = GraphqlAdminQuery(koin.get<GraphqlClient>()),
+                    userLoginQuery = GraphqlUserLoginQuery(graphqlClient = koin.get<GraphqlClient>()),
                     globalEventSender = globalEventSender,
+                    webAuthModel = koin.get<WebAuthModel>(),
                 )
             }
             AdminLoginScreen(
