@@ -18,6 +18,11 @@
       "automerge": true,
     },
     {
+      "matchPackageNames": ["com.google.devtools.ksp"],
+      "matchUpdateTypes": ["minor", "patch"],
+      "automerge": true,
+    },
+    {
       "matchPackageNames": [
         "kotlin",
         "/^org\\.jetbrains\\.kotlin[:.]/",
