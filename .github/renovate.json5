@@ -18,7 +18,7 @@
       "automerge": true,
     },
     {
-      "matchPackageNames": ["com.google.devtools.ksp"],
+      "matchPackageNames": ["com.google.devtools.ksp:com.google.devtools.ksp.gradle.plugin"],
       "matchUpdateTypes": ["minor", "patch"],
       "automerge": true,
     },
