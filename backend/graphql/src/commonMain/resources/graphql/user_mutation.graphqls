@@ -10,8 +10,9 @@ type UserMutation {
     Gemini APIでメールを解析し、登録候補を返す。結果は保存しない
     システムプロンプトはサーバーが持つ。additionalRulesはユーザーが追加する上書きルールで、システムプロンプトより優先される
     modelが未指定の場合はFlashLiteを使う
+    thinkingがtrueの場合はモデルに思考させてから回答させる。falseまたは未指定の場合はモデルのデフォルトに任せる
     """
-    parseImportedMailWithAi(id: ImportedMailId!, additionalRules: String, model: AiMailParseModel): ParseImportedMailWithAiResult! @longRunning(timeoutSeconds: 90)
+    parseImportedMailWithAi(id: ImportedMailId!, additionalRules: String, model: AiMailParseModel, thinking: Boolean): ParseImportedMailWithAiResult! @longRunning(timeoutSeconds: 90)
     deleteMail(mailIds: [MailId!]!): DeleteMailResult!
 
     addUsage(usage: AddUsageQuery!): MoneyUsage!

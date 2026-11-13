@@ -2,8 +2,10 @@ package net.matsudamper.money.frontend.common.ui.layout.image
 
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.interaction.MutableInteractionSource
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
@@ -19,7 +21,7 @@ import coil3.compose.SubcomposeAsyncImage
 
 @Composable
 public actual fun ZoomableImageDialog(
-    imageUrl: String,
+    images: ZoomableImageDialogImages,
     onDismissRequest: () -> Unit,
 ) {
     Dialog(
@@ -46,19 +48,30 @@ public actual fun ZoomableImageDialog(
             ) {
                 Text("閉じる")
             }
-            SubcomposeAsyncImage(
-                model = imageUrl,
-                contentDescription = null,
-                contentScale = ContentScale.Fit,
+            ZoomableImagePager(
+                images = images,
                 modifier = Modifier
-                    .align(Alignment.CenterHorizontally)
-                    .clickable(
-                        interactionSource = remember { MutableInteractionSource() },
-                        indication = null,
-                        onClick = {},
-                    ),
-                loading = { ImageLoadingPlaceholder() },
-            )
+                    .fillMaxWidth()
+                    .weight(1f),
+            ) { imageUrl ->
+                Box(
+                    modifier = Modifier.fillMaxSize(),
+                    contentAlignment = Alignment.TopCenter,
+                ) {
+                    SubcomposeAsyncImage(
+                        model = imageUrl,
+                        contentDescription = null,
+                        contentScale = ContentScale.Fit,
+                        modifier = Modifier
+                            .clickable(
+                                interactionSource = remember { MutableInteractionSource() },
+                                indication = null,
+                                onClick = {},
+                            ),
+                        loading = { ImageLoadingPlaceholder() },
+                    )
+                }
+            }
         }
     }
 }

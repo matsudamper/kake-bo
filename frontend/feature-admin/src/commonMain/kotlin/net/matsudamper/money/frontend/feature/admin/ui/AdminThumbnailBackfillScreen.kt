@@ -18,8 +18,10 @@ import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontFamily
+import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import net.matsudamper.money.frontend.common.ui.AppRoot
 import net.matsudamper.money.frontend.common.ui.generated.resources.Res
 import net.matsudamper.money.frontend.common.ui.generated.resources.ic_arrow_back
 import net.matsudamper.money.frontend.common.ui.rememberCustomFontFamily
@@ -114,3 +116,35 @@ private val ConsoleBackground = Color(0xFF1E1E1E)
 private val ConsoleInfo = Color(0xFFD4D4D4)
 private val ConsoleSuccess = Color(0xFF9CDCFE)
 private val ConsoleError = Color(0xFFF48771)
+
+@Preview
+@Composable
+private fun AdminThumbnailBackfillScreenRunningPreview() {
+    AppRoot(isDarkTheme = true) {
+        AdminThumbnailBackfillScreen(
+            uiState = AdminThumbnailBackfillScreenUiState(
+                lines = listOf(
+                    AdminThumbnailBackfillScreenUiState.Line(
+                        text = "サムネイル生成を開始しました",
+                        level = AdminThumbnailBackfillScreenUiState.Level.INFO,
+                    ),
+                    AdminThumbnailBackfillScreenUiState.Line(
+                        text = "image-0001: 生成しました",
+                        level = AdminThumbnailBackfillScreenUiState.Level.SUCCESS,
+                    ),
+                    AdminThumbnailBackfillScreenUiState.Line(
+                        text = "image-0002: 生成に失敗しました",
+                        level = AdminThumbnailBackfillScreenUiState.Level.ERROR,
+                    ),
+                ),
+                isRunning = true,
+                event = object : AdminThumbnailBackfillScreenUiState.Event {
+                    override fun onClickStart() = Unit
+
+                    override fun onClickStop() = Unit
+                },
+            ),
+            onClickBack = {},
+        )
+    }
+}

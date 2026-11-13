@@ -6,6 +6,7 @@ import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
+import net.matsudamper.money.frontend.common.base.Logger
 import net.matsudamper.money.frontend.common.base.nav.ScopedObjectFeature
 import net.matsudamper.money.frontend.common.base.nav.user.ScreenNavController
 import net.matsudamper.money.frontend.common.base.nav.user.ScreenStructure
@@ -15,11 +16,14 @@ import net.matsudamper.money.frontend.common.viewmodel.CommonViewModel
 import net.matsudamper.money.frontend.common.viewmodel.lib.EventHandler
 import net.matsudamper.money.frontend.common.viewmodel.lib.EventSender
 
+private const val TAG = "SettingViewModel"
+
 public class SettingViewModel(
     scopedObjectFeature: ScopedObjectFeature,
     private val globalEventSender: EventSender<GlobalEvent>,
     private val ioDispatchers: CoroutineDispatcher,
     navController: ScreenNavController,
+    private val api: SettingScreenGraphqlApi,
 ) : CommonViewModel(scopedObjectFeature) {
     private val viewModelState = MutableStateFlow<ViewModelState>(
         ViewModelState(),
@@ -30,6 +34,7 @@ public class SettingViewModel(
     public val uiState: StateFlow<RootSettingScreenUiState> = MutableStateFlow(
         RootSettingScreenUiState(
             kotlinVersion = KotlinVersion.CURRENT.toString(),
+            adminMenuVisible = false,
             kakeboScaffoldListener = object : KakeboScaffoldListener {
                 override fun onClickTitle() {
                     navController.navigateToHome()
@@ -37,6 +42,11 @@ public class SettingViewModel(
             },
             event = object : RootSettingScreenUiState.Event {
                 override fun onResume() {
+                    fetchAdminUser()
+                }
+
+                override fun onClickAdmin() {
+                    loginAdmin()
                 }
 
                 override fun onClickLoginSetting() {
@@ -128,7 +138,17 @@ public class SettingViewModel(
                 }
             },
         ),
-    ).asStateFlow()
+    ).also { uiStateFlow ->
+        viewModelScope.launch {
+            viewModelState.collect { viewModelState ->
+                uiStateFlow.update { uiState ->
+                    uiState.copy(
+                        adminMenuVisible = viewModelState.isAdminUser,
+                    )
+                }
+            }
+        }
+    }.asStateFlow()
 
     public fun updateLastStructure(state: ScreenStructure.Root.Settings) {
         viewModelState.update {
@@ -148,8 +168,37 @@ public class SettingViewModel(
         }
     }
 
+    private fun fetchAdminUser() {
+        viewModelScope.launch {
+            val isAdminUser = runCatching { api.getSettingRootScreen() }
+                .onFailure { Logger.e(TAG, it) }
+                .getOrNull()
+                ?.data?.user?.settings?.isAdminUser
+                ?: return@launch
+            viewModelState.update { it.copy(isAdminUser = isAdminUser) }
+        }
+    }
+
+    private fun loginAdmin() {
+        viewModelScope.launch {
+            val isSuccess = runCatching { api.adminLoginWithUserSession() }
+                .onFailure { Logger.e(TAG, it) }
+                .getOrNull()
+                ?.data?.adminMutation?.adminLoginWithUserSession?.isSuccess
+                ?: false
+            if (isSuccess) {
+                backgroundEventSender.send {
+                    it.navigate(ScreenStructure.Admin.Root)
+                }
+            } else {
+                globalEventSender.send { it.showSnackBar("管理画面へのログインに失敗しました") }
+            }
+        }
+    }
+
     private data class ViewModelState(
         val latestStructure: ScreenStructure.Root.Settings? = null,
+        val isAdminUser: Boolean = false,
     )
 
     public interface Event {

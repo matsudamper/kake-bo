@@ -5,6 +5,8 @@ interface AdminLoginRepository {
 
     fun verifyPassword(hashedPassword: String): Boolean
 
+    fun isPasswordLoginConfigured(): Boolean
+
     class LoginEncryptInfo(
         val salt: ByteArray,
         val algorithm: String,

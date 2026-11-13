@@ -17,6 +17,7 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.lazy.itemsIndexed
 import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.material3.Card
 import androidx.compose.material3.CircularProgressIndicator
@@ -25,7 +26,6 @@ import androidx.compose.material3.FloatingActionButton
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.Text
-import androidx.compose.material3.pulltorefresh.PullToRefreshBox
 import androidx.compose.material3.pulltorefresh.rememberPullToRefreshState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.Immutable
@@ -43,12 +43,16 @@ import androidx.compose.ui.layout.onGloballyPositioned
 import androidx.compose.ui.layout.positionInWindow
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.platform.LocalLayoutDirection
+import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import kotlin.time.Duration.Companion.milliseconds
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import coil3.compose.SubcomposeAsyncImage
 import net.matsudamper.money.frontend.common.base.ImmutableList
+import net.matsudamper.money.frontend.common.base.ImmutableList.Companion.toImmutableList
+import net.matsudamper.money.frontend.common.ui.AppRoot
+import net.matsudamper.money.frontend.common.ui.base.KakeBoPullToRefreshBox
 import net.matsudamper.money.frontend.common.ui.base.KakeBoTopAppBar
 import net.matsudamper.money.frontend.common.ui.base.KakeboScaffold
 import net.matsudamper.money.frontend.common.ui.base.KakeboScaffoldListener
@@ -58,6 +62,7 @@ import net.matsudamper.money.frontend.common.ui.generated.resources.ic_arrow_bac
 import net.matsudamper.money.frontend.common.ui.layout.GridColumn
 import net.matsudamper.money.frontend.common.ui.layout.image.ImageLoadingPlaceholder
 import net.matsudamper.money.frontend.common.ui.layout.image.ZoomableImageDialog
+import net.matsudamper.money.frontend.common.ui.layout.image.ZoomableImageDialogImages
 import org.jetbrains.compose.resources.painterResource
 
 public data class CalendarDateListScreenUiState(
@@ -162,11 +167,14 @@ public fun CalendarDateListScreen(
         var isRefreshing by remember { mutableStateOf(false) }
         val localDirection = LocalLayoutDirection.current
         var boxY by remember { mutableStateOf(0f) }
-        PullToRefreshBox(
+        KakeBoPullToRefreshBox(
             isRefreshing = isRefreshing,
-            modifier = Modifier.fillMaxSize().onGloballyPositioned { coordinates ->
-                boxY = coordinates.boundsInWindow().height
-            },
+            modifier = Modifier
+                .fillMaxSize()
+                .padding(top = paddingValues.calculateTopPadding())
+                .onGloballyPositioned { coordinates ->
+                    boxY = coordinates.boundsInWindow().bottom
+                },
             state = state,
             onRefresh = {
                 coroutineScope.launch {
@@ -183,7 +191,6 @@ public fun CalendarDateListScreen(
                         modifier = Modifier.fillMaxSize(),
                         uiState = loadingState,
                         paddingValues = PaddingValues(
-                            top = paddingValues.calculateTopPadding(),
                             bottom = paddingValues.calculateBottomPadding() + with(localDensity) {
                                 (boxY - fabY).coerceAtLeast(0f).toDp()
                             },
@@ -197,7 +204,11 @@ public fun CalendarDateListScreen(
                     LaunchedEffect(Unit) { isRefreshing = false }
                     Box(
                         modifier = Modifier.fillMaxSize()
-                            .padding(paddingValues),
+                            .padding(
+                                start = paddingValues.calculateStartPadding(localDirection),
+                                end = paddingValues.calculateEndPadding(localDirection),
+                                bottom = paddingValues.calculateBottomPadding(),
+                            ),
                         contentAlignment = Alignment.Center,
                     ) {
                         CircularProgressIndicator()
@@ -264,12 +275,15 @@ private fun ItemCard(
     item: CalendarDateListScreenUiState.Item,
     modifier: Modifier = Modifier,
 ) {
-    var selectedImageUrl by remember { mutableStateOf<String?>(null) }
-    val currentSelectedImageUrl = selectedImageUrl
-    if (currentSelectedImageUrl != null) {
+    var selectedImageIndex by remember { mutableStateOf<Int?>(null) }
+    val currentSelectedImageIndex = selectedImageIndex
+    if (currentSelectedImageIndex != null) {
         ZoomableImageDialog(
-            imageUrl = currentSelectedImageUrl,
-            onDismissRequest = { selectedImageUrl = null },
+            images = ZoomableImageDialogImages(
+                imageUrls = item.images.map { it.url }.toImmutableList(),
+                initialIndex = currentSelectedImageIndex,
+            ),
+            onDismissRequest = { selectedImageIndex = null },
         )
     }
     Card(
@@ -323,18 +337,60 @@ private fun ItemCard(
                     .padding(bottom = 12.dp),
                 horizontalArrangement = Arrangement.spacedBy(8.dp),
             ) {
-                items(item.images) { imageItem ->
+                itemsIndexed(item.images) { index, imageItem ->
                     SubcomposeAsyncImage(
                         model = imageItem.thumbnailUrl,
                         contentDescription = null,
                         contentScale = ContentScale.Crop,
                         modifier = Modifier
                             .size(100.dp)
-                            .clickable { selectedImageUrl = imageItem.url },
+                            .clickable { selectedImageIndex = index },
                         loading = { ImageLoadingPlaceholder() },
                     )
                 }
             }
         }
+    }
+}
+
+@Composable
+@Preview
+private fun LoadedPreview() {
+    val noOpItemEvent = object : CalendarDateListScreenUiState.ItemEvent {
+        override fun onClick() {}
+    }
+    AppRoot(isDarkTheme = false) {
+        CalendarDateListScreen(
+            modifier = Modifier.fillMaxSize(),
+            uiState = CalendarDateListScreenUiState(
+                title = "2026/11/08",
+                event = object : CalendarDateListScreenUiState.Event {
+                    override fun onViewInitialized() {}
+                    override fun refresh() {}
+                    override fun onClickBack() {}
+                    override fun onClickAdd() {}
+                },
+                loadingState = CalendarDateListScreenUiState.LoadingState.Loaded(
+                    items = (1..5).map { index ->
+                        CalendarDateListScreenUiState.Item(
+                            title = "使用用途$index",
+                            date = "2026/11/08",
+                            amount = "${index * 1000}円",
+                            category = "食費",
+                            images = listOf<CalendarDateListScreenUiState.ImageItem>().toImmutableList(),
+                            event = noOpItemEvent,
+                        )
+                    }.toImmutableList(),
+                    loadToEnd = true,
+                    event = object : CalendarDateListScreenUiState.LoadedEvent {
+                        override fun loadMore() {}
+                    },
+                ),
+            ),
+            kakeboScaffoldListener = object : KakeboScaffoldListener {
+                override fun onClickTitle() {}
+            },
+            windowInsets = PaddingValues(),
+        )
     }
 }

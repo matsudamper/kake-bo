@@ -19,12 +19,12 @@ import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.lazy.itemsIndexed
 import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.material3.Card
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.ProvideTextStyle
-import androidx.compose.material3.Switch
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.DisposableEffect
@@ -48,6 +48,7 @@ import androidx.compose.ui.unit.dp
 import kotlinx.coroutines.launch
 import coil3.compose.SubcomposeAsyncImage
 import net.matsudamper.money.frontend.common.base.ImmutableList
+import net.matsudamper.money.frontend.common.base.ImmutableList.Companion.toImmutableList
 import net.matsudamper.money.frontend.common.ui.base.KakeBoTopAppBar
 import net.matsudamper.money.frontend.common.ui.base.KakeboScaffoldListener
 import net.matsudamper.money.frontend.common.ui.base.LoadingErrorContent
@@ -57,11 +58,11 @@ import net.matsudamper.money.frontend.common.ui.layout.graph.pie.PieChart
 import net.matsudamper.money.frontend.common.ui.layout.graph.pie.PieChartItem
 import net.matsudamper.money.frontend.common.ui.layout.image.ImageLoadingPlaceholder
 import net.matsudamper.money.frontend.common.ui.layout.image.ZoomableImageDialog
+import net.matsudamper.money.frontend.common.ui.layout.image.ZoomableImageDialogImages
 
 public data class RootHomeMonthlyCategoryScreenUiState(
     val loadingState: LoadingState,
     val headerTitle: String,
-    val showImages: Boolean,
     val event: Event,
     val kakeboScaffoldListener: KakeboScaffoldListener,
     val currentSortType: SortSectionType,
@@ -110,7 +111,6 @@ public data class RootHomeMonthlyCategoryScreenUiState(
         public fun onViewInitialized()
         public fun onSortTypeChanged(sortType: SortSectionType)
         public fun onSortOrderChanged(order: SortSectionOrder)
-        public fun onToggleShowImages()
     }
 }
 
@@ -130,22 +130,6 @@ public fun RootHomeMonthlyCategoryScreen(
             KakeBoTopAppBar(
                 title = {
                     Text(uiState.headerTitle)
-                },
-                menu = {
-                    Row(
-                        verticalAlignment = Alignment.CenterVertically,
-                    ) {
-                        Text(
-                            modifier = Modifier.padding(end = 4.dp),
-                            style = MaterialTheme.typography.titleMedium,
-                            text = "画像",
-                        )
-                        Switch(
-                            checked = uiState.showImages,
-                            onCheckedChange = { uiState.event.onToggleShowImages() },
-                        )
-                        Spacer(modifier = Modifier.width(8.dp))
-                    }
                 },
                 windowInsets = windowInsets,
             )
@@ -185,12 +169,12 @@ private fun LoadedContent(
     BoxWithConstraints(
         modifier = modifier,
     ) {
-        val imageUrlState: MutableState<String?> = remember { mutableStateOf(null) }
-        val imageUrl = imageUrlState.value
-        if (imageUrl != null) {
+        val selectedImagesState: MutableState<ZoomableImageDialogImages?> = remember { mutableStateOf(null) }
+        val selectedImages = selectedImagesState.value
+        if (selectedImages != null) {
             ZoomableImageDialog(
-                imageUrl = imageUrl,
-                onDismissRequest = { imageUrlState.value = null },
+                images = selectedImages,
+                onDismissRequest = { selectedImagesState.value = null },
             )
         }
         val lazyListState = rememberLazyListState()
@@ -244,8 +228,7 @@ private fun LoadedContent(
             items(loadingState.items) { item ->
                 ListItem(
                     item = item,
-                    showImages = uiState.showImages,
-                    onClickImage = { url -> imageUrlState.value = url },
+                    onClickImage = { images -> selectedImagesState.value = images },
                     modifier = Modifier
                         .fillMaxWidth()
                         .padding(vertical = 2.dp),
@@ -271,8 +254,7 @@ private fun LoadedContent(
 @Composable
 private fun ListItem(
     item: RootHomeMonthlyCategoryScreenUiState.Item,
-    showImages: Boolean,
-    onClickImage: (String) -> Unit,
+    onClickImage: (ZoomableImageDialogImages) -> Unit,
     modifier: Modifier = Modifier,
 ) {
     Card(
@@ -322,7 +304,7 @@ private fun ListItem(
                         )
                     }
                 }
-                if (showImages && item.images.isNotEmpty()) {
+                if (item.images.isNotEmpty()) {
                     val imageRowScrollConnection = remember {
                         object : NestedScrollConnection {
                             override fun onPostScroll(
@@ -337,14 +319,19 @@ private fun ListItem(
                         horizontalArrangement = Arrangement.spacedBy(8.dp),
                         contentPadding = PaddingValues(padding),
                     ) {
-                        items(item.images) { image ->
+                        itemsIndexed(item.images) { index, image ->
                             SubcomposeAsyncImage(
                                 model = image.thumbnailUrl,
                                 contentDescription = null,
                                 contentScale = ContentScale.Crop,
                                 modifier = Modifier.size(80.dp)
                                     .clickable {
-                                        onClickImage(image.url)
+                                        onClickImage(
+                                            ZoomableImageDialogImages(
+                                                imageUrls = item.images.map { it.url }.toImmutableList(),
+                                                initialIndex = index,
+                                            ),
+                                        )
                                     },
                                 loading = { ImageLoadingPlaceholder() },
                             )

@@ -7,7 +7,6 @@ import net.matsudamper.money.frontend.common.ui.base.KakeboScaffoldListener
 public data class RootHomeMonthlySubCategoryScreenUiState(
     val loadingState: LoadingState,
     val headerTitle: String,
-    val showImages: Boolean,
     val event: Event,
     val kakeboScaffoldListener: KakeboScaffoldListener,
     val currentSortType: SortSectionType,
@@ -56,6 +55,5 @@ public data class RootHomeMonthlySubCategoryScreenUiState(
         public fun onViewInitialized()
         public fun onSortTypeChanged(sortType: SortSectionType)
         public fun onSortOrderChanged(order: SortSectionOrder)
-        public fun onToggleShowImages()
     }
 }

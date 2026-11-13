@@ -13,15 +13,15 @@ public sealed interface ApolloResponseState<T> {
         override fun toString(): String = "Failure($throwable)"
     }
 
+    fun getSuccessOrNull(): Success<T>? {
+        return this as? Success
+    }
+
     public companion object {
         public fun <T> loading(): ApolloResponseState<T> = Loading()
 
         public fun <T> success(value: T): ApolloResponseState<T> = Success(value)
 
         public fun <T> failure(throwable: Throwable): ApolloResponseState<T> = Failure(throwable)
-    }
-
-    fun getSuccessOrNull(): Success<T>? {
-        return this as? Success
     }
 }

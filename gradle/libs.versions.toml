@@ -1,6 +1,6 @@
 [versions]
 awsSdk = "2.30.20"
-nimbusJoseJwt = "10.9.1"
+nimbusJoseJwt = "10.10"
 java = "25"
 javaToolchain = "25"
 kotlin = "2.4.21"
@@ -9,8 +9,8 @@ apolloNormalizedCache = "1.0.9"
 ktor = "3.6.1"
 activity = "1.13.0"
 appcompat = "1.8.0"
-agp = "9.2.1"
-jackson = "2.22.4"
+agp = "9.3.0"
+jackson = "2.23.0"
 compose = "1.12.2"
 androidxComposeRuntime = "1.12.1"
 protoBuf = "4.36.2"
@@ -45,7 +45,7 @@ kotlin-serialization = { id = "org.jetbrains.kotlin.plugin.serialization", versi
 kotlinJvm = { id = "org.jetbrains.kotlin.jvm", version.ref = "kotlin" }
 kotlinAndroid = { id = "org.jetbrains.kotlin.android", version.ref = "kotlin" }
 ktlint = { id = "org.jlleitschuh.gradle.ktlint", version.require = "14.2.0" }
-kotest = { id = "io.kotest", version.require = "6.2.6" }
+kotest = { id = "io.kotest", version.require = "6.2.7" }
 detekt = { id = "dev.detekt", version.ref = "detekt" }
 kobylynskyi-graphqlCodegen = { id = "net.matsudamper.graphql.codegen", version.require = "5.10.5" }
 jetbrainsCompose = { id = "org.jetbrains.compose", version.ref = "compose" }
@@ -63,7 +63,7 @@ kotlinRefrect = { module = "org.jetbrains.kotlin:kotlin-reflect", version.ref = 
 kotlin-coroutines-core = { module = "org.jetbrains.kotlinx:kotlinx-coroutines-core", version.require = "1.11.0" }
 kotlin-coroutines-reactive = { module = "org.jetbrains.kotlinx:kotlinx-coroutines-reactive", version.require = "1.11.0" }
 kotlin-datetime = { module = "org.jetbrains.kotlinx:kotlinx-datetime", version.require = "0.8.0-0.6.x-compat" }
-kotlin-serialization-json = { module = "org.jetbrains.kotlinx:kotlinx-serialization-json", version.require = "1.12.0" }
+kotlin-serialization-json = { module = "org.jetbrains.kotlinx:kotlinx-serialization-json", version.require = "1.13.0" }
 kotlinxBrowser = { module = "org.jetbrains.kotlinx:kotlinx-browser", version = "0.5.0" }
 
 # Plugin
@@ -153,10 +153,12 @@ composeUiTooling = { module = "org.jetbrains.compose.ui:ui-tooling", version.ref
 detektApi = { module = "dev.detekt:detekt-api", version.ref = "detekt" }
 detektKotlinAnalysisApi = { module = "dev.detekt:detekt-kotlin-analysis-api", version.ref = "detekt" }
 detektTest = { module = "dev.detekt:detekt-test", version.ref = "detekt" }
-kotestAssertionsCore = { module = "io.kotest:kotest-assertions-core", version.require = "6.2.6" }
-kotestFrameworkEngine = { module = "io.kotest:kotest-framework-engine", version.require = "6.2.6" }
-kotestRunnerJunit5 = { module = "io.kotest:kotest-runner-junit5", version.require = "6.2.6" }
+kotestAssertionsCore = { module = "io.kotest:kotest-assertions-core", version.require = "6.2.7" }
+kotestFrameworkEngine = { module = "io.kotest:kotest-framework-engine", version.require = "6.2.7" }
+kotestRunnerJunit5 = { module = "io.kotest:kotest-runner-junit5", version.require = "6.2.7" }
 paparazzi = { module = "app.cash.paparazzi:paparazzi", version.ref = "paparazzi" }
+paparazziGradlePlugin = { module = "app.cash.paparazzi:paparazzi-gradle-plugin", version.ref = "paparazzi" }
+byteBuddyAgent = { module = "net.bytebuddy:byte-buddy-agent", version = "1.18.17-jdk5" }
 composablePreviewScanner = { module = "io.github.sergio-sastre.ComposablePreviewScanner:android", version.ref = "composablePreviewScanner" }
 
 # Mail
@@ -184,7 +186,7 @@ logstashLogbackEncoder = { module = "net.logstash.logback:logstash-logback-encod
 
 # Graphql
 graphqlJava-extendedScalars = { module = "com.graphql-java:graphql-java-extended-scalars", version.require = "2023-01-24T02-11-56-babda5f" }
-graphqlJava = { module = "com.graphql-java:graphql-java", version.require = "26.1" }
+graphqlJava = { module = "com.graphql-java:graphql-java", version.require = "26.2" }
 graphqlJavaKickstart-JavaTools = { module = "com.graphql-java-kickstart:graphql-java-tools", version.require = "14.0.1" }
 
 # DataStore

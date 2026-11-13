@@ -18,6 +18,10 @@
       "automerge": true,
     },
     {
+      "matchPackageNames": ["com.google.devtools.ksp:com.google.devtools.ksp.gradle.plugin"],
+      "automerge": true,
+    },
+    {
       "matchPackageNames": [
         "kotlin",
         "/^org\\.jetbrains\\.kotlin[:.]/",

@@ -49,6 +49,7 @@ import net.matsudamper.money.frontend.common.viewmodel.GlobalEventHandlerLoginCh
 import net.matsudamper.money.frontend.common.viewmodel.LocalGlobalEventHandlerLoginCheckUseCaseDelegate
 import net.matsudamper.money.frontend.common.viewmodel.lib.EventSender
 import net.matsudamper.money.frontend.common.viewmodel.root.GlobalEvent
+import net.matsudamper.money.frontend.common.viewmodel.root.SettingScreenGraphqlApi
 import net.matsudamper.money.frontend.common.viewmodel.root.SettingViewModel
 import net.matsudamper.money.frontend.common.viewmodel.root.add.HomeAddExtensionEntryProvider
 import net.matsudamper.money.frontend.common.viewmodel.root.home.LoginCheckUseCaseEventListenerImpl
@@ -167,6 +168,9 @@ public fun Content(
                     globalEventSender = globalEventSender,
                     ioDispatchers = Dispatchers.PlatformIO,
                     navController = navController,
+                    api = SettingScreenGraphqlApi(
+                        graphqlClient = koin.get(),
+                    ),
                 )
             }
             val kakeboScaffoldListener: KakeboScaffoldListener = remember {

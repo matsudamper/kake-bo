@@ -16,7 +16,6 @@ import androidx.compose.material3.DropdownMenu
 import androidx.compose.material3.DropdownMenuItem
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Text
-import androidx.compose.material3.pulltorefresh.PullToRefreshBox
 import androidx.compose.material3.pulltorefresh.rememberPullToRefreshState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.DisposableEffect
@@ -36,6 +35,7 @@ import kotlinx.coroutines.launch
 import net.matsudamper.money.frontend.common.base.ImmutableList
 import net.matsudamper.money.frontend.common.ui.LocalIsLargeScreen
 import net.matsudamper.money.frontend.common.ui.base.DropDownMenuButton
+import net.matsudamper.money.frontend.common.ui.base.KakeBoPullToRefreshBox
 import net.matsudamper.money.frontend.common.ui.base.KakeboScaffoldListener
 import net.matsudamper.money.frontend.common.ui.base.LoadingErrorContent
 import net.matsudamper.money.frontend.common.ui.base.LocalScrollToTopHandler
@@ -117,7 +117,7 @@ public fun RootHomeTabPeriodScaffold(
         var isRefreshing by rememberSaveable { mutableStateOf(false) }
         val refreshState = rememberPullToRefreshState()
         val coroutineScope = rememberCoroutineScope()
-        PullToRefreshBox(
+        KakeBoPullToRefreshBox(
             modifier = Modifier.fillMaxSize(),
             state = refreshState,
             isRefreshing = isRefreshing,
