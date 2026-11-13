@@ -69,6 +69,44 @@ public class MoneyUsageScreenViewModel(
             apolloClient = graphqlClient.apolloClient,
         )
     }.viewModel
+    private val descriptionEditorEvent = object : MoneyUsageScreenUiState.DescriptionEditorEvent {
+        override fun onChangeText(text: String) {
+            viewModelStateFlow.update { viewModelState ->
+                viewModelState.copy(
+                    descriptionEditingText = text,
+                )
+            }
+        }
+
+        override fun onClickSave() {
+            val editingText = viewModelStateFlow.value.descriptionEditingText ?: return
+            if (viewModelStateFlow.value.isDescriptionSaving) return
+            viewModelStateFlow.update { viewModelState ->
+                viewModelState.copy(
+                    isDescriptionSaving = true,
+                )
+            }
+            viewModelScope.launch {
+                val isSuccess = api.updateUsage(
+                    id = moneyUsageId,
+                    description = editingText,
+                )
+                viewModelStateFlow.update { viewModelState ->
+                    val editedWhileSaving = viewModelState.descriptionEditingText != editingText
+                    viewModelState.copy(
+                        isDescriptionSaving = false,
+                        descriptionEditingText = if (isSuccess && !editedWhileSaving) null else viewModelState.descriptionEditingText,
+                    )
+                }
+                if (!isSuccess) {
+                    eventSender.send {
+                        it.showToast("説明の保存に失敗しました")
+                    }
+                }
+            }
+        }
+    }
+
     public val uiStateFlow: StateFlow<MoneyUsageScreenUiState> = MutableStateFlow(
         MoneyUsageScreenUiState(
             event = object : MoneyUsageScreenUiState.Event {
@@ -126,6 +164,13 @@ public class MoneyUsageScreenViewModel(
                                         text = moneyUsage.description,
                                         event = ClickableEventImpl(moneyUsage.description),
                                     ),
+                                    descriptionEditor = viewModelState.descriptionEditingText?.let { editingText ->
+                                        MoneyUsageScreenUiState.DescriptionEditor(
+                                            text = editingText,
+                                            saveButtonEnabled = !viewModelState.isDescriptionSaving,
+                                            event = descriptionEditorEvent,
+                                        )
+                                    },
                                     date = Formatter.formatDate(moneyUsage.date),
                                     time = Formatter.formatTime(moneyUsage.date.time),
                                     category = run category@{
@@ -404,25 +449,7 @@ public class MoneyUsageScreenViewModel(
             override fun onClickDescription() {
                 viewModelStateFlow.update { viewModelState ->
                     viewModelState.copy(
-                        textInputDialog = MoneyUsageScreenUiState.TextInputDialog(
-                            isMultiline = true,
-                            title = "説明",
-                            onComplete = { text ->
-                                viewModelScope.launch {
-                                    val isSuccess = api.updateUsage(
-                                        id = moneyUsageId,
-                                        description = text,
-                                    )
-                                    if (isSuccess) {
-                                        dismissTextInputDialog()
-                                    } else {
-                                        // TODO
-                                    }
-                                }
-                            },
-                            default = item.description,
-                            onCancel = { dismissTextInputDialog() },
-                        ),
+                        descriptionEditingText = item.description,
                     )
                 }
             }
@@ -621,5 +648,7 @@ public class MoneyUsageScreenViewModel(
         val urlMenuDialog: MoneyUsageScreenUiState.UrlMenuDialog? = null,
         val numberInputDialog: MoneyUsageScreenUiState.NumberInputDialog? = null,
         val uploadQueueItems: List<ImageUploadQueue.QueueItem> = listOf(),
+        val descriptionEditingText: String? = null,
+        val isDescriptionSaving: Boolean = false,
     )
 }
