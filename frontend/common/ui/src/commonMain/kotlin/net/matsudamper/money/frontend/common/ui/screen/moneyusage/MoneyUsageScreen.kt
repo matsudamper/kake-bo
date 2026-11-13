@@ -581,8 +581,6 @@ private fun MainCard(
     }
 }
 
-private val FieldActionButtonWidth = 80.dp
-
 @Composable
 private fun DescriptionEditorRow(
     modifier: Modifier = Modifier,
@@ -628,13 +626,13 @@ private fun DescriptionEditorRow(
         }
         Spacer(modifier = Modifier.width(8.dp))
         Column(
-            modifier = Modifier.width(FieldActionButtonWidth),
+            modifier = Modifier.width(IntrinsicSize.Max),
             verticalArrangement = Arrangement.spacedBy(8.dp),
         ) {
             Button(
                 onClick = { uiState.event.onClickSave() },
                 enabled = uiState.saveButtonEnabled,
-                contentPadding = PaddingValues(horizontal = 4.dp, vertical = 0.dp),
+                contentPadding = PaddingValues(horizontal = 12.dp, vertical = 0.dp),
                 modifier = Modifier.fillMaxWidth().height(32.dp),
                 shape = MaterialTheme.shapes.small,
             ) {
@@ -642,7 +640,7 @@ private fun DescriptionEditorRow(
             }
             OutlinedButton(
                 onClick = { uiState.event.onClickCancel() },
-                contentPadding = PaddingValues(horizontal = 4.dp, vertical = 0.dp),
+                contentPadding = PaddingValues(horizontal = 12.dp, vertical = 0.dp),
                 modifier = Modifier.fillMaxWidth().height(32.dp),
                 shape = MaterialTheme.shapes.small,
             ) {
@@ -696,7 +694,7 @@ private fun ChangeableFieldRow(
         OutlinedButton(
             onClick = onClickChange,
             contentPadding = PaddingValues(horizontal = 12.dp, vertical = 0.dp),
-            modifier = Modifier.width(FieldActionButtonWidth).height(32.dp),
+            modifier = Modifier.height(32.dp),
             shape = MaterialTheme.shapes.small,
             colors = ButtonDefaults.outlinedButtonColors(
                 contentColor = MaterialTheme.colorScheme.primary,
