@@ -37,6 +37,7 @@ import net.matsudamper.money.frontend.feature.admin.viewmodel.AdminUserSearchPag
 import net.matsudamper.money.frontend.feature.admin.viewmodel.AdminUserSearchScreenViewModel
 import net.matsudamper.money.frontend.graphql.GraphqlAdminQuery
 import net.matsudamper.money.frontend.graphql.GraphqlClient
+import net.matsudamper.money.frontend.graphql.GraphqlUserLoginQuery
 
 @OptIn(ExperimentalMaterial3Api::class)
 public object AdminEntryProvider {
@@ -67,6 +68,7 @@ public object AdminEntryProvider {
                     scopedObjectFeature = it,
                     navController = navController,
                     adminQuery = GraphqlAdminQuery(koin.get<GraphqlClient>()),
+                    userLoginQuery = GraphqlUserLoginQuery(graphqlClient = koin.get<GraphqlClient>()),
                     globalEventSender = globalEventSender,
                     webAuthModel = koin.get<WebAuthModel>(),
                 )

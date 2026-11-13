@@ -5,7 +5,6 @@ import com.apollographql.cache.normalized.FetchPolicy
 import com.apollographql.cache.normalized.fetchPolicy
 import net.matsudamper.money.element.ImageId
 import net.matsudamper.money.element.UserId
-import net.matsudamper.money.frontend.graphql.type.UserFidoLoginInput
 
 class GraphqlAdminQuery(
     private val graphqlClient: GraphqlClient,
@@ -41,23 +40,9 @@ class GraphqlAdminQuery(
             .execute()
     }
 
-    suspend fun adminLoginWithUserPassword(
-        userName: String,
-        password: String,
-    ): ApolloResponse<AdminLoginWithUserPasswordMutation.Data> {
+    suspend fun adminLoginWithUserSession(): ApolloResponse<AdminLoginWithUserSessionMutation.Data> {
         return graphqlClient.apolloClient
-            .mutation(
-                AdminLoginWithUserPasswordMutation(
-                    name = userName,
-                    password = password,
-                ),
-            )
-            .execute()
-    }
-
-    suspend fun adminLoginWithUserFido(input: UserFidoLoginInput): ApolloResponse<AdminLoginWithUserFidoMutation.Data> {
-        return graphqlClient.apolloClient
-            .mutation(AdminLoginWithUserFidoMutation(input = input))
+            .mutation(AdminLoginWithUserSessionMutation())
             .execute()
     }
 

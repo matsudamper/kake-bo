@@ -16,6 +16,7 @@ import net.matsudamper.money.frontend.common.viewmodel.lib.EventSender
 import net.matsudamper.money.frontend.common.viewmodel.root.GlobalEvent
 import net.matsudamper.money.frontend.feature.admin.ui.AdminLoginScreenUiState
 import net.matsudamper.money.frontend.graphql.GraphqlAdminQuery
+import net.matsudamper.money.frontend.graphql.GraphqlUserLoginQuery
 import net.matsudamper.money.frontend.graphql.type.UserFidoLoginInput
 
 private const val TAG = "AdminLoginScreenViewModel"
@@ -23,6 +24,7 @@ private const val TAG = "AdminLoginScreenViewModel"
 internal class AdminLoginScreenViewModel(
     scopedObjectFeature: ScopedObjectFeature,
     private val adminQuery: GraphqlAdminQuery,
+    private val userLoginQuery: GraphqlUserLoginQuery,
     private val navController: ScreenNavController,
     private val globalEventSender: EventSender<GlobalEvent>,
     private val webAuthModel: WebAuthModel,
@@ -138,14 +140,14 @@ internal class AdminLoginScreenViewModel(
     ) {
         viewModelScope.launch {
             val isSuccess = runCatching {
-                adminQuery.adminLoginWithUserPassword(
+                val isUserLoginSuccess = userLoginQuery.login(
                     userName = userName,
                     password = password,
-                )
+                ).data?.userMutation?.userLogin?.isSuccess == true
+                isUserLoginSuccess && elevateUserSessionToAdmin()
             }
                 .onFailure { Logger.e(TAG, it) }
                 .getOrNull()
-                ?.data?.adminMutation?.adminLoginWithUserPassword?.isSuccess
                 ?: false
             onLoginResult(isSuccess)
         }
@@ -161,7 +163,7 @@ internal class AdminLoginScreenViewModel(
                     challenge = fidoInfo.challenge,
                     domain = fidoInfo.domain,
                 ) ?: return@runCatching false
-                adminQuery.adminLoginWithUserFido(
+                val isUserLoginSuccess = userLoginQuery.webAuthLogin(
                     input = UserFidoLoginInput(
                         base64AuthenticatorData = webAuthResult.base64AuthenticatorData,
                         base64ClientDataJson = webAuthResult.base64ClientDataJSON,
@@ -171,13 +173,19 @@ internal class AdminLoginScreenViewModel(
                         userName = viewModelStateFlow.value.userName.text,
                         challenge = fidoInfo.challenge,
                     ),
-                ).data?.adminMutation?.adminLoginWithUserFido?.isSuccess == true
+                ).data?.userMutation?.userFidoLogin?.isSuccess == true
+                isUserLoginSuccess && elevateUserSessionToAdmin()
             }
                 .onFailure { Logger.e(TAG, it) }
                 .getOrNull()
                 ?: false
             onLoginResult(isSuccess)
         }
+    }
+
+    private suspend fun elevateUserSessionToAdmin(): Boolean {
+        return adminQuery.adminLoginWithUserSession()
+            .data?.adminMutation?.adminLoginWithUserSession?.isSuccess == true
     }
 
     private suspend fun onLoginResult(isSuccess: Boolean) {

@@ -1,8 +1,6 @@
 type AdminMutation {
     adminLogin(password: String!): AdminLoginResult! @singleExecutionPerRequest
     adminLoginWithUserSession: AdminLoginResult! @lazy @singleExecutionPerRequest
-    adminLoginWithUserPassword(name: String!, password: String!): AdminLoginResult! @singleExecutionPerRequest
-    adminLoginWithUserFido(userFidoLoginInput: UserFidoLoginInput!): AdminLoginResult! @singleExecutionPerRequest
     adminLogout: Boolean! @lazy
     addUser(name: String!, password: String!): AdminAddUserResult!
     deleteImages(imageIds: [ImageId!]!): Boolean!
