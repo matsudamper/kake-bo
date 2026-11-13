@@ -25,4 +25,8 @@ class EnvAdminLoginRepository : AdminLoginRepository {
         val expected = ServerEnv.adminPasswordHash ?: return false
         return hashedPassword == expected
     }
+
+    override fun isPasswordLoginConfigured(): Boolean {
+        return ServerEnv.adminPasswordHash != null && getLoginEncryptInfo() != null
+    }
 }
