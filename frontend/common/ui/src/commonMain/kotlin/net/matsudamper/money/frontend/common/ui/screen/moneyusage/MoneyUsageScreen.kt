@@ -21,6 +21,7 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.text.BasicTextField
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
@@ -36,7 +37,7 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.ProvideTextStyle
 import androidx.compose.material3.Text
-import androidx.compose.material3.TextField
+import androidx.compose.material3.TextFieldDefaults
 import androidx.compose.material3.ripple
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.Immutable
@@ -53,6 +54,7 @@ import androidx.compose.ui.input.pointer.PointerEventType
 import androidx.compose.ui.input.pointer.isSecondaryPressed
 import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.text.input.VisualTransformation
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.window.Dialog
@@ -579,6 +581,8 @@ private fun MainCard(
     }
 }
 
+private val FieldActionButtonWidth = 80.dp
+
 @Composable
 private fun DescriptionEditorRow(
     modifier: Modifier = Modifier,
@@ -595,22 +599,42 @@ private fun DescriptionEditorRow(
                 color = MaterialTheme.colorScheme.primary,
             )
             Spacer(modifier = Modifier.height(4.dp))
-            TextField(
+            // 表示時の文字位置から動かないよう、標準の TextField の内側の余白をなくして描画する
+            val textFieldInteractionSource = remember { MutableInteractionSource() }
+            val textFieldColors = TextFieldDefaults.colors(
+                focusedContainerColor = Color.Transparent,
+                unfocusedContainerColor = Color.Transparent,
+            )
+            BasicTextField(
                 modifier = Modifier.fillMaxWidth(),
                 value = uiState.text,
                 onValueChange = { uiState.event.onChangeText(it) },
-                textStyle = MaterialTheme.typography.bodyLarge,
+                textStyle = MaterialTheme.typography.bodyLarge.copy(color = MaterialTheme.colorScheme.onSurface),
+                cursorBrush = SolidColor(MaterialTheme.colorScheme.primary),
+                interactionSource = textFieldInteractionSource,
+                decorationBox = { innerTextField ->
+                    TextFieldDefaults.DecorationBox(
+                        value = uiState.text,
+                        innerTextField = innerTextField,
+                        enabled = true,
+                        singleLine = false,
+                        visualTransformation = VisualTransformation.None,
+                        interactionSource = textFieldInteractionSource,
+                        colors = textFieldColors,
+                        contentPadding = PaddingValues(bottom = 4.dp),
+                    )
+                },
             )
         }
         Spacer(modifier = Modifier.width(8.dp))
         Column(
-            modifier = Modifier.width(IntrinsicSize.Max),
+            modifier = Modifier.width(FieldActionButtonWidth),
             verticalArrangement = Arrangement.spacedBy(8.dp),
         ) {
             Button(
                 onClick = { uiState.event.onClickSave() },
                 enabled = uiState.saveButtonEnabled,
-                contentPadding = PaddingValues(horizontal = 12.dp, vertical = 0.dp),
+                contentPadding = PaddingValues(horizontal = 4.dp, vertical = 0.dp),
                 modifier = Modifier.fillMaxWidth().height(32.dp),
                 shape = MaterialTheme.shapes.small,
             ) {
@@ -618,7 +642,7 @@ private fun DescriptionEditorRow(
             }
             OutlinedButton(
                 onClick = { uiState.event.onClickCancel() },
-                contentPadding = PaddingValues(horizontal = 12.dp, vertical = 0.dp),
+                contentPadding = PaddingValues(horizontal = 4.dp, vertical = 0.dp),
                 modifier = Modifier.fillMaxWidth().height(32.dp),
                 shape = MaterialTheme.shapes.small,
             ) {
@@ -668,10 +692,11 @@ private fun ChangeableFieldRow(
                 body()
             }
         }
+        Spacer(modifier = Modifier.width(8.dp))
         OutlinedButton(
             onClick = onClickChange,
             contentPadding = PaddingValues(horizontal = 12.dp, vertical = 0.dp),
-            modifier = Modifier.height(32.dp),
+            modifier = Modifier.width(FieldActionButtonWidth).height(32.dp),
             shape = MaterialTheme.shapes.small,
             colors = ButtonDefaults.outlinedButtonColors(
                 contentColor = MaterialTheme.colorScheme.primary,
