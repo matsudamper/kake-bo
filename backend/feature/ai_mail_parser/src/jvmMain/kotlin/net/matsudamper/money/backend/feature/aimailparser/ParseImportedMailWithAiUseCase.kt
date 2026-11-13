@@ -17,6 +17,7 @@ class ParseImportedMailWithAiUseCase(
         userId: UserId,
         importedMailId: ImportedMailId,
         model: GeminiGateway.Model,
+        thinking: Boolean,
         additionalRules: String?,
     ): Result {
         val apiKey = userConfigRepository.getGeminiApiKey(userId)
@@ -38,6 +39,7 @@ class ParseImportedMailWithAiUseCase(
         return aiMailParser.parse(
             apiKey = apiKey,
             model = model,
+            thinking = thinking,
             additionalRules = additionalRules?.trim().orEmpty(),
             input = input,
         ).fold(

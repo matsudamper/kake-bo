@@ -20,12 +20,14 @@ class AiMailParser(
     fun parse(
         apiKey: String,
         model: GeminiGateway.Model,
+        thinking: Boolean,
         additionalRules: String,
         input: AiMailParseInput,
     ): Result<List<AiParsedUsage>> {
         return geminiGateway.generateJson(
             apiKey = apiKey,
             model = model,
+            thinking = thinking,
             systemInstruction = buildSystemInstruction(additionalRules),
             userText = MailBodyTextBuilder.build(input = input, maxBodyLength = MAX_BODY_LENGTH),
             responseSchemaJson = RESPONSE_SCHEMA_JSON,

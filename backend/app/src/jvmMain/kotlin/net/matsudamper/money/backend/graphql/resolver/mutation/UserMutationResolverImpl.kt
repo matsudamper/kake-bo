@@ -791,6 +791,7 @@ class UserMutationResolverImpl : UserMutationResolver {
         id: ImportedMailId,
         additionalRules: String?,
         model: QlAiMailParseModel?,
+        thinking: Boolean?,
         env: DataFetchingEnvironment,
     ): CompletionStage<DataFetcherResult<QlParseImportedMailWithAiResult>> {
         val context = env.graphQlContext.get<GraphQlContext>(GraphQlContext::class.java.name)
@@ -812,6 +813,7 @@ class UserMutationResolverImpl : UserMutationResolver {
 
                         QlAiMailParseModel.Flash -> GeminiGateway.Model.Flash
                     },
+                    thinking = thinking == true,
                     additionalRules = additionalRules,
                 )
             }.onFailure {
