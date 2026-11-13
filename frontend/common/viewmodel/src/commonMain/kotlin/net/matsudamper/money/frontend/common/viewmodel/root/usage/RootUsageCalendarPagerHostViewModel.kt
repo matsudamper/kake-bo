@@ -19,7 +19,6 @@ import kotlinx.datetime.yearMonth
 import net.matsudamper.money.frontend.common.base.ImmutableList.Companion.toImmutableList
 import net.matsudamper.money.frontend.common.base.immutableListOf
 import net.matsudamper.money.frontend.common.base.nav.ScopedObjectFeature
-import net.matsudamper.money.frontend.common.base.nav.user.ScreenNavController
 import net.matsudamper.money.frontend.common.base.nav.user.ScreenStructure
 import net.matsudamper.money.frontend.common.ui.screen.root.usage.RootUsageCalendarPagerHostScreenUiState
 import net.matsudamper.money.frontend.common.ui.screen.root.usage.RootUsageHostScreenUiState
@@ -31,7 +30,6 @@ public class RootUsageCalendarPagerHostViewModel(
     scopedObjectFeature: ScopedObjectFeature,
     initial: ScreenStructure.Root.Usage.Calendar,
     private val rootUsageHostViewModel: RootUsageHostViewModel,
-    private val navController: ScreenNavController,
 ) : CommonViewModel(scopedObjectFeature) {
     private val viewModelStateFlow: MutableStateFlow<ViewModelState> = MutableStateFlow(
         ViewModelState(
@@ -67,11 +65,15 @@ public class RootUsageCalendarPagerHostViewModel(
             hostScreenUiState = rootUsageHostViewModel.uiStateFlow.value,
             event = object : RootUsageCalendarPagerHostScreenUiState.Event {
                 override fun onPageChanged(page: RootUsageCalendarPagerHostScreenUiState.Page) {
-                    navController.navigateReplace(
-                        ScreenStructure.Root.Usage.Calendar(
-                            yearMonth = page.navigation.yearMonth,
-                        ),
-                    )
+                    viewModelScope.launch {
+                        viewModelEventSender.send {
+                            it.navigate(
+                                ScreenStructure.Root.Usage.Calendar(
+                                    yearMonth = page.navigation.yearMonth,
+                                ),
+                            )
+                        }
+                    }
                 }
             },
         ),
