@@ -79,8 +79,10 @@ class GeminiGatewayImpl : GeminiGateway {
                 put("temperature", 0)
                 put("responseMimeType", "application/json")
                 put("responseSchema", json.parseToJsonElement(responseSchemaJson))
-                putJsonObject("thinkingConfig") {
-                    put("thinkingBudget", if (thinking) THINKING_BUDGET_DYNAMIC else THINKING_BUDGET_DISABLED)
+                if (thinking) {
+                    putJsonObject("thinkingConfig") {
+                        put("thinkingBudget", THINKING_BUDGET_DYNAMIC)
+                    }
                 }
             }
         }
@@ -152,6 +154,5 @@ class GeminiGatewayImpl : GeminiGateway {
     private companion object {
         private const val API_BASE_URL = "https://generativelanguage.googleapis.com/v1beta"
         private const val THINKING_BUDGET_DYNAMIC = -1
-        private const val THINKING_BUDGET_DISABLED = 0
     }
 }
