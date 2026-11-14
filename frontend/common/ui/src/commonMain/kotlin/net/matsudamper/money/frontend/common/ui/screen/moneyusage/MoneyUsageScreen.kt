@@ -22,6 +22,7 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
+import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
@@ -35,6 +36,7 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.ProvideTextStyle
 import androidx.compose.material3.Text
+import androidx.compose.material3.TextField
 import androidx.compose.material3.ripple
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.Immutable
@@ -149,6 +151,7 @@ public data class MoneyUsageScreenUiState(
     public data class MoneyUsage(
         val title: String,
         val description: Clickable,
+        val descriptionEditor: DescriptionEditor?,
         val amount: String,
         val category: String,
         val date: String,
@@ -157,6 +160,21 @@ public data class MoneyUsageScreenUiState(
         val uploadQueueItems: ImmutableList<UploadQueueItem>,
         val event: MoneyUsageEvent,
     )
+
+    public data class DescriptionEditor(
+        val text: String,
+        val saveButtonEnabled: Boolean,
+        val event: DescriptionEditorEvent,
+    )
+
+    @Immutable
+    public interface DescriptionEditorEvent {
+        public fun onChangeText(text: String)
+
+        public fun onClickSave()
+
+        public fun onClickCancel()
+    }
 
     public data class UploadQueueItem(
         val id: String,
@@ -536,19 +554,76 @@ private fun MainCard(
                 body = { Text(uiState.amount) },
             )
             HorizontalDivider(modifier = Modifier.fillMaxWidth().height(1.dp))
-            ChangeableFieldRow(
-                modifier = Modifier.padding(vertical = 12.dp),
-                multiline = true,
-                title = "説明",
-                onClickChange = { uiState.event.onClickDescription() },
-                body = {
-                    UrlClickableText(
-                        text = uiState.description.text,
-                        onClickUrl = { uiState.description.event.onClickUrl(it) },
-                        onLongClickUrl = { uiState.description.event.onLongClickUrl(it) },
-                    )
-                },
+            val descriptionEditor = uiState.descriptionEditor
+            if (descriptionEditor == null) {
+                ChangeableFieldRow(
+                    modifier = Modifier.padding(vertical = 12.dp),
+                    multiline = true,
+                    title = "説明",
+                    onClickChange = { uiState.event.onClickDescription() },
+                    body = {
+                        UrlClickableText(
+                            text = uiState.description.text,
+                            onClickUrl = { uiState.description.event.onClickUrl(it) },
+                            onLongClickUrl = { uiState.description.event.onLongClickUrl(it) },
+                        )
+                    },
+                )
+            } else {
+                DescriptionEditorRow(
+                    modifier = Modifier.padding(vertical = 12.dp),
+                    uiState = descriptionEditor,
+                )
+            }
+        }
+    }
+}
+
+@Composable
+private fun DescriptionEditorRow(
+    modifier: Modifier = Modifier,
+    uiState: MoneyUsageScreenUiState.DescriptionEditor,
+) {
+    Row(
+        modifier = modifier,
+        verticalAlignment = Alignment.Top,
+    ) {
+        Column(modifier = Modifier.weight(1f)) {
+            Text(
+                text = "説明",
+                style = MaterialTheme.typography.labelLarge,
+                color = MaterialTheme.colorScheme.primary,
             )
+            Spacer(modifier = Modifier.height(4.dp))
+            TextField(
+                modifier = Modifier.fillMaxWidth(),
+                value = uiState.text,
+                onValueChange = { uiState.event.onChangeText(it) },
+                textStyle = MaterialTheme.typography.bodyLarge,
+            )
+        }
+        Spacer(modifier = Modifier.width(8.dp))
+        Column(
+            modifier = Modifier.width(IntrinsicSize.Max),
+            verticalArrangement = Arrangement.spacedBy(8.dp),
+        ) {
+            Button(
+                onClick = { uiState.event.onClickSave() },
+                enabled = uiState.saveButtonEnabled,
+                contentPadding = PaddingValues(horizontal = 12.dp, vertical = 0.dp),
+                modifier = Modifier.fillMaxWidth().height(32.dp),
+                shape = MaterialTheme.shapes.small,
+            ) {
+                Text("保存", style = MaterialTheme.typography.labelMedium)
+            }
+            OutlinedButton(
+                onClick = { uiState.event.onClickCancel() },
+                contentPadding = PaddingValues(horizontal = 12.dp, vertical = 0.dp),
+                modifier = Modifier.fillMaxWidth().height(32.dp),
+                shape = MaterialTheme.shapes.small,
+            ) {
+                Text("キャンセル", style = MaterialTheme.typography.labelMedium)
+            }
         }
     }
 }
@@ -903,6 +978,31 @@ private fun MailsSection(
 @Composable
 @Preview
 private fun MoneyUsageScreenPreview() {
+    MoneyUsageScreenPreviewContent(descriptionEditor = null)
+}
+
+@Composable
+@Preview
+private fun MoneyUsageScreenDescriptionEditingPreview() {
+    MoneyUsageScreenPreviewContent(
+        descriptionEditor = MoneyUsageScreenUiState.DescriptionEditor(
+            text = "食料品の購入",
+            saveButtonEnabled = true,
+            event = object : MoneyUsageScreenUiState.DescriptionEditorEvent {
+                override fun onChangeText(text: String) = Unit
+
+                override fun onClickSave() = Unit
+
+                override fun onClickCancel() = Unit
+            },
+        ),
+    )
+}
+
+@Composable
+private fun MoneyUsageScreenPreviewContent(
+    descriptionEditor: MoneyUsageScreenUiState.DescriptionEditor?,
+) {
     val moneyUsageEvent = object : MoneyUsageScreenUiState.MoneyUsageEvent {
         override fun onClickTitleChange() = Unit
 
@@ -942,6 +1042,7 @@ private fun MoneyUsageScreenPreview() {
                                 override fun onLongClickUrl(text: String) = Unit
                             },
                         ),
+                        descriptionEditor = descriptionEditor,
                         amount = "3,500円",
                         category = "食費 / スーパー",
                         date = "2026/10/06",
