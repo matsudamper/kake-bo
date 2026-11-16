@@ -25,7 +25,7 @@ internal fun CalendarDialog(
 ) {
     val datePickerState = remember {
         DatePickerState(
-            locale = sundayStartCalendarLocale(),
+            locale = currentCalendarLocaleWithRegion(),
             initialSelectedDateMillis = initialCalendar.atStartOfDayIn(TimeZone.UTC).toEpochMilliseconds(),
         )
     }
