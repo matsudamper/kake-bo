@@ -2,11 +2,12 @@ package net.matsudamper.money.frontend.common.ui.layout
 
 import androidx.compose.material3.DatePicker
 import androidx.compose.material3.DatePickerDialog
+import androidx.compose.material3.DatePickerState
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
-import androidx.compose.material3.rememberDatePickerState
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
 import kotlin.time.Instant
 import kotlinx.datetime.LocalDate
@@ -22,9 +23,12 @@ internal fun CalendarDialog(
     selectedCalendar: (LocalDate) -> Unit,
     initialCalendar: LocalDate,
 ) {
-    val datePickerState = rememberDatePickerState(
-        initialSelectedDateMillis = initialCalendar.atStartOfDayIn(TimeZone.UTC).toEpochMilliseconds(),
-    )
+    val datePickerState = remember {
+        DatePickerState(
+            locale = sundayStartCalendarLocale(),
+            initialSelectedDateMillis = initialCalendar.atStartOfDayIn(TimeZone.UTC).toEpochMilliseconds(),
+        )
+    }
 
     DatePickerDialog(
         modifier = modifier,
