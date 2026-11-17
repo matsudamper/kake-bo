@@ -402,6 +402,7 @@ public class AddMoneyUsageViewModel(
                 viewModelStateFlow.update {
                     ViewModelState(
                         usageDate = it.usageDate,
+                        processingDroppedImagesCount = it.processingDroppedImagesCount,
                         sameDateUsages = if (it.usageDate == submittedState.usageDate) {
                             (
                                 it.sameDateUsages + ViewModelState.SameDateUsage(
