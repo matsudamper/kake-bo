@@ -22,6 +22,7 @@ import net.matsudamper.money.element.MoneyUsageId
 import net.matsudamper.money.element.MoneyUsageSubCategoryId
 import net.matsudamper.money.frontend.common.base.ImmutableList.Companion.toImmutableList
 import net.matsudamper.money.frontend.common.base.Logger
+import net.matsudamper.money.frontend.common.base.image.DroppedImages
 import net.matsudamper.money.frontend.common.base.image.SelectedImage
 import net.matsudamper.money.frontend.common.base.immutableListOf
 import net.matsudamper.money.frontend.common.base.nav.ScopedObjectFeature
@@ -246,44 +247,64 @@ public class AddMoneyUsageViewModel(
 
         override fun onClickUploadImage() {
             viewModelScope.launch {
-                val images = eventSender.send { it.selectImages() }
-                if (images.isEmpty()) return@launch
+                uploadImages(eventSender.send { it.selectImages() })
+            }
+        }
 
-                viewModelStateFlow.update {
-                    it.copy(
-                        uploadingImageCount = it.uploadingImageCount + images.size,
-                    )
-                }
-
+        override fun onDropImages(droppedImages: DroppedImages) {
+            // launch の開始待ちやアップロード件数への切り替えの隙間で追加を通さないよう、
+            // launch 前に登録してアップロードを終えるまで保持する
+            viewModelStateFlow.update {
+                it.copy(processingDroppedImagesCount = it.processingDroppedImagesCount + 1)
+            }
+            viewModelScope.launch {
                 try {
-                    images.forEach { image ->
-                        val imageBytes = image.bytes ?: return@forEach
-                        val uploadResult = graphqlApi.uploadImage(
-                            bytes = imageBytes,
-                            contentType = image.contentType,
-                        )
-
-                        if (uploadResult != null) {
-                            viewModelStateFlow.update { viewModelState ->
-                                viewModelState.copy(
-                                    usageImages = (
-                                        viewModelState.usageImages + ViewModelState.UploadedImage(
-                                            imageId = uploadResult.imageId,
-                                            url = uploadResult.url,
-                                            thumbnailUrl = uploadResult.thumbnailUrl,
-                                        )
-                                        ).distinctBy { it.imageId.value },
-                                    hasInputChanges = true,
-                                )
-                            }
-                        }
-                    }
+                    uploadImages(droppedImages.read())
                 } finally {
                     viewModelStateFlow.update {
-                        it.copy(
-                            uploadingImageCount = (it.uploadingImageCount - images.size).coerceAtLeast(0),
-                        )
+                        it.copy(processingDroppedImagesCount = (it.processingDroppedImagesCount - 1).coerceAtLeast(0))
                     }
+                }
+            }
+        }
+
+        private suspend fun uploadImages(images: List<SelectedImage>) {
+            if (images.isEmpty()) return
+
+            viewModelStateFlow.update {
+                it.copy(
+                    uploadingImageCount = it.uploadingImageCount + images.size,
+                )
+            }
+
+            try {
+                images.forEach { image ->
+                    val imageBytes = image.bytes ?: return@forEach
+                    val uploadResult = graphqlApi.uploadImage(
+                        bytes = imageBytes,
+                        contentType = image.contentType,
+                    )
+
+                    if (uploadResult != null) {
+                        viewModelStateFlow.update { viewModelState ->
+                            viewModelState.copy(
+                                usageImages = (
+                                    viewModelState.usageImages + ViewModelState.UploadedImage(
+                                        imageId = uploadResult.imageId,
+                                        url = uploadResult.url,
+                                        thumbnailUrl = uploadResult.thumbnailUrl,
+                                    )
+                                    ).distinctBy { it.imageId.value },
+                                hasInputChanges = true,
+                            )
+                        }
+                    }
+                }
+            } finally {
+                viewModelStateFlow.update {
+                    it.copy(
+                        uploadingImageCount = (it.uploadingImageCount - images.size).coerceAtLeast(0),
+                    )
                 }
             }
         }
@@ -338,7 +359,7 @@ public class AddMoneyUsageViewModel(
     }
 
     private fun addMoneyUsage() {
-        if (viewModelStateFlow.value.uploadingImageCount > 0) return
+        if (viewModelStateFlow.value.isPreparingImages) return
 
         val submittedState = viewModelStateFlow.value
 
@@ -379,8 +400,13 @@ public class AddMoneyUsageViewModel(
                     }
                 }
                 viewModelStateFlow.update {
+                    val imagesAddedAfterSubmit = it.usageImages.filterNot { image -> image in submittedState.usageImages }
                     ViewModelState(
                         usageDate = it.usageDate,
+                        processingDroppedImagesCount = it.processingDroppedImagesCount,
+                        uploadingImageCount = it.uploadingImageCount,
+                        usageImages = imagesAddedAfterSubmit,
+                        hasInputChanges = imagesAddedAfterSubmit.isNotEmpty(),
                         sameDateUsages = if (it.usageDate == submittedState.usageDate) {
                             (
                                 it.sameDateUsages + ViewModelState.SameDateUsage(
@@ -590,7 +616,7 @@ public class AddMoneyUsageViewModel(
                             )
                             repeat(viewModelState.uploadingImageCount) { add(ImageItem.Uploading) }
                         }.toImmutableList(),
-                        addButtonEnabled = viewModelState.uploadingImageCount == 0,
+                        addButtonEnabled = !viewModelState.isPreparingImages,
                         handleBackPress = viewModelState.hasInputChanges,
                         categorySelectDialog = viewModelState.categorySelectDialog,
                         discardConfirmDialog = viewModelState.discardConfirmDialog,
@@ -643,6 +669,7 @@ public class AddMoneyUsageViewModel(
         val usageTitle: String = "",
         val usageDescription: String = "",
         val uploadingImageCount: Int = 0,
+        val processingDroppedImagesCount: Int = 0,
         val usageImages: List<UploadedImage> = listOf(),
         val usageAmount: NumberInputValue = NumberInputValue.default(),
         val numberInputDialog: AddMoneyUsageScreenUiState.NumberInputDialog? = null,
@@ -655,6 +682,9 @@ public class AddMoneyUsageViewModel(
         val discardConfirmDialog: AddMoneyUsageScreenUiState.DiscardConfirmDialog? = null,
         val sameDateUsages: List<SameDateUsage> = listOf(),
     ) {
+        val isPreparingImages: Boolean
+            get() = uploadingImageCount > 0 || processingDroppedImagesCount > 0
+
         data class SameDateUsage(val id: MoneyUsageId, val title: String, val amount: Int, val time: LocalTime)
         data class UploadedImage(val imageId: ImageId, val url: String, val thumbnailUrl: String?)
     }

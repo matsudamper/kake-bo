@@ -17,6 +17,7 @@ import com.apollographql.cache.normalized.watch
 import net.matsudamper.money.element.ImageId
 import net.matsudamper.money.element.MoneyUsageId
 import net.matsudamper.money.frontend.common.base.ImmutableList.Companion.toImmutableList
+import net.matsudamper.money.frontend.common.base.image.DroppedImages
 import net.matsudamper.money.frontend.common.base.image.SelectedImage
 import net.matsudamper.money.frontend.common.base.nav.ScopedObjectFeature
 import net.matsudamper.money.frontend.common.base.nav.user.ScreenStructure
@@ -464,18 +465,27 @@ public class MoneyUsageScreenViewModel(
 
             override fun onClickUploadImage() {
                 viewModelScope.launch {
-                    val images = eventSender.send { it.selectImages() }
-                    if (images.isEmpty()) return@launch
-
-                    eventSender.send { it.requestNotificationPermission() }
-                    images.forEach { image ->
-                        imageUploadQueue.enqueue(
-                            moneyUsageId = moneyUsageId,
-                            selectedImage = image,
-                        )
-                    }
+                    enqueueImages(eventSender.send { it.selectImages() })
                 }
             }
+
+            override fun onDropImages(droppedImages: DroppedImages) {
+                viewModelScope.launch {
+                    enqueueImages(droppedImages.read())
+                }
+            }
+        }
+    }
+
+    private suspend fun enqueueImages(images: List<SelectedImage>) {
+        if (images.isEmpty()) return
+
+        eventSender.send { it.requestNotificationPermission() }
+        images.forEach { image ->
+            imageUploadQueue.enqueue(
+                moneyUsageId = moneyUsageId,
+                selectedImage = image,
+            )
         }
     }
 
