@@ -90,6 +90,8 @@ import net.matsudamper.money.frontend.common.ui.layout.image.ImageLoadingPlaceho
 import net.matsudamper.money.frontend.common.ui.layout.image.ImageUploadDropArea
 import net.matsudamper.money.frontend.common.ui.layout.image.ZoomableImageDialog
 import net.matsudamper.money.frontend.common.ui.layout.image.ZoomableImageDialogImages
+import net.matsudamper.money.frontend.common.ui.layout.image.imageDropTarget
+import net.matsudamper.money.frontend.common.ui.layout.image.rememberImageDropTargetState
 import org.jetbrains.compose.resources.painterResource
 
 public data class MoneyUsageScreenUiState(
@@ -715,9 +717,17 @@ private fun ImagesCard(
     uiState: MoneyUsageScreenUiState.MoneyUsage,
 ) {
     var selectedImageUrl by remember { mutableStateOf<String?>(null) }
+    val imageDropTargetState = rememberImageDropTargetState(
+        onDropImages = { uiState.event.onDropImages(it) },
+    )
 
     Card(modifier = modifier.fillMaxWidth()) {
-        Column(modifier = Modifier.padding(16.dp)) {
+        Column(
+            modifier = Modifier
+                .fillMaxWidth()
+                .imageDropTarget(imageDropTargetState)
+                .padding(16.dp),
+        ) {
             Text(
                 text = "画像",
                 style = MaterialTheme.typography.labelLarge,
@@ -767,8 +777,8 @@ private fun ImagesCard(
             }
 
             ImageUploadDropArea(
+                dragHovering = imageDropTargetState.dragHovering,
                 onClickUpload = { uiState.event.onClickUploadImage() },
-                onDropImages = { uiState.event.onDropImages(it) },
             )
         }
     }

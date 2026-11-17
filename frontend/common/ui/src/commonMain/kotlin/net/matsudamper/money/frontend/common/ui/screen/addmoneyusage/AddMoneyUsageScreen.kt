@@ -73,6 +73,8 @@ import net.matsudamper.money.frontend.common.ui.layout.image.ImageLoadingPlaceho
 import net.matsudamper.money.frontend.common.ui.layout.image.ImageUploadDropArea
 import net.matsudamper.money.frontend.common.ui.layout.image.ZoomableImageDialog
 import net.matsudamper.money.frontend.common.ui.layout.image.ZoomableImageDialogImages
+import net.matsudamper.money.frontend.common.ui.layout.image.imageDropTarget
+import net.matsudamper.money.frontend.common.ui.layout.image.rememberImageDropTargetState
 import net.matsudamper.money.frontend.common.ui.lib.asWindowInsets
 import org.jetbrains.compose.resources.painterResource
 
@@ -368,7 +370,11 @@ public fun AddMoneyUsageScreen(
                     },
                 )
                 HorizontalDivider(Modifier.fillMaxWidth().height(1.dp))
+                val imageDropTargetState = rememberImageDropTargetState(
+                    onDropImages = { uiState.event.onDropImages(it) },
+                )
                 Section(
+                    modifier = Modifier.imageDropTarget(imageDropTargetState),
                     title = {
                         Text("画像")
                     },
@@ -411,8 +417,8 @@ public fun AddMoneyUsageScreen(
                                 Spacer(Modifier.height(8.dp))
                             }
                             ImageUploadDropArea(
+                                dragHovering = imageDropTargetState.dragHovering,
                                 onClickUpload = { uiState.event.onClickUploadImage() },
-                                onDropImages = { uiState.event.onDropImages(it) },
                             )
                         }
                     },
