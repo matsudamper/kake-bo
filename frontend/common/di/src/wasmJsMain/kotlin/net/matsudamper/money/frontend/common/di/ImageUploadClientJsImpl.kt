@@ -9,8 +9,6 @@ import net.matsudamper.money.frontend.common.base.Logger
 import net.matsudamper.money.image.ImageUploadApiPath
 import net.matsudamper.money.image.ImageUploadImageResponse
 import org.khronos.webgl.toInt8Array
-import org.w3c.fetch.INCLUDE
-import org.w3c.fetch.RequestCredentials
 import org.w3c.fetch.RequestInit
 import org.w3c.fetch.Response
 import org.w3c.files.Blob
@@ -33,11 +31,7 @@ public class ImageUploadClientJsImpl : ImageUploadClient {
         val formData = FormData()
         formData.append("file", blob, "image")
 
-        val init = RequestInit(
-            method = "POST",
-            body = formData,
-            credentials = RequestCredentials.INCLUDE,
-        )
+        val init = createUploadRequestInit(body = formData)
 
         return runCatching {
             val response = window.fetch(ImageUploadApiPath.uploadV1, init).await<Response>()
@@ -53,3 +47,6 @@ public class ImageUploadClientJsImpl : ImageUploadClient {
         }.getOrNull()
     }
 }
+
+// RequestInit() は未指定の項目を null で埋め、ブラウザが cache: null などを不正な値として fetch を拒否する
+private fun createUploadRequestInit(body: FormData): RequestInit = js("({ method: 'POST', body: body, credentials: 'include' })")
