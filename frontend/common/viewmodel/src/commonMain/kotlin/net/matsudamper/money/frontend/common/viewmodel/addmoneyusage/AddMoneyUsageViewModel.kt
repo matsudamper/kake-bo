@@ -405,9 +405,17 @@ public class AddMoneyUsageViewModel(
                 }
                 viewModelStateFlow.update {
                     val imagesAddedAfterSubmit = it.usageImages.filterNot { image -> image in submittedState.usageImages }
+                    // 送信後に追加された画像は次の入力に残るので、その画像から適用した撮影日時も残す
+                    val capturedDateTimeAppliedAfterSubmit = it.usageDateTimeOrigin == ViewModelState.DateTimeOrigin.ImageCapture &&
+                        submittedState.usageDateTimeOrigin != ViewModelState.DateTimeOrigin.ImageCapture
                     ViewModelState(
                         usageDate = it.usageDate,
-                        usageDateTimeOrigin = it.usageDateTimeOrigin.afterUsageAdded(),
+                        usageTime = if (capturedDateTimeAppliedAfterSubmit) it.usageTime else LocalTime(0, 0, 0, 0),
+                        usageDateTimeOrigin = if (capturedDateTimeAppliedAfterSubmit) {
+                            it.usageDateTimeOrigin
+                        } else {
+                            it.usageDateTimeOrigin.afterUsageAdded()
+                        },
                         processingDroppedImagesCount = it.processingDroppedImagesCount,
                         uploadingImageCount = it.uploadingImageCount,
                         usageImages = imagesAddedAfterSubmit,
