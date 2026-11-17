@@ -23,6 +23,7 @@ import net.matsudamper.money.element.MoneyUsageSubCategoryId
 import net.matsudamper.money.frontend.common.base.ImmutableList.Companion.toImmutableList
 import net.matsudamper.money.frontend.common.base.Logger
 import net.matsudamper.money.frontend.common.base.image.DroppedImages
+import net.matsudamper.money.frontend.common.base.image.ExifCaptureDateTimeReader
 import net.matsudamper.money.frontend.common.base.image.SelectedImage
 import net.matsudamper.money.frontend.common.base.immutableListOf
 import net.matsudamper.money.frontend.common.base.nav.ScopedObjectFeature
@@ -122,6 +123,7 @@ public class AddMoneyUsageViewModel(
             viewModelStateFlow.update { viewModelState ->
                 viewModelState.copy(
                     usageDate = date,
+                    usageDateTimeOrigin = ViewModelState.DateTimeOrigin.Specified,
                     showCalendarDialog = false,
                     hasInputChanges = true,
                 )
@@ -148,6 +150,7 @@ public class AddMoneyUsageViewModel(
             viewModelStateFlow.update { viewModelState ->
                 viewModelState.copy(
                     usageTime = time,
+                    usageDateTimeOrigin = ViewModelState.DateTimeOrigin.Specified,
                     showTimePickerDialog = false,
                     hasInputChanges = true,
                 )
@@ -286,8 +289,9 @@ public class AddMoneyUsageViewModel(
                     )
 
                     if (uploadResult != null) {
+                        val capturedDateTime = ExifCaptureDateTimeReader.read(imageBytes)
                         viewModelStateFlow.update { viewModelState ->
-                            viewModelState.copy(
+                            viewModelState.withCapturedDateTime(capturedDateTime).copy(
                                 usageImages = (
                                     viewModelState.usageImages + ViewModelState.UploadedImage(
                                         imageId = uploadResult.imageId,
@@ -403,6 +407,7 @@ public class AddMoneyUsageViewModel(
                     val imagesAddedAfterSubmit = it.usageImages.filterNot { image -> image in submittedState.usageImages }
                     ViewModelState(
                         usageDate = it.usageDate,
+                        usageDateTimeOrigin = it.usageDateTimeOrigin.afterUsageAdded(),
                         processingDroppedImagesCount = it.processingDroppedImagesCount,
                         uploadingImageCount = it.uploadingImageCount,
                         usageImages = imagesAddedAfterSubmit,
@@ -465,6 +470,11 @@ public class AddMoneyUsageViewModel(
                         usageTitle = current.title ?: if (isFromNotification) "" else state.usageTitle,
                         usageDate = current.date?.date ?: if (isFromNotification) Clock.System.todayIn(TimeZone.currentSystemDefault()) else state.usageDate,
                         usageTime = current.date?.time ?: if (isFromNotification) LocalTime(0, 0, 0, 0) else state.usageTime,
+                        usageDateTimeOrigin = when {
+                            current.date != null -> ViewModelState.DateTimeOrigin.Specified
+                            isFromNotification -> ViewModelState.DateTimeOrigin.Initial
+                            else -> state.usageDateTimeOrigin
+                        },
                         usageAmount = current.price?.let { NumberInputValue.default(it.toInt()) } ?: if (isFromNotification) NumberInputValue.default() else state.usageAmount,
                         usageDescription = current.description ?: if (isFromNotification) "" else state.usageDescription,
                         usageImages = listOf(),
@@ -495,6 +505,11 @@ public class AddMoneyUsageViewModel(
                     usageTitle = current.title ?: if (resetsMissingFields) "" else state.usageTitle,
                     usageDate = current.date?.date ?: if (resetsMissingFields) Clock.System.todayIn(TimeZone.currentSystemDefault()) else state.usageDate,
                     usageTime = current.date?.time ?: if (resetsMissingFields) LocalTime(0, 0, 0, 0) else state.usageTime,
+                    usageDateTimeOrigin = when {
+                        current.date != null -> ViewModelState.DateTimeOrigin.Specified
+                        resetsMissingFields -> ViewModelState.DateTimeOrigin.Initial
+                        else -> state.usageDateTimeOrigin
+                    },
                     usageAmount = current.price?.let { NumberInputValue.default(it.toInt()) } ?: if (resetsMissingFields) NumberInputValue.default() else state.usageAmount,
                     usageDescription = current.description ?: if (resetsMissingFields) "" else state.usageDescription,
                     usageImages = listOf(),
@@ -515,13 +530,18 @@ public class AddMoneyUsageViewModel(
                     if (suggestUsage == null) {
                         val subject = result.data?.user?.importedMailAttributes?.mail?.subject.orEmpty()
                         val date = result.data?.user?.importedMailAttributes?.mail?.dateTime
+                        val mailDate = forwardedInfo?.dateTime?.date ?: date?.date
                         viewModelStateFlow.update {
                             it.copy(
                                 importedMailId = importedMailId,
+                                usageDateTimeOrigin = if (mailDate != null) {
+                                    ViewModelState.DateTimeOrigin.Specified
+                                } else {
+                                    ViewModelState.DateTimeOrigin.Initial
+                                },
                                 usageTitle = forwardedInfo?.subject ?: subject,
                                 usageImages = listOf(),
-                                usageDate = forwardedInfo?.dateTime?.date
-                                    ?: date?.date
+                                usageDate = mailDate
                                     ?: Clock.System.todayIn(TimeZone.currentSystemDefault()),
                             )
                         }
@@ -536,6 +556,11 @@ public class AddMoneyUsageViewModel(
                             ),
                             usageDate = suggestUsage.dateTime?.date ?: it.usageDate,
                             usageTime = suggestUsage.dateTime?.time ?: it.usageTime,
+                            usageDateTimeOrigin = if (suggestUsage.dateTime != null) {
+                                ViewModelState.DateTimeOrigin.Specified
+                            } else {
+                                it.usageDateTimeOrigin
+                            },
                             usageTitle = suggestUsage.title,
                             usageDescription = suggestUsage.description,
                             usageImages = listOf(),
@@ -666,6 +691,7 @@ public class AddMoneyUsageViewModel(
         val notificationUsageKey: String? = null,
         val usageDate: LocalDate = Clock.System.todayIn(TimeZone.currentSystemDefault()),
         val usageTime: LocalTime = LocalTime(0, 0, 0, 0),
+        val usageDateTimeOrigin: DateTimeOrigin = DateTimeOrigin.Initial,
         val usageTitle: String = "",
         val usageDescription: String = "",
         val uploadingImageCount: Int = 0,
@@ -684,6 +710,28 @@ public class AddMoneyUsageViewModel(
     ) {
         val isPreparingImages: Boolean
             get() = uploadingImageCount > 0 || processingDroppedImagesCount > 0
+
+        fun withCapturedDateTime(capturedDateTime: LocalDateTime?): ViewModelState {
+            if (capturedDateTime == null || usageDateTimeOrigin != DateTimeOrigin.Initial) return this
+            return copy(
+                usageDate = capturedDateTime.date,
+                usageTime = LocalTime(capturedDateTime.hour, capturedDateTime.minute),
+                usageDateTimeOrigin = DateTimeOrigin.ImageCapture,
+            )
+        }
+
+        enum class DateTimeOrigin {
+            Initial,
+            ImageCapture,
+            Specified,
+            ;
+
+            /** 追加後も日付は引き継ぐので、ユーザーや遷移元が決めた日付を次の画像の撮影日時で上書きしない */
+            fun afterUsageAdded(): DateTimeOrigin = when (this) {
+                Initial, ImageCapture -> Initial
+                Specified -> Specified
+            }
+        }
 
         data class SameDateUsage(val id: MoneyUsageId, val title: String, val amount: Int, val time: LocalTime)
         data class UploadedImage(val imageId: ImageId, val url: String, val thumbnailUrl: String?)
