@@ -374,9 +374,7 @@ public fun AddMoneyUsageScreen(
                     },
                     description = {
                         Column {
-                            if (uiState.images.isEmpty()) {
-                                Text("未設定")
-                            } else {
+                            if (uiState.images.isNotEmpty()) {
                                 FlowRow(
                                     modifier = Modifier
                                         .fillMaxWidth(),
@@ -410,8 +408,8 @@ public fun AddMoneyUsageScreen(
                                         }
                                     }
                                 }
+                                Spacer(Modifier.height(8.dp))
                             }
-                            Spacer(Modifier.height(8.dp))
                             ImageUploadDropArea(
                                 onClickUpload = { uiState.event.onClickUploadImage() },
                                 onDropImages = { uiState.event.onDropImages(it) },
