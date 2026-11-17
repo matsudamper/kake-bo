@@ -252,18 +252,19 @@ public class AddMoneyUsageViewModel(
         }
 
         override fun onDropImages(droppedImages: DroppedImages) {
+            // launch の開始待ちやアップロード件数への切り替えの隙間で追加を通さないよう、
+            // launch 前に登録してアップロードを終えるまで保持する
+            viewModelStateFlow.update {
+                it.copy(processingDroppedImagesCount = it.processingDroppedImagesCount + 1)
+            }
             viewModelScope.launch {
-                viewModelStateFlow.update {
-                    it.copy(readingDroppedImagesCount = it.readingDroppedImagesCount + 1)
-                }
-                val images = try {
-                    droppedImages.read()
+                try {
+                    uploadImages(droppedImages.read())
                 } finally {
                     viewModelStateFlow.update {
-                        it.copy(readingDroppedImagesCount = (it.readingDroppedImagesCount - 1).coerceAtLeast(0))
+                        it.copy(processingDroppedImagesCount = (it.processingDroppedImagesCount - 1).coerceAtLeast(0))
                     }
                 }
-                uploadImages(images)
             }
         }
 
@@ -663,7 +664,7 @@ public class AddMoneyUsageViewModel(
         val usageTitle: String = "",
         val usageDescription: String = "",
         val uploadingImageCount: Int = 0,
-        val readingDroppedImagesCount: Int = 0,
+        val processingDroppedImagesCount: Int = 0,
         val usageImages: List<UploadedImage> = listOf(),
         val usageAmount: NumberInputValue = NumberInputValue.default(),
         val numberInputDialog: AddMoneyUsageScreenUiState.NumberInputDialog? = null,
@@ -677,7 +678,7 @@ public class AddMoneyUsageViewModel(
         val sameDateUsages: List<SameDateUsage> = listOf(),
     ) {
         val isPreparingImages: Boolean
-            get() = uploadingImageCount > 0 || readingDroppedImagesCount > 0
+            get() = uploadingImageCount > 0 || processingDroppedImagesCount > 0
 
         data class SameDateUsage(val id: MoneyUsageId, val title: String, val amount: Int, val time: LocalTime)
         data class UploadedImage(val imageId: ImageId, val url: String, val thumbnailUrl: String?)
