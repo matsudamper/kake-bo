@@ -43,7 +43,8 @@ private class AndroidDroppedImagesExtractor(
         return object : DroppedImages {
             override suspend fun read(): List<SelectedImage> {
                 return try {
-                    uris.map { uri -> activity.readSelectedImage(uri) }
+                    // 権限を手放した後に URI を読み直す経路へ回さないよう、読めなかった画像はここで落とす
+                    uris.mapNotNull { uri -> activity.readSelectedImage(uri) }
                 } finally {
                     permissions?.release()
                 }
@@ -55,14 +56,14 @@ private class AndroidDroppedImagesExtractor(
         return (0 until itemCount).mapNotNull { index -> getItemAt(index).uri }
     }
 
-    private suspend fun Activity.readSelectedImage(uri: Uri): SelectedImage {
+    private suspend fun Activity.readSelectedImage(uri: Uri): SelectedImage? {
         val imageBytes = withContext(Dispatchers.IO) {
             runCatching {
                 contentResolver.openInputStream(uri)?.use { it.readBytes() }
             }.onFailure {
                 Logger.e(TAG, it)
             }.getOrNull()
-        }
+        } ?: return null
         return SelectedImage(
             id = uri.toString(),
             bytes = imageBytes,
