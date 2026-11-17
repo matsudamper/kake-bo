@@ -115,6 +115,8 @@ private fun RootHostScaffoldContent(
             if (LocalIsLargeScreen.current) {
                 NavigationRail(
                     modifier = Modifier.padding(top = 8.dp),
+                    windowInsets = windowInsets.asWindowInsets()
+                        .only(WindowInsetsSides.Start + WindowInsetsSides.Vertical),
                 ) {
                     NavigationRailItem(
                         selected = currentScreen == RootScreenTab.Home,
@@ -182,7 +184,7 @@ private fun RootHostScaffoldContent(
                     .fillMaxHeight(),
             ) {
                 val contentSides = if (LocalIsLargeScreen.current) {
-                    WindowInsetsSides.Top + WindowInsetsSides.End
+                    WindowInsetsSides.Top + WindowInsetsSides.End + WindowInsetsSides.Bottom
                 } else {
                     WindowInsetsSides.Top + WindowInsetsSides.Horizontal
                 }
