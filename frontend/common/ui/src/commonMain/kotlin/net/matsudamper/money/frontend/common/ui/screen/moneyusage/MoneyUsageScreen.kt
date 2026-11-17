@@ -66,6 +66,7 @@ import coil3.compose.AsyncImage
 import coil3.compose.SubcomposeAsyncImage
 import net.matsudamper.money.frontend.common.base.ImmutableList
 import net.matsudamper.money.frontend.common.base.ImmutableList.Companion.toImmutableList
+import net.matsudamper.money.frontend.common.base.image.DroppedImages
 import net.matsudamper.money.frontend.common.ui.AppRoot
 import net.matsudamper.money.frontend.common.ui.LocalIsLargeScreen
 import net.matsudamper.money.frontend.common.ui.base.CategorySelectDialog
@@ -88,7 +89,7 @@ import net.matsudamper.money.frontend.common.ui.layout.UrlClickableText
 import net.matsudamper.money.frontend.common.ui.layout.UrlMenuDialog
 import net.matsudamper.money.frontend.common.ui.layout.html.text.fullscreen.FullScreenTextInput
 import net.matsudamper.money.frontend.common.ui.layout.image.ImageLoadingPlaceholder
-import net.matsudamper.money.frontend.common.ui.layout.image.ImageUploadButton
+import net.matsudamper.money.frontend.common.ui.layout.image.ImageUploadDropArea
 import net.matsudamper.money.frontend.common.ui.layout.image.ZoomableImageDialog
 import net.matsudamper.money.frontend.common.ui.layout.image.ZoomableImageDialogImages
 import org.jetbrains.compose.resources.painterResource
@@ -222,6 +223,8 @@ public data class MoneyUsageScreenUiState(
         public fun onClickAmountChange()
 
         public fun onClickUploadImage()
+
+        public fun onDropImages(droppedImages: DroppedImages)
     }
 
     @Immutable
@@ -786,8 +789,9 @@ private fun ImagesCard(
                 Spacer(modifier = Modifier.height(8.dp))
             }
 
-            ImageUploadButton(
-                onClick = { uiState.event.onClickUploadImage() },
+            ImageUploadDropArea(
+                onClickUpload = { uiState.event.onClickUploadImage() },
+                onDropImages = { uiState.event.onDropImages(it) },
             )
         }
     }
@@ -1042,6 +1046,7 @@ private fun MoneyUsageScreenPreviewContent(
         override fun onClickAmountChange() = Unit
 
         override fun onClickUploadImage() = Unit
+        override fun onDropImages(droppedImages: DroppedImages) = Unit
     }
     AppRoot(isDarkTheme = false) {
         MoneyUsageScreen(

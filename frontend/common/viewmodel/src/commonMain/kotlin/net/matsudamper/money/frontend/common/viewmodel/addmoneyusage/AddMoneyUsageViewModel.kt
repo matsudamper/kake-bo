@@ -22,6 +22,7 @@ import net.matsudamper.money.element.MoneyUsageId
 import net.matsudamper.money.element.MoneyUsageSubCategoryId
 import net.matsudamper.money.frontend.common.base.ImmutableList.Companion.toImmutableList
 import net.matsudamper.money.frontend.common.base.Logger
+import net.matsudamper.money.frontend.common.base.image.DroppedImages
 import net.matsudamper.money.frontend.common.base.image.SelectedImage
 import net.matsudamper.money.frontend.common.base.immutableListOf
 import net.matsudamper.money.frontend.common.base.nav.ScopedObjectFeature
@@ -246,44 +247,53 @@ public class AddMoneyUsageViewModel(
 
         override fun onClickUploadImage() {
             viewModelScope.launch {
-                val images = eventSender.send { it.selectImages() }
-                if (images.isEmpty()) return@launch
+                uploadImages(eventSender.send { it.selectImages() })
+            }
+        }
 
-                viewModelStateFlow.update {
-                    it.copy(
-                        uploadingImageCount = it.uploadingImageCount + images.size,
+        override fun onDropImages(droppedImages: DroppedImages) {
+            viewModelScope.launch {
+                uploadImages(droppedImages.read())
+            }
+        }
+
+        private suspend fun uploadImages(images: List<SelectedImage>) {
+            if (images.isEmpty()) return
+
+            viewModelStateFlow.update {
+                it.copy(
+                    uploadingImageCount = it.uploadingImageCount + images.size,
+                )
+            }
+
+            try {
+                images.forEach { image ->
+                    val imageBytes = image.bytes ?: return@forEach
+                    val uploadResult = graphqlApi.uploadImage(
+                        bytes = imageBytes,
+                        contentType = image.contentType,
                     )
-                }
 
-                try {
-                    images.forEach { image ->
-                        val imageBytes = image.bytes ?: return@forEach
-                        val uploadResult = graphqlApi.uploadImage(
-                            bytes = imageBytes,
-                            contentType = image.contentType,
-                        )
-
-                        if (uploadResult != null) {
-                            viewModelStateFlow.update { viewModelState ->
-                                viewModelState.copy(
-                                    usageImages = (
-                                        viewModelState.usageImages + ViewModelState.UploadedImage(
-                                            imageId = uploadResult.imageId,
-                                            url = uploadResult.url,
-                                            thumbnailUrl = uploadResult.thumbnailUrl,
-                                        )
-                                        ).distinctBy { it.imageId.value },
-                                    hasInputChanges = true,
-                                )
-                            }
+                    if (uploadResult != null) {
+                        viewModelStateFlow.update { viewModelState ->
+                            viewModelState.copy(
+                                usageImages = (
+                                    viewModelState.usageImages + ViewModelState.UploadedImage(
+                                        imageId = uploadResult.imageId,
+                                        url = uploadResult.url,
+                                        thumbnailUrl = uploadResult.thumbnailUrl,
+                                    )
+                                    ).distinctBy { it.imageId.value },
+                                hasInputChanges = true,
+                            )
                         }
                     }
-                } finally {
-                    viewModelStateFlow.update {
-                        it.copy(
-                            uploadingImageCount = (it.uploadingImageCount - images.size).coerceAtLeast(0),
-                        )
-                    }
+                }
+            } finally {
+                viewModelStateFlow.update {
+                    it.copy(
+                        uploadingImageCount = (it.uploadingImageCount - images.size).coerceAtLeast(0),
+                    )
                 }
             }
         }

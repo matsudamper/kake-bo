@@ -53,6 +53,7 @@ import kotlinx.datetime.LocalTime
 import coil3.compose.SubcomposeAsyncImage
 import net.matsudamper.money.frontend.common.base.ImmutableList
 import net.matsudamper.money.frontend.common.base.ImmutableList.Companion.toImmutableList
+import net.matsudamper.money.frontend.common.base.image.DroppedImages
 import net.matsudamper.money.frontend.common.ui.AppRoot
 import net.matsudamper.money.frontend.common.ui.base.CategorySelectDialog
 import net.matsudamper.money.frontend.common.ui.base.CategorySelectDialogUiState
@@ -69,7 +70,7 @@ import net.matsudamper.money.frontend.common.ui.layout.SnackbarEventState
 import net.matsudamper.money.frontend.common.ui.layout.TimePickerDialog
 import net.matsudamper.money.frontend.common.ui.layout.html.text.fullscreen.FullScreenTextInput
 import net.matsudamper.money.frontend.common.ui.layout.image.ImageLoadingPlaceholder
-import net.matsudamper.money.frontend.common.ui.layout.image.ImageUploadButton
+import net.matsudamper.money.frontend.common.ui.layout.image.ImageUploadDropArea
 import net.matsudamper.money.frontend.common.ui.layout.image.ZoomableImageDialog
 import net.matsudamper.money.frontend.common.ui.layout.image.ZoomableImageDialogImages
 import net.matsudamper.money.frontend.common.ui.lib.asWindowInsets
@@ -171,6 +172,8 @@ public data class AddMoneyUsageScreenUiState(
         public fun onClickAmountChange()
 
         public fun onClickUploadImage()
+
+        public fun onDropImages(droppedImages: DroppedImages)
     }
 }
 
@@ -409,8 +412,9 @@ public fun AddMoneyUsageScreen(
                                 }
                             }
                             Spacer(Modifier.height(8.dp))
-                            ImageUploadButton(
-                                onClick = { uiState.event.onClickUploadImage() },
+                            ImageUploadDropArea(
+                                onClickUpload = { uiState.event.onClickUploadImage() },
+                                onDropImages = { uiState.event.onDropImages(it) },
                             )
                         }
                     },
@@ -603,6 +607,7 @@ private fun AddMoneyUsageScreenPreview() {
                     override fun onClickCategoryChange() {}
                     override fun onClickAmountChange() {}
                     override fun onClickUploadImage() {}
+                    override fun onDropImages(droppedImages: DroppedImages) {}
                 },
                 numberInputDialog = null,
                 snackbarEventState = SnackbarEventState(),
