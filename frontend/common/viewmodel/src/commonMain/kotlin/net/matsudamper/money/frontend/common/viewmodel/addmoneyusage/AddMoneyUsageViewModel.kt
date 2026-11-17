@@ -403,6 +403,8 @@ public class AddMoneyUsageViewModel(
                     ViewModelState(
                         usageDate = it.usageDate,
                         processingDroppedImagesCount = it.processingDroppedImagesCount,
+                        uploadingImageCount = it.uploadingImageCount,
+                        usageImages = it.usageImages.filterNot { image -> image in submittedState.usageImages },
                         sameDateUsages = if (it.usageDate == submittedState.usageDate) {
                             (
                                 it.sameDateUsages + ViewModelState.SameDateUsage(
