@@ -253,7 +253,17 @@ public class AddMoneyUsageViewModel(
 
         override fun onDropImages(droppedImages: DroppedImages) {
             viewModelScope.launch {
-                uploadImages(droppedImages.read())
+                viewModelStateFlow.update {
+                    it.copy(readingDroppedImagesCount = it.readingDroppedImagesCount + 1)
+                }
+                val images = try {
+                    droppedImages.read()
+                } finally {
+                    viewModelStateFlow.update {
+                        it.copy(readingDroppedImagesCount = (it.readingDroppedImagesCount - 1).coerceAtLeast(0))
+                    }
+                }
+                uploadImages(images)
             }
         }
 
@@ -348,7 +358,7 @@ public class AddMoneyUsageViewModel(
     }
 
     private fun addMoneyUsage() {
-        if (viewModelStateFlow.value.uploadingImageCount > 0) return
+        if (viewModelStateFlow.value.isPreparingImages) return
 
         val submittedState = viewModelStateFlow.value
 
@@ -600,7 +610,7 @@ public class AddMoneyUsageViewModel(
                             )
                             repeat(viewModelState.uploadingImageCount) { add(ImageItem.Uploading) }
                         }.toImmutableList(),
-                        addButtonEnabled = viewModelState.uploadingImageCount == 0,
+                        addButtonEnabled = !viewModelState.isPreparingImages,
                         handleBackPress = viewModelState.hasInputChanges,
                         categorySelectDialog = viewModelState.categorySelectDialog,
                         discardConfirmDialog = viewModelState.discardConfirmDialog,
@@ -653,6 +663,7 @@ public class AddMoneyUsageViewModel(
         val usageTitle: String = "",
         val usageDescription: String = "",
         val uploadingImageCount: Int = 0,
+        val readingDroppedImagesCount: Int = 0,
         val usageImages: List<UploadedImage> = listOf(),
         val usageAmount: NumberInputValue = NumberInputValue.default(),
         val numberInputDialog: AddMoneyUsageScreenUiState.NumberInputDialog? = null,
@@ -665,6 +676,9 @@ public class AddMoneyUsageViewModel(
         val discardConfirmDialog: AddMoneyUsageScreenUiState.DiscardConfirmDialog? = null,
         val sameDateUsages: List<SameDateUsage> = listOf(),
     ) {
+        val isPreparingImages: Boolean
+            get() = uploadingImageCount > 0 || readingDroppedImagesCount > 0
+
         data class SameDateUsage(val id: MoneyUsageId, val title: String, val amount: Int, val time: LocalTime)
         data class UploadedImage(val imageId: ImageId, val url: String, val thumbnailUrl: String?)
     }
