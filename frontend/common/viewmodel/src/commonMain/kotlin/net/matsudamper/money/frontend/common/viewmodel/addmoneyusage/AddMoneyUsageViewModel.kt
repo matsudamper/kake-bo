@@ -400,11 +400,13 @@ public class AddMoneyUsageViewModel(
                     }
                 }
                 viewModelStateFlow.update {
+                    val imagesAddedAfterSubmit = it.usageImages.filterNot { image -> image in submittedState.usageImages }
                     ViewModelState(
                         usageDate = it.usageDate,
                         processingDroppedImagesCount = it.processingDroppedImagesCount,
                         uploadingImageCount = it.uploadingImageCount,
-                        usageImages = it.usageImages.filterNot { image -> image in submittedState.usageImages },
+                        usageImages = imagesAddedAfterSubmit,
+                        hasInputChanges = imagesAddedAfterSubmit.isNotEmpty(),
                         sameDateUsages = if (it.usageDate == submittedState.usageDate) {
                             (
                                 it.sameDateUsages + ViewModelState.SameDateUsage(
