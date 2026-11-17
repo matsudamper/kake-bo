@@ -18,7 +18,6 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.text.BasicTextField
@@ -66,6 +65,7 @@ import coil3.compose.AsyncImage
 import coil3.compose.SubcomposeAsyncImage
 import net.matsudamper.money.frontend.common.base.ImmutableList
 import net.matsudamper.money.frontend.common.base.ImmutableList.Companion.toImmutableList
+import net.matsudamper.money.frontend.common.base.image.DroppedImages
 import net.matsudamper.money.frontend.common.ui.AppRoot
 import net.matsudamper.money.frontend.common.ui.LocalIsLargeScreen
 import net.matsudamper.money.frontend.common.ui.base.CategorySelectDialog
@@ -77,7 +77,6 @@ import net.matsudamper.money.frontend.common.ui.base.LoadingErrorContent
 import net.matsudamper.money.frontend.common.ui.generated.resources.Res
 import net.matsudamper.money.frontend.common.ui.generated.resources.ic_arrow_back
 import net.matsudamper.money.frontend.common.ui.generated.resources.ic_email
-import net.matsudamper.money.frontend.common.ui.generated.resources.ic_image
 import net.matsudamper.money.frontend.common.ui.generated.resources.ic_more_vert
 import net.matsudamper.money.frontend.common.ui.layout.AlertDialog
 import net.matsudamper.money.frontend.common.ui.layout.CalendarDialog
@@ -88,9 +87,11 @@ import net.matsudamper.money.frontend.common.ui.layout.UrlClickableText
 import net.matsudamper.money.frontend.common.ui.layout.UrlMenuDialog
 import net.matsudamper.money.frontend.common.ui.layout.html.text.fullscreen.FullScreenTextInput
 import net.matsudamper.money.frontend.common.ui.layout.image.ImageLoadingPlaceholder
-import net.matsudamper.money.frontend.common.ui.layout.image.ImageUploadButton
+import net.matsudamper.money.frontend.common.ui.layout.image.ImageUploadDropArea
 import net.matsudamper.money.frontend.common.ui.layout.image.ZoomableImageDialog
 import net.matsudamper.money.frontend.common.ui.layout.image.ZoomableImageDialogImages
+import net.matsudamper.money.frontend.common.ui.layout.image.imageDropTarget
+import net.matsudamper.money.frontend.common.ui.layout.image.rememberImageDropTargetState
 import org.jetbrains.compose.resources.painterResource
 
 public data class MoneyUsageScreenUiState(
@@ -222,6 +223,8 @@ public data class MoneyUsageScreenUiState(
         public fun onClickAmountChange()
 
         public fun onClickUploadImage()
+
+        public fun onDropImages(droppedImages: DroppedImages)
     }
 
     @Immutable
@@ -714,9 +717,17 @@ private fun ImagesCard(
     uiState: MoneyUsageScreenUiState.MoneyUsage,
 ) {
     var selectedImageUrl by remember { mutableStateOf<String?>(null) }
+    val imageDropTargetState = rememberImageDropTargetState(
+        onDropImages = { uiState.event.onDropImages(it) },
+    )
 
     Card(modifier = modifier.fillMaxWidth()) {
-        Column(modifier = Modifier.padding(16.dp)) {
+        Column(
+            modifier = Modifier
+                .fillMaxWidth()
+                .imageDropTarget(imageDropTargetState)
+                .padding(16.dp),
+        ) {
             Text(
                 text = "画像",
                 style = MaterialTheme.typography.labelLarge,
@@ -763,31 +774,11 @@ private fun ImagesCard(
                     }
                 }
                 Spacer(modifier = Modifier.height(16.dp))
-            } else {
-                Column(
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .padding(vertical = 24.dp),
-                    horizontalAlignment = Alignment.CenterHorizontally,
-                    verticalArrangement = Arrangement.spacedBy(8.dp),
-                ) {
-                    Icon(
-                        painter = painterResource(Res.drawable.ic_image),
-                        contentDescription = null,
-                        modifier = Modifier.size(48.dp),
-                        tint = MaterialTheme.colorScheme.onSurfaceVariant,
-                    )
-                    Text(
-                        text = "画像なし",
-                        style = MaterialTheme.typography.bodyMedium,
-                        color = MaterialTheme.colorScheme.onSurfaceVariant,
-                    )
-                }
-                Spacer(modifier = Modifier.height(8.dp))
             }
 
-            ImageUploadButton(
-                onClick = { uiState.event.onClickUploadImage() },
+            ImageUploadDropArea(
+                dragHovering = imageDropTargetState.dragHovering,
+                onClickUpload = { uiState.event.onClickUploadImage() },
             )
         }
     }
@@ -1042,6 +1033,7 @@ private fun MoneyUsageScreenPreviewContent(
         override fun onClickAmountChange() = Unit
 
         override fun onClickUploadImage() = Unit
+        override fun onDropImages(droppedImages: DroppedImages) = Unit
     }
     AppRoot(isDarkTheme = false) {
         MoneyUsageScreen(

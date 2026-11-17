@@ -53,6 +53,7 @@ import kotlinx.datetime.LocalTime
 import coil3.compose.SubcomposeAsyncImage
 import net.matsudamper.money.frontend.common.base.ImmutableList
 import net.matsudamper.money.frontend.common.base.ImmutableList.Companion.toImmutableList
+import net.matsudamper.money.frontend.common.base.image.DroppedImages
 import net.matsudamper.money.frontend.common.ui.AppRoot
 import net.matsudamper.money.frontend.common.ui.base.CategorySelectDialog
 import net.matsudamper.money.frontend.common.ui.base.CategorySelectDialogUiState
@@ -69,9 +70,11 @@ import net.matsudamper.money.frontend.common.ui.layout.SnackbarEventState
 import net.matsudamper.money.frontend.common.ui.layout.TimePickerDialog
 import net.matsudamper.money.frontend.common.ui.layout.html.text.fullscreen.FullScreenTextInput
 import net.matsudamper.money.frontend.common.ui.layout.image.ImageLoadingPlaceholder
-import net.matsudamper.money.frontend.common.ui.layout.image.ImageUploadButton
+import net.matsudamper.money.frontend.common.ui.layout.image.ImageUploadDropArea
 import net.matsudamper.money.frontend.common.ui.layout.image.ZoomableImageDialog
 import net.matsudamper.money.frontend.common.ui.layout.image.ZoomableImageDialogImages
+import net.matsudamper.money.frontend.common.ui.layout.image.imageDropTarget
+import net.matsudamper.money.frontend.common.ui.layout.image.rememberImageDropTargetState
 import net.matsudamper.money.frontend.common.ui.lib.asWindowInsets
 import org.jetbrains.compose.resources.painterResource
 
@@ -171,6 +174,8 @@ public data class AddMoneyUsageScreenUiState(
         public fun onClickAmountChange()
 
         public fun onClickUploadImage()
+
+        public fun onDropImages(droppedImages: DroppedImages)
     }
 }
 
@@ -365,15 +370,17 @@ public fun AddMoneyUsageScreen(
                     },
                 )
                 HorizontalDivider(Modifier.fillMaxWidth().height(1.dp))
+                val imageDropTargetState = rememberImageDropTargetState(
+                    onDropImages = { uiState.event.onDropImages(it) },
+                )
                 Section(
+                    modifier = Modifier.imageDropTarget(imageDropTargetState),
                     title = {
                         Text("画像")
                     },
                     description = {
                         Column {
-                            if (uiState.images.isEmpty()) {
-                                Text("未設定")
-                            } else {
+                            if (uiState.images.isNotEmpty()) {
                                 FlowRow(
                                     modifier = Modifier
                                         .fillMaxWidth(),
@@ -407,10 +414,11 @@ public fun AddMoneyUsageScreen(
                                         }
                                     }
                                 }
+                                Spacer(Modifier.height(8.dp))
                             }
-                            Spacer(Modifier.height(8.dp))
-                            ImageUploadButton(
-                                onClick = { uiState.event.onClickUploadImage() },
+                            ImageUploadDropArea(
+                                dragHovering = imageDropTargetState.dragHovering,
+                                onClickUpload = { uiState.event.onClickUploadImage() },
                             )
                         }
                     },
@@ -603,6 +611,7 @@ private fun AddMoneyUsageScreenPreview() {
                     override fun onClickCategoryChange() {}
                     override fun onClickAmountChange() {}
                     override fun onClickUploadImage() {}
+                    override fun onDropImages(droppedImages: DroppedImages) {}
                 },
                 numberInputDialog = null,
                 snackbarEventState = SnackbarEventState(),
