@@ -45,6 +45,7 @@ include(":frontend:common:graphql:apollo-compiler-plugin")
 include(":frontend:common:graphql")
 
 include(":shared")
+include(":shared:feature-category-filter")
 include(":detekt-rules")
 
 pluginManagement {

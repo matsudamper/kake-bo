@@ -36,7 +36,7 @@ import net.matsudamper.money.backend.graphql.resolver.UserSettingsResolverImpl
 import net.matsudamper.money.backend.graphql.resolver.analytics.MoneyUsageAnalyticsByCategoryResolverImpl
 import net.matsudamper.money.backend.graphql.resolver.analytics.MoneyUsageAnalyticsResolverImpl
 import net.matsudamper.money.backend.graphql.resolver.importedmail.ImportedMailAttributesResolverImpl
-import net.matsudamper.money.backend.graphql.resolver.importedmail.ImportedMailCategoryConditionResolverImpl
+import net.matsudamper.money.backend.graphql.resolver.importedmail.ImportedMailCategoryFilterMatcherResolverImpl
 import net.matsudamper.money.backend.graphql.resolver.importedmail.ImportedMailCategoryFilterResolverImpl
 import net.matsudamper.money.backend.graphql.resolver.importedmail.ImportedMailResolverImpl
 import net.matsudamper.money.backend.graphql.resolver.mutation.AdminMutationResolverImpl
@@ -49,8 +49,8 @@ import net.matsudamper.money.backend.graphql.schema.GraphqlSchemaModule
 import net.matsudamper.money.element.ApiTokenId
 import net.matsudamper.money.element.FidoId
 import net.matsudamper.money.element.ImageId
-import net.matsudamper.money.element.ImportedMailCategoryFilterConditionId
 import net.matsudamper.money.element.ImportedMailCategoryFilterId
+import net.matsudamper.money.element.ImportedMailCategoryFilterMatcherId
 import net.matsudamper.money.element.ImportedMailId
 import net.matsudamper.money.element.MailId
 import net.matsudamper.money.element.MoneyUsageCategoryId
@@ -125,8 +125,8 @@ object MoneyGraphQlSchema {
                     serialize = { it.id },
                 ),
                 createIntScalarType(
-                    name = "ImportedMailCategoryFilterConditionId",
-                    deserialize = { ImportedMailCategoryFilterConditionId(it) },
+                    name = "ImportedMailCategoryFilterMatcherId",
+                    deserialize = { ImportedMailCategoryFilterMatcherId(it) },
                     serialize = { it.id },
                 ),
                 createIntScalarType(
@@ -171,7 +171,7 @@ object MoneyGraphQlSchema {
                 AdminUnlinkedImagesConnectionResolverImpl(),
                 ImageResolverImpl(),
                 QueryResolverImpl(),
-                ImportedMailCategoryConditionResolverImpl(),
+                ImportedMailCategoryFilterMatcherResolverImpl(),
                 MutationResolverImpl(),
                 AdminMutationResolverImpl(),
                 UserMutationResolverImpl(),

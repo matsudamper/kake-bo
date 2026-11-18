@@ -25,18 +25,18 @@ fun CompletableFuture<List<MailFilterRepository.MailFilter>>.primeChildDataLoade
     }
 }
 
-@JvmName("mailFilterConditionPrimeChildDataLoader")
-fun CompletableFuture<List<MailFilterRepository.Condition>>.primeChildDataLoader(env: DataFetchingEnvironment): CompletableFuture<List<MailFilterRepository.Condition>> {
+@JvmName("mailFilterMatcherPrimeChildDataLoader")
+fun CompletableFuture<List<MailFilterRepository.Matcher>>.primeChildDataLoader(env: DataFetchingEnvironment): CompletableFuture<List<MailFilterRepository.Matcher>> {
     val context = env.graphQlContext.get<GraphQlContext>(GraphQlContext::class.java.name)
     val userId = context.verifyUserSessionAndGetUserId()
 
     return thenApply { items ->
         items.forEach { item ->
-            context.dataLoaders.importedMailCategoryFilterConditionDataLoader.get(env)
+            context.dataLoaders.importedMailCategoryFilterMatcherDataLoader.get(env)
                 .prime(
-                    ImportedMailCategoryFilterConditionDataLoaderDefine.Key(
+                    ImportedMailCategoryFilterMatcherDataLoaderDefine.Key(
                         userId = userId,
-                        conditionId = item.conditionId,
+                        matcherId = item.matcherId,
                     ),
                     item,
                 )

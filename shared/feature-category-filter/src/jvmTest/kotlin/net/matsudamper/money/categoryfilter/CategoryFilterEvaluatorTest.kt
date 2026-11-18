@@ -13,22 +13,26 @@ class CategoryFilterEvaluatorTest : DescribeSpec(
             orderNumber: Int,
             operator: CategoryFilterOperator,
             subCategoryId: MoneyUsageSubCategoryId?,
-            conditions: List<CategoryFilterCondition>,
+            matchers: List<CategoryFilterMatcher>,
+            matchExpression: String? = null,
         ) = CategoryFilter(
             orderNumber = orderNumber,
             operator = operator,
+            matchExpression = matchExpression,
             subCategoryId = subCategoryId,
-            conditions = conditions,
+            matchers = matchers,
         )
 
-        fun condition(
+        fun matcher(
             text: String,
             dataSourceType: CategoryFilterDataSourceType,
-            conditionType: CategoryFilterConditionType,
-        ) = CategoryFilterCondition(
+            matcherType: CategoryFilterMatcherType,
+            matcherKey: String = "id1",
+        ) = CategoryFilterMatcher(
+            matcherKey = matcherKey,
             text = text,
             dataSourceType = dataSourceType,
-            conditionType = conditionType,
+            matcherType = matcherType,
         )
 
         describe("evaluateCategoryFilters") {
@@ -40,8 +44,8 @@ class CategoryFilterEvaluatorTest : DescribeSpec(
                                 orderNumber = 1,
                                 operator = CategoryFilterOperator.AND,
                                 subCategoryId = subCategoryId1,
-                                conditions = listOf(
-                                    condition("コンビニ", CategoryFilterDataSourceType.Title, CategoryFilterConditionType.Include),
+                                matchers = listOf(
+                                    matcher("コンビニ", CategoryFilterDataSourceType.Title, CategoryFilterMatcherType.Include),
                                 ),
                             ),
                         ),
@@ -61,8 +65,8 @@ class CategoryFilterEvaluatorTest : DescribeSpec(
                                 orderNumber = 1,
                                 operator = CategoryFilterOperator.AND,
                                 subCategoryId = subCategoryId1,
-                                conditions = listOf(
-                                    condition("コンビニ", CategoryFilterDataSourceType.Title, CategoryFilterConditionType.Include),
+                                matchers = listOf(
+                                    matcher("コンビニ", CategoryFilterDataSourceType.Title, CategoryFilterMatcherType.Include),
                                 ),
                             ),
                         ),
@@ -82,8 +86,8 @@ class CategoryFilterEvaluatorTest : DescribeSpec(
                                 orderNumber = 1,
                                 operator = CategoryFilterOperator.AND,
                                 subCategoryId = subCategoryId1,
-                                conditions = listOf(
-                                    condition("コンビニ", CategoryFilterDataSourceType.Title, CategoryFilterConditionType.NotInclude),
+                                matchers = listOf(
+                                    matcher("コンビニ", CategoryFilterDataSourceType.Title, CategoryFilterMatcherType.NotInclude),
                                 ),
                             ),
                         ),
@@ -103,8 +107,8 @@ class CategoryFilterEvaluatorTest : DescribeSpec(
                                 orderNumber = 1,
                                 operator = CategoryFilterOperator.AND,
                                 subCategoryId = subCategoryId1,
-                                conditions = listOf(
-                                    condition("コンビニ", CategoryFilterDataSourceType.Title, CategoryFilterConditionType.Equal),
+                                matchers = listOf(
+                                    matcher("コンビニ", CategoryFilterDataSourceType.Title, CategoryFilterMatcherType.Equal),
                                 ),
                             ),
                         ),
@@ -124,8 +128,8 @@ class CategoryFilterEvaluatorTest : DescribeSpec(
                                 orderNumber = 1,
                                 operator = CategoryFilterOperator.AND,
                                 subCategoryId = subCategoryId1,
-                                conditions = listOf(
-                                    condition("コンビニ", CategoryFilterDataSourceType.Title, CategoryFilterConditionType.Equal),
+                                matchers = listOf(
+                                    matcher("コンビニ", CategoryFilterDataSourceType.Title, CategoryFilterMatcherType.Equal),
                                 ),
                             ),
                         ),
@@ -145,8 +149,8 @@ class CategoryFilterEvaluatorTest : DescribeSpec(
                                 orderNumber = 1,
                                 operator = CategoryFilterOperator.AND,
                                 subCategoryId = subCategoryId1,
-                                conditions = listOf(
-                                    condition("コンビニ", CategoryFilterDataSourceType.Title, CategoryFilterConditionType.NotEqual),
+                                matchers = listOf(
+                                    matcher("コンビニ", CategoryFilterDataSourceType.Title, CategoryFilterMatcherType.NotEqual),
                                 ),
                             ),
                         ),
@@ -168,8 +172,8 @@ class CategoryFilterEvaluatorTest : DescribeSpec(
                                 orderNumber = 1,
                                 operator = CategoryFilterOperator.AND,
                                 subCategoryId = subCategoryId1,
-                                conditions = listOf(
-                                    condition("モバイルSuica", CategoryFilterDataSourceType.ServiceName, CategoryFilterConditionType.Include),
+                                matchers = listOf(
+                                    matcher("モバイルSuica", CategoryFilterDataSourceType.ServiceName, CategoryFilterMatcherType.Include),
                                 ),
                             ),
                         ),
@@ -191,8 +195,8 @@ class CategoryFilterEvaluatorTest : DescribeSpec(
                                 orderNumber = 1,
                                 operator = CategoryFilterOperator.AND,
                                 subCategoryId = subCategoryId1,
-                                conditions = listOf(
-                                    condition("any", CategoryFilterDataSourceType.MailTitle, CategoryFilterConditionType.NotInclude),
+                                matchers = listOf(
+                                    matcher("any", CategoryFilterDataSourceType.MailTitle, CategoryFilterMatcherType.NotInclude),
                                 ),
                             ),
                         ),
@@ -209,9 +213,9 @@ class CategoryFilterEvaluatorTest : DescribeSpec(
                                 orderNumber = 1,
                                 operator = CategoryFilterOperator.AND,
                                 subCategoryId = subCategoryId1,
-                                conditions = listOf(
-                                    condition("交通", CategoryFilterDataSourceType.Title, CategoryFilterConditionType.Include),
-                                    condition("Suica", CategoryFilterDataSourceType.ServiceName, CategoryFilterConditionType.Include),
+                                matchers = listOf(
+                                    matcher("交通", CategoryFilterDataSourceType.Title, CategoryFilterMatcherType.Include),
+                                    matcher("Suica", CategoryFilterDataSourceType.ServiceName, CategoryFilterMatcherType.Include),
                                 ),
                             ),
                         ),
@@ -232,9 +236,9 @@ class CategoryFilterEvaluatorTest : DescribeSpec(
                                 orderNumber = 1,
                                 operator = CategoryFilterOperator.AND,
                                 subCategoryId = subCategoryId1,
-                                conditions = listOf(
-                                    condition("交通", CategoryFilterDataSourceType.Title, CategoryFilterConditionType.Include),
-                                    condition("Suica", CategoryFilterDataSourceType.ServiceName, CategoryFilterConditionType.Include),
+                                matchers = listOf(
+                                    matcher("交通", CategoryFilterDataSourceType.Title, CategoryFilterMatcherType.Include),
+                                    matcher("Suica", CategoryFilterDataSourceType.ServiceName, CategoryFilterMatcherType.Include),
                                 ),
                             ),
                         ),
@@ -255,9 +259,9 @@ class CategoryFilterEvaluatorTest : DescribeSpec(
                                 orderNumber = 1,
                                 operator = CategoryFilterOperator.OR,
                                 subCategoryId = subCategoryId1,
-                                conditions = listOf(
-                                    condition("交通", CategoryFilterDataSourceType.Title, CategoryFilterConditionType.Include),
-                                    condition("Suica", CategoryFilterDataSourceType.ServiceName, CategoryFilterConditionType.Include),
+                                matchers = listOf(
+                                    matcher("交通", CategoryFilterDataSourceType.Title, CategoryFilterMatcherType.Include),
+                                    matcher("Suica", CategoryFilterDataSourceType.ServiceName, CategoryFilterMatcherType.Include),
                                 ),
                             ),
                         ),
@@ -278,9 +282,9 @@ class CategoryFilterEvaluatorTest : DescribeSpec(
                                 orderNumber = 1,
                                 operator = CategoryFilterOperator.OR,
                                 subCategoryId = subCategoryId1,
-                                conditions = listOf(
-                                    condition("交通", CategoryFilterDataSourceType.Title, CategoryFilterConditionType.Include),
-                                    condition("Suica", CategoryFilterDataSourceType.ServiceName, CategoryFilterConditionType.Include),
+                                matchers = listOf(
+                                    matcher("交通", CategoryFilterDataSourceType.Title, CategoryFilterMatcherType.Include),
+                                    matcher("Suica", CategoryFilterDataSourceType.ServiceName, CategoryFilterMatcherType.Include),
                                 ),
                             ),
                         ),
@@ -295,6 +299,76 @@ class CategoryFilterEvaluatorTest : DescribeSpec(
                 }
             }
 
+            describe("式") {
+                val matchers = listOf(
+                    matcher("カード", CategoryFilterDataSourceType.ServiceName, CategoryFilterMatcherType.Include, matcherKey = "card"),
+                    matcher("店舗A", CategoryFilterDataSourceType.Title, CategoryFilterMatcherType.Include, matcherKey = "shop-a"),
+                    matcher("店舗B", CategoryFilterDataSourceType.Title, CategoryFilterMatcherType.Include, matcherKey = "shop_b"),
+                )
+
+                fun evaluate(matchExpression: String?, serviceName: String, title: String) = evaluateCategoryFilters(
+                    filters = listOf(
+                        filter(
+                            orderNumber = 1,
+                            operator = CategoryFilterOperator.OR,
+                            subCategoryId = subCategoryId1,
+                            matchers = matchers,
+                            matchExpression = matchExpression,
+                        ),
+                    ),
+                ) { type ->
+                    when (type) {
+                        CategoryFilterDataSourceType.ServiceName -> serviceName
+                        CategoryFilterDataSourceType.Title -> title
+                        else -> null
+                    }
+                }
+
+                it("式が一致する場合はマッチする") {
+                    evaluate("card AND (shop-a OR shop_b)", serviceName = "カード", title = "店舗Bで購入")
+                        .shouldBe(subCategoryId1)
+                }
+
+                it("式が一致しない場合はマッチしない") {
+                    evaluate("card AND (shop-a OR shop_b)", serviceName = "銀行", title = "店舗Bで購入")
+                        .shouldBe(null)
+                }
+
+                it("式がnullの場合はoperatorで評価する") {
+                    evaluate(null, serviceName = "銀行", title = "店舗Bで購入")
+                        .shouldBe(subCategoryId1)
+                }
+
+                it("式が空白のみの場合はoperatorで評価する") {
+                    evaluate(" \n ", serviceName = "銀行", title = "店舗Bで購入")
+                        .shouldBe(subCategoryId1)
+                }
+
+                it("式の文法が壊れている場合はマッチしない") {
+                    evaluate("card AND", serviceName = "カード", title = "店舗Aで購入")
+                        .shouldBe(null)
+                }
+
+                it("存在しないmatcher_keyを参照している場合はマッチしない") {
+                    evaluate("card OR unknown", serviceName = "カード", title = "店舗Aで購入")
+                        .shouldBe(null)
+                }
+
+                it("matcherが無くても式がTRUEならマッチする") {
+                    evaluateCategoryFilters(
+                        filters = listOf(
+                            filter(
+                                orderNumber = 1,
+                                operator = CategoryFilterOperator.AND,
+                                subCategoryId = subCategoryId1,
+                                matchers = listOf(),
+                                matchExpression = "TRUE",
+                            ),
+                        ),
+                    ) { null }.shouldBe(subCategoryId1)
+                }
+            }
+
             describe("フィルター評価の特殊ケース") {
                 it("条件が空のフィルターはスキップして次のフィルターを評価する") {
                     val result = evaluateCategoryFilters(
@@ -303,14 +377,14 @@ class CategoryFilterEvaluatorTest : DescribeSpec(
                                 orderNumber = 1,
                                 operator = CategoryFilterOperator.AND,
                                 subCategoryId = subCategoryId1,
-                                conditions = listOf(),
+                                matchers = listOf(),
                             ),
                             filter(
                                 orderNumber = 2,
                                 operator = CategoryFilterOperator.AND,
                                 subCategoryId = subCategoryId2,
-                                conditions = listOf(
-                                    condition("交通", CategoryFilterDataSourceType.Title, CategoryFilterConditionType.Include),
+                                matchers = listOf(
+                                    matcher("交通", CategoryFilterDataSourceType.Title, CategoryFilterMatcherType.Include),
                                 ),
                             ),
                         ),
@@ -330,8 +404,8 @@ class CategoryFilterEvaluatorTest : DescribeSpec(
                                 orderNumber = 1,
                                 operator = CategoryFilterOperator.AND,
                                 subCategoryId = null,
-                                conditions = listOf(
-                                    condition("交通", CategoryFilterDataSourceType.Title, CategoryFilterConditionType.Include),
+                                matchers = listOf(
+                                    matcher("交通", CategoryFilterDataSourceType.Title, CategoryFilterMatcherType.Include),
                                 ),
                             ),
                         ),
@@ -351,16 +425,16 @@ class CategoryFilterEvaluatorTest : DescribeSpec(
                                 orderNumber = 2,
                                 operator = CategoryFilterOperator.AND,
                                 subCategoryId = subCategoryId2,
-                                conditions = listOf(
-                                    condition("交通", CategoryFilterDataSourceType.Title, CategoryFilterConditionType.Include),
+                                matchers = listOf(
+                                    matcher("交通", CategoryFilterDataSourceType.Title, CategoryFilterMatcherType.Include),
                                 ),
                             ),
                             filter(
                                 orderNumber = 1,
                                 operator = CategoryFilterOperator.AND,
                                 subCategoryId = subCategoryId1,
-                                conditions = listOf(
-                                    condition("交通", CategoryFilterDataSourceType.Title, CategoryFilterConditionType.Include),
+                                matchers = listOf(
+                                    matcher("交通", CategoryFilterDataSourceType.Title, CategoryFilterMatcherType.Include),
                                 ),
                             ),
                         ),

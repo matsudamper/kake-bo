@@ -5,12 +5,14 @@ import net.matsudamper.money.element.MoneyUsageSubCategoryId
 data class CategoryFilter(
     val orderNumber: Int,
     val operator: CategoryFilterOperator,
+    val matchExpression: String?,
     val subCategoryId: MoneyUsageSubCategoryId?,
-    val conditions: List<CategoryFilterCondition>,
+    val matchers: List<CategoryFilterMatcher>,
 )
 
-data class CategoryFilterCondition(
+data class CategoryFilterMatcher(
+    val matcherKey: String,
     val text: String,
     val dataSourceType: CategoryFilterDataSourceType,
-    val conditionType: CategoryFilterConditionType,
+    val matcherType: CategoryFilterMatcherType,
 )

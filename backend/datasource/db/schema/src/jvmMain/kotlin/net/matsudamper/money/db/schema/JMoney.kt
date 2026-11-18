@@ -9,9 +9,9 @@ import kotlin.collections.List
 import net.matsudamper.money.db.schema.tables.JAdminSessions
 import net.matsudamper.money.db.schema.tables.JApiTokens
 import net.matsudamper.money.db.schema.tables.JCategoryMailFilterConditionOperatorType
-import net.matsudamper.money.db.schema.tables.JCategoryMailFilterConditionType
-import net.matsudamper.money.db.schema.tables.JCategoryMailFilterConditions
 import net.matsudamper.money.db.schema.tables.JCategoryMailFilterDatasourceType
+import net.matsudamper.money.db.schema.tables.JCategoryMailFilterMatcherType
+import net.matsudamper.money.db.schema.tables.JCategoryMailFilterMatchers
 import net.matsudamper.money.db.schema.tables.JCategoryMailFilters
 import net.matsudamper.money.db.schema.tables.JMoneyUsageCategories
 import net.matsudamper.money.db.schema.tables.JMoneyUsageImagesRelation
@@ -66,19 +66,19 @@ open class JMoney : SchemaImpl(DSL.name("money"), DefaultCatalog.DEFAULT_CATALOG
     val CATEGORY_MAIL_FILTER_CONDITION_OPERATOR_TYPE: JCategoryMailFilterConditionOperatorType get() = JCategoryMailFilterConditionOperatorType.CATEGORY_MAIL_FILTER_CONDITION_OPERATOR_TYPE
 
     /**
-     * The table <code>money.category_mail_filter_condition_type</code>.
-     */
-    val CATEGORY_MAIL_FILTER_CONDITION_TYPE: JCategoryMailFilterConditionType get() = JCategoryMailFilterConditionType.CATEGORY_MAIL_FILTER_CONDITION_TYPE
-
-    /**
-     * The table <code>money.category_mail_filter_conditions</code>.
-     */
-    val CATEGORY_MAIL_FILTER_CONDITIONS: JCategoryMailFilterConditions get() = JCategoryMailFilterConditions.CATEGORY_MAIL_FILTER_CONDITIONS
-
-    /**
      * The table <code>money.category_mail_filter_datasource_type</code>.
      */
     val CATEGORY_MAIL_FILTER_DATASOURCE_TYPE: JCategoryMailFilterDatasourceType get() = JCategoryMailFilterDatasourceType.CATEGORY_MAIL_FILTER_DATASOURCE_TYPE
+
+    /**
+     * The table <code>money.category_mail_filter_matcher_type</code>.
+     */
+    val CATEGORY_MAIL_FILTER_MATCHER_TYPE: JCategoryMailFilterMatcherType get() = JCategoryMailFilterMatcherType.CATEGORY_MAIL_FILTER_MATCHER_TYPE
+
+    /**
+     * The table <code>money.category_mail_filter_matchers</code>.
+     */
+    val CATEGORY_MAIL_FILTER_MATCHERS: JCategoryMailFilterMatchers get() = JCategoryMailFilterMatchers.CATEGORY_MAIL_FILTER_MATCHERS
 
     /**
      * The table <code>money.category_mail_filters</code>.
@@ -171,9 +171,9 @@ open class JMoney : SchemaImpl(DSL.name("money"), DefaultCatalog.DEFAULT_CATALOG
         JAdminSessions.ADMIN_SESSIONS,
         JApiTokens.API_TOKENS,
         JCategoryMailFilterConditionOperatorType.CATEGORY_MAIL_FILTER_CONDITION_OPERATOR_TYPE,
-        JCategoryMailFilterConditionType.CATEGORY_MAIL_FILTER_CONDITION_TYPE,
-        JCategoryMailFilterConditions.CATEGORY_MAIL_FILTER_CONDITIONS,
         JCategoryMailFilterDatasourceType.CATEGORY_MAIL_FILTER_DATASOURCE_TYPE,
+        JCategoryMailFilterMatcherType.CATEGORY_MAIL_FILTER_MATCHER_TYPE,
+        JCategoryMailFilterMatchers.CATEGORY_MAIL_FILTER_MATCHERS,
         JCategoryMailFilters.CATEGORY_MAIL_FILTERS,
         JMoneyUsageCategories.MONEY_USAGE_CATEGORIES,
         JMoneyUsageImagesRelation.MONEY_USAGE_IMAGES_RELATION,

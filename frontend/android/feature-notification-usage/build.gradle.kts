@@ -7,6 +7,7 @@ plugins {
 
 dependencies {
     implementation(projects.shared)
+    implementation(projects.shared.featureCategoryFilter)
     implementation(projects.frontend.common.base)
     implementation(projects.frontend.common.graphql)
     implementation(projects.frontend.common.navigation)
