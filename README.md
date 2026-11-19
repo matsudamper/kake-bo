@@ -45,7 +45,7 @@
 ```
 出力先は`frontend/app/build/dist/wasmJs/productionExecutable`。環境変数`HTML_PATH`にこのディレクトリを指定する。
 環境変数に既定値は無く、必須の値が未設定だと参照した時点で例外になる。
-必要な環境変数は[ServerEnv.kt](https://github.com/matsudamper/kake-bo/blob/563272f802d15d6620432a53ada88fbdd5cf9561/backend/base/src/jvmMain/java/net/matsudamper/money/backend/base/ServerEnv.kt)を参照
+必要な環境変数は[ServerEnv.kt](backend/base/src/jvmMain/java/net/matsudamper/money/backend/base/ServerEnv.kt)を参照
 
 # Update Code
 DB
