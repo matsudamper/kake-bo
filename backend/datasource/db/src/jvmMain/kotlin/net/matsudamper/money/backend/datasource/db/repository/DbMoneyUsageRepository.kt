@@ -594,6 +594,78 @@ class DbMoneyUsageRepository : MoneyUsageRepository {
         )
     }
 
+    override fun addUsageImage(
+        userId: UserId,
+        usageId: MoneyUsageId,
+        imageId: ImageId,
+    ): Boolean {
+        return runCatching {
+            DbConnectionImpl.use { connection ->
+                if (!isAllOwnedImages(connection = connection, userId = userId, imageIds = listOf(imageId))) {
+                    return@use false
+                }
+                val context = DSL.using(connection)
+                context.startTransaction()
+                try {
+                    val ownedUsageCount = context
+                        .selectCount()
+                        .from(jUsage)
+                        .where(
+                            jUsage.USER_ID.eq(userId.value)
+                                .and(jUsage.MONEY_USAGE_ID.eq(usageId.id)),
+                        )
+                        .forUpdate()
+                        .fetchOne(0, Int::class.java) ?: 0
+                    if (ownedUsageCount != 1) {
+                        TraceLogger.impl().noticeInfo("addUsageImage: usage not found usageId=${usageId.id}")
+                        context.rollback()
+                        return@use false
+                    }
+
+                    val alreadyLinkedCount = context
+                        .selectCount()
+                        .from(jUsageImagesRelation)
+                        .where(
+                            jUsageImagesRelation.USER_ID.eq(userId.value)
+                                .and(jUsageImagesRelation.MONEY_USAGE_ID.eq(usageId.id))
+                                .and(jUsageImagesRelation.USER_IMAGE_ID.eq(imageId.value)),
+                        )
+                        .fetchOne(0, Int::class.java) ?: 0
+                    if (alreadyLinkedCount > 0) {
+                        context.commit()
+                        return@use true
+                    }
+
+                    val maxImageOrder = context
+                        .select(DSL.max(jUsageImagesRelation.IMAGE_ORDER))
+                        .from(jUsageImagesRelation)
+                        .where(
+                            jUsageImagesRelation.USER_ID.eq(userId.value)
+                                .and(jUsageImagesRelation.MONEY_USAGE_ID.eq(usageId.id)),
+                        )
+                        .fetchOne(0, Int::class.java)
+
+                    context.insertInto(jUsageImagesRelation)
+                        .set(jUsageImagesRelation.USER_ID, userId.value)
+                        .set(jUsageImagesRelation.MONEY_USAGE_ID, usageId.id)
+                        .set(jUsageImagesRelation.USER_IMAGE_ID, imageId.value)
+                        .set(jUsageImagesRelation.IMAGE_ORDER, (maxImageOrder ?: -1) + 1)
+                        .execute()
+
+                    context.commit()
+                    true
+                } catch (e: Throwable) {
+                    TraceLogger.impl().noticeThrowable(e, isError = true)
+                    context.rollback()
+                    false
+                }
+            }
+        }.fold(
+            onSuccess = { it },
+            onFailure = { false },
+        )
+    }
+
     private fun isAllOwnedImages(
         connection: java.sql.Connection,
         userId: UserId,
