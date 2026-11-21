@@ -12,11 +12,11 @@ appcompat = "1.8.0"
 agp = "9.3.0"
 jackson = "2.23.0"
 compose = "1.12.2"
-androidxComposeRuntime = "1.12.1"
+androidxComposeRuntime = "1.13.0"
 protoBuf = "4.36.2"
-lifecycle = "2.11.0"
+lifecycle = "2.11.1"
 jooq = "3.21.9"
-nav3 = "1.2.1"
+nav3 = "1.2.2"
 jetbrainsNav3 = "1.2.0"
 coil3 = "3.6.3"
 zoomable = "2.16.0"
@@ -53,7 +53,7 @@ protobuf = { id = "com.google.protobuf", version.require = "0.10.1" }
 paparazzi = { id = "app.cash.paparazzi", version.ref = "paparazzi" }
 graalvmNative = { id = "org.graalvm.buildtools.native", version.ref = "graalvmNative" }
 ksp = { id = "com.google.devtools.ksp", version.ref = "ksp" }
-buildkonfig = { id = "com.codingfeline.buildkonfig", version.require = "0.23.0" }
+buildkonfig = { id = "com.codingfeline.buildkonfig", version.require = "0.24.1" }
 
 [libraries]
 awsS3 = { module = "software.amazon.awssdk:s3", version.ref = "awsSdk" }
