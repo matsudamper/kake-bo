@@ -7,12 +7,17 @@ import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.WindowInsets
 import androidx.compose.foundation.layout.WindowInsetsSides
 import androidx.compose.foundation.layout.asPaddingValues
+import androidx.compose.foundation.layout.consumeWindowInsets
+import androidx.compose.foundation.layout.displayCutout
 import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.imePadding
 import androidx.compose.foundation.layout.only
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.safeDrawing
+import androidx.compose.foundation.layout.systemBars
+import androidx.compose.foundation.layout.union
 import androidx.compose.foundation.layout.width
 import androidx.compose.material3.Icon
 import androidx.compose.material3.NavigationBar
@@ -24,9 +29,14 @@ import androidx.compose.material3.VerticalDivider
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.ProvidableCompositionLocal
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.runtime.staticCompositionLocalOf
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.layout.onSizeChanged
+import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.unit.dp
 import net.matsudamper.money.frontend.common.base.nav.EntryDecorator
 import net.matsudamper.money.frontend.common.base.nav.user.IScreenStructure
@@ -108,13 +118,29 @@ private fun RootHostScaffoldContent(
     modifier: Modifier = Modifier,
     content: @Composable (PaddingValues) -> Unit,
 ) {
+    val density = LocalDensity.current
+    var navigationBarHeight by remember { mutableStateOf(0.dp) }
     Column(modifier) {
         Row(
-            modifier = Modifier.weight(1f).fillMaxWidth(),
+            modifier = Modifier
+                .weight(1f)
+                .fillMaxWidth()
+                .then(
+                    if (LocalIsLargeScreen.current) {
+                        Modifier
+                    } else {
+                        // キーボードは下タブの上に重なるので、下タブの高さを超えた分だけ避ける
+                        Modifier
+                            .consumeWindowInsets(PaddingValues(bottom = navigationBarHeight))
+                            .imePadding()
+                    },
+                ),
         ) {
             if (LocalIsLargeScreen.current) {
                 NavigationRail(
                     modifier = Modifier.padding(top = 8.dp),
+                    windowInsets = windowInsets.asWindowInsets()
+                        .only(WindowInsetsSides.Start + WindowInsetsSides.Vertical),
                 ) {
                     NavigationRailItem(
                         selected = currentScreen == RootScreenTab.Home,
@@ -182,7 +208,7 @@ private fun RootHostScaffoldContent(
                     .fillMaxHeight(),
             ) {
                 val contentSides = if (LocalIsLargeScreen.current) {
-                    WindowInsetsSides.Top + WindowInsetsSides.End
+                    WindowInsetsSides.Top + WindowInsetsSides.End + WindowInsetsSides.Bottom
                 } else {
                     WindowInsetsSides.Top + WindowInsetsSides.Horizontal
                 }
@@ -195,7 +221,11 @@ private fun RootHostScaffoldContent(
         }
         if (LocalIsLargeScreen.current.not()) {
             NavigationBar(
-                windowInsets = windowInsets.asWindowInsets()
+                modifier = Modifier.onSizeChanged {
+                    navigationBarHeight = with(density) { it.height.toDp() }
+                },
+                windowInsets = WindowInsets.systemBars
+                    .union(WindowInsets.displayCutout)
                     .only(WindowInsetsSides.Bottom + WindowInsetsSides.Horizontal),
             ) {
                 NavigationBarItem(

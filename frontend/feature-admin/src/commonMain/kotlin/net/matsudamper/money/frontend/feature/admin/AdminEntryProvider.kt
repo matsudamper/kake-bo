@@ -1,6 +1,7 @@
 package net.matsudamper.money.frontend.feature.admin
 
 import androidx.compose.foundation.layout.PaddingValues
+import androidx.compose.foundation.layout.consumeWindowInsets
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.BasicAlertDialog
 import androidx.compose.material3.ExperimentalMaterial3Api
@@ -58,7 +59,9 @@ public object AdminEntryProvider {
             }
             AdminRootScreen(
                 uiState = adminRootViewModel.uiStateFlow.collectAsState().value,
-                modifier = Modifier.padding(paddingValues.value),
+                modifier = Modifier
+                    .padding(paddingValues.value)
+                    .consumeWindowInsets(paddingValues.value),
             )
         }
         addEntryProvider<ScreenStructure.Admin.Login, IScreenStructure> { current ->
@@ -105,7 +108,9 @@ public object AdminEntryProvider {
             AdminUnlinkedImagesScreen(
                 uiState = adminUnlinkedImagesScreenViewModel.uiStateFlow.collectAsState().value,
                 onClickBack = { navController.back() },
-                modifier = Modifier.padding(paddingValues.value),
+                modifier = Modifier
+                    .padding(paddingValues.value)
+                    .consumeWindowInsets(paddingValues.value),
             )
         }
         addEntryProvider<ScreenStructure.Admin.ThumbnailBackfill, IScreenStructure> { current ->
@@ -119,7 +124,9 @@ public object AdminEntryProvider {
             AdminThumbnailBackfillScreen(
                 uiState = viewModel.uiStateFlow.collectAsState().value,
                 onClickBack = { navController.back() },
-                modifier = Modifier.padding(paddingValues.value),
+                modifier = Modifier
+                    .padding(paddingValues.value)
+                    .consumeWindowInsets(paddingValues.value),
             )
         }
         addEntryProvider<ScreenStructure.Admin.UserSearch, IScreenStructure> { current ->
@@ -149,7 +156,9 @@ public object AdminEntryProvider {
                 uiState = adminUserSearchScreenViewModel.uiStateFlow.collectAsState().value,
                 onClickBack = { navController.back() },
                 snackbarHostState = snackbarHostState,
-                modifier = Modifier.padding(paddingValues.value),
+                modifier = Modifier
+                    .padding(paddingValues.value)
+                    .consumeWindowInsets(paddingValues.value),
             )
         }
     }

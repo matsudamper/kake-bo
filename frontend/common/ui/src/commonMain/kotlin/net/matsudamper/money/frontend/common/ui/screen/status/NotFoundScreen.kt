@@ -2,6 +2,7 @@ package net.matsudamper.money.frontend.common.ui.screen.status
 
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.PaddingValues
+import androidx.compose.foundation.layout.consumeWindowInsets
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.ExperimentalMaterial3Api
@@ -17,7 +18,8 @@ public fun NotFoundScreen(paddingValues: PaddingValues) {
     Scaffold(
         modifier = Modifier
             .fillMaxSize()
-            .padding(paddingValues),
+            .padding(paddingValues)
+            .consumeWindowInsets(paddingValues),
     ) { paddingValues1 ->
         Box(Modifier.padding(paddingValues1)) {
             Text(
