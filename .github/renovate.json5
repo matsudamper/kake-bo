@@ -95,7 +95,6 @@
     {
       "matchManagers": ["gradle-wrapper"],
       "matchPackageNames": ["gradle"],
-      "matchUpdateTypes": ["patch"],
       "automerge": true,
     },
     {
