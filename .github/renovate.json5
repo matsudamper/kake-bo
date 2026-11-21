@@ -93,6 +93,11 @@
       "automerge": true,
     },
     {
+      "matchManagers": ["gradle-wrapper"],
+      "matchPackageNames": ["gradle"],
+      "automerge": true,
+    },
+    {
       "matchPackageNames": ["org.graalvm.sdk:nativeimage"],
       "matchUpdateTypes": ["minor", "patch"],
       "automerge": true,
