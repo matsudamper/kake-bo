@@ -122,7 +122,7 @@ public class AddMoneyUsageViewModel(
             viewModelStateFlow.update { viewModelState ->
                 viewModelState.copy(
                     usageDate = date,
-                    usageDateTimeOrigin = ViewModelState.DateTimeOrigin.Specified,
+                    usageDateOrigin = ViewModelState.DateTimeOrigin.Specified,
                     showCalendarDialog = false,
                     hasInputChanges = true,
                 )
@@ -149,7 +149,7 @@ public class AddMoneyUsageViewModel(
             viewModelStateFlow.update { viewModelState ->
                 viewModelState.copy(
                     usageTime = time,
-                    usageDateTimeOrigin = ViewModelState.DateTimeOrigin.Specified,
+                    usageTimeOrigin = ViewModelState.DateTimeOrigin.Specified,
                     showTimePickerDialog = false,
                     hasInputChanges = true,
                 )
@@ -404,16 +404,19 @@ public class AddMoneyUsageViewModel(
                 viewModelStateFlow.update {
                     val imagesAddedAfterSubmit = it.usageImages.filterNot { image -> image in submittedState.usageImages }
                     // 送信後に追加された画像は次の入力に残るので、その画像から適用した撮影日時も残す
-                    val capturedDateTimeAppliedAfterSubmit = it.usageDateTimeOrigin == ViewModelState.DateTimeOrigin.ImageCapture &&
-                        submittedState.usageDateTimeOrigin != ViewModelState.DateTimeOrigin.ImageCapture
+                    val dateCapturedAfterSubmit = it.usageDateOrigin == ViewModelState.DateTimeOrigin.ImageCapture &&
+                        submittedState.usageDateOrigin != ViewModelState.DateTimeOrigin.ImageCapture
+                    val timeCapturedAfterSubmit = it.usageTimeOrigin == ViewModelState.DateTimeOrigin.ImageCapture &&
+                        submittedState.usageTimeOrigin != ViewModelState.DateTimeOrigin.ImageCapture
                     ViewModelState(
                         usageDate = it.usageDate,
-                        usageTime = if (capturedDateTimeAppliedAfterSubmit) it.usageTime else LocalTime(0, 0, 0, 0),
-                        usageDateTimeOrigin = if (capturedDateTimeAppliedAfterSubmit) {
-                            it.usageDateTimeOrigin
+                        usageDateOrigin = if (dateCapturedAfterSubmit) {
+                            it.usageDateOrigin
                         } else {
-                            it.usageDateTimeOrigin.afterUsageAdded()
+                            it.usageDateOrigin.afterUsageAdded()
                         },
+                        usageTime = if (timeCapturedAfterSubmit) it.usageTime else LocalTime(0, 0, 0, 0),
+                        usageTimeOrigin = if (timeCapturedAfterSubmit) it.usageTimeOrigin else ViewModelState.DateTimeOrigin.Initial,
                         processingDroppedImagesCount = it.processingDroppedImagesCount,
                         uploadingImageCount = it.uploadingImageCount,
                         usageImages = imagesAddedAfterSubmit,
@@ -476,10 +479,15 @@ public class AddMoneyUsageViewModel(
                         usageTitle = current.title ?: if (isFromNotification) "" else state.usageTitle,
                         usageDate = current.date?.date ?: if (isFromNotification) Clock.System.todayIn(TimeZone.currentSystemDefault()) else state.usageDate,
                         usageTime = current.date?.time ?: if (isFromNotification) LocalTime(0, 0, 0, 0) else state.usageTime,
-                        usageDateTimeOrigin = when {
+                        usageDateOrigin = when {
                             current.date != null -> ViewModelState.DateTimeOrigin.Specified
                             isFromNotification -> ViewModelState.DateTimeOrigin.Initial
-                            else -> state.usageDateTimeOrigin
+                            else -> state.usageDateOrigin
+                        },
+                        usageTimeOrigin = when {
+                            current.date != null -> ViewModelState.DateTimeOrigin.Specified
+                            isFromNotification -> ViewModelState.DateTimeOrigin.Initial
+                            else -> state.usageTimeOrigin
                         },
                         usageAmount = current.price?.let { NumberInputValue.default(it.toInt()) } ?: if (isFromNotification) NumberInputValue.default() else state.usageAmount,
                         usageDescription = current.description ?: if (isFromNotification) "" else state.usageDescription,
@@ -511,10 +519,15 @@ public class AddMoneyUsageViewModel(
                     usageTitle = current.title ?: if (resetsMissingFields) "" else state.usageTitle,
                     usageDate = current.date?.date ?: if (resetsMissingFields) Clock.System.todayIn(TimeZone.currentSystemDefault()) else state.usageDate,
                     usageTime = current.date?.time ?: if (resetsMissingFields) LocalTime(0, 0, 0, 0) else state.usageTime,
-                    usageDateTimeOrigin = when {
+                    usageDateOrigin = when {
                         current.date != null -> ViewModelState.DateTimeOrigin.Specified
                         resetsMissingFields -> ViewModelState.DateTimeOrigin.Initial
-                        else -> state.usageDateTimeOrigin
+                        else -> state.usageDateOrigin
+                    },
+                    usageTimeOrigin = when {
+                        current.date != null -> ViewModelState.DateTimeOrigin.Specified
+                        resetsMissingFields -> ViewModelState.DateTimeOrigin.Initial
+                        else -> state.usageTimeOrigin
                     },
                     usageAmount = current.price?.let { NumberInputValue.default(it.toInt()) } ?: if (resetsMissingFields) NumberInputValue.default() else state.usageAmount,
                     usageDescription = current.description ?: if (resetsMissingFields) "" else state.usageDescription,
@@ -540,7 +553,7 @@ public class AddMoneyUsageViewModel(
                         viewModelStateFlow.update {
                             it.copy(
                                 importedMailId = importedMailId,
-                                usageDateTimeOrigin = if (mailDate != null) {
+                                usageDateOrigin = if (mailDate != null) {
                                     ViewModelState.DateTimeOrigin.Specified
                                 } else {
                                     ViewModelState.DateTimeOrigin.Initial
@@ -562,10 +575,15 @@ public class AddMoneyUsageViewModel(
                             ),
                             usageDate = suggestUsage.dateTime?.date ?: it.usageDate,
                             usageTime = suggestUsage.dateTime?.time ?: it.usageTime,
-                            usageDateTimeOrigin = if (suggestUsage.dateTime != null) {
+                            usageDateOrigin = if (suggestUsage.dateTime != null) {
                                 ViewModelState.DateTimeOrigin.Specified
                             } else {
-                                it.usageDateTimeOrigin
+                                it.usageDateOrigin
+                            },
+                            usageTimeOrigin = if (suggestUsage.dateTime != null) {
+                                ViewModelState.DateTimeOrigin.Specified
+                            } else {
+                                it.usageTimeOrigin
                             },
                             usageTitle = suggestUsage.title,
                             usageDescription = suggestUsage.description,
@@ -697,7 +715,8 @@ public class AddMoneyUsageViewModel(
         val notificationUsageKey: String? = null,
         val usageDate: LocalDate = Clock.System.todayIn(TimeZone.currentSystemDefault()),
         val usageTime: LocalTime = LocalTime(0, 0, 0, 0),
-        val usageDateTimeOrigin: DateTimeOrigin = DateTimeOrigin.Initial,
+        val usageDateOrigin: DateTimeOrigin = DateTimeOrigin.Initial,
+        val usageTimeOrigin: DateTimeOrigin = DateTimeOrigin.Initial,
         val usageTitle: String = "",
         val usageDescription: String = "",
         val uploadingImageCount: Int = 0,
@@ -717,12 +736,17 @@ public class AddMoneyUsageViewModel(
         val isPreparingImages: Boolean
             get() = uploadingImageCount > 0 || processingDroppedImagesCount > 0
 
+        /** 日付が決まっているのに時刻だけ別の日の撮影時刻になるのを避けるため、時刻は日付と一緒にしか適用しない */
         fun withCapturedDateTime(capturedDateTime: LocalDateTime?): ViewModelState {
-            if (capturedDateTime == null || usageDateTimeOrigin != DateTimeOrigin.Initial) return this
-            return copy(
+            if (capturedDateTime == null || usageDateOrigin != DateTimeOrigin.Initial) return this
+            val dateApplied = copy(
                 usageDate = capturedDateTime.date,
+                usageDateOrigin = DateTimeOrigin.ImageCapture,
+            )
+            if (usageTimeOrigin != DateTimeOrigin.Initial) return dateApplied
+            return dateApplied.copy(
                 usageTime = LocalTime(capturedDateTime.hour, capturedDateTime.minute),
-                usageDateTimeOrigin = DateTimeOrigin.ImageCapture,
+                usageTimeOrigin = DateTimeOrigin.ImageCapture,
             )
         }
 
