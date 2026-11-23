@@ -10,6 +10,7 @@ import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.onStart
 import kotlinx.coroutines.withContext
 import net.matsudamper.money.frontend.common.base.Logger
+import net.matsudamper.money.frontend.common.base.image.ImageCapturedDateTimeReader
 import net.matsudamper.money.frontend.common.base.image.SelectedImage
 import net.matsudamper.money.ui.root.platform.ImagePicker
 
@@ -47,6 +48,7 @@ internal class ImagePickerImpl(
                 id = uri.toString(),
                 bytes = imageBytes,
                 contentType = componentActivity.contentResolver.getType(uri),
+                capturedDateTime = if (imageBytes != null) ImageCapturedDateTimeReader.read(imageBytes) else null,
             )
         }
     }

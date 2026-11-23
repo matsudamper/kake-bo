@@ -12,6 +12,7 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 import net.matsudamper.money.frontend.common.base.Logger
 import net.matsudamper.money.frontend.common.base.image.DroppedImages
+import net.matsudamper.money.frontend.common.base.image.ImageCapturedDateTimeReader
 import net.matsudamper.money.frontend.common.base.image.SelectedImage
 
 private const val TAG = "DroppedImagesExtractor"
@@ -68,6 +69,7 @@ private class AndroidDroppedImagesExtractor(
             id = uri.toString(),
             bytes = imageBytes,
             contentType = contentResolver.getType(uri),
+            capturedDateTime = ImageCapturedDateTimeReader.read(imageBytes),
         )
     }
 }

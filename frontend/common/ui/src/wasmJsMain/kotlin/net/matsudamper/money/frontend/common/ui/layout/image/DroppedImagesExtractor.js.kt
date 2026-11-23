@@ -10,6 +10,7 @@ import kotlin.uuid.ExperimentalUuidApi
 import kotlin.uuid.Uuid
 import kotlinx.coroutines.await
 import net.matsudamper.money.frontend.common.base.image.DroppedImages
+import net.matsudamper.money.frontend.common.base.image.FileLastModifiedDateTimeReader
 import net.matsudamper.money.frontend.common.base.image.SelectedImage
 import org.khronos.webgl.ArrayBuffer
 import org.khronos.webgl.Int8Array
@@ -61,6 +62,7 @@ private class JsDroppedImagesExtractor : DroppedImagesExtractor {
             id = Uuid.random().toString(),
             bytes = bytes,
             contentType = type,
+            capturedDateTime = FileLastModifiedDateTimeReader.read(this),
         )
     }
 }
