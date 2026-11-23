@@ -295,6 +295,7 @@ public class AddMoneyUsageViewModel(
                                         imageId = uploadResult.imageId,
                                         url = uploadResult.url,
                                         thumbnailUrl = uploadResult.thumbnailUrl,
+                                        capturedDateTime = image.capturedDateTime,
                                     )
                                     ).distinctBy { it.imageId.value },
                                 hasInputChanges = true,
@@ -403,20 +404,9 @@ public class AddMoneyUsageViewModel(
                 }
                 viewModelStateFlow.update {
                     val imagesAddedAfterSubmit = it.usageImages.filterNot { image -> image in submittedState.usageImages }
-                    // 送信後に追加された画像は次の入力に残るので、その画像から適用した撮影日時も残す
-                    val dateCapturedAfterSubmit = it.usageDateOrigin == ViewModelState.DateTimeOrigin.ImageCapture &&
-                        submittedState.usageDateOrigin != ViewModelState.DateTimeOrigin.ImageCapture
-                    val timeCapturedAfterSubmit = it.usageTimeOrigin == ViewModelState.DateTimeOrigin.ImageCapture &&
-                        submittedState.usageTimeOrigin != ViewModelState.DateTimeOrigin.ImageCapture
                     ViewModelState(
                         usageDate = it.usageDate,
-                        usageDateOrigin = if (dateCapturedAfterSubmit) {
-                            it.usageDateOrigin
-                        } else {
-                            it.usageDateOrigin.afterUsageAdded()
-                        },
-                        usageTime = if (timeCapturedAfterSubmit) it.usageTime else LocalTime(0, 0, 0, 0),
-                        usageTimeOrigin = if (timeCapturedAfterSubmit) it.usageTimeOrigin else ViewModelState.DateTimeOrigin.Initial,
+                        usageDateOrigin = it.usageDateOrigin.afterUsageAdded(),
                         processingDroppedImagesCount = it.processingDroppedImagesCount,
                         uploadingImageCount = it.uploadingImageCount,
                         usageImages = imagesAddedAfterSubmit,
@@ -433,6 +423,9 @@ public class AddMoneyUsageViewModel(
                         } else {
                             it.sameDateUsages
                         },
+                    ).withCapturedDateTime(
+                        // 送信後に追加された画像は次の入力に残るので、次の入力の日時はその画像の撮影日時にする
+                        imagesAddedAfterSubmit.firstNotNullOfOrNull { image -> image.capturedDateTime },
                     )
                 }
                 val snackbarResult = snackbarEventState.show(
@@ -764,6 +757,11 @@ public class AddMoneyUsageViewModel(
         }
 
         data class SameDateUsage(val id: MoneyUsageId, val title: String, val amount: Int, val time: LocalTime)
-        data class UploadedImage(val imageId: ImageId, val url: String, val thumbnailUrl: String?)
+        data class UploadedImage(
+            val imageId: ImageId,
+            val url: String,
+            val thumbnailUrl: String?,
+            val capturedDateTime: LocalDateTime?,
+        )
     }
 }
