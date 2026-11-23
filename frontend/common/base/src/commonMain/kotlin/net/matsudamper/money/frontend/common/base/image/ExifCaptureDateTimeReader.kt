@@ -34,21 +34,21 @@ public object ExifCaptureDateTimeReader {
     }
 
     private fun findTiff(bytes: ByteArray): Tiff? {
-        if (bytes.unsignedAt(0) != JPEG_MARKER_PREFIX || bytes.unsignedAt(1) != JPEG_START_OF_IMAGE) return null
+        if (unsignedAt(bytes, 0) != JPEG_MARKER_PREFIX || unsignedAt(bytes, 1) != JPEG_START_OF_IMAGE) return null
 
         var segmentStart = 2
         while (true) {
-            if (bytes.unsignedAt(segmentStart) != JPEG_MARKER_PREFIX) return null
-            val marker = bytes.unsignedAt(segmentStart + 1) ?: return null
+            if (unsignedAt(bytes, segmentStart) != JPEG_MARKER_PREFIX) return null
+            val marker = unsignedAt(bytes, segmentStart + 1) ?: return null
             if (marker == JPEG_START_OF_SCAN) return null
-            val lengthHigh = bytes.unsignedAt(segmentStart + 2) ?: return null
-            val lengthLow = bytes.unsignedAt(segmentStart + 3) ?: return null
+            val lengthHigh = unsignedAt(bytes, segmentStart + 2) ?: return null
+            val lengthLow = unsignedAt(bytes, segmentStart + 3) ?: return null
             val segmentLength = (lengthHigh shl 8) or lengthLow
             if (segmentLength < SEGMENT_LENGTH_SIZE) return null
             val payloadStart = segmentStart + 2 + SEGMENT_LENGTH_SIZE
             val segmentEnd = segmentStart + 2 + segmentLength
 
-            if (marker == JPEG_APP1 && bytes.startsWith(exifIdentifier, payloadStart)) {
+            if (marker == JPEG_APP1 && startsWith(bytes = bytes, prefix = exifIdentifier, offset = payloadStart)) {
                 val tiffStart = payloadStart + exifIdentifier.size
                 return createTiff(bytes = bytes, start = tiffStart, end = minOf(segmentEnd, bytes.size))
             }
@@ -73,13 +73,13 @@ public object ExifCaptureDateTimeReader {
         }.getOrNull()
     }
 
-    private fun ByteArray.unsignedAt(index: Int): Int? {
-        return getOrNull(index)?.let { it.toInt() and 0xFF }
+    private fun unsignedAt(bytes: ByteArray, index: Int): Int? {
+        return bytes.getOrNull(index)?.let { it.toInt() and 0xFF }
     }
 
-    private fun ByteArray.startsWith(prefix: ByteArray, offset: Int): Boolean {
-        if (offset + prefix.size > size) return false
-        return prefix.indices.all { this[offset + it] == prefix[it] }
+    private fun startsWith(bytes: ByteArray, prefix: ByteArray, offset: Int): Boolean {
+        if (offset + prefix.size > bytes.size) return false
+        return prefix.indices.all { bytes[offset + it] == prefix[it] }
     }
 
     private class IfdEntry(val type: Int, val count: Int, val valueOrOffset: Int)
