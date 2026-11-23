@@ -8,6 +8,7 @@ import kotlinx.browser.document
 import kotlinx.browser.window
 import kotlinx.coroutines.await
 import kotlinx.coroutines.suspendCancellableCoroutine
+import net.matsudamper.money.frontend.common.base.image.FileLastModifiedDateTimeReader
 import net.matsudamper.money.frontend.common.base.image.SelectedImage
 import net.matsudamper.money.ui.root.platform.ImagePicker
 import org.khronos.webgl.ArrayBuffer
@@ -106,6 +107,7 @@ internal class ImagePickerImpl : ImagePicker {
             id = Uuid.random().toString(),
             bytes = bytes,
             contentType = type.ifBlank { "application/octet-stream" },
+            capturedDateTime = FileLastModifiedDateTimeReader.read(this),
         )
     }
 

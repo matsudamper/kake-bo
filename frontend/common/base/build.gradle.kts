@@ -25,7 +25,7 @@ kotlin {
                 implementation(libs.composeUi)
 
                 implementation(libs.kotlin.coroutines.core)
-                implementation(libs.kotlin.datetime)
+                api(libs.kotlin.datetime)
 
                 implementation(libs.ktorClientCore)
             }

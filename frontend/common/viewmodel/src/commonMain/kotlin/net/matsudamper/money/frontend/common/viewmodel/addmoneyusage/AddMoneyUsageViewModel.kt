@@ -23,7 +23,6 @@ import net.matsudamper.money.element.MoneyUsageSubCategoryId
 import net.matsudamper.money.frontend.common.base.ImmutableList.Companion.toImmutableList
 import net.matsudamper.money.frontend.common.base.Logger
 import net.matsudamper.money.frontend.common.base.image.DroppedImages
-import net.matsudamper.money.frontend.common.base.image.ExifCaptureDateTimeReader
 import net.matsudamper.money.frontend.common.base.image.SelectedImage
 import net.matsudamper.money.frontend.common.base.immutableListOf
 import net.matsudamper.money.frontend.common.base.nav.ScopedObjectFeature
@@ -289,9 +288,8 @@ public class AddMoneyUsageViewModel(
                     )
 
                     if (uploadResult != null) {
-                        val capturedDateTime = ExifCaptureDateTimeReader.read(imageBytes)
                         viewModelStateFlow.update { viewModelState ->
-                            viewModelState.withCapturedDateTime(capturedDateTime).copy(
+                            viewModelState.withCapturedDateTime(image.capturedDateTime).copy(
                                 usageImages = (
                                     viewModelState.usageImages + ViewModelState.UploadedImage(
                                         imageId = uploadResult.imageId,
